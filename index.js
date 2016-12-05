@@ -103,6 +103,11 @@ bot.on('messageCreate', (msg) => {
       channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${msg.content}`);
 
       if (channel._wasCreated) {
+        bot.createMessage(modMailGuild.id, {
+          content: `@here New modmail thread: ${channel.mention}`,
+          disableEveryone: false,
+        });
+
         msg.channel.createMessage("Thank you for your message! Our mod team will reply to you here as soon as possible.");
       }
     });
