@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Eris = require('eris');
 const moment = require('moment');
 const Queue = require('./queue');
@@ -14,6 +15,20 @@ let modMailGuild;
 const modMailChannels = {};
 const messageQueue = new Queue();
 
+const blockFile = `${__dirname}/blocked.json`;
+let blocked = [];
+
+try {
+  const blockedJSON = fs.readFileSync(blockFile, {encoding: 'utf8'});
+  blocked = JSON.parse(blockedJSON);
+} catch(e) {
+  fs.writeFileSync(blockFile, '[]');
+}
+
+function saveBlocked() {
+  fs.writeFileSync(blockFile, JSON.stringify(blocked, null, 4));
+}
+
 bot.on('ready', () => {
   modMailGuild = bot.guilds.find(g => g.id === config.mailGuildId);
 
@@ -21,6 +36,8 @@ bot.on('ready', () => {
     console.error('You need to set and invite me to the mod mail guild first!');
     process.exit(0);
   }
+
+  bot.editStatus(null, {name: 'DM me for help'});
 });
 
 function getModmailChannelInfo(channel) {
@@ -78,6 +95,8 @@ bot.on('messageCreate', (msg) => {
   if (! (msg.channel instanceof Eris.PrivateChannel)) return;
   if (msg.author.id === bot.user.id) return;
 
+  if (blocked.indexOf(msg.author.id) !== -1) return;
+
   // This needs to be queued as otherwise, if a user sent a bunch of messages initially and the createChannel endpoint is delayed, we might get duplicate channels
   messageQueue.add(() => {
     return getModmailChannel(msg.author).then(channel => {
@@ -130,6 +149,46 @@ bot.registerCommand('close', (msg, args) => {
     delete modMailChannels[channelInfo.userId];
     msg.channel.delete();
   });
+});
+
+bot.registerCommand('block', (msg, args) => {
+  if (msg.channel.guild.id !== modMailGuild.id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+  if (args.length !== 1) return;
+
+  let userId;
+  if (args[0].match(/^[0-9]+$/)) {
+    userId = args[0];
+  } else {
+    let mentionMatch = args[0].match(/^<@([0-9]+?)>$/);
+    if (mentionMatch) userId = mentionMatch[1];
+  }
+
+  if (! userId) return;
+
+  blocked.push(args[0]);
+  saveBlocked();
+  msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
+});
+
+bot.registerCommand('unblock', (msg, args) => {
+  if (msg.channel.guild.id !== modMailGuild.id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+  if (args.length !== 1) return;
+
+  let userId;
+  if (args[0].match(/^[0-9]+$/)) {
+    userId = args[0];
+  } else {
+    let mentionMatch = args[0].match(/^<@([0-9]+?)>$/);
+    if (mentionMatch) userId = mentionMatch[1];
+  }
+
+  if (! userId) return;
+
+  blocked.splice(blocked.indexOf(args[0]), 1);
+  saveBlocked();
+  msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
 });
 
 bot.connect();
