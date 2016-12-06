@@ -1,8 +1,14 @@
 const fs = require('fs');
+const http = require('http');
+const url = require('url');
+const crypto = require('crypto');
+const publicIp = require('public-ip');
 const Eris = require('eris');
 const moment = require('moment');
 const Queue = require('./queue');
 const config = require('./config');
+
+const logServerPort = config.port || 8890;
 
 const bot = new Eris.CommandClient(config.token, {}, {
   prefix: config.prefix || '!',
@@ -18,6 +24,9 @@ const messageQueue = new Queue();
 const blockFile = `${__dirname}/blocked.json`;
 let blocked = [];
 
+const logDir = `${__dirname}/logs`;
+const logFileFormatRegex = /^([0-9\-]+?)__([0-9]+?)__([0-9a-f]+?)\.txt$/;
+
 try {
   const blockedJSON = fs.readFileSync(blockFile, {encoding: 'utf8'});
   blocked = JSON.parse(blockedJSON);
@@ -27,6 +36,72 @@ try {
 
 function saveBlocked() {
   fs.writeFileSync(blockFile, JSON.stringify(blocked, null, 4));
+}
+
+function getLogFileInfo(logfile) {
+  const match = logfile.match(logFileFormatRegex);
+  if (! match) return null;
+
+  return {
+    date: match[1],
+    userId: match[2],
+    token: match[3],
+  };
+}
+
+function getLogFilePath(logfile) {
+  return `${logDir}/${logfile}`;
+}
+
+function getLogFileUrl(logfile) {
+  const info = getLogFileInfo(logfile);
+
+  return publicIp.v4().then(ip => {
+    return `http://${ip}:${logServerPort}/logs/${info.token}`;
+  });
+}
+
+function getRandomLogFile(userId) {
+  return new Promise(resolve => {
+    crypto.randomBytes(16, (err, buf) => {
+      const token = buf.toString('hex');
+      const date = moment.utc().format('YYYY-MM-DD-HH-mm-ss');
+
+      resolve(`${date}__${userId}__${token}.txt`);
+    });
+  });
+}
+
+function findLogFile(token) {
+  return new Promise(resolve => {
+    fs.readdir(logDir, (err, files) => {
+      for (const file of files) {
+        if (file.endsWith(`__${token}.txt`)) {
+          resolve(file);
+          return;
+        }
+      }
+
+      resolve(null);
+    });
+  });
+}
+
+function findLogFilesByUserId(userId) {
+  return new Promise(resolve => {
+    fs.readdir(logDir, (err, files) => {
+      const logfiles = files.filter(file => {
+        const info = getLogFileInfo(file);
+        console.log('info:', info);
+        console.log('userId:', userId, typeof userId);
+        if (! info) return false;
+
+        return info.userId === userId;
+      });
+
+      resolve(logfiles);
+    });
+  });
 }
 
 bot.on('ready', () => {
@@ -146,13 +221,16 @@ bot.registerCommand('close', (msg, args) => {
       return `[${date}] ${message.author.username}#${message.author.discriminator}: ${message.content}`;
     }).join('\n') + '\n';
 
-    bot.createMessage(modMailGuild.id, `Log of modmail thread with ${channelInfo.name}:`, {
-      file: new Buffer(log),
-      name: 'log.txt',
-    });
+    getRandomLogFile(channelInfo.userId).then(logfile => {
+      fs.writeFile(getLogFilePath(logfile), log, {encoding: 'utf8'}, err => {
+        getLogFileUrl(logfile).then(logurl => {
+          bot.createMessage(modMailGuild.id, `Log of modmail thread with ${channelInfo.name}:\n<${logurl}>`);
 
-    delete modMailChannels[channelInfo.userId];
-    msg.channel.delete();
+          delete modMailChannels[channelInfo.userId];
+          msg.channel.delete();
+        });
+      });
+    })
   });
 });
 
@@ -196,4 +274,73 @@ bot.registerCommand('unblock', (msg, args) => {
   msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
 });
 
+bot.registerCommand('logs', (msg, args) => {
+  if (msg.channel.guild.id !== modMailGuild.id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+  if (args.length !== 1) return;
+
+  let userId;
+  if (args[0].match(/^[0-9]+$/)) {
+    userId = args[0];
+  } else {
+    let mentionMatch = args[0].match(/^<@([0-9]+?)>$/);
+    if (mentionMatch) userId = mentionMatch[1];
+  }
+
+  if (! userId) return;
+
+  findLogFilesByUserId(userId).then(logfiles => {
+    let message = `**Log files for <@${userId}>:**\n`;
+
+    const urlPromises = logfiles.map(logfile => {
+      const info = getLogFileInfo(logfile);
+      return getLogFileUrl(logfile).then(url => {
+        info.url = url;
+        return info;
+      });
+    });
+
+    Promise.all(urlPromises).then(infos => {
+      infos.sort((a, b) => {
+        if (a.date > b.date) return 1;
+        if (a.date < b.date) return -1;
+        return 0;
+      });
+
+      message += infos.map(info => {
+        const formattedDate = moment.utc(info.date, 'YYYY-MM-DD-HH-mm-ss').format('MMM Mo [at] HH:mm [UTC]');
+        return `${formattedDate}: <${info.url}>`;
+      }).join('\n');
+
+      msg.channel.createMessage(message);
+    });
+  });
+});
+
 bot.connect();
+
+// Server for serving logs
+const server = http.createServer((req, res) => {
+  const parsedUrl = url.parse(`http://${req.url}`);
+
+  if (! parsedUrl.path.startsWith('/logs/')) return;
+
+  const pathParts = parsedUrl.path.split('/').filter(v => v !== '');
+  const token = pathParts[pathParts.length - 1];
+
+  console.log('token:', token);
+
+  if (token.match(/^[0-9a-f]+$/) === null) return res.end();
+
+  findLogFile(token).then(logfile => {
+    console.log('logfile:', logfile);
+    if (logfile === null) return res.end();
+
+    fs.readFile(getLogFilePath(logfile), {encoding: 'utf8'}, (err, data) => {
+      res.setHeader('Content-Type', 'text/plain');
+      res.end(data);
+    });
+  });
+});
+
+server.listen(logServerPort);
