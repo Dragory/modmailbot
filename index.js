@@ -38,6 +38,10 @@ function saveBlocked() {
   fs.writeFileSync(blockFile, JSON.stringify(blocked, null, 4));
 }
 
+/*
+ * MODMAIL LOG UTILITY FUNCTIONS
+ */
+
 function getLogFileInfo(logfile) {
   const match = logfile.match(logFileFormatRegex);
   if (! match) return null;
@@ -103,6 +107,10 @@ function findLogFilesByUserId(userId) {
     });
   });
 }
+
+/*
+ * MAIN FUNCTIONALITY
+ */
 
 bot.on('ready', () => {
   modMailGuild = bot.guilds.find(g => g.id === config.mailGuildId);
@@ -319,7 +327,10 @@ bot.registerCommand('logs', (msg, args) => {
 
 bot.connect();
 
-// Server for serving logs
+/*
+ * MODMAIL LOG SERVER
+ */
+
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(`http://${req.url}`);
 
