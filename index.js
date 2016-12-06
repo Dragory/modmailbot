@@ -120,7 +120,7 @@ bot.on('ready', () => {
     process.exit(0);
   }
 
-  bot.editStatus(null, {name: 'DM me for help'});
+  bot.editStatus(null, {name: config.status || 'Message me for help'});
 });
 
 function getModmailChannelInfo(channel) {
