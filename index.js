@@ -27,6 +27,8 @@ let blocked = [];
 const logDir = `${__dirname}/logs`;
 const logFileFormatRegex = /^([0-9\-]+?)__([0-9]+?)__([0-9a-f]+?)\.txt$/;
 
+const userMentionRegex = /^<@\!?([0-9]+?)>$/;
+
 try {
   const blockedJSON = fs.readFileSync(blockFile, {encoding: 'utf8'});
   blocked = JSON.parse(blockedJSON);
@@ -96,8 +98,6 @@ function findLogFilesByUserId(userId) {
     fs.readdir(logDir, (err, files) => {
       const logfiles = files.filter(file => {
         const info = getLogFileInfo(file);
-        console.log('info:', info);
-        console.log('userId:', userId, typeof userId);
         if (! info) return false;
 
         return info.userId === userId;
@@ -174,6 +174,13 @@ function getModmailChannel(user) {
   }
 }
 
+function formatAttachment(attachment) {
+  let filesize = attachment.size || 0;
+  filesize /= 1024;
+
+  return `**Attachment:** ${attachment.filename} (${filesize.toFixed(1)}KB)\n${attachment.url}`
+}
+
 bot.on('messageCreate', (msg) => {
   if (! (msg.channel instanceof Eris.PrivateChannel)) return;
   if (msg.author.id === bot.user.id) return;
@@ -183,11 +190,19 @@ bot.on('messageCreate', (msg) => {
   // This needs to be queued as otherwise, if a user sent a bunch of messages initially and the createChannel endpoint is delayed, we might get duplicate channels
   messageQueue.add(() => {
     return getModmailChannel(msg.author).then(channel => {
-      channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${msg.content}`);
+      let content = msg.content;
+      msg.attachments.forEach(attachment => {
+        content += `\n\n${formatAttachment(attachment)}`;
+      });
+
+      channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
 
       if (channel._wasCreated) {
+        let creationNotificationMessage = `New modmail thread: ${channel.mention}`;
+        if (config.pingCreationNotification) creationNotificationMessage = `@here ${config.pingCreationNotification}`;
+
         bot.createMessage(modMailGuild.id, {
-          content: `@here New modmail thread: ${channel.mention}`,
+          content: creationNotificationMessage,
           disableEveryone: false,
         });
 
@@ -205,11 +220,20 @@ bot.registerCommand('reply', (msg, args) => {
   if (! channelInfo) return;
 
   bot.getDMChannel(channelInfo.userId).then(channel => {
-    const message = `**${msg.author.username}:** ${args.join(' ')}`;
+    let argMsg = args.join(' ').trim();
+    let content = `**${msg.author.username}:** ${argMsg}`;
 
-    channel.createMessage(message);
-    msg.channel.createMessage(`» ${message}`);
-    msg.delete();
+    if (msg.attachments.length > 0 && argMsg !== '') content += '\n\n';
+    content += msg.attachments.map(attachment => {
+      return `${attachment.url}`;
+    }).join('\n');
+
+    channel.createMessage(content);
+    msg.channel.createMessage(`» ${content}`);
+
+    // Delete the !r message if there are no attachments
+    // When there are attachments, we need to keep the original message or the attachments get deleted as well
+    if (msg.attachments.length === 0) msg.delete();
   });
 });
 
@@ -251,13 +275,13 @@ bot.registerCommand('block', (msg, args) => {
   if (args[0].match(/^[0-9]+$/)) {
     userId = args[0];
   } else {
-    let mentionMatch = args[0].match(/^<@([0-9]+?)>$/);
+    let mentionMatch = args[0].match(userMentionRegex);
     if (mentionMatch) userId = mentionMatch[1];
   }
 
   if (! userId) return;
 
-  blocked.push(args[0]);
+  blocked.push(userId);
   saveBlocked();
   msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
 });
@@ -271,13 +295,13 @@ bot.registerCommand('unblock', (msg, args) => {
   if (args[0].match(/^[0-9]+$/)) {
     userId = args[0];
   } else {
-    let mentionMatch = args[0].match(/^<@([0-9]+?)>$/);
+    let mentionMatch = args[0].match(userMentionRegex);
     if (mentionMatch) userId = mentionMatch[1];
   }
 
   if (! userId) return;
 
-  blocked.splice(blocked.indexOf(args[0]), 1);
+  blocked.splice(blocked.indexOf(userId), 1);
   saveBlocked();
   msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
 });
@@ -291,7 +315,7 @@ bot.registerCommand('logs', (msg, args) => {
   if (args[0].match(/^[0-9]+$/)) {
     userId = args[0];
   } else {
-    let mentionMatch = args[0].match(/^<@([0-9]+?)>$/);
+    let mentionMatch = args[0].match(userMentionRegex);
     if (mentionMatch) userId = mentionMatch[1];
   }
 
@@ -339,12 +363,9 @@ const server = http.createServer((req, res) => {
   const pathParts = parsedUrl.path.split('/').filter(v => v !== '');
   const token = pathParts[pathParts.length - 1];
 
-  console.log('token:', token);
-
   if (token.match(/^[0-9a-f]+$/) === null) return res.end();
 
   findLogFile(token).then(logfile => {
-    console.log('logfile:', logfile);
     if (logfile === null) return res.end();
 
     fs.readFile(getLogFilePath(logfile), {encoding: 'utf8'}, (err, data) => {
