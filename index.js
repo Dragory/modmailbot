@@ -1,10 +1,12 @@
 const fs = require('fs');
 const http = require('http');
+const https = require('https');
 const url = require('url');
 const crypto = require('crypto');
 const publicIp = require('public-ip');
 const Eris = require('eris');
 const moment = require('moment');
+const mime = require('mime');
 const Queue = require('./queue');
 const config = require('./config');
 
@@ -29,6 +31,8 @@ const logFileFormatRegex = /^([0-9\-]+?)__([0-9]+?)__([0-9a-f]+?)\.txt$/;
 
 const userMentionRegex = /^<@\!?([0-9]+?)>$/;
 
+const attachmentDir = `${__dirname}/attachments`;
+
 try {
   const blockedJSON = fs.readFileSync(blockFile, {encoding: 'utf8'});
   blocked = JSON.parse(blockedJSON);
@@ -48,8 +52,11 @@ function getLogFileInfo(logfile) {
   const match = logfile.match(logFileFormatRegex);
   if (! match) return null;
 
+  const date = moment.utc(match[1], 'YYYY-MM-DD-HH-mm-ss').format('YYYY-MM-DD HH:mm:ss');
+
   return {
-    date: match[1],
+    filename: logfile,
+    date: date,
     userId: match[2],
     token: match[3],
   };
@@ -93,18 +100,82 @@ function findLogFile(token) {
   });
 }
 
-function findLogFilesByUserId(userId) {
+function getLogsByUserId(userId) {
   return new Promise(resolve => {
     fs.readdir(logDir, (err, files) => {
-      const logfiles = files.filter(file => {
-        const info = getLogFileInfo(file);
-        if (! info) return false;
+      const logfileInfos = files
+        .map(file => getLogFileInfo(file))
+        .filter(info => info && info.userId === userId);
 
-        return info.userId === userId;
+      resolve(logfileInfos);
+    });
+  });
+}
+
+function getLogsWithUrlByUserId(userId) {
+  return getLogsByUserId(userId).then(infos => {
+    const urlPromises = infos.map(info => {
+      return getLogFileUrl(info.filename).then(url => {
+        info.url = url;
+        return info;
+      });
+    });
+
+    return Promise.all(urlPromises).then(infos => {
+      infos.sort((a, b) => {
+        if (a.date > b.date) return 1;
+        if (a.date < b.date) return -1;
+        return 0;
       });
 
-      resolve(logfiles);
+      return infos;
     });
+  });
+}
+
+/*
+ * Attachments
+ */
+
+function getAttachmentPath(id) {
+  return `${attachmentDir}/${id}`;
+}
+
+function saveAttachment(attachment, tries = 0) {
+  return new Promise((resolve, reject) => {
+    if (tries > 3) {
+      console.error('Attachment download failed after 3 tries:', attachment);
+      reject('Attachment download failed after 3 tries');
+      return;
+    }
+
+    const filepath = getAttachmentPath(attachment.id);
+    const writeStream = fs.createWriteStream(filepath);
+
+    https.get(attachment.url, (res) => {
+      res.pipe(writeStream);
+      writeStream.on('finish', () => {
+        writeStream.close()
+        resolve();
+      });
+    }).on('error', (err) => {
+      fs.unlink(filepath);
+      console.error('Error downloading attachment, retrying');
+      resolve(saveAttachment(attachment));
+    });
+  });
+}
+
+function saveAttachments(msg) {
+  if (! msg.attachments || msg.attachments.length === 0) return Promise.resolve();
+  return Promise.all(msg.attachments.map(saveAttachment));
+}
+
+function getAttachmentUrl(id, desiredName) {
+  if (desiredName == null) desiredName = 'file.bin';
+
+  return publicIp.v4().then(ip => {
+    return `http://${ip}:${logServerPort}/attachments/${id}/${desiredName}`;
   });
 }
 
@@ -121,6 +192,7 @@ bot.on('ready', () => {
   }
 
   bot.editStatus(null, {name: config.status || 'Message me for help'});
+  console.log('Bot started, listening to DMs');
 });
 
 function getModmailChannelInfo(channel) {
@@ -178,40 +250,66 @@ function formatAttachment(attachment) {
   let filesize = attachment.size || 0;
   filesize /= 1024;
 
-  return `**Attachment:** ${attachment.filename} (${filesize.toFixed(1)}KB)\n${attachment.url}`
+  return getAttachmentUrl(attachment.id, attachment.filename).then(attachmentUrl => {
+    return `**Attachment:** ${attachment.filename} (${filesize.toFixed(1)}KB)\n${attachmentUrl}`;
+  });
 }
 
+// When we get a private message, create a modmail channel or reuse an existing one.
+// If the channel was not reused, assume it's a new modmail thread and send the user an introduction message.
 bot.on('messageCreate', (msg) => {
   if (! (msg.channel instanceof Eris.PrivateChannel)) return;
   if (msg.author.id === bot.user.id) return;
 
   if (blocked.indexOf(msg.author.id) !== -1) return;
 
-  // This needs to be queued as otherwise, if a user sent a bunch of messages initially and the createChannel endpoint is delayed, we might get duplicate channels
+  saveAttachments(msg);
+
+  // This needs to be queued, as otherwise if a user sent a bunch of messages initially and the createChannel endpoint is delayed, we might get duplicate channels
   messageQueue.add(() => {
     return getModmailChannel(msg.author).then(channel => {
       let content = msg.content;
-      msg.attachments.forEach(attachment => {
-        content += `\n\n${formatAttachment(attachment)}`;
-      });
 
-      channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
-
-      if (channel._wasCreated) {
-        let creationNotificationMessage = `New modmail thread: ${channel.mention}`;
-        if (config.pingCreationNotification) creationNotificationMessage = `@here ${config.pingCreationNotification}`;
-
-        bot.createMessage(modMailGuild.id, {
-          content: creationNotificationMessage,
-          disableEveryone: false,
+      // Get a local URL for all attachments so we don't rely on discord's servers (which delete attachments when the channel/DM thread is deleted)
+      const attachmentFormatPromise = msg.attachments.map(formatAttachment);
+      Promise.all(attachmentFormatPromise).then(formattedAttachments => {
+        formattedAttachments.forEach(str => {
+          content += `\n\n${str}`;
         });
 
-        msg.channel.createMessage("Thank you for your message! Our mod team will reply to you here as soon as possible.");
-      }
+        // Get previous modmail logs for this user
+        // Show a note of them at the beginning of the thread for reference
+        getLogsByUserId(msg.author.id).then(logs => {
+          if (channel._wasCreated) {
+            if (logs.length > 0) {
+              channel.createMessage(`${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
+            }
+
+            let creationNotificationMessage = `New modmail thread: ${channel.mention}`;
+            if (config.pingCreationNotification) creationNotificationMessage = `@here ${config.pingCreationNotification}`;
+
+            bot.createMessage(modMailGuild.id, {
+              content: creationNotificationMessage,
+              disableEveryone: false,
+            });
+
+            msg.channel.createMessage("Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
+              bot.createMessage(modMailGuild.id, {
+                content: `There is an issue sending messages to ${msg.author.username}#${msg.author.discriminator} (id ${msg.author.id}); consider messaging manually`
+              });
+            });
+          }
+
+          channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+        });
+      });
     });
   });
 });
 
+// Mods can reply to modmail threads using !r or !reply
+// These messages get relayed back to the DM thread between the bot and the user
+// Attachments are shown as URLs
 bot.registerCommand('reply', (msg, args) => {
   if (msg.channel.guild.id !== modMailGuild.id) return;
   if (! msg.member.permission.has('manageRoles')) return;
@@ -219,21 +317,40 @@ bot.registerCommand('reply', (msg, args) => {
   const channelInfo = getModmailChannelInfo(msg.channel);
   if (! channelInfo) return;
 
-  bot.getDMChannel(channelInfo.userId).then(channel => {
-    let argMsg = args.join(' ').trim();
-    let content = `**${msg.author.username}:** ${argMsg}`;
+  saveAttachments(msg).then(() => {
+    bot.getDMChannel(channelInfo.userId).then(dmChannel => {
+      let argMsg = args.join(' ').trim();
+      let content = `**${msg.author.username}:** ${argMsg}`;
 
-    if (msg.attachments.length > 0 && argMsg !== '') content += '\n\n';
-    content += msg.attachments.map(attachment => {
-      return `${attachment.url}`;
-    }).join('\n');
+      const sendMessage = (file, attachmentUrl) => {
+        dmChannel.createMessage(content, file).then(() => {
+          if (attachmentUrl) content += `\n\n**Attachment:** ${attachmentUrl}`;
+          msg.channel.createMessage(`» ${content}`);
+        }, (err) => {
+          if (err.resp && err.resp.statusCode === 403) {
+            msg.channel.createMessage(`Could not send reply; the user has likely blocked the bot`);
+          } else if (err.resp) {
+            msg.channel.createMessage(`Could not send reply; error code ${err.resp.statusCode}`);
+          } else {
+            msg.channel.createMessage(`Could not send reply: ${err.toString()}`);
+          }
+        });
 
-    channel.createMessage(content);
-    msg.channel.createMessage(`» ${content}`);
+        msg.delete();
+      };
 
-    // Delete the !r message if there are no attachments
-    // When there are attachments, we need to keep the original message or the attachments get deleted as well
-    if (msg.attachments.length === 0) msg.delete();
+      if (msg.attachments.length > 0) {
+        fs.readFile(getAttachmentPath(msg.attachments[0].id), (err, data) => {
+          const file = {file: data, name: msg.attachments[0].filename};
+
+          getAttachmentUrl(msg.attachments[0].id, msg.attachments[0].filename).then(attachmentUrl => {
+            sendMessage(file, attachmentUrl);
+          });
+        });
+      } else {
+        sendMessage();
+      }
+    });
   });
 });
 
@@ -321,31 +438,15 @@ bot.registerCommand('logs', (msg, args) => {
 
   if (! userId) return;
 
-  findLogFilesByUserId(userId).then(logfiles => {
+  getLogsWithUrlByUserId(userId).then(infos => {
     let message = `**Log files for <@${userId}>:**\n`;
 
-    const urlPromises = logfiles.map(logfile => {
-      const info = getLogFileInfo(logfile);
-      return getLogFileUrl(logfile).then(url => {
-        info.url = url;
-        return info;
-      });
-    });
+    message += infos.map(info => {
+      const formattedDate = moment.utc(info.date, 'YYYY-MM-DD HH:mm:ss').format('MMM Mo [at] HH:mm [UTC]');
+      return `${formattedDate}: <${info.url}>`;
+    }).join('\n');
 
-    Promise.all(urlPromises).then(infos => {
-      infos.sort((a, b) => {
-        if (a.date > b.date) return 1;
-        if (a.date < b.date) return -1;
-        return 0;
-      });
-
-      message += infos.map(info => {
-        const formattedDate = moment.utc(info.date, 'YYYY-MM-DD-HH-mm-ss').format('MMM Mo [at] HH:mm [UTC]');
-        return `${formattedDate}: <${info.url}>`;
-      }).join('\n');
-
-      msg.channel.createMessage(message);
-    });
+    msg.channel.createMessage(message);
   });
 });
 
@@ -355,24 +456,58 @@ bot.connect();
  * MODMAIL LOG SERVER
  */
 
-const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(`http://${req.url}`);
-
-  if (! parsedUrl.path.startsWith('/logs/')) return;
-
-  const pathParts = parsedUrl.path.split('/').filter(v => v !== '');
+function serveLogs(res, pathParts) {
   const token = pathParts[pathParts.length - 1];
-
   if (token.match(/^[0-9a-f]+$/) === null) return res.end();
 
   findLogFile(token).then(logfile => {
     if (logfile === null) return res.end();
 
     fs.readFile(getLogFilePath(logfile), {encoding: 'utf8'}, (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.end('Log not found');
+        return;
+      }
+
       res.setHeader('Content-Type', 'text/plain');
       res.end(data);
     });
   });
+}
+
+function serveAttachments(res, pathParts) {
+  const desiredFilename = pathParts[pathParts.length - 1];
+  const id = pathParts[pathParts.length - 2];
+
+  if (id.match(/^[0-9]+$/) === null) return res.end();
+  if (desiredFilename.match(/^[0-9a-z\._-]+$/i) === null) return res.end();
+
+  const attachmentPath = getAttachmentPath(id);
+  fs.access(attachmentPath, (err) => {
+    if (err) {
+      res.statusCode = 404;
+      res.end('Attachment not found');
+      return;
+    }
+
+    const filenameParts = desiredFilename.split('.');
+    const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : 'bin');
+    const fileMime = mime.lookup(ext);
+
+    res.setHeader('Content-Type', fileMime);
+
+    const read = fs.createReadStream(attachmentPath);
+    read.pipe(res);
+  })
+}
+
+const server = http.createServer((req, res) => {
+  const parsedUrl = url.parse(`http://${req.url}`);
+  const pathParts = parsedUrl.path.split('/').filter(v => v !== '');
+
+  if (parsedUrl.path.startsWith('/logs/')) serveLogs(res, pathParts);
+  if (parsedUrl.path.startsWith('/attachments/')) serveAttachments(res, pathParts);
 });
 
 server.listen(logServerPort);

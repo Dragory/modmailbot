@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "eris": "github:abalabahaha/eris#dev",
+    "mime": "^1.3.4",
     "moment": "^2.17.1",
     "public-ip": "^2.0.1"
   },
