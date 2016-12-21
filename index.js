@@ -319,8 +319,12 @@ bot.registerCommand('reply', (msg, args) => {
 
   saveAttachments(msg).then(() => {
     bot.getDMChannel(channelInfo.userId).then(dmChannel => {
+      const roleId = msg.member.roles[0];
+      const role = (roleId ? modMailGuild.roles.get(roleId).name : '');
+      const roleStr = (role ? `(${role}) ` : '');
+
       let argMsg = args.join(' ').trim();
-      let content = `**${msg.author.username}:** ${argMsg}`;
+      let content = `**${roleStr}${msg.author.username}:** ${argMsg}`;
 
       const sendMessage = (file, attachmentUrl) => {
         dmChannel.createMessage(content, file).then(() => {
