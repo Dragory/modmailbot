@@ -377,7 +377,10 @@ bot.registerCommand('close', (msg, args) => {
     getRandomLogFile(channelInfo.userId).then(logfile => {
       fs.writeFile(getLogFilePath(logfile), log, {encoding: 'utf8'}, err => {
         getLogFileUrl(logfile).then(logurl => {
-          bot.createMessage(modMailGuild.id, `Log of modmail thread with ${channelInfo.name}:\n<${logurl}>`);
+          const closeMessage = `Modmail thread with ${channelInfo.name} (${channelInfo.userId}) was closed by ${msg.author.mention}
+Logs: <${logurl}>`;
+
+          bot.createMessage(modMailGuild.id, closeMessage);
 
           delete modMailChannels[channelInfo.userId];
           msg.channel.delete();
