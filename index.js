@@ -298,7 +298,7 @@ bot.on('messageCreate', (msg) => {
             }
 
             let creationNotificationMessage = `New modmail thread: ${channel.mention}`;
-            if (config.pingCreationNotification) creationNotificationMessage = `@here ${config.pingCreationNotification}`;
+            if (config.pingCreationNotification) creationNotificationMessage = `@here ${creationNotificationMessage}`;
 
             bot.createMessage(modMailGuild.id, {
               content: creationNotificationMessage,
