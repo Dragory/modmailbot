@@ -222,6 +222,7 @@ function getModmailChannel(user, allowCreate = true) {
   // Try to find a matching channel
   let candidate = modMailGuild.channels.find(c => {
     const info = getModmailChannelInfo(c);
+    console.log(`testing ${info.userId} === ${user.id}`);
     return info && info.userId === user.id;
   });
 
