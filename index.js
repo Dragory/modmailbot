@@ -216,13 +216,14 @@ function getModmailChannel(user, allowCreate = true) {
     } else {
       // If the cache value was invalid, remove it
       delete modMailChannels[user.id];
+      console.log(`[NOTE] INVALID CACHE VALUE FOR ${user.id}`);
     }
   }
 
   // Try to find a matching channel
   let candidate = modMailGuild.channels.find(c => {
     const info = getModmailChannelInfo(c);
-    console.log(`testing ${info && info.userId} === ${user.id}`);
+    console.log(`[DEBUG] ${info && info.userId} === ${user.id} -> ${info && info.userId === user.id ? 'true' : 'false'}`);
     return info && info.userId === user.id;
   });
 
@@ -235,6 +236,7 @@ function getModmailChannel(user, allowCreate = true) {
     if (cleanName === '') cleanName = 'unknown';
 
     // If one is not found, create and cache it
+    console.log(`[NOTE] Since no candidate was found, creating channel ${cleanName}-${user.discriminator}`);
     return modMailGuild.createChannel(`${cleanName}-${user.discriminator}`)
       .then(channel => {
         // This is behind a timeout because Discord was telling me the channel didn't exist after creation even though it clearly did
