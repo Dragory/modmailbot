@@ -275,6 +275,10 @@ function formatRelayedPM(msg) {
   });
 }
 
+function getTimestamp(date) {
+  return moment.utc(date).format('HH:mm');
+}
+
 // When we get a private message, create a modmail channel or reuse an existing one.
 // If the channel was not reused, assume it's a new modmail thread and send the user an introduction message.
 bot.on('messageCreate', (msg) => {
@@ -312,7 +316,8 @@ bot.on('messageCreate', (msg) => {
             });
           }
 
-          channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+          const timestamp = getTimestamp();
+          channel.createMessage(`[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
         }); // getLogsByUserId
       }); // formatRelayedPM
     }); // getModmailChannel
@@ -372,7 +377,9 @@ bot.registerCommand('reply', (msg, args) => {
       const sendMessage = (file, attachmentUrl) => {
         dmChannel.createMessage(content, file).then(() => {
           if (attachmentUrl) content += `\n\n**Attachment:** ${attachmentUrl}`;
-          msg.channel.createMessage(`» ${content}`);
+
+          const timestamp = getTimestamp();
+          msg.channel.createMessage(`[${timestamp}] » ${content}`);
         }, (err) => {
           if (err.resp && err.resp.statusCode === 403) {
             msg.channel.createMessage(`Could not send reply; the user has likely blocked the bot`);
