@@ -230,7 +230,8 @@ function getModmailChannel(user, allowCreate = true) {
   } else {
     if (! allowCreate) return Promise.resolve(null);
 
-    const cleanName = user.username.replace(/[^a-zA-Z0-9]/ig, '').toLowerCase();
+    const cleanName = user.username.replace(/[^a-zA-Z0-9]/ig, '').toLowerCase().trim();
+    if (cleanName === '') cleanName = 'unknown';
 
     // If one is not found, create and cache it
     return modMailGuild.createChannel(`${cleanName}-${user.discriminator}`)
