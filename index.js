@@ -499,8 +499,8 @@ bot.registerCommand('logs', (msg, args) => {
     let message = `**Log files for <@${userId}>:**\n`;
 
     message += infos.map(info => {
-      const formattedDate = moment.utc(info.date, 'YYYY-MM-DD HH:mm:ss').format('MMM Mo [at] HH:mm [UTC]');
-      return `${formattedDate}: <${info.url}>`;
+      const formattedDate = moment.utc(info.date, 'YYYY-MM-DD HH:mm:ss').format('MMM Do [at] HH:mm [UTC]');
+      return `\`${formattedDate}\`: <${info.url}>`;
     }).join('\n');
 
     msg.channel.createMessage(message);
