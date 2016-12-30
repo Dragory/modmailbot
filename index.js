@@ -207,7 +207,7 @@ function getModmailChannelInfo(channel) {
   };
 }
 
-function getModmailChannel(user) {
+function getModmailChannel(user, allowCreate = true) {
   if (modMailChannels[user.id]) {
     // Cached
     const channel = modMailGuild.channels.get(modMailChannels[user.id]);
@@ -228,6 +228,8 @@ function getModmailChannel(user) {
   if (candidate) {
     return Promise.resolve(candidate);
   } else {
+    if (! allowCreate) return Promise.resolve(null);
+
     // If one is not found, create and cache it
     return modMailGuild.createChannel(`${user.username}-${user.discriminator}`)
       .then(channel => {
@@ -255,6 +257,20 @@ function formatAttachment(attachment) {
   });
 }
 
+function formatRelayedPM(msg) {
+  let content = msg.content;
+
+  // Get a local URL for all attachments so we don't rely on discord's servers (which delete attachments when the channel/DM thread is deleted)
+  const attachmentFormatPromise = msg.attachments.map(formatAttachment);
+  return Promise.all(attachmentFormatPromise).then(formattedAttachments => {
+    formattedAttachments.forEach(str => {
+      content += `\n\n${str}`;
+    });
+
+    return content;
+  });
+}
+
 // When we get a private message, create a modmail channel or reuse an existing one.
 // If the channel was not reused, assume it's a new modmail thread and send the user an introduction message.
 bot.on('messageCreate', (msg) => {
@@ -268,18 +284,10 @@ bot.on('messageCreate', (msg) => {
   // This needs to be queued, as otherwise if a user sent a bunch of messages initially and the createChannel endpoint is delayed, we might get duplicate channels
   messageQueue.add(() => {
     return getModmailChannel(msg.author).then(channel => {
-      let content = msg.content;
-
-      // Get a local URL for all attachments so we don't rely on discord's servers (which delete attachments when the channel/DM thread is deleted)
-      const attachmentFormatPromise = msg.attachments.map(formatAttachment);
-      Promise.all(attachmentFormatPromise).then(formattedAttachments => {
-        formattedAttachments.forEach(str => {
-          content += `\n\n${str}`;
-        });
-
+      return formatRelayedPM(msg).then(content => {
         // Get previous modmail logs for this user
         // Show a note of them at the beginning of the thread for reference
-        getLogsByUserId(msg.author.id).then(logs => {
+        return getLogsByUserId(msg.author.id).then(logs => {
           if (channel._wasCreated) {
             if (logs.length > 0) {
               channel.createMessage(`${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
@@ -301,10 +309,41 @@ bot.on('messageCreate', (msg) => {
           }
 
           channel.createMessage(`« **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
-        });
-      });
-    });
+        }); // getLogsByUserId
+      }); // formatRelayedPM
+    }); // getModmailChannel
+  }); // messageQueue.add
+});
+
+// Edits in PMs
+bot.on('messageUpdate', (msg, oldMessage) => {
+  if (! (msg.channel instanceof Eris.PrivateChannel)) return;
+  if (msg.author.id === bot.user.id) return;
+
+  if (blocked.indexOf(msg.author.id) !== -1) return;
+
+  let oldContent = oldMessage.content;
+  const newContent = msg.content;
+
+  if (oldContent == null) oldContent = '*Unavailable due to bot restart*';
+
+  getModmailChannel(msg.author, false).then(channel => {
+    if (! channel) return;
+    channel.createMessage(`**The user edited their message:**\n**Before:** ${oldContent}\n**After:** ${newContent}`);
   });
+});
+
+// "Bot was mentioned in #general-discussion"
+bot.on('messageCreate', msg => {
+  if (msg.author.id === bot.user.id) return;
+  if (blocked.indexOf(msg.author.id) !== -1) return;
+
+  if (msg.mentions.some(user => user.id === bot.user.id)) {
+    bot.createMessage(modMailGuild.id, {
+      content: `@here Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
+      disableEveryone: false,
+    });
+  }
 });
 
 // Mods can reply to modmail threads using !r or !reply
