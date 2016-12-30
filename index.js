@@ -239,6 +239,8 @@ function getModmailChannel(user, allowCreate = true) {
           const topic = `MODMAIL|${user.id}|${user.username}#${user.discriminator}`;
           setTimeout(() => resolve(channel.edit({topic: topic})), 200);
         });
+      }, err => {
+        console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
       })
       .then(channel => {
         modMailChannels[user.id] = channel.id;
