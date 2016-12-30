@@ -230,8 +230,10 @@ function getModmailChannel(user, allowCreate = true) {
   } else {
     if (! allowCreate) return Promise.resolve(null);
 
+    const cleanName = user.username.replace(/[^a-zA-Z0-9]/ig, '').toLowerCase();
+
     // If one is not found, create and cache it
-    return modMailGuild.createChannel(`${user.username}-${user.discriminator}`)
+    return modMailGuild.createChannel(`${cleanName}-${user.discriminator}`)
       .then(channel => {
         // This is behind a timeout because Discord was telling me the channel didn't exist after creation even though it clearly did
         // ¯\_(ツ)_/¯
@@ -361,7 +363,7 @@ bot.registerCommand('reply', (msg, args) => {
   saveAttachments(msg).then(() => {
     bot.getDMChannel(channelInfo.userId).then(dmChannel => {
       const roleId = msg.member.roles[0];
-      const role = (roleId ? modMailGuild.roles.get(roleId).name : '');
+      const role = (roleId ? (modMailGuild.roles.get(roleId) || {}).name : '');
       const roleStr = (role ? `(${role}) ` : '');
 
       let argMsg = args.join(' ').trim();
