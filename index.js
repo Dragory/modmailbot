@@ -543,7 +543,7 @@ function serveLogs(res, pathParts) {
         return;
       }
 
-      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
       res.end(data);
     });
   });
