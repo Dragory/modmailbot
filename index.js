@@ -217,6 +217,7 @@ function getModmailChannel(user, allowCreate = true) {
       // If the cache value was invalid, remove it
       delete modMailChannels[user.id];
       console.log(`[NOTE] INVALID CACHE VALUE FOR ${user.id}`);
+      console.log(`[DEBUG] Channels:\n` + modMailGuild.channels.map(channel => `    ${channel.id} / ${channel.name}`).join('\n'));
     }
   }
 
