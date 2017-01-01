@@ -311,7 +311,7 @@ bot.on('messageCreate', (msg) => {
               bot.createMessage(channel.id, `${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
             }
 
-            let creationNotificationMessage = `New modmail thread: ${channel.mention}`;
+            let creationNotificationMessage = `New modmail thread: <#${channel.id}>`;
             if (config.pingCreationNotification) creationNotificationMessage = `@here ${creationNotificationMessage}`;
 
             bot.createMessage(modMailGuild.id, {
