@@ -375,6 +375,7 @@ bot.on('messageCreate', msg => {
 // These messages get relayed back to the DM thread between the bot and the user
 // Attachments are shown as URLs
 bot.registerCommand('reply', (msg, args) => {
+  if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== modMailGuild.id) return;
   if (! msg.member.permission.has('manageRoles')) return;
 
@@ -427,6 +428,7 @@ bot.registerCommand('reply', (msg, args) => {
 bot.registerCommandAlias('r', 'reply');
 
 bot.registerCommand('close', (msg, args) => {
+  if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== modMailGuild.id) return;
   if (! msg.member.permission.has('manageRoles')) return;
 
@@ -457,6 +459,7 @@ Logs: <${logurl}>`;
 });
 
 bot.registerCommand('block', (msg, args) => {
+  if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== modMailGuild.id) return;
   if (! msg.member.permission.has('manageRoles')) return;
 
@@ -481,6 +484,7 @@ bot.registerCommand('block', (msg, args) => {
 });
 
 bot.registerCommand('unblock', (msg, args) => {
+  if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== modMailGuild.id) return;
   if (! msg.member.permission.has('manageRoles')) return;
 
@@ -505,6 +509,7 @@ bot.registerCommand('unblock', (msg, args) => {
 });
 
 bot.registerCommand('logs', (msg, args) => {
+  if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== modMailGuild.id) return;
   if (! msg.member.permission.has('manageRoles')) return;
 
