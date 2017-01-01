@@ -207,47 +207,38 @@ function getModmailChannelInfo(channel) {
   };
 }
 
+// This function doesn't actually return the channel object, but an object like {id, _wasCreated}
+// This is because we can't trust the guild.channels list to actually contain our channel, even if it exists
+// (has to do with the api events' consistency), and we only cache IDs, so we return an object that can be
+// constructed from just the ID; we do this even if we find a matching channel so the returned object's signature is consistent
 function getModmailChannel(user, allowCreate = true) {
+  // If the channel id's in the cache, return that
   if (modMailChannels[user.id]) {
-    // Cached
-    const channel = modMailGuild.channels.get(modMailChannels[user.id]);
-    if (channel) {
-      return Promise.resolve(channel);
-    } else {
-      // FIXME: Temp fix, return mock channel and assume it exists.. maybe
-      const channelId = modMailChannels[user.id];
-      return Promise.resolve({
-        id: channelId,
-        name: 'temp-mock-channel',
-        createMessage: function() {
-          return bot.createMessage(channelId, ...arguments);
-        },
-        mention: `<#${channelId}>`,
-      });
-
-      // If the cache value was invalid, remove it
-      delete modMailChannels[user.id];
-      console.log(`[NOTE] INVALID CACHE VALUE FOR ${user.id}`);
-      console.log(`[DEBUG] Channels:\n` + modMailGuild.channels.map(channel => `    ${channel.id} / ${channel.name}`).join('\n'));
-    }
+    return Promise.resolve({
+      id: channelId,
+      _wasCreated: false,
+    });
   }
 
   // Try to find a matching channel
   let candidate = modMailGuild.channels.find(c => {
     const info = getModmailChannelInfo(c);
-    console.log(`[DEBUG] ${info && info.userId} === ${user.id} -> ${info && info.userId === user.id ? 'true' : 'false'}`);
     return info && info.userId === user.id;
   });
 
   if (candidate) {
-    return Promise.resolve(candidate);
+    // If we found a matching channel, return that
+    return Promise.resolve({
+      id: candidate.id,
+      _wasCreated: false,
+    });
   } else {
+    // If one is not found, create and cache it
     if (! allowCreate) return Promise.resolve(null);
 
     let cleanName = user.username.replace(/[^a-zA-Z0-9]/ig, '').toLowerCase().trim();
     if (cleanName === '') cleanName = 'unknown';
 
-    // If one is not found, create and cache it
     console.log(`[NOTE] Since no candidate was found, creating channel ${cleanName}-${user.discriminator}`);
     return modMailGuild.createChannel(`${cleanName}-${user.discriminator}`)
       .then(channel => {
@@ -262,8 +253,11 @@ function getModmailChannel(user, allowCreate = true) {
       })
       .then(channel => {
         modMailChannels[user.id] = channel.id;
-        channel._wasCreated = true;
-        return channel;
+
+        return {
+          id: channel.id,
+          _wasCreated: true,
+        };
       });
   }
 }
@@ -314,7 +308,7 @@ bot.on('messageCreate', (msg) => {
         return getLogsByUserId(msg.author.id).then(logs => {
           if (channel._wasCreated) {
             if (logs.length > 0) {
-              channel.createMessage(`${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
+              bot.createMessage(channel.id, `${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
             }
 
             let creationNotificationMessage = `New modmail thread: ${channel.mention}`;
@@ -333,7 +327,7 @@ bot.on('messageCreate', (msg) => {
           }
 
           const timestamp = getTimestamp();
-          channel.createMessage(`[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+          bot.createMessage(channel.id, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
         }); // getLogsByUserId
       }); // formatRelayedPM
     }); // getModmailChannel
@@ -354,7 +348,7 @@ bot.on('messageUpdate', (msg, oldMessage) => {
 
   getModmailChannel(msg.author, false).then(channel => {
     if (! channel) return;
-    channel.createMessage(`**The user edited their message:**\n**Before:** ${oldContent}\n**After:** ${newContent}`);
+    bot.createMessage(channel.id, `**The user edited their message:**\n**Before:** ${oldContent}\n**After:** ${newContent}`);
   });
 });
 
