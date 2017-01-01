@@ -211,7 +211,7 @@ function getModmailChannel(user, allowCreate = true) {
   if (modMailChannels[user.id]) {
     // Cached
     const channel = modMailGuild.channels.get(modMailChannels[user.id]);
-    if (channel) {
+    if (false && channel) {
       return Promise.resolve(channel);
     } else {
       // FIXME: Temp fix, return mock channel and assume it exists.. maybe
