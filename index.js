@@ -214,6 +214,17 @@ function getModmailChannel(user, allowCreate = true) {
     if (channel) {
       return Promise.resolve(channel);
     } else {
+      // FIXME: Temp fix, return mock channel and assume it exists.. maybe
+      const channelId = modMailChannels[user.id];
+      return Promise.resolve({
+        id: channelId,
+        name: 'temp-mock-channel',
+        createMessage: function() {
+          return modMailGuild.createMessage(channelId, ...arguments);
+        },
+        mention: `<#${channelId}>`,
+      });
+
       // If the cache value was invalid, remove it
       delete modMailChannels[user.id];
       console.log(`[NOTE] INVALID CACHE VALUE FOR ${user.id}`);
