@@ -220,7 +220,7 @@ function getModmailChannel(user, allowCreate = true) {
         id: channelId,
         name: 'temp-mock-channel',
         createMessage: function() {
-          return modMailGuild.createMessage(channelId, ...arguments);
+          return bot.createMessage(channelId, ...arguments);
         },
         mention: `<#${channelId}>`,
       });
