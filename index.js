@@ -212,10 +212,10 @@ function getModmailChannelInfo(channel) {
 // (has to do with the api events' consistency), and we only cache IDs, so we return an object that can be
 // constructed from just the ID; we do this even if we find a matching channel so the returned object's signature is consistent
 function getModmailChannel(user, allowCreate = true) {
-  // If the channel id's in the cache, return that
+  // If the channel id's in the cache, use that
   if (modMailChannels[user.id]) {
     return Promise.resolve({
-      id: channelId,
+      id: modMailChannels[user.id],
       _wasCreated: false,
     });
   }
