@@ -535,6 +535,10 @@ bot.registerCommand('logs', (msg, args) => {
   });
 });
 
+bot.on('channelCreate', channel => {
+  console.log(`[NOTE] Got channel creation event for #${channel.name} (ID ${channel.id})`);
+});
+
 bot.connect();
 
 /*
