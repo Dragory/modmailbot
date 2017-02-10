@@ -166,23 +166,30 @@ function reply(msg, text, anonymous = false) {
 
     attachments.saveAttachmentsInMessage(msg).then(() => {
       bot.getDMChannel(thread.userId).then(dmChannel => {
-        let modUsername;
+        let modUsername, logModUsername;
         const mainRole = utils.getMainRole(msg.member);
 
         if (anonymous) {
           modUsername = (mainRole ? mainRole.name : 'Moderator');
+          logModUsername = `(Anonymous) (${msg.author.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
         } else {
           modUsername = (mainRole ? `(${mainRole.name}) ${msg.author.username}` : msg.author.username);
+          logModUsername = modUsername;
         }
 
         let content = `**${modUsername}:** ${text}`;
+        let logContent = `**${logModUsername}:** ${text}`;
 
         function sendMessage(file, attachmentUrl) {
           dmChannel.createMessage(content, file).then(() => {
-            if (attachmentUrl) content += `\n\n**Attachment:** ${attachmentUrl}`;
+            if (attachmentUrl) {
+              content += `\n\n**Attachment:** ${attachmentUrl}`;
+              logContent += `\n\n**Attachment:** ${attachmentUrl}`;
+            }
 
+            // Show the message in the modmail thread as well
             const timestamp = utils.getTimestamp();
-            msg.channel.createMessage(`[${timestamp}] » ${content}`);
+            msg.channel.createMessage(`[${timestamp}] » ${logContent}`);
           }, (err) => {
             if (err.resp && err.resp.statusCode === 403) {
               msg.channel.createMessage(`Could not send reply; the user has likely blocked the bot`);
