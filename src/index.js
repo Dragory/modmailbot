@@ -9,6 +9,7 @@ const threads = require('./threads');
 const logs = require('./logs');
 const attachments = require('./attachments');
 const webserver = require('./webserver');
+const greeting = require('./greeting');
 
 const bot = new Eris.CommandClient(config.token, {}, {
   prefix: config.prefix || '!',
@@ -52,6 +53,9 @@ bot.on('messageCreate', msg => {
   if (msg.author.id === bot.user.id) return;
 
   if (msg.mentions.some(user => user.id === bot.user.id)) {
+    // If the person who mentioned the modmail bot is on the modmail server, don't ping about it
+    if (utils.getModmailGuild(bot).members.get(msg.author.id)) return;
+
     blocked.isBlocked(msg.author.id).then(isBlocked => {
       if (isBlocked) return;
 
@@ -113,11 +117,8 @@ bot.on('messageCreate', (msg) => {
             }
 
             // Ping mods of the new thread
-            let creationNotificationMessage = `New modmail thread: <#${thread.channelId}>`;
-            if (config.pingCreationNotification) creationNotificationMessage = `@here ${creationNotificationMessage}`;
-
             bot.createMessage(utils.getModmailGuild(bot).id, {
-              content: creationNotificationMessage,
+              content: `@here New modmail thread: <#${thread.channelId}>`,
               disableEveryone: false,
             });
 
@@ -159,23 +160,22 @@ bot.on('messageUpdate', (msg, oldMessage) => {
   });
 });
 
-// Mods can reply to modmail threads using !r or !reply
-// These messages get relayed back to the DM thread between the bot and the user
-bot.registerCommand('reply', (msg, args) => {
-  if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
-
+function reply(msg, text, anonymous = false) {
   threads.getByChannelId(msg.channel.id).then(thread => {
     if (! thread) return;
 
     attachments.saveAttachmentsInMessage(msg).then(() => {
       bot.getDMChannel(thread.userId).then(dmChannel => {
+        let modUsername;
         const mainRole = utils.getMainRole(msg.member);
-        const roleStr = (mainRole ? `(${mainRole.name}) ` : '');
 
-        let argMsg = args.join(' ').trim();
-        let content = `**${roleStr}${msg.author.username}:** ${argMsg}`;
+        if (anonymous) {
+          modUsername = (mainRole ? mainRole.name : 'Moderator');
+        } else {
+          modUsername = (mainRole ? `(${mainRole.name}) ${msg.author.username}` : msg.author.username);
+        }
+
+        let content = `**${modUsername}:** ${text}`;
 
         function sendMessage(file, attachmentUrl) {
           dmChannel.createMessage(content, file).then(() => {
@@ -211,9 +211,32 @@ bot.registerCommand('reply', (msg, args) => {
       });
     });
   });
+}
+
+// Mods can reply to modmail threads using !r or !reply
+// These messages get relayed back to the DM thread between the bot and the user
+bot.registerCommand('reply', (msg, args) => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+
+  const text = args.join(' ').trim();
+  reply(msg, text, false);
 });
 
 bot.registerCommandAlias('r', 'reply');
+
+// Anonymous replies only show the role, not the username
+bot.registerCommand('anonreply', (msg, args) => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+
+  const text = args.join(' ').trim();
+  reply(msg, text, true);
+});
+
+bot.registerCommandAlias('ar', 'anonreply');
 
 bot.registerCommand('close', (msg, args) => {
   if (! msg.channel.guild) return;
@@ -326,3 +349,4 @@ bot.registerCommand('logs', (msg, args) => {
 
 bot.connect();
 webserver.run();
+greeting.enable(bot);
