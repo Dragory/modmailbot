@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "eris": "github:abalabahaha/eris#dev",
+    "eris": "^0.5.2",
     "mime": "^1.3.4",
     "moment": "^2.17.1",
     "public-ip": "^2.0.1"

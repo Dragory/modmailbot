@@ -1,0 +1,4 @@
+{
+  "token": "your bot token",
+  "mailGuildId": "id of the modmail inbox guild"
+}
