@@ -1,12 +1,13 @@
 const fs = require('fs');
 const path = require('path');
+const config = require('../config');
 
-const dbDir = config.dbDir || `${__dirname}/db`;
+const dbDir = config.dbDir || `${__dirname}/../db`;
 
 const databases = {};
 
 class JSONDB {
-  constructor(path, def = {}, useCloneByDefault = true) {
+  constructor(path, def = {}, useCloneByDefault = false) {
     this.path = path;
     this.useCloneByDefault = useCloneByDefault;
 

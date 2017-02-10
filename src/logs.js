@@ -2,10 +2,25 @@ const fs = require('fs');
 const crypto = require('crypto');
 const moment = require('moment');
 const config = require('../config');
+const utils = require('./utils');
 
-const logDir = config.logDir || `${__dirname}/logs`;
+const logDir = config.logDir || `${__dirname}/../logs`;
 const logFileFormatRegex = /^([0-9\-]+?)__([0-9]+?)__([0-9a-f]+?)\.txt$/;
 
+/**
+ * @typedef {Object} LogFileInfo
+ * @property {String} filename
+ * @property {String} date
+ * @property {String} userId
+ * @property {String} token
+ * @property {String=} url
+ */
+
+/**
+ * Returns information about the given logfile
+ * @param {String} logFilename
+ * @returns {LogFileInfo}
+ */
 function getLogFileInfo(logFilename) {
   const match = logFilename.match(logFileFormatRegex);
   if (! match) return null;
@@ -20,15 +35,30 @@ function getLogFileInfo(logFilename) {
   };
 }
 
+/**
+ * Returns the filesystem path to the given logfile
+ * @param {String} logFilename
+ * @returns {String}
+ */
 function getLogFilePath(logFilename) {
   return `${logDir}/${logFilename}`;
 }
 
+/**
+ * Returns the self-hosted URL to the given logfile
+ * @param {String} logFilename
+ * @returns {String}
+ */
 function getLogFileUrl(logFilename) {
   const info = getLogFileInfo(logFilename);
   return utils.getSelfUrl(`logs/${info.token}`);
 }
 
+/**
+ * Returns a new, unique log file name for the given userId
+ * @param {String} userId
+ * @returns {Promise<String>}
+ */
 function getNewLogFile(userId) {
   return new Promise(resolve => {
     crypto.randomBytes(16, (err, buf) => {
@@ -40,6 +70,11 @@ function getNewLogFile(userId) {
   });
 }
 
+/**
+ * Finds a log file name by its token
+ * @param {String} token
+ * @returns {Promise<String>}
+ */
 function findLogFile(token) {
   return new Promise(resolve => {
     fs.readdir(logDir, (err, files) => {
@@ -55,9 +90,16 @@ function findLogFile(token) {
   });
 }
 
+/**
+ * Returns all log file infos for the given userId
+ * @param {String} userId
+ * @returns {Promise<LogFileInfo[]>}
+ */
 function getLogsByUserId(userId) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     fs.readdir(logDir, (err, files) => {
+      if (err) return reject(err);
+
       const logfileInfos = files
         .map(file => getLogFileInfo(file))
         .filter(info => info && info.userId === userId);
@@ -67,6 +109,11 @@ function getLogsByUserId(userId) {
   });
 }
 
+/**
+ * Returns all log file infos with URLs for the given userId
+ * @param {String} userId
+ * @returns {Promise<LogFileInfo[]>}
+ */
 function getLogsWithUrlByUserId(userId) {
   return getLogsByUserId(userId).then(infos => {
     const urlPromises = infos.map(info => {
@@ -88,6 +135,11 @@ function getLogsWithUrlByUserId(userId) {
   });
 }
 
+/**
+ * @param {String} logFilename
+ * @param {String} content
+ * @returns {Promise}
+ */
 function saveLogFile(logFilename, content) {
   return new Promise((resolve, reject) => {
     fs.writeFile(getLogFilePath(logFilename), content, {encoding: 'utf8'}, err => {
@@ -105,4 +157,5 @@ module.exports = {
   getLogsByUserId,
   getLogsWithUrlByUserId,
   saveLogFile,
+  getLogFileUrl,
 };

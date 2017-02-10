@@ -1,7 +1,8 @@
 const Eris = require('eris');
+const fs = require('fs');
 const moment = require('moment');
-const Queue = require('./queue');
 const config = require('../config');
+const Queue = require('./queue');
 const utils = require('./utils');
 const blocked = require('./blocked');
 const threads = require('./threads');
@@ -22,6 +23,29 @@ bot.on('ready', () => {
   bot.editStatus(null, {name: config.status || 'Message me for help'});
   console.log('Bot started, listening to DMs');
 });
+
+function formatAttachment(attachment) {
+  let filesize = attachment.size || 0;
+  filesize /= 1024;
+
+  return attachments.getUrl(attachment.id, attachment.filename).then(attachmentUrl => {
+    return `**Attachment:** ${attachment.filename} (${filesize.toFixed(1)}KB)\n${attachmentUrl}`;
+  });
+}
+
+function formatUserDM(msg) {
+  let content = msg.content;
+
+  // Get a local URL for all attachments so we don't rely on discord's servers (which delete attachments when the channel/DM thread is deleted)
+  const attachmentFormatPromise = msg.attachments.map(formatAttachment);
+  return Promise.all(attachmentFormatPromise).then(formattedAttachments => {
+    formattedAttachments.forEach(str => {
+      content += `\n\n${str}`;
+    });
+
+    return content;
+  });
+}
 
 // "Bot was mentioned in #general-discussion"
 bot.on('messageCreate', msg => {
@@ -48,19 +72,20 @@ bot.on('messageCreate', (msg) => {
     if (isBlocked) return;
 
     // Download and save copies of attachments in the background
-    attachments.saveAttachments(msg);
+    attachments.saveAttachmentsInMessage(msg);
 
-    let thread, logs;
+    let thread, userLogs;
 
+    // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels aren't created
     messageQueue.add(() => {
-      threads.getForUser(bot, msg.author)
+      return threads.getForUser(bot, msg.author)
         .then(userThread => {
           thread = userThread;
           return logs.getLogsByUserId(msg.author.id);
         })
-        .then(userLogs => {
-          logs = userLogs;
-          return utils.formatUserDM(msg);
+        .then(foundUserLogs => {
+          userLogs = foundUserLogs;
+          return formatUserDM(msg);
         })
         .then(content => {
           // If the thread does not exist and could not be created, send a warning about this to all mods so they can DM the user directly instead
@@ -88,7 +113,7 @@ bot.on('messageCreate', (msg) => {
             }
 
             // Ping mods of the new thread
-            let creationNotificationMessage = `New modmail thread: <#${channel.id}>`;
+            let creationNotificationMessage = `New modmail thread: <#${thread.channelId}>`;
             if (config.pingCreationNotification) creationNotificationMessage = `@here ${creationNotificationMessage}`;
 
             bot.createMessage(utils.getModmailGuild(bot).id, {
@@ -98,15 +123,15 @@ bot.on('messageCreate', (msg) => {
 
             // Send an automatic reply to the user informing them of the successfully created modmail thread
             msg.channel.createMessage("Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
-              bot.createMessage(modMailGuild.id, {
+              bot.createMessage(utils.getModmailGuild(bot).id, {
                 content: `There is an issue sending messages to ${msg.author.username}#${msg.author.discriminator} (id ${msg.author.id}); consider messaging manually`
               });
             });
           }
 
           const timestamp = utils.getTimestamp();
-          bot.createMessage(channel.id, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
-        })
+          bot.createMessage(thread.channelId, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+        });
     });
   });
 });
@@ -144,11 +169,10 @@ bot.registerCommand('reply', (msg, args) => {
   threads.getByChannelId(msg.channel.id).then(thread => {
     if (! thread) return;
 
-    attachments.saveAttachments(msg).then(() => {
+    attachments.saveAttachmentsInMessage(msg).then(() => {
       bot.getDMChannel(thread.userId).then(dmChannel => {
-        const roleId = msg.member.roles[0];
-        const role = (roleId ? (modMailGuild.roles.get(roleId) || {}).name : '');
-        const roleStr = (role ? `(${role}) ` : '');
+        const mainRole = utils.getMainRole(msg.member);
+        const roleStr = (mainRole ? `(${mainRole.name}) ` : '');
 
         let argMsg = args.join(' ').trim();
         let content = `**${roleStr}${msg.author.username}:** ${argMsg}`;
@@ -157,7 +181,7 @@ bot.registerCommand('reply', (msg, args) => {
           dmChannel.createMessage(content, file).then(() => {
             if (attachmentUrl) content += `\n\n**Attachment:** ${attachmentUrl}`;
 
-            const timestamp = getTimestamp();
+            const timestamp = utils.getTimestamp();
             msg.channel.createMessage(`[${timestamp}] » ${content}`);
           }, (err) => {
             if (err.resp && err.resp.statusCode === 403) {
@@ -174,10 +198,10 @@ bot.registerCommand('reply', (msg, args) => {
 
         // If the reply has an attachment, relay it as is
         if (msg.attachments.length > 0) {
-          fs.readFile(attachments.getAttachmentPath(msg.attachments[0].id), (err, data) => {
+          fs.readFile(attachments.getPath(msg.attachments[0].id), (err, data) => {
             const file = {file: data, name: msg.attachments[0].filename};
 
-            getAttachmentUrl(msg.attachments[0].id, msg.attachments[0].filename).then(attachmentUrl => {
+            attachments.getUrl(msg.attachments[0].id, msg.attachments[0].filename).then(attachmentUrl => {
               sendMessage(file, attachmentUrl);
             });
           });
@@ -193,7 +217,7 @@ bot.registerCommandAlias('r', 'reply');
 
 bot.registerCommand('close', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== modMailGuild.id) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
   if (! msg.member.permission.has('manageRoles')) return;
 
   threads.getByChannelId(msg.channel.id).then(thread => {
@@ -208,7 +232,7 @@ bot.registerCommand('close', (msg, args) => {
 
       logs.getNewLogFile(thread.userId).then(logFilename => {
         logs.saveLogFile(logFilename, log)
-          .then(() => getLogFileUrl(logFilename))
+          .then(() => logs.getLogFileUrl(logFilename))
           .then(url => {
             const closeMessage = `Modmail thread with ${thread.username} (${thread.userId}) was closed by ${msg.author.mention}
 Logs: <${url}>`;
@@ -240,7 +264,7 @@ bot.registerCommand('block', (msg, args) => {
     // Calling !block without args in a modmail thread blocks the user of that thread
     threads.getByChannelId(msg.channel.id).then(thread => {
       if (! thread) return;
-      block(userId);
+      block(thread.userId);
     });
   }
 });
@@ -264,7 +288,7 @@ bot.registerCommand('unblock', (msg, args) => {
     // Calling !unblock without args in a modmail thread unblocks the user of that thread
     threads.getByChannelId(msg.channel.id).then(thread => {
       if (! thread) return;
-      unblock(userId);
+      unblock(thread.userId);
     });
   }
 });
@@ -275,7 +299,7 @@ bot.registerCommand('logs', (msg, args) => {
   if (! msg.member.permission.has('manageRoles')) return;
 
   function getLogs(userId) {
-    getLogsWithUrlByUserId(userId).then(infos => {
+    logs.getLogsWithUrlByUserId(userId).then(infos => {
       let message = `**Log files for <@${userId}>:**\n`;
 
       message += infos.map(info => {
@@ -295,7 +319,7 @@ bot.registerCommand('logs', (msg, args) => {
     // Calling !logs without args in a modmail thread returns the logs of the user of that thread
     threads.getByChannelId(msg.channel.id).then(thread => {
       if (! thread) return;
-      getLogs(userId);
+      getLogs(thread.userId);
     });
   }
 });

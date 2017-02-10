@@ -1,6 +1,10 @@
 const http = require('http');
 const mime = require('mime');
+const url = require('url');
+const fs = require('fs');
 const config = require('../config');
+const logs = require('./logs');
+const attachments = require('./attachments');
 
 const port = config.port || 8890;
 
@@ -8,10 +12,10 @@ function serveLogs(res, pathParts) {
   const token = pathParts[pathParts.length - 1];
   if (token.match(/^[0-9a-f]+$/) === null) return res.end();
 
-  findLogFile(token).then(logfile => {
-    if (logfile === null) return res.end();
+  logs.findLogFile(token).then(logFilename => {
+    if (logFilename === null) return res.end();
 
-    fs.readFile(getLogFilePath(logfile), {encoding: 'utf8'}, (err, data) => {
+    fs.readFile(logs.getLogFilePath(logFilename), {encoding: 'utf8'}, (err, data) => {
       if (err) {
         res.statusCode = 404;
         res.end('Log not found');
@@ -31,7 +35,7 @@ function serveAttachments(res, pathParts) {
   if (id.match(/^[0-9]+$/) === null) return res.end();
   if (desiredFilename.match(/^[0-9a-z\._-]+$/i) === null) return res.end();
 
-  const attachmentPath = getAttachmentPath(id);
+  const attachmentPath = attachments.getPath(id);
   fs.access(attachmentPath, (err) => {
     if (err) {
       res.statusCode = 404;
@@ -59,7 +63,7 @@ function run() {
     if (parsedUrl.path.startsWith('/attachments/')) serveAttachments(res, pathParts);
   });
 
-  server.listen(logServerPort);
+  server.listen(port);
 }
 
 module.exports = {

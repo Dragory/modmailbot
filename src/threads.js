@@ -16,10 +16,10 @@ const jsonDb = require('./jsonDb');
  * @param {Eris.Client} bot
  * @param {Eris.User} user
  * @param {Boolean} allowCreate
- * @returns {Promise<ThreadInfo>}
+ * @returns {Promise<ModMailThread>}
  */
 function getForUser(bot, user, allowCreate = true) {
-  return jsonDb.get('threads').then(threads => {
+  return jsonDb.get('threads', []).then(threads => {
     const thread = threads.find(t => t.userId === user.id);
     if (thread) return thread;
 
@@ -41,12 +41,12 @@ function getForUser(bot, user, allowCreate = true) {
           username: `${user.username}#${user.discriminator}`,
         };
 
-        const threads = jsonDb.get('threads');
-        threads.push(thread);
-        jsonDb.save('threads', threads);
+        return jsonDb.get('threads', []).then(threads => {
+          threads.push(thread);
+          jsonDb.save('threads', threads);
 
-        thread._wasCreated = true;
-        return thread;
+          return Object.assign({}, thread, {_wasCreated: true});
+        });
       }, err => {
         console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
       });
@@ -55,17 +55,22 @@ function getForUser(bot, user, allowCreate = true) {
 
 /**
  * @param {String} channelId
- * @returns {Promise<ThreadInfo>}
+ * @returns {Promise<ModMailThread>}
  */
 function getByChannelId(channelId) {
-  return jsonDb.get('threads').then(threads => {
-    return threads.find(t => t.userId === user.id);
+  return jsonDb.get('threads', []).then(threads => {
+    return threads.find(t => t.channelId === channelId);
   });
 }
 
+/**
+ * Deletes the modmail thread for the given channel id
+ * @param {String} channelId
+ * @returns {Promise}
+ */
 function close(channelId) {
-  return jsonDb.get('threads').then(threads => {
-    const thread = threads.find(t => t.userId === user.id);
+  return jsonDb.get('threads', []).then(threads => {
+    const thread = threads.find(t => t.channelId === channelId);
     if (! thread) return;
 
     threads.splice(threads.indexOf(thread), 1);
