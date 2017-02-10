@@ -112,8 +112,11 @@ bot.on('messageCreate', (msg) => {
           // If the thread was just created, do some extra stuff
           if (thread._wasCreated) {
             // Mention previous logs at the start of the thread
-            if (logs.length > 0) {
-              bot.createMessage(thread.channelId, `${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
+            if (userLogs.length > 0) {
+              let logText;
+              if (userLogs.length === 1) logText = `There is 1 logged conversation with this user.`;
+              else logText = `There are ${userLogs.length} logged conversations with this user.`;
+              bot.createMessage(thread.channelId, `${logText} Type !logs for details.`);
             }
 
             // Ping mods of the new thread
