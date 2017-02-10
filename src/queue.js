@@ -6,7 +6,7 @@ class Queue {
 
   add(fn) {
     this.queue.push(fn);
-    if (!this.running) this.next();
+    if (! this.running) this.next();
   }
 
   next() {
@@ -18,7 +18,11 @@ class Queue {
     }
 
     const fn = this.queue.shift();
-    Promise.resolve(fn()).then(() => this.next());
+    new Promise(resolve => {
+      // Either fn() completes or the timeout of 10sec is reached
+      Promise.resolve(fn()).then(resolve);
+      setTimeout(resolve, 10000);
+    }).then(() => this.next());
   }
 }
 

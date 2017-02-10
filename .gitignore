@@ -1,4 +1,4 @@
 /.vscode
+/.idea
 /node_modules
 /config.json
-/blocked.json
