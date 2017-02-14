@@ -1,6 +1,7 @@
 const Eris = require('eris');
 const fs = require('fs');
 const moment = require('moment');
+const humanizeDuration = require('humanize-duration');
 const config = require('../config');
 const Queue = require('./queue');
 const utils = require('./utils');
@@ -18,11 +19,19 @@ const bot = new Eris.CommandClient(config.token, {}, {
   defaultHelpCommand: false,
 });
 
+const restBot = new Eris.Client(`Bot ${config.token}`, {
+  restMode: true,
+});
+
 const messageQueue = new Queue();
 
 bot.on('ready', () => {
   bot.editStatus(null, {name: config.status || 'Message me for help'});
   console.log('Bot started, listening to DMs');
+});
+
+restBot.on('ready', () => {
+  console.log('Rest client ready');
 });
 
 function formatAttachment(attachment) {
@@ -95,11 +104,11 @@ bot.on('messageCreate', (msg) => {
           // If the thread does not exist and could not be created, send a warning about this to all mods so they can DM the user directly instead
           if (! thread) {
             let warningMessage = `
-              @here Error creating modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})!
-              
-              Here's what their message contained:
-              \`\`\`${content}\`\`\`
-            `;
+@here Error creating modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})!
+
+Here's what their message contained:
+\`\`\`${content}\`\`\`
+          `.trim();
 
             bot.createMessage(utils.getModmailGuild(bot).id, {
               content: `@here Error creating modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})!`,
@@ -109,12 +118,23 @@ bot.on('messageCreate', (msg) => {
             return;
           }
 
+          let threadInitDonePromise = Promise.resolve();
+
           // If the thread was just created, do some extra stuff
           if (thread._wasCreated) {
-            // Mention previous logs at the start of the thread
-            if (logs.length > 0) {
-              bot.createMessage(thread.channelId, `${logs.length} previous modmail logs with this user. Use !logs ${msg.author.id} for details.`);
-            }
+            const mainGuild = utils.getMainGuild(restBot);
+            const memberPromise = (mainGuild ? mainGuild.getRESTMember(msg.author.id) : Promise.resolve());
+
+            threadInitDonePromise = memberPromise
+              .then(member => {
+                const mainGuildNickname = (member ? member.nick || member.username : 'UNKNOWN');
+                const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
+                const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
+
+                bot.createMessage(thread.channelId, infoHeader);
+              }, err => {
+                console.log(`Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
+              });
 
             // Ping mods of the new thread
             bot.createMessage(utils.getModmailGuild(bot).id, {
@@ -130,8 +150,10 @@ bot.on('messageCreate', (msg) => {
             });
           }
 
-          const timestamp = utils.getTimestamp();
-          bot.createMessage(thread.channelId, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+          threadInitDonePromise.then(() => {
+            const timestamp = utils.getTimestamp();
+            bot.createMessage(thread.channelId, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+          });
         });
     });
   });
@@ -355,5 +377,7 @@ bot.registerCommand('logs', (msg, args) => {
 });
 
 bot.connect();
+restBot.connect();
 webserver.run();
 greeting.enable(bot);
+

@@ -5,9 +5,16 @@ const config = require('../config');
 const utils = require('./utils');
 
 let modMailGuild = null;
+let mainGuild = null;
+
 function getModmailGuild(bot) {
   if (! modMailGuild) modMailGuild = bot.guilds.find(g => g.id === config.mailGuildId);
   return modMailGuild;
+}
+
+function getMainGuild(bot) {
+  if (! mainGuild) mainGuild = bot.guilds.find(g => g.id === config.mainGuildId);
+  return mainGuild;
 }
 
 const userMentionRegex = /^<@\!?([0-9]+?)>$/;
@@ -78,6 +85,7 @@ function getMainRole(member) {
 
 module.exports = {
   getModmailGuild,
+  getMainGuild,
   getUserMention,
   getTimestamp,
   disableLinkPreviews,

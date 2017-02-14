@@ -2,11 +2,13 @@ const path = require('path');
 const fs = require('fs');
 const config = require('../config');
 
+const greetingGuildId = config.mainGuildId || config.greetingGuildId;
+
 function enable(bot) {
   if (! config.enableGreeting) return;
 
   bot.on('guildMemberAdd', (guild, member) => {
-    if (guild.id !== config.greetingGuildId) return;
+    if (guild.id !== greetingGuildId) return;
 
     function sendGreeting(file) {
       bot.getDMChannel(member.id).then(channel => {

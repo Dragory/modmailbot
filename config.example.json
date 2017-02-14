@@ -1,4 +1,5 @@
 {
   "token": "your bot token",
-  "mailGuildId": "id of the modmail inbox guild"
+  "mailGuildId": "id of the modmail inbox guild",
+  "mainGuildId": "id of the main server where users will DM the bot"
 }
