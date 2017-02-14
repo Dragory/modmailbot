@@ -128,7 +128,7 @@ Here's what their message contained:
             threadInitDonePromise = memberPromise
               .catch(err => {
                 console.log(`Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
-                console.error(err);
+                console.error(String(err));
               })
               .then(member => {
                 const mainGuildNickname = (member != null ? (member.nick || member.username) : 'UNKNOWN');
