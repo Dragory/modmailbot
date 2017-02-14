@@ -131,7 +131,12 @@ Here's what their message contained:
                 console.error(String(err));
               })
               .then(member => {
-                const mainGuildNickname = (member != null ? (member.nick || member.username) : 'UNKNOWN');
+                let mainGuildNickname = null;
+                if (member && member.nick) mainGuildNickname = member.nick;
+                else if (member && member.user) mainGuildNickname = member.user.username;
+
+                if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
+
                 const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
                 const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
 
