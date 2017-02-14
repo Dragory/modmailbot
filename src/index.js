@@ -127,13 +127,15 @@ Here's what their message contained:
 
             threadInitDonePromise = memberPromise
               .then(member => {
-                const mainGuildNickname = (member ? member.nick || member.username : 'UNKNOWN');
+                const mainGuildNickname = (member != null ? (member.nick || member.username) : 'UNKNOWN');
                 const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
                 const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
 
                 bot.createMessage(thread.channelId, infoHeader);
-              }, err => {
+              })
+              .catch(err => {
                 console.log(`Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
+                console.error(err);
               });
 
             // Ping mods of the new thread
