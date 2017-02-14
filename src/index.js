@@ -127,10 +127,15 @@ Here's what their message contained:
 
             threadInitDonePromise = memberPromise
               .then(member => {
+                console.log('member', member);
                 if (! member) return null;
                 // If the member doesn't have user data on it, try fetching that manually
                 if (! member.user) return restBot.getRESTUser(member.id).then(user => {
                   member.user = user;
+                  return member;
+                }, err => {
+                  console.log(`Could not get user for member ${member.id}`);
+                  console.log(String(err));
                   return member;
                 });
                 return member;
