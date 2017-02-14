@@ -10,7 +10,8 @@ Inspired by Reddit's modmail system.
 2. Clone or download this repository
 3. Create a Discord server to be used as the modmail inbox
 4. Copy `config.example.json` to `config.json` and fill in the values
-5. Run the bot with `node src/index.js`
+5. Install dependencies: `npm install`
+6. Run the bot: `node src/index.js`
 
 ## Commands
 
