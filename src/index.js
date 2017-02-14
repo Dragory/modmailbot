@@ -126,7 +126,15 @@ Here's what their message contained:
             const memberPromise = (mainGuild ? mainGuild.getRESTMember(msg.author.id) : Promise.resolve());
 
             threadInitDonePromise = memberPromise
-              .catch(err => {
+              .then(member => {
+                if (! member) return null;
+                // If the member doesn't have user data on it, try fetching that manually
+                if (! member.user) return restBot.getRESTUser(member.id).then(user => {
+                  member.user = user;
+                  return member;
+                });
+                return member;
+              }, err => {
                 console.log(`Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
                 console.error(String(err));
               })
