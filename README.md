@@ -11,7 +11,8 @@ Inspired by Reddit's modmail system.
 3. Create a Discord server to be used as the modmail inbox
 4. Copy `config.example.json` to `config.json` and fill in the values
 5. Install dependencies: `npm install`
-6. Run the bot: `node src/index.js`
+6. Add bot to servers, and make sure to give it proper permissions on the mail server.
+7. Run the bot: `node src/index.js`
 
 ## Commands
 
@@ -22,8 +23,10 @@ Inspired by Reddit's modmail system.
 
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
-`!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text"  
+`!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias !ar) 
 `!close` Closes the modmail thread and saves a log of it  
 `!logs` Lists previous modmail logs with this user  
 `!block` Blocks the user from using modmail  
 `!unblock` Unblocks the user from using modmail
+
+To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
