@@ -57,6 +57,16 @@ function formatUserDM(msg) {
   });
 }
 
+bot.on('messageCreate', msg => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+  if (msg.author.bot) return;
+  if (msg.content[0] == bot.commandOptions.prefix) return;
+
+  reply(msg, msg.content.trim(), false);
+});
+
 // "Bot was mentioned in #general-discussion"
 bot.on('messageCreate', msg => {
   if (msg.author.id === bot.user.id) return;
