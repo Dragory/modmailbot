@@ -57,15 +57,18 @@ function formatUserDM(msg) {
   });
 }
 
-bot.on('messageCreate', msg => {
-  if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
-  if (msg.author.bot) return;
-  if (msg.content[0] == bot.commandOptions.prefix) return;
+// "Forward all messages not starting in prefix"
+if (config.alwaysReply) {
+  bot.on('messageCreate', msg => {
+    if (! msg.channel.guild) return;
+    if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+    if (! msg.member.permission.has('manageRoles')) return;
+    if (msg.author.bot) return;
+    if (msg.content[0] == bot.commandOptions.prefix) return;
 
-  reply(msg, msg.content.trim(), false);
-});
+    reply(msg, msg.content.trim(), config.alwaysReplyAnon || false);
+  });
+}
 
 // "Bot was mentioned in #general-discussion"
 bot.on('messageCreate', msg => {
@@ -161,7 +164,7 @@ Here's what their message contained:
             });
 
             // Send an automatic reply to the user informing them of the successfully created modmail thread
-            msg.channel.createMessage("Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
+            msg.channel.createMessage(config.responseMessage || "Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
               bot.createMessage(utils.getModmailGuild(bot).id, {
                 content: `There is an issue sending messages to ${msg.author.username}#${msg.author.discriminator} (id ${msg.author.id}); consider messaging manually`
               });
