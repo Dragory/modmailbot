@@ -23,7 +23,7 @@ Inspired by Reddit's modmail system.
 
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
-`!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias !ar) 
+`!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias `!ar`)  
 `!close` Closes the modmail thread and saves a log of it  
 `!logs` Lists previous modmail logs with this user  
 `!block` Blocks the user from using modmail  
