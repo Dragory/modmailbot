@@ -124,9 +124,10 @@ function getLogsWithUrlByUserId(userId) {
     });
 
     return Promise.all(urlPromises).then(infos => {
+      // Sort logs by date, in descending order
       infos.sort((a, b) => {
-        if (a.date > b.date) return 1;
-        if (a.date < b.date) return -1;
+        if (a.date > b.date) return -1;
+        if (a.date < b.date) return 1;
         return 0;
       });
 
