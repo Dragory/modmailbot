@@ -43,20 +43,6 @@ function formatAttachment(attachment) {
   });
 }
 
-function formatUserDM(msg) {
-  let content = msg.content;
-
-  // Get a local URL for all attachments so we don't rely on discord's servers (which delete attachments when the channel/DM thread is deleted)
-  const attachmentFormatPromise = msg.attachments.map(formatAttachment);
-  return Promise.all(attachmentFormatPromise).then(formattedAttachments => {
-    formattedAttachments.forEach(str => {
-      content += `\n\n${str}`;
-    });
-
-    return content;
-  });
-}
-
 // "Forward all messages not starting in prefix"
 if (config.alwaysReply) {
   bot.on('messageCreate', msg => {
@@ -98,11 +84,11 @@ bot.on('messageCreate', (msg) => {
     if (isBlocked) return;
 
     // Download and save copies of attachments in the background
-    attachments.saveAttachmentsInMessage(msg);
+    const attachmentSavePromise = attachments.saveAttachmentsInMessage(msg);
 
     let thread, userLogs;
 
-    // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels aren't created
+    // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
     messageQueue.add(() => {
       return threads.getForUser(bot, msg.author)
         .then(userThread => {
@@ -111,9 +97,10 @@ bot.on('messageCreate', (msg) => {
         })
         .then(foundUserLogs => {
           userLogs = foundUserLogs;
-          return formatUserDM(msg);
         })
-        .then(content => {
+        .then(() => {
+          let content = msg.content;
+
           // If the thread does not exist and could not be created, send a warning about this to all mods so they can DM the user directly instead
           if (! thread) {
             let warningMessage = `
@@ -154,14 +141,15 @@ Here's what their message contained:
                 const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
                 const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
 
-                bot.createMessage(thread.channelId, infoHeader);
+                return bot.createMessage(thread.channelId, infoHeader);
+              })
+              .then(() => {
+                // Ping mods of the new thread
+                bot.createMessage(thread.channelId, {
+                  content: `@here New modmail thread (${msg.author.username}#${msg.author.discriminator})`,
+                  disableEveryone: false,
+                });
               });
-
-            // Ping mods of the new thread
-            bot.createMessage(utils.getModmailGuild(bot).id, {
-              content: `@here New modmail thread: <#${thread.channelId}>`,
-              disableEveryone: false,
-            });
 
             // Send an automatic reply to the user informing them of the successfully created modmail thread
             msg.channel.createMessage(config.responseMessage || "Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
@@ -171,9 +159,28 @@ Here's what their message contained:
             });
           }
 
+          const attachmentsPendingStr = '\n\n*Attachments pending...*';
+          if (msg.attachments.length > 0) content += attachmentsPendingStr;
+
           threadInitDonePromise.then(() => {
             const timestamp = utils.getTimestamp();
-            bot.createMessage(thread.channelId, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
+            bot.createMessage(thread.channelId, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`).then(createdMsg => {
+              if (msg.attachments.length === 0) return;
+
+              // Once attachments have been saved, add links to them to the message
+              attachmentSavePromise.then(() => {
+                const attachmentFormatPromises = msg.attachments.map(formatAttachment);
+                Promise.all(attachmentFormatPromises).then(formattedAttachments => {
+                  let attachmentMsg = '';
+
+                  formattedAttachments.forEach(str => {
+                    attachmentMsg += `\n\n${str}`;
+                  });
+
+                  createdMsg.edit(createdMsg.content.replace(attachmentsPendingStr, attachmentMsg));
+                });
+              });
+            });
           });
         });
     });
@@ -192,6 +199,9 @@ bot.on('messageUpdate', (msg, oldMessage) => {
     const newContent = msg.content;
 
     if (oldContent == null) oldContent = '*Unavailable due to bot restart*';
+
+    // Ignore bogus edit events with no changes
+    if (newContent.trim() === oldContent.trim()) return;
 
     threads.getForUser(bot, msg.author).then(thread => {
       if (! thread) return;
@@ -307,7 +317,7 @@ bot.registerCommand('close', (msg, args) => {
         logs.saveLogFile(logFilename, log)
           .then(() => logs.getLogFileUrl(logFilename))
           .then(url => {
-            const closeMessage = `Modmail thread with ${thread.username} (${thread.userId}) was closed by ${msg.author.mention}
+            const closeMessage = `Modmail thread with ${thread.username} (${thread.userId}) was closed by ${msg.author.username}
 Logs: <${url}>`;
 
             bot.createMessage(utils.getModmailGuild(bot).id, closeMessage);
