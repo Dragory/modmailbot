@@ -226,7 +226,8 @@ function reply(msg, text, anonymous = false) {
           modUsername = (mainRole ? mainRole.name : 'Moderator');
           logModUsername = `(Anonymous) (${msg.author.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
         } else {
-          modUsername = (mainRole ? `(${mainRole.name}) ${msg.author.username}` : msg.author.username);
+          const name = (config.useNicknames ? msg.member.nick || msg.author.username : msg.author.username);
+          modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
           logModUsername = modUsername;
         }
 
@@ -390,7 +391,19 @@ bot.registerCommand('logs', (msg, args) => {
         return `\`${formattedDate}\`: <${info.url}>`;
       }).join('\n');
 
-      msg.channel.createMessage(message);
+      // Send list of logs in chunks of 15 lines per message
+      const lines = message.split('\n');
+      const chunks = [];
+      const chunkSize = 15;
+
+      for (let i = 0; i < lines.length; i += chunkSize) {
+        chunks.push(lines.slice(i, i + chunkSize).join('\n'));
+      }
+
+      let root = Promise.resolve();
+      chunks.forEach(chunk => {
+        root = root.then(() => msg.channel.createMessage(chunk));
+      });
     });
   }
 
