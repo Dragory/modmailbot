@@ -1,6 +1,16 @@
 const Eris = require('eris');
 const utils = require('./utils');
 const jsonDb = require('./jsonDb');
+const config = require('../config');
+
+const accidentalThreadMessages = [
+  'ok',
+  'okay',
+  'thanks',
+  'ty',
+  'k',
+  'thank you'
+];
 
 /**
  * @typedef {Object} ModMailThread
@@ -18,7 +28,7 @@ const jsonDb = require('./jsonDb');
  * @param {Boolean} allowCreate
  * @returns {Promise<ModMailThread>}
  */
-function getForUser(bot, user, allowCreate = true) {
+function getForUser(bot, user, allowCreate = true, originalMessage = null) {
   return jsonDb.get('threads', []).then(threads => {
     const thread = threads.find(t => t.userId === user.id);
     if (thread) return thread;
@@ -31,8 +41,16 @@ function getForUser(bot, user, allowCreate = true) {
     if (cleanName === '') cleanName = 'unknown';
 
     const channelName = `${cleanName}-${user.discriminator}`;
-    console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
+    if (originalMessage && originalMessage.cleanContent && config.ignoreAccidentalThreads) {
+      const cleaned = originalMessage.cleanContent.replace(/[^a-z\s]/gi, '').toLowerCase().trim();
+      if (accidentalThreadMessages.includes(cleaned)) {
+        console.log('[NOTE] Skipping thread creation for message:', originalMessage.cleanContent);
+        return null;
+      }
+    }
+
+    console.log(`[NOTE] Creating new thread channel ${channelName}`);
     return utils.getModmailGuild(bot).createChannel(`${channelName}`)
       .then(channel => {
         const thread = {
@@ -49,6 +67,7 @@ function getForUser(bot, user, allowCreate = true) {
         });
       }, err => {
         console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
+        throw err;
       });
   });
 }

@@ -87,13 +87,17 @@ bot.on('messageCreate', (msg) => {
     const attachmentSavePromise = attachments.saveAttachmentsInMessage(msg);
 
     let thread, userLogs;
+    let threadCreationFailed = false;
 
     // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
     messageQueue.add(() => {
-      return threads.getForUser(bot, msg.author)
+      return threads.getForUser(bot, msg.author, true, msg)
         .then(userThread => {
           thread = userThread;
           return logs.getLogsByUserId(msg.author.id);
+        }, err => {
+          console.log(`[ERROR] Modmail channel for ${msg.author.username}#${msg.author.discriminator} could not be created:\n${err.message}`);
+          threadCreationFailed = true;
         })
         .then(foundUserLogs => {
           userLogs = foundUserLogs;
@@ -101,8 +105,8 @@ bot.on('messageCreate', (msg) => {
         .then(() => {
           let content = msg.content;
 
-          // If the thread does not exist and could not be created, send a warning about this to all mods so they can DM the user directly instead
-          if (! thread) {
+          if (threadCreationFailed) {
+            // If the thread could not be created, send a warning about this to all mods so they can DM the user directly instead
             let warningMessage = `
 @here Error creating modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})!
 
@@ -111,10 +115,13 @@ Here's what their message contained:
           `.trim();
 
             bot.createMessage(utils.getModmailGuild(bot).id, {
-              content: `@here Error creating modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id})!`,
+              content: warningMessage,
               disableEveryone: false,
             });
 
+            return;
+          } else if (! thread) {
+            // No thread but creation didn't fail either -> probably ignored
             return;
           }
 
