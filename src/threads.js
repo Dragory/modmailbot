@@ -9,7 +9,9 @@ const accidentalThreadMessages = [
   'thanks',
   'ty',
   'k',
-  'thank you'
+  'thank you',
+  'thanx',
+  'thx'
 ];
 
 /**
