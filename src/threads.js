@@ -13,7 +13,20 @@ const accidentalThreadMessages = [
   'thanx',
   'thnx',
   'thx',
-  'tnx'
+  'tnx',
+  'ok thank you',
+  'ok thanks',
+  'ok ty',
+  'ok thanx',
+  'ok thnx',
+  'ok thx',
+  'okay thank you',
+  'okay thanks',
+  'okay ty',
+  'okay thanx',
+  'okay thnx',
+  'ok thx',
+  'cheers'
 ];
 
 /**
