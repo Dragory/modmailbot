@@ -6,13 +6,13 @@ Moderators and admins can then reply to these threads, and these responses are r
 Inspired by Reddit's modmail system.
 
 ## Setup
-1. Install Node.js 6 or higher
+1. Install Node.js 8 or higher
 2. Clone or download this repository
 3. Create a Discord server to be used as the modmail inbox
 4. Make a copy of the file `config.example.json` in the same folder and name the copy `config.json`. Open the file and fill in the values.
 5. Install dependencies: `npm install`
 6. Add bot to servers, and make sure to give it proper permissions on the mail server.
-7. Run the bot: `node src/index.js`
+7. Run the bot: `npm start`
 
 ## Commands
 
