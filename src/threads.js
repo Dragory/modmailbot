@@ -1,4 +1,5 @@
 const Eris = require('eris');
+const transliterate = require('transliteration');
 const utils = require('./utils');
 const jsonDb = require('./jsonDb');
 const config = require('../config');
@@ -69,8 +70,9 @@ function getForUser(bot, user, allowCreate = true, originalMessage = null) {
     if (! allowCreate) return null;
 
     // Channel names are particularly picky about what characters they allow...
-    let cleanName = user.username.replace(/[^a-zA-Z0-9]/ig, '').toLowerCase().trim();
+    let cleanName = transliterate.slugify(user.username);
     if (cleanName === '') cleanName = 'unknown';
+    cleanName = cleanName.slice(0, 95); // Make sure the discrim fits
 
     const channelName = `${cleanName}-${user.discriminator}`;
 
