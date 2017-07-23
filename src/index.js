@@ -46,7 +46,7 @@ function formatAttachment(attachment) {
   });
 }
 
-// "Forward all messages not starting in prefix"
+// If the alwaysReply option is set to true, send all messages in modmail threads as replies, unless they start with the prefix
 if (config.alwaysReply) {
   bot.on('messageCreate', msg => {
     if (! msg.channel.guild) return;

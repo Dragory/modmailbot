@@ -3,6 +3,9 @@ const utils = require('./utils');
 const jsonDb = require('./jsonDb');
 const config = require('../config');
 
+// If the following messages would be used to start a thread, ignore it instead
+// This is to prevent accidental threads from e.g. irrelevant replies after the thread was already closed
+// or replies to the greeting message
 const accidentalThreadMessages = [
   'ok',
   'okay',
