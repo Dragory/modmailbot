@@ -17,6 +17,9 @@ const bot = new Eris.CommandClient(config.token, {}, {
   ignoreSelf: true,
   ignoreBots: true,
   defaultHelpCommand: false,
+  defaultCommandOptions: {
+    caseInsensitive: true,
+  },
 });
 
 const restBot = new Eris.Client(`Bot ${config.token}`, {
