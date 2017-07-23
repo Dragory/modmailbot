@@ -216,7 +216,7 @@ bot.on('messageUpdate', (msg, oldMessage) => {
     threads.getForUser(bot, msg.author).then(thread => {
       if (! thread) return;
 
-      const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n**B:** ${oldContent}\n**A:** ${newContent}`);
+      const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
 
       bot.createMessage(thread.channelId, editMessage);
     });
