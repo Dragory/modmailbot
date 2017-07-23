@@ -4,7 +4,7 @@ const config = require('../config');
 
 const greetingGuildId = config.mainGuildId || config.greetingGuildId;
 
-function enable(bot) {
+function init(bot) {
   if (! config.enableGreeting) return;
 
   bot.on('guildMemberAdd', (guild, member) => {
@@ -30,5 +30,5 @@ function enable(bot) {
 }
 
 module.exports = {
-  enable,
+  init,
 };

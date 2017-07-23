@@ -253,7 +253,7 @@ function reply(msg, text, anonymous = false) {
             msg.channel.createMessage(`[${timestamp}] » ${logContent}`);
           }, (err) => {
             if (err.resp && err.resp.statusCode === 403) {
-              msg.channel.createMessage(`Could not send reply; the user has likely blocked the bot`);
+              msg.channel.createMessage(`Could not send reply; the user has likely left the server or blocked the bot`);
             } else if (err.resp) {
               msg.channel.createMessage(`Could not send reply; error code ${err.resp.statusCode}`);
             } else {
@@ -430,5 +430,5 @@ bot.registerCommand('logs', (msg, args) => {
 bot.connect();
 restBot.connect();
 webserver.run();
-greeting.enable(bot);
+greeting.init(bot);
 
