@@ -19,7 +19,8 @@ Inspired by Reddit's modmail system.
 ##### Anywhere on the modmail inbox server
 `!logs <user>` Lists previous modmail logs with the specified user  
 `!block <user>` Blocks the specified user from using modmail  
-`!unblock <user>` Unblocks the specified user from using modmail
+`!unblock <user>` Unblocks the specified user from using modmail  
+`!s <shortcut> <text>` Adds a snippet (a canned response). See below for how to use it.
 
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
@@ -27,7 +28,8 @@ Inspired by Reddit's modmail system.
 `!close` Closes the modmail thread and saves a log of it  
 `!logs` Lists previous modmail logs with this user  
 `!block` Blocks the user from using modmail  
-`!unblock` Unblocks the user from using modmail
+`!unblock` Unblocks the user from using modmail  
+`!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.
 
 To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
 
@@ -51,3 +53,4 @@ These go in `config.json`. See also `config.example.json`.
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
 |port|8890|Port from which to serve attachments and logs|
 |url|None|URL to use for attachment and log links. Defaults to `IP:PORT`|
+|snippetPrefix|"!!"|Prefix to use snippets. Defaults to `prefix` x2.|
