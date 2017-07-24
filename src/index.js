@@ -468,7 +468,7 @@ bot.registerCommand('snippet', async (msg, args) => {
       msg.channel.createMessage(`Snippet "${shortcut}" already exists! You can delete it with ${prefix}delete_snippet.`);
     } else {
       // If the snippet exists and we're NOT trying to create a new one, show info about the existing snippet
-      msg.channel.createMessage(`${snippetPrefix}${shortcut} replies ${snippet.isAnonymous ? 'anonymously ' : ''}with:\n${snippet.text}`);
+      msg.channel.createMessage(`\`${snippetPrefix}${shortcut}\` replies ${snippet.isAnonymous ? 'anonymously ' : ''}with:\n${snippet.text}`);
     }
   } else {
     if (text) {
