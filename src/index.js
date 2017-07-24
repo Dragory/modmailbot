@@ -405,18 +405,13 @@ bot.registerCommand('logs', (msg, args) => {
         return `\`${formattedDate}\`: <${info.url}>`;
       }).join('\n');
 
-      // Send list of logs in chunks of 15 lines per message
+      // Send the list of logs in chunks of 15 lines per message
       const lines = message.split('\n');
-      const chunks = [];
-      const chunkSize = 15;
-
-      for (let i = 0; i < lines.length; i += chunkSize) {
-        chunks.push(lines.slice(i, i + chunkSize).join('\n'));
-      }
+      const chunks = utils.chunk(lines, 15);
 
       let root = Promise.resolve();
-      chunks.forEach(chunk => {
-        root = root.then(() => msg.channel.createMessage(chunk));
+      chunks.forEach(lines => {
+        root = root.then(() => msg.channel.createMessage(lines.join('\n')));
       });
     });
   }
@@ -465,7 +460,7 @@ bot.registerCommand('snippet', async (msg, args) => {
   if (snippet) {
     if (text) {
       // If the snippet exists and we're trying to create a new one, inform the user the snippet already exists
-      msg.channel.createMessage(`Snippet "${shortcut}" already exists! You can delete it with ${prefix}delete_snippet.`);
+      msg.channel.createMessage(`Snippet "${shortcut}" already exists! You can edit or delete it with ${prefix}edit_snippet and ${prefix}delete_snippet respectively.`);
     } else {
       // If the snippet exists and we're NOT trying to create a new one, show info about the existing snippet
       msg.channel.createMessage(`\`${snippetPrefix}${shortcut}\` replies ${snippet.isAnonymous ? 'anonymously ' : ''}with:\n${snippet.text}`);
@@ -502,6 +497,42 @@ bot.registerCommand('delete_snippet', async (msg, args) => {
   msg.channel.createMessage(`Snippet "${shortcut}" deleted!`);
 });
 bot.registerCommandAlias('ds', 'delete_snippet');
+
+bot.registerCommand('edit_snippet', async (msg, args) => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+
+  const shortcut = args[0];
+  const text = args.slice(1).join(' ').trim();
+
+  if (! shortcut) return;
+  if (! text) return;
+
+  const snippet = await snippets.get(shortcut);
+  if (! snippet) {
+    msg.channel.createMessage(`Snippet "${shortcut}" doesn't exist!`);
+    return;
+  }
+
+  await snippets.del(shortcut);
+  await snippets.add(shortcut, text, snippet.isAnonymous);
+
+  msg.channel.createMessage(`Snippet "${shortcut}" edited!`);
+});
+bot.registerCommandAlias('es', 'edit_snippet');
+
+bot.registerCommand('snippets', async msg => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+
+  const allSnippets = await snippets.all();
+  const shortcuts = Object.keys(allSnippets);
+  shortcuts.sort();
+
+  msg.channel.createMessage(`Available snippets (prefix ${snippetPrefix}):\n${shortcuts.join(', ')}`);
+});
 
 bot.connect();
 restBot.connect();

@@ -25,7 +25,7 @@ function getSnippet(shortcut) {
  * @returns {Promise}
  */
 function addSnippet(shortcut, text, isAnonymous = false) {
-  return jsonDb.get('snippets', []).then(snippets => {
+  return jsonDb.get('snippets', {}).then(snippets => {
     snippets[shortcut] = {
       text,
       isAnonymous,
@@ -41,14 +41,19 @@ function addSnippet(shortcut, text, isAnonymous = false) {
  * @returns {Promise}
  */
 function deleteSnippet(shortcut) {
-  return jsonDb.get('snippets', []).then(snippets => {
+  return jsonDb.get('snippets', {}).then(snippets => {
     delete snippets[shortcut];
     jsonDb.save('snippets', snippets);
   });
+}
+
+function getAllSnippets() {
+  return jsonDb.get('snippets', {});
 }
 
 module.exports = {
   get: getSnippet,
   add: addSnippet,
   del: deleteSnippet,
+  all: getAllSnippets,
 };

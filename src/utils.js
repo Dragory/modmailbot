@@ -83,6 +83,22 @@ function getMainRole(member) {
   return roles.find(r => r.hoist);
 }
 
+/**
+ * Splits array items into chunks of the specified size
+ * @param {Array} items
+ * @param {Number} chunkSize
+ * @returns {Array}
+ */
+function chunk(items, chunkSize) {
+  const result = [];
+
+  for (let i = 0; i < items.length; i += chunkSize) {
+    result.push(items.slice(i, i + chunkSize));
+  }
+
+  return result;
+}
+
 module.exports = {
   getModmailGuild,
   getMainGuild,
@@ -91,4 +107,5 @@ module.exports = {
   disableLinkPreviews,
   getSelfUrl,
   getMainRole,
+  chunk,
 };
