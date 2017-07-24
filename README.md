@@ -20,7 +20,10 @@ Inspired by Reddit's modmail system.
 `!logs <user>` Lists previous modmail logs with the specified user  
 `!block <user>` Blocks the specified user from using modmail  
 `!unblock <user>` Unblocks the specified user from using modmail  
-`!s <shortcut> <text>` Adds a snippet (a canned response). See below for how to use it.
+`!s <shortcut> <text>` Adds a snippet (a canned response). See below for how to use it.  
+`!edit_snippet <shortcut> <text>` Edits an existing snippet (alias `!es`)  
+`!delete_snippet <shortcut>` Deletes the specified snippet (alias `!ds`)  
+`!snippets` Lists all available snippets
 
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
