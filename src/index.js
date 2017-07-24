@@ -9,11 +9,15 @@ const blocked = require('./blocked');
 const threads = require('./threads');
 const logs = require('./logs');
 const attachments = require('./attachments');
+const snippets = require('./snippets');
 const webserver = require('./webserver');
 const greeting = require('./greeting');
 
+const prefix = config.prefix || '!';
+const snippetPrefix = config.snippetPrefix || prefix.repeat(2);
+
 const bot = new Eris.CommandClient(config.token, {}, {
-  prefix: config.prefix || '!',
+  prefix: prefix,
   ignoreSelf: true,
   ignoreBots: true,
   defaultHelpCommand: false,
@@ -430,8 +434,76 @@ bot.registerCommand('logs', (msg, args) => {
   }
 });
 
+// Snippets
+bot.on('messageCreate', async msg => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+  if (msg.author.bot) return;
+  if (! msg.content) return;
+  if (! msg.content.startsWith(snippetPrefix)) return;
+
+  const shortcut = msg.content.replace(snippetPrefix, '').toLowerCase();
+  const snippet = await snippets.get(shortcut);
+  if (! snippet) return;
+
+  reply(msg, snippet.text, snippet.isAnonymous);
+});
+
+// Show or add a snippet
+bot.registerCommand('snippet', async (msg, args) => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+
+  const shortcut = args[0];
+  const text = args.slice(1).join(' ').trim();
+
+  if (! shortcut) return;
+
+  const snippet = await snippets.get(shortcut);
+  if (snippet) {
+    if (text) {
+      // If the snippet exists and we're trying to create a new one, inform the user the snippet already exists
+      msg.channel.createMessage(`Snippet "${shortcut}" already exists! You can delete it with ${prefix}delete_snippet.`);
+    } else {
+      // If the snippet exists and we're NOT trying to create a new one, show info about the existing snippet
+      msg.channel.createMessage(`${snippetPrefix}${shortcut} replies ${snippet.isAnonymous ? 'anonymously ' : ''}with:\n${snippet.text}`);
+    }
+  } else {
+    if (text) {
+      // If the snippet doesn't exist and the user wants to create it, create it
+      await snippets.add(shortcut, text, false);
+      msg.channel.createMessage(`Snippet "${shortcut}" created!`);
+    } else {
+      // If the snippet doesn't exist and the user isn't trying to create it, inform them how to create it
+      msg.channel.createMessage(`Snippet "${shortcut}" doesn't exist! You can create it with \`${prefix}snippet ${shortcut} text\``);
+      return;
+    }
+  }
+});
+bot.registerCommandAlias('s', 'snippet');
+
+bot.registerCommand('delete_snippet', async (msg, args) => {
+  if (! msg.channel.guild) return;
+  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (! msg.member.permission.has('manageRoles')) return;
+
+  const shortcut = args[0];
+  if (! shortcut) return;
+
+  const snippet = await snippets.get(shortcut);
+  if (! snippet) {
+    msg.channel.createMessage(`Snippet "${shortcut}" doesn't exist!`);
+    return;
+  }
+
+  await snippets.del(shortcut);
+  msg.channel.createMessage(`Snippet "${shortcut}" deleted!`);
+});
+bot.registerCommandAlias('ds', 'delete_snippet');
+
 bot.connect();
 restBot.connect();
 webserver.run();
 greeting.init(bot);
-
