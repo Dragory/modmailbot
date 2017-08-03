@@ -27,10 +27,6 @@ const bot = new Eris.CommandClient(config.token, {}, {
   },
 });
 
-const restBot = new Eris.Client(`Bot ${config.token}`, {
-  restMode: true,
-});
-
 const messageQueue = new Queue();
 
 bot.on('ready', () => {
@@ -38,9 +34,10 @@ bot.on('ready', () => {
   console.log('Bot started, listening to DMs');
 });
 
-restBot.on('ready', () => {
-  console.log('Rest client ready');
-});
+function isStaff(member) {
+  if (! config.inboxServerPermission) return true;
+  return member.permission.has(config.inboxServerPermission);
+}
 
 function formatAttachment(attachment) {
   let filesize = attachment.size || 0;
@@ -56,7 +53,7 @@ if (config.alwaysReply) {
   bot.on('messageCreate', msg => {
     if (! msg.channel.guild) return;
     if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-    if (! msg.member.permission.has('manageRoles')) return;
+    if (! isStaff(msg.member)) return;
     if (msg.author.bot) return;
     if (msg.content[0] == bot.commandOptions.prefix) return;
 
@@ -138,33 +135,29 @@ Here's what their message contained:
           // If the thread was just created, do some extra stuff
           if (thread._wasCreated) {
             const mainGuild = utils.getMainGuild(restBot);
-            const memberPromise = (mainGuild ? mainGuild.getRESTMember(msg.author.id) : Promise.resolve());
+            const member = utils.getMainGuild(bot).members.get(msg.author.id);
 
-            threadInitDonePromise = memberPromise
-              .catch(err => {
-                console.log(`Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
-                console.error(String(err));
-              })
-              .then(member => {
-                let mainGuildNickname = null;
-                if (member && member.nick) mainGuildNickname = member.nick;
-                else if (member && member.user) mainGuildNickname = member.user.username;
-                else if (member == null) mainGuildNickname = 'NOT ON SERVER';
+            if (! member) {
+              console.log(`Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
+            }
 
-                if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
+            let mainGuildNickname = null;
+            if (member && member.nick) mainGuildNickname = member.nick;
+            else if (member && member.user) mainGuildNickname = member.user.username;
+            else if (member == null) mainGuildNickname = 'NOT ON SERVER';
 
-                const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
-                const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
+            if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
 
-                return bot.createMessage(thread.channelId, infoHeader);
-              })
-              .then(() => {
-                // Ping mods of the new thread
-                bot.createMessage(thread.channelId, {
-                  content: `@here New modmail thread (${msg.author.username}#${msg.author.discriminator})`,
-                  disableEveryone: false,
-                });
+            const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
+            const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
+
+            return bot.createMessage(thread.channelId, infoHeader).then(() => {
+              // Ping mods of the new thread
+              bot.createMessage(thread.channelId, {
+                content: `@here New modmail thread (${msg.author.username}#${msg.author.discriminator})`,
+                disableEveryone: false,
               });
+            });
 
             // Send an automatic reply to the user informing them of the successfully created modmail thread
             msg.channel.createMessage(config.responseMessage || "Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
@@ -294,7 +287,7 @@ function reply(msg, text, anonymous = false) {
 bot.registerCommand('reply', (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   const text = args.join(' ').trim();
   reply(msg, text, false);
@@ -306,7 +299,7 @@ bot.registerCommandAlias('r', 'reply');
 bot.registerCommand('anonreply', (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   const text = args.join(' ').trim();
   reply(msg, text, true);
@@ -317,7 +310,7 @@ bot.registerCommandAlias('ar', 'anonreply');
 bot.registerCommand('close', (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   threads.getByChannelId(msg.channel.id).then(thread => {
     if (! thread) return;
@@ -347,7 +340,7 @@ Logs: <${url}>`;
 bot.registerCommand('block', (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   function block(userId) {
     blocked.block(userId).then(() => {
@@ -371,7 +364,7 @@ bot.registerCommand('block', (msg, args) => {
 bot.registerCommand('unblock', (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   function unblock(userId) {
     blocked.unblock(userId).then(() => {
@@ -395,7 +388,7 @@ bot.registerCommand('unblock', (msg, args) => {
 bot.registerCommand('logs', (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   function getLogs(userId) {
     logs.getLogsWithUrlByUserId(userId).then(infos => {
@@ -434,7 +427,7 @@ bot.registerCommand('logs', (msg, args) => {
 bot.on('messageCreate', async msg => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
   if (msg.author.bot) return;
   if (! msg.content) return;
   if (! msg.content.startsWith(snippetPrefix)) return;
@@ -450,7 +443,7 @@ bot.on('messageCreate', async msg => {
 bot.registerCommand('snippet', async (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   const shortcut = args[0];
   const text = args.slice(1).join(' ').trim();
@@ -483,7 +476,7 @@ bot.registerCommandAlias('s', 'snippet');
 bot.registerCommand('delete_snippet', async (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   const shortcut = args[0];
   if (! shortcut) return;
@@ -502,7 +495,7 @@ bot.registerCommandAlias('ds', 'delete_snippet');
 bot.registerCommand('edit_snippet', async (msg, args) => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   const shortcut = args[0];
   const text = args.slice(1).join(' ').trim();
@@ -526,7 +519,7 @@ bot.registerCommandAlias('es', 'edit_snippet');
 bot.registerCommand('snippets', async msg => {
   if (! msg.channel.guild) return;
   if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
-  if (! msg.member.permission.has('manageRoles')) return;
+  if (! isStaff(msg.member)) return;
 
   const allSnippets = await snippets.all();
   const shortcuts = Object.keys(allSnippets);
@@ -536,6 +529,5 @@ bot.registerCommand('snippets', async msg => {
 });
 
 bot.connect();
-restBot.connect();
 webserver.run();
 greeting.init(bot);
