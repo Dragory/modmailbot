@@ -150,9 +150,9 @@ Here's what their message contained:
             const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
             const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
 
-            return bot.createMessage(thread.channelId, infoHeader).then(() => {
+            threadInitDonePromise = bot.createMessage(thread.channelId, infoHeader).then(() => {
               // Ping mods of the new thread
-              bot.createMessage(thread.channelId, {
+              return bot.createMessage(thread.channelId, {
                 content: `@here New modmail thread (${msg.author.username}#${msg.author.discriminator})`,
                 disableEveryone: false,
               });
