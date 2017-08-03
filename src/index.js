@@ -134,7 +134,6 @@ Here's what their message contained:
 
           // If the thread was just created, do some extra stuff
           if (thread._wasCreated) {
-            const mainGuild = utils.getMainGuild(restBot);
             const member = utils.getMainGuild(bot).members.get(msg.author.id);
 
             if (! member) {
