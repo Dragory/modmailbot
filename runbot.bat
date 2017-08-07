@@ -1,3 +1,4 @@
 @echo off
-node %~dp0/src/index.js
+cd %~dp0
+npm start
 pause
