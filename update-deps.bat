@@ -18,7 +18,7 @@ goto :choice
 :Y
 cls
 echo Starting Update...
-timeout /nobreak /t 5
+timeout /nobreak /t 3
 cd %~dp0
 cls
 call npm install
