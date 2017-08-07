@@ -8,7 +8,7 @@ echo This will update/install the required modules.
 set /P c=Do you wish to continue?[Y/N]?
 if /I "%c%" EQU "Y" goto :Y
 if /I "%c%" EQU "N" goto :N
-Echo Answer Not Reconizied Please Try Again!
+Echo Answer Not Recognized Please Try Again!
 goto :choice
 
 
