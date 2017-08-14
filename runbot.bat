@@ -1,6 +1,8 @@
 @echo off
-Echo Hello, I will check for updates then run the bot.
-timeout /nobreak /t 3
+Echo Hello, %username% i will check for updates then run the bot.
+Echo Current time is
+time /t
+timeout /t 3
 cls
 cd %~dp0
 echo Checking For Updates!
