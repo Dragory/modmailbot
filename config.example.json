@@ -12,9 +12,9 @@
   "ignoreAccidentalThreads": false,
   "enableGreeting": false,
   "greetingMessage": "The message the bot sends to a new user",
-  "greetingAttachment": Put a file path here,
+  "greetingAttachment": "Put a file path here",
   "port": 8890,
   "url": "URL HERE",
   "snippetPrefix": "!!",
-  "inboxServerPermission": "ManageRoles"
+  "inboxServerPermission": "SendMessages"
 }
