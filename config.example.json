@@ -8,4 +8,13 @@
   "responseMessage": "Thank you for your message! Our mod team will reply to you here as soon as possible.",
   "alwaysReply": false,
   "alwaysReplyAnon": false
+  "useNicknames": false
+  "ignoreAccidentalThreads": false
+  "enableGreeting": false
+  "greetingMessage": "The message the bot sends to a new user"
+  "greetingAttachment": Put a file path here
+  "port": 8890
+  "url": "URL HERE"
+  "snippetPrefix": "!!"
+  "inboxServerPermission": "ManageRoles"
 }
