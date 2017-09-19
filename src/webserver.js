@@ -2,7 +2,7 @@ const http = require('http');
 const mime = require('mime');
 const url = require('url');
 const fs = require('fs');
-const config = require('../config');
+const config = require('./config');
 const logs = require('./logs');
 const attachments = require('./attachments');
 

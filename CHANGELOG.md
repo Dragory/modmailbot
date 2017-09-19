@@ -1,5 +1,10 @@
 # Changelog
 
+## Sep 19, 2017
+* Added `logChannelId` option
+* Some code clean-up. Please open an issue if you encounter any bugs!
+* The bot now throws an error for unknown options in `config.json` (assuming they're typos) and tells you if you haven't configured the token or mail guild id.
+
 ## Aug 3, 2017
 * Fixed user nicknames not showing in new threads
 * The "manageRoles" permission is no longer required to use commands on the inbox server.  

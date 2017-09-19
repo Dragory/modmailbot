@@ -1,8 +1,9 @@
 const Eris = require('eris');
 const transliterate = require('transliteration');
-const utils = require('./utils');
 const jsonDb = require('./jsonDb');
-const config = require('../config');
+const config = require('./config');
+
+const getUtils = () => require('./utils');
 
 // If the following messages would be used to start a thread, ignore it instead
 // This is to prevent accidental threads from e.g. irrelevant replies after the thread was already closed
@@ -56,12 +57,11 @@ const accidentalThreadMessages = [
 /**
  * Returns information about the modmail thread channel for the given user. We can't return channel objects
  * directly since they're not always available immediately after creation.
- * @param {Eris.Client} bot
  * @param {Eris.User} user
  * @param {Boolean} allowCreate
  * @returns {Promise<ModMailThread>}
  */
-function getForUser(bot, user, allowCreate = true, originalMessage = null) {
+function getForUser(user, allowCreate = true, originalMessage = null) {
   return jsonDb.get('threads', []).then(threads => {
     const thread = threads.find(t => t.userId === user.id);
     if (thread) return thread;
@@ -85,7 +85,7 @@ function getForUser(bot, user, allowCreate = true, originalMessage = null) {
     }
 
     console.log(`[NOTE] Creating new thread channel ${channelName}`);
-    return utils.getInboxGuild(bot).createChannel(`${channelName}`)
+    return getUtils().getInboxGuild().createChannel(`${channelName}`)
       .then(channel => {
         const thread = {
           channelId: channel.id,

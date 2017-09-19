@@ -1,8 +1,9 @@
 const Eris = require('eris');
 const fs = require('fs');
 const https = require('https');
-const config = require('../config');
-const utils = require('./utils');
+const config = require('./config');
+
+const getUtils = () => require('./utils');
 
 const attachmentDir = config.attachmentDir || `${__dirname}/../attachments`;
 
@@ -64,7 +65,7 @@ function saveAttachmentsInMessage(msg) {
  */
 function getUrl(attachmentId, desiredName = null) {
   if (desiredName == null) desiredName = 'file.bin';
-  return utils.getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
+  return getUtils().getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
 }
 
 module.exports = {

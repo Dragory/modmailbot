@@ -1,8 +1,9 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const moment = require('moment');
-const config = require('../config');
-const utils = require('./utils');
+const config = require('./config');
+
+const getUtils = () => require('./utils');
 
 const logDir = config.logDir || `${__dirname}/../logs`;
 const logFileFormatRegex = /^([0-9\-]+?)__([0-9]+?)__([0-9a-f]+?)\.txt$/;
@@ -51,7 +52,7 @@ function getLogFilePath(logFilename) {
  */
 function getLogFileUrl(logFilename) {
   const info = getLogFileInfo(logFilename);
-  return utils.getSelfUrl(`logs/${info.token}`);
+  return getUtils().getSelfUrl(`logs/${info.token}`);
 }
 
 /**
