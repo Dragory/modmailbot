@@ -346,10 +346,6 @@ utils.addInboxCommand('logs', (msg, args, thread) => {
   }
 });
 
-/**
- * ---!!!!!!!!!!!--- REFACTOR LINE ---!!!!!!!!!!!---
- */
-
 // Snippets
 bot.on('messageCreate', async msg => {
   if (! utils.messageIsOnInboxServer(msg)) return;
