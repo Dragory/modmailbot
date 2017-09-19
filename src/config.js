@@ -25,8 +25,8 @@ const defaultConfig = {
   "ignoreAccidentalThreads": false,
 
   "enableGreeting": false,
-  "greetingMessage": "The message the bot sends to a new user",
-  "greetingAttachment": "Put a file path here",
+  "greetingMessage": null,
+  "greetingAttachment": null,
 
   "port": 8890,
   "url": null
