@@ -4,17 +4,32 @@ const publicIp = require('public-ip');
 const config = require('../config');
 const utils = require('./utils');
 
-let modMailGuild = null;
+let inboxGuild = null;
 let mainGuild = null;
+let logChannel = null;
 
-function getModmailGuild(bot) {
-  if (! modMailGuild) modMailGuild = bot.guilds.find(g => g.id === config.mailGuildId);
-  return modMailGuild;
+function getInboxGuild(bot) {
+  if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.mailGuildId);
+  return inboxGuild;
 }
 
 function getMainGuild(bot) {
   if (! mainGuild) mainGuild = bot.guilds.find(g => g.id === config.mainGuildId);
   return mainGuild;
+}
+
+function getLogChannel(bot) {
+  const inboxGuild = getInboxGuild(bot);
+
+  if (! config.logChannelId) {
+    return inboxGuild.channels.get(inboxGuild.id);
+  }
+
+  if (! logChannel) {
+    logChannel = inboxGuild.channels.get(config.logChannelId);
+  }
+
+  return logChannel;
 }
 
 const userMentionRegex = /^<@\!?([0-9]+?)>$/;
@@ -100,8 +115,9 @@ function chunk(items, chunkSize) {
 }
 
 module.exports = {
-  getModmailGuild,
+  getInboxGuild,
   getMainGuild,
+  getLogChannel,
   getUserMention,
   getTimestamp,
   disableLinkPreviews,

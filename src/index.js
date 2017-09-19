@@ -52,7 +52,7 @@ function formatAttachment(attachment) {
 if (config.alwaysReply) {
   bot.on('messageCreate', msg => {
     if (! msg.channel.guild) return;
-    if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+    if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
     if (! isStaff(msg.member)) return;
     if (msg.author.bot) return;
     if (msg.content[0] == bot.commandOptions.prefix) return;
@@ -67,12 +67,12 @@ bot.on('messageCreate', msg => {
 
   if (msg.mentions.some(user => user.id === bot.user.id)) {
     // If the person who mentioned the modmail bot is on the modmail server, don't ping about it
-    if (utils.getModmailGuild(bot).members.get(msg.author.id)) return;
+    if (utils.getInboxGuild(bot).members.get(msg.author.id)) return;
 
     blocked.isBlocked(msg.author.id).then(isBlocked => {
       if (isBlocked) return;
 
-      bot.createMessage(utils.getModmailGuild(bot).id, {
+      bot.createMessage(utils.getLogChannel(bot).id, {
         content: `@here Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
         disableEveryone: false,
       });
@@ -119,7 +119,7 @@ Here's what their message contained:
 \`\`\`${content}\`\`\`
           `.trim();
 
-            bot.createMessage(utils.getModmailGuild(bot).id, {
+            bot.createMessage(utils.getLogChannel(bot).id, {
               content: warningMessage,
               disableEveryone: false,
             });
@@ -160,7 +160,7 @@ Here's what their message contained:
 
             // Send an automatic reply to the user informing them of the successfully created modmail thread
             msg.channel.createMessage(config.responseMessage || "Thank you for your message! Our mod team will reply to you here as soon as possible.").then(null, (err) => {
-              bot.createMessage(utils.getModmailGuild(bot).id, {
+              bot.createMessage(utils.getLogChannel(bot).id, {
                 content: `There is an issue sending messages to ${msg.author.username}#${msg.author.discriminator} (id ${msg.author.id}); consider messaging manually`
               });
             });
@@ -285,7 +285,7 @@ function reply(msg, text, anonymous = false) {
 // These messages get relayed back to the DM thread between the bot and the user
 bot.registerCommand('reply', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   const text = args.join(' ').trim();
@@ -297,7 +297,7 @@ bot.registerCommandAlias('r', 'reply');
 // Anonymous replies only show the role, not the username
 bot.registerCommand('anonreply', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   const text = args.join(' ').trim();
@@ -308,7 +308,7 @@ bot.registerCommandAlias('ar', 'anonreply');
 
 bot.registerCommand('close', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   threads.getByChannelId(msg.channel.id).then(thread => {
@@ -328,7 +328,7 @@ bot.registerCommand('close', (msg, args) => {
             const closeMessage = `Modmail thread with ${thread.username} (${thread.userId}) was closed by ${msg.author.username}
 Logs: <${url}>`;
 
-            bot.createMessage(utils.getModmailGuild(bot).id, closeMessage);
+            bot.createMessage(utils.getLogChannel(bot).id, closeMessage);
             threads.close(thread.channelId).then(() => msg.channel.delete());
           });
       });
@@ -338,7 +338,7 @@ Logs: <${url}>`;
 
 bot.registerCommand('block', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   function block(userId) {
@@ -362,7 +362,7 @@ bot.registerCommand('block', (msg, args) => {
 
 bot.registerCommand('unblock', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   function unblock(userId) {
@@ -386,7 +386,7 @@ bot.registerCommand('unblock', (msg, args) => {
 
 bot.registerCommand('logs', (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   function getLogs(userId) {
@@ -425,7 +425,7 @@ bot.registerCommand('logs', (msg, args) => {
 // Snippets
 bot.on('messageCreate', async msg => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
   if (msg.author.bot) return;
   if (! msg.content) return;
@@ -441,7 +441,7 @@ bot.on('messageCreate', async msg => {
 // Show or add a snippet
 bot.registerCommand('snippet', async (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   const shortcut = args[0];
@@ -474,7 +474,7 @@ bot.registerCommandAlias('s', 'snippet');
 
 bot.registerCommand('delete_snippet', async (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   const shortcut = args[0];
@@ -493,7 +493,7 @@ bot.registerCommandAlias('ds', 'delete_snippet');
 
 bot.registerCommand('edit_snippet', async (msg, args) => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   const shortcut = args[0];
@@ -517,7 +517,7 @@ bot.registerCommandAlias('es', 'edit_snippet');
 
 bot.registerCommand('snippets', async msg => {
   if (! msg.channel.guild) return;
-  if (msg.channel.guild.id !== utils.getModmailGuild(bot).id) return;
+  if (msg.channel.guild.id !== utils.getInboxGuild(bot).id) return;
   if (! isStaff(msg.member)) return;
 
   const allSnippets = await snippets.all();

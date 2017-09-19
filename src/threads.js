@@ -85,7 +85,7 @@ function getForUser(bot, user, allowCreate = true, originalMessage = null) {
     }
 
     console.log(`[NOTE] Creating new thread channel ${channelName}`);
-    return utils.getModmailGuild(bot).createChannel(`${channelName}`)
+    return utils.getInboxGuild(bot).createChannel(`${channelName}`)
       .then(channel => {
         const thread = {
           channelId: channel.id,

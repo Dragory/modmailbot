@@ -58,3 +58,4 @@ These go in `config.json`. See also `config.example.json`.
 |url|None|URL to use for attachment and log links. Defaults to `IP:PORT`|
 |snippetPrefix|"!!"|Prefix to use snippets. Defaults to `prefix` x2.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
+|logChannelId|Server's default channel|Channel where to post links to closed threads and other alerts|
