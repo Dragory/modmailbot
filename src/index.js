@@ -19,8 +19,8 @@ const messageQueue = new Queue();
 
 // Force crash on unhandled rejections (use something like forever/pm2 to restart)
 process.on('unhandledRejection', err => {
-  if (err instanceof utils.BotError) {
-    // BotErrors don't need a stack trace
+  if (err instanceof utils.BotError || (err && err.code)) {
+    // We ignore stack traces for BotErrors (the message has enough info) and network errors from Eris (their stack traces are unreadably long)
     console.error(`Error: ${err.message}`);
   } else {
     console.error(err);
