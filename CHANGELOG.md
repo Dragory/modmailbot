@@ -3,6 +3,7 @@
 ## Sep 20, 2017
 * Fixed crash when the bot was unable to find or create a modmail thread
 * Reduced error log spam in case of network errors from Eris
+* Fix unintended error when a message was ignored due to an "accidental thread" word
 
 ## Sep 19, 2017
 * Added `logChannelId` option

@@ -95,12 +95,8 @@ Here's what their message contained:
     }
 
     if (! thread) {
-      utils.postError(`
-Modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id}) was not found.
-
-Here's what their message contained:
-\`\`\`${msg.cleanContent}\`\`\`
-`);
+      // If there's no thread returned, this message was probably ignored (e.g. due to a common word)
+      // TODO: Move that logic here instead?
       return;
     }
 
