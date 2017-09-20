@@ -101,6 +101,7 @@ Modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.aut
 Here's what their message contained:
 \`\`\`${msg.cleanContent}\`\`\`
 `);
+      return;
     }
 
     if (thread._wasCreated) {
