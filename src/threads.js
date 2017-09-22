@@ -1,4 +1,5 @@
 const Eris = require('eris');
+const bot = require('./bot');
 const transliterate = require('transliteration');
 const jsonDb = require('./jsonDb');
 const config = require('./config');
@@ -92,6 +93,11 @@ function getForUser(user, allowCreate = true, originalMessage = null) {
           userId: user.id,
           username: `${user.username}#${user.discriminator}`,
         };
+
+        if (config.newThreadCategoryId) {
+          // If a category id is specified, move the newly created channel there
+          bot.editChannel(channel.id, {parentID: config.newThreadCategoryId});
+        }
 
         return jsonDb.get('threads', []).then(threads => {
           threads.push(thread);
