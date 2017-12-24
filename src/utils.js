@@ -2,8 +2,8 @@ const Eris = require('eris');
 const bot = require('./bot');
 const moment = require('moment');
 const publicIp = require('public-ip');
-const threads = require('./threads');
-const attachments = require('./attachments');
+const threads = require('./data/threads');
+const attachments = require('./data/attachments');
 const config = require('./config');
 
 class BotError extends Error {}

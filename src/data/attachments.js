@@ -1,9 +1,9 @@
 const Eris = require('eris');
 const fs = require('fs');
 const https = require('https');
-const config = require('./config');
+const config = require('../config');
 
-const getUtils = () => require('./utils');
+const getUtils = () => require('../utils');
 
 const attachmentDir = config.attachmentDir || `${__dirname}/../attachments`;
 
@@ -36,7 +36,7 @@ function saveAttachment(attachment, tries = 0) {
     https.get(attachment.url, (res) => {
       res.pipe(writeStream);
       writeStream.on('finish', () => {
-        writeStream.close()
+        writeStream.closeByChannelId()
         resolve();
       });
     }).on('error', (err) => {

@@ -1,11 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const config = require('./config');
+const config = require('../config');
 
-const dbDir = config.dbDir || `${__dirname}/../db`;
+const dbDir = config.dbDir;
 
 const databases = {};
 
+/**
+ * @deprecated Only used for migrating legacy data
+ */
 class JSONDB {
   constructor(path, def = {}, useCloneByDefault = false) {
     this.path = path;

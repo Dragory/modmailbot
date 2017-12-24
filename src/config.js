@@ -1,3 +1,5 @@
+const path = require('path');
+
 let userConfig;
 
 try {
@@ -31,7 +33,12 @@ const defaultConfig = {
   "greetingAttachment": null,
 
   "port": 8890,
-  "url": null
+  "url": null,
+
+  "dbDir": path.join(__dirname, '..', 'db'),
+  "knex": null,
+
+  "logDir": path.join(__dirname, '..', 'logs'),
 };
 
 const finalConfig = Object.assign({}, defaultConfig);
@@ -44,8 +51,28 @@ for (const [prop, value] of Object.entries(userConfig)) {
   finalConfig[prop] = value;
 }
 
-if (! finalConfig.token) throw new Error('Missing token!');
-if (! finalConfig.mailGuildId) throw new Error('Missing mailGuildId (inbox server id)!');
-if (! finalConfig.mainGuildId) throw new Error('Missing mainGuildId!');
+if (! finalConfig['knex']) {
+  finalConfig['knex'] = {
+    client: 'sqlite',
+      connection: {
+      filename: path.join(finalConfig.dbDir, 'data.sqlite')
+    },
+    useNullAsDefault: true
+  };
+}
+
+Object.assign(finalConfig['knex'], {
+  migrations: {
+    directory: path.join(finalConfig.dbDir, 'migrations')
+  }
+});
+
+const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
+for (const opt of required) {
+  if (! finalConfig[opt]) {
+    console.error(`Missing required config.json value: ${opt}`);
+    process.exit(1);
+  }
+}
 
 module.exports = finalConfig;

@@ -3,8 +3,7 @@ const mime = require('mime');
 const url = require('url');
 const fs = require('fs');
 const config = require('./config');
-const logs = require('./logs');
-const attachments = require('./attachments');
+const attachments = require('./data/attachments');
 
 const port = config.port || 8890;
 
