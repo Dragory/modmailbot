@@ -41,6 +41,8 @@ const defaultConfig = {
   "logDir": path.join(__dirname, '..', 'logs'),
 };
 
+const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
+
 const finalConfig = Object.assign({}, defaultConfig);
 
 for (const [prop, value] of Object.entries(userConfig)) {
@@ -67,7 +69,6 @@ Object.assign(finalConfig['knex'], {
   }
 });
 
-const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
 for (const opt of required) {
   if (! finalConfig[opt]) {
     console.error(`Missing required config.json value: ${opt}`);

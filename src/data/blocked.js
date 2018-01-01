@@ -11,15 +11,17 @@ async function isBlocked(userId) {
     .where('user_id', userId)
     .first();
 
-  return !!row;
+  return !! row;
 }
 
 /**
  * Blocks the given userId
  * @param {String} userId
+ * @param {String} userName
+ * @param {String} blockedBy
  * @returns {Promise}
  */
-async function block(userId, userName = '', blockedBy = 0) {
+async function block(userId, userName = '', blockedBy = null) {
   if (await isBlocked(userId)) return;
 
   return knex('blocked_users')

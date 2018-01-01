@@ -82,7 +82,7 @@ async function migrateOpenThreads() {
       is_legacy: 1
     };
 
-    return threads.create(newThread);
+    return threads.createThreadInDB(newThread);
   });
 
   return Promise.all(promises);

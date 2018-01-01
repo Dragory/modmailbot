@@ -1,18 +1,6 @@
 const moment = require('moment');
 const knex = require('../knex');
-
-/**
- * @property {String} trigger
- * @property {String} body
- * @property {Number} is_anonymous
- * @property {String} created_by
- * @property {String} created_at
- */
-class Snippet {
-  constructor(props) {
-    Object.assign(this, props);
-  }
-}
+const Snippet = require('./Snippet');
 
 /**
  * @param {String} trigger
@@ -46,7 +34,7 @@ async function addSnippet(trigger, body, isAnonymous = false, createdBy = 0) {
 
 /**
  * @param {String} trigger
- * @returns {Promise}
+ * @returns {Promise<void>}
  */
 async function deleteSnippet(trigger) {
   return knex('snippets')
@@ -54,6 +42,9 @@ async function deleteSnippet(trigger) {
     .delete();
 }
 
+/**
+ * @returns {Promise<Snippet[]>}
+ */
 async function getAllSnippets() {
   const snippets = await knex('snippets')
     .select();

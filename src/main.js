@@ -1,7 +1,5 @@
-const fs = require('fs');
 const Eris = require('eris');
 const moment = require('moment');
-const humanizeDuration = require('humanize-duration');
 
 const config = require('./config');
 const bot = require('./bot');
@@ -9,12 +7,38 @@ const Queue = require('./queue');
 const utils = require('./utils');
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
-const attachments = require('./data/attachments');
 const snippets = require('./data/snippets');
 const webserver = require('./webserver');
 const greeting = require('./greeting');
+const Thread = require('./data/Thread');
 
 const messageQueue = new Queue();
+
+/**
+ * @callback CommandHandlerCB
+ * @interface
+ * @param {Eris~Message} msg
+ * @param {Array} args
+ * @param {Thread} thread
+ * @return void
+ */
+
+/**
+ * Adds a command that can only be triggered on the inbox server.
+ * Command handlers added with this function also get the thread the message was posted in as a third argument, if any.
+ * @param {String} cmd
+ * @param {CommandHandlerCB} commandHandler
+ * @param {Eris~CommandOptions} opts
+ */
+function addInboxServerCommand(cmd, commandHandler, opts) {
+  bot.registerCommand(cmd, async (msg, args) => {
+    if (! messageIsOnInboxServer(msg)) return;
+    if (! isStaff(msg.member)) return;
+
+    const thread = await threads.findByChannelId(msg.channel.id);
+    commandHandler(msg, args, thread);
+  }, opts);
+}
 
 // Once the bot has connected, set the status/"playing" message
 bot.on('ready', () => {
@@ -22,19 +46,33 @@ bot.on('ready', () => {
   console.log('Bot started, listening to DMs');
 });
 
-// If the alwaysReply option is set to true, send all messages in modmail threads as replies, unless they start with a command prefix
-if (config.alwaysReply) {
-  bot.on('messageCreate', msg => {
-    if (! utils.messageIsOnInboxServer(msg)) return;
-    if (! utils.isStaff(msg)) return;
-    if (msg.author.bot) return;
-    if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) return;
+// Handle moderator messages in thread channels
+bot.on('messageCreate', async msg => {
+  if (! utils.messageIsOnInboxServer(msg)) return;
+  if (! utils.isStaff(msg)) return;
+  if (msg.author.bot) return;
+  if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) return;
 
-    reply(msg, msg.content.trim(), config.alwaysReplyAnon || false);
-  });
-}
+  const thread = await threads.findByChannelId(msg.channel.id);
+  if (! thread) return;
 
-// "Bot was mentioned in #general-discussion"
+  if (config.alwaysReply) {
+    // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
+    await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false);
+    msg.delete();
+  } else {
+    // Otherwise just save the messages as "chat" in the logs
+    thread.addThreadMessageToDB({
+      message_type: threads.THREAD_MESSAGE_TYPE.CHAT,
+      user_id: msg.author.id,
+      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      body: msg.content,
+      original_message_id: msg.id
+    });
+  }
+});
+
+// If the bot is mentioned on the main server, post a log message about it
 bot.on('messageCreate', async msg => {
   if (! utils.messageIsOnMainServer(msg)) return;
   if (! msg.mentions.some(user => user.id === bot.user.id)) return;
@@ -58,79 +96,14 @@ bot.on('messageCreate', async msg => {
 
   if (await blocked.isBlocked(msg.author.id)) return;
 
-  // Download and save copies of attachments in the background
-  const attachmentSavePromise = attachments.saveAttachmentsInMessage(msg);
-
-  let threadCreationFailed = false;
-
   // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
   messageQueue.add(async () => {
-    let thread;
-
-    // Find the corresponding modmail thread
-    try {
-      thread = await threads.getOpenThreadForUser(msg.author, true, msg);
-    } catch (e) {
-      console.error(e);
-      utils.postError(`
-Modmail thread for ${msg.author.username}#${msg.author.discriminator} (${msg.author.id}) could not be created:
-\`\`\`${e.message}\`\`\`
-
-Here's what their message contained:
-\`\`\`${msg.cleanContent}\`\`\``);
-      return;
-    }
-
+    let thread = await threads.findOpenThreadByUserId(msg.author.id);
     if (! thread) {
-      // If there's no thread returned, this message was probably ignored (e.g. due to a common word)
-      // TODO: Move that logic here instead?
-      return;
+      thread = await threads.createNewThreadForUser(msg.author, msg);
     }
 
-    if (thread._wasCreated) {
-      const mainGuild = utils.getMainGuild();
-      const member = (mainGuild ? mainGuild.members.get(msg.author.id) : null);
-      if (! member) console.log(`[INFO] Member ${msg.author.id} not found in main guild ${config.mainGuildId}`);
-
-      let mainGuildNickname = null;
-      if (member && member.nick) mainGuildNickname = member.nick;
-      else if (member && member.user) mainGuildNickname = member.user.username;
-      else if (member == null) mainGuildNickname = 'NOT ON SERVER';
-
-      if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
-
-      const userLogs = await logs.getLogsByUserId(msg.author.id);
-      const accountAge = humanizeDuration(Date.now() - msg.author.createdAt, {largest: 2});
-      const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${msg.author.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogs.length}**\n-------------------------------`;
-
-      await bot.createMessage(thread.channelId, infoHeader);
-
-      // Ping mods of the new thread
-      await bot.createMessage(thread.channelId, {
-        content: `@here New modmail thread (${msg.author.username}#${msg.author.discriminator})`,
-        disableEveryone: false,
-      });
-
-      // Send an automatic reply to the user informing them of the successfully created modmail thread
-      msg.channel.createMessage(config.responseMessage).catch(err => {
-        utils.postError(`There is an issue sending messages to ${msg.author.username}#${msg.author.discriminator} (${msg.author.id}); consider messaging manually`);
-      });
-    }
-
-    const timestamp = utils.getTimestamp();
-    const attachmentsPendingStr = '\n\n*Attachments pending...*';
-
-    let content = msg.content;
-    if (msg.attachments.length > 0) content += attachmentsPendingStr;
-
-    const createdMsg = await bot.createMessage(thread.channelId, `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`);
-
-    if (msg.attachments.length > 0) {
-      await attachmentSavePromise;
-      const formattedAttachments = await Promise.all(msg.attachments.map(utils.formatAttachment));
-      const attachmentMsg = `\n\n` + formattedAttachments.reduce((str, formatted) => str + `\n\n${formatted}`);
-      createdMsg.edit(createdMsg.content.replace(attachmentsPendingStr, attachmentMsg));
-    }
+    thread.receiveUserReply(msg);
   });
 });
 
@@ -150,122 +123,39 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
   // Ignore bogus edit events with no changes
   if (newContent.trim() === oldContent.trim()) return;
 
-  const thread = await threads.getOpenThreadForUser(msg.author);
+  const thread = await threads.createNewThreadForUser(msg.author);
   if (! thread) return;
 
   const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
   bot.createMessage(thread.channelId, editMessage);
 });
 
-/**
- * Sends a reply to the modmail thread where `msg` was posted.
- * @param {Eris.Message} msg
- * @param {string} text
- * @param {bool} anonymous
- * @returns {Promise<void>}
- */
-async function reply(msg, text, anonymous = false) {
-  const thread = await threads.getByChannelId(msg.channel.id);
-  if (! thread) return;
-
-  await attachments.saveAttachmentsInMessage(msg);
-
-  const dmChannel = await bot.getDMChannel(thread.userId);
-
-  let modUsername, logModUsername;
-  const mainRole = utils.getMainRole(msg.member);
-
-  if (anonymous) {
-    modUsername = (mainRole ? mainRole.name : 'Moderator');
-    logModUsername = `(Anonymous) (${msg.author.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
-  } else {
-    const name = (config.useNicknames ? msg.member.nick || msg.author.username : msg.author.username);
-    modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
-    logModUsername = modUsername;
-  }
-
-  let content = `**${modUsername}:** ${text}`;
-  let logContent = `**${logModUsername}:** ${text}`;
-
-  async function sendMessage(file, attachmentUrl) {
-    try {
-      await dmChannel.createMessage(content, file);
-    } catch (e) {
-      if (e.resp && e.resp.statusCode === 403) {
-        msg.channel.createMessage(`Could not send reply; the user has likely left the server or blocked the bot`);
-      } else if (e.resp) {
-        msg.channel.createMessage(`Could not send reply; error code ${e.resp.statusCode}`);
-      } else {
-        msg.channel.createMessage(`Could not send reply: ${e.toString()}`);
-      }
-    }
-
-    if (attachmentUrl) {
-      content += `\n\n**Attachment:** ${attachmentUrl}`;
-      logContent += `\n\n**Attachment:** ${attachmentUrl}`;
-    }
-
-    // Show the message in the modmail thread as well
-    msg.channel.createMessage(`[${utils.getTimestamp()}] » ${logContent}`);
-    msg.delete();
-  };
-
-  if (msg.attachments.length > 0) {
-    // If the reply has an attachment, relay it as is
-    fs.readFile(attachments.getPath(msg.attachments[0].id), async (err, data) => {
-      const file = {file: data, name: msg.attachments[0].filename};
-
-      const attachmentUrl = await attachments.getUrl(msg.attachments[0].id, msg.attachments[0].filename);
-      sendMessage(file, attachmentUrl);
-    });
-  } else {
-    // Otherwise just send the message regularly
-    sendMessage();
-  }
-}
-
 // Mods can reply to modmail threads using !r or !reply
 // These messages get relayed back to the DM thread between the bot and the user
-utils.addInboxCommand('reply', (msg, args) => {
+addInboxServerCommand('reply', (msg, args, thread) => {
+  if (! thread) return;
   const text = args.join(' ').trim();
-  reply(msg, text, false);
+  thread.replyToUser(msg.member, text, msg.attachments, false);
 });
 
 bot.registerCommandAlias('r', 'reply');
 
 // Anonymous replies only show the role, not the username
-utils.addInboxCommand('anonreply', (msg, args) => {
+addInboxServerCommand('anonreply', (msg, args, thread) => {
+  if (! thread) return;
   const text = args.join(' ').trim();
-  reply(msg, text, true);
+  thread.replyToUser(msg.member, text, msg.attachments, true);
 });
 
 bot.registerCommandAlias('ar', 'anonreply');
 
 // Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
-utils.addInboxCommand('close', async (msg, args, thread) => {
+addInboxServerCommand('close', async (msg, args, thread) => {
   if (! thread) return;
-
-  await msg.channel.createMessage('Saving logs and closing channel...');
-
-  const logMessages = await msg.channel.getMessages(10000);
-  const log = logMessages.reverse().map(msg => {
-    const date = moment.utc(msg.timestamp, 'x').format('YYYY-MM-DD HH:mm:ss');
-    return `[${date}] ${msg.author.username}#${msg.author.discriminator}: ${msg.content}`;
-  }).join('\n') + '\n';
-
-  const logFilename = await logs.getNewLogFile(thread.userId);
-  await logs.saveLogFile(logFilename, log);
-
-  const logUrl = await logs.getLogFileUrl(logFilename);
-  const closeMessage = `Modmail thread with ${thread.username} (${thread.userId}) was closed by ${msg.author.username}
-Logs: <${logUrl}>`;
-
-  bot.createMessage(utils.getLogChannel(bot).id, closeMessage);
-  await threads.closeByChannelId(thread.channelId);
-  msg.channel.delete();
+  thread.close();
 });
 
-utils.addInboxCommand('block', (msg, args, thread) => {
+addInboxServerCommand('block', (msg, args, thread) => {
   async function block(userId) {
     await blocked.block(userId);
     msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
@@ -282,7 +172,7 @@ utils.addInboxCommand('block', (msg, args, thread) => {
   }
 });
 
-utils.addInboxCommand('unblock', (msg, args, thread) => {
+addInboxServerCommand('unblock', (msg, args, thread) => {
   async function unblock(userId) {
     await blocked.unblock(userId);
     msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
@@ -299,15 +189,16 @@ utils.addInboxCommand('unblock', (msg, args, thread) => {
   }
 });
 
-utils.addInboxCommand('logs', (msg, args, thread) => {
+addInboxServerCommand('logs', (msg, args, thread) => {
   async function getLogs(userId) {
-    const infos = await logs.getLogsWithUrlByUserId(userId);
-    let message = `**Log files for <@${userId}>:**\n`;
+    const userThreads = await threads.getClosedThreadsByUserId(userId);
+    const threadLines = await Promise.all(userThreads.map(async thread => {
+      const logUrl = await thread.getLogUrl();
+      const formattedDate = moment.utc(thread.created_at).format('MMM Do [at] HH:mm [UTC]');
+      return `\`${formattedDate}\`: <${logUrl}>`;
+    }));
 
-    message += infos.map(info => {
-      const formattedDate = moment.utc(info.date, 'YYYY-MM-DD HH:mm:ss').format('MMM Do [at] HH:mm [UTC]');
-      return `\`${formattedDate}\`: <${info.url}>`;
-    }).join('\n');
+    const message = `**Log files for <@${userId}>:**\n${threadLines.join('\n')}`;
 
     // Send the list of logs in chunks of 15 lines per message
     const lines = message.split('\n');
@@ -347,7 +238,7 @@ bot.on('messageCreate', async msg => {
 });
 
 // Show or add a snippet
-utils.addInboxCommand('snippet', async (msg, args) => {
+addInboxServerCommand('snippet', async (msg, args) => {
   const shortcut = args[0];
   if (! shortcut) return
 
@@ -376,7 +267,7 @@ utils.addInboxCommand('snippet', async (msg, args) => {
 
 bot.registerCommandAlias('s', 'snippet');
 
-utils.addInboxCommand('delete_snippet', async (msg, args) => {
+addInboxServerCommand('delete_snippet', async (msg, args) => {
   const shortcut = args[0];
   if (! shortcut) return;
 
@@ -392,7 +283,7 @@ utils.addInboxCommand('delete_snippet', async (msg, args) => {
 
 bot.registerCommandAlias('ds', 'delete_snippet');
 
-utils.addInboxCommand('edit_snippet', async (msg, args) => {
+addInboxServerCommand('edit_snippet', async (msg, args) => {
   const shortcut = args[0];
   if (! shortcut) return;
 
@@ -413,7 +304,7 @@ utils.addInboxCommand('edit_snippet', async (msg, args) => {
 
 bot.registerCommandAlias('es', 'edit_snippet');
 
-utils.addInboxCommand('snippets', async msg => {
+addInboxServerCommand('snippets', async msg => {
   const allSnippets = await snippets.all();
   const shortcuts = Object.keys(allSnippets);
   shortcuts.sort();
@@ -424,7 +315,7 @@ utils.addInboxCommand('snippets', async msg => {
 module.exports = {
   start() {
     bot.connect();
-    webserver.run();
+    // webserver.run();
     greeting.init(bot);
   }
 };

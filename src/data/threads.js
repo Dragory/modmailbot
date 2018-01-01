@@ -2,115 +2,39 @@ const Eris = require('eris');
 const transliterate = require('transliteration');
 const moment = require('moment');
 const uuid = require('uuid');
+const humanizeDuration = require('humanize-duration');
 
 const bot = require('../bot');
 const knex = require('../knex');
 const config = require('../config');
+const utils = require('../utils');
 
-const getUtils = () => require('../utils');
-
-// If the following messages would be used to start a thread, ignore it instead
-// This is to prevent accidental threads from e.g. irrelevant replies after the thread was already closed
-// or replies to the greeting message
-const accidentalThreadMessages = [
-  'ok',
-  'okay',
-  'thanks',
-  'ty',
-  'k',
-  'thank you',
-  'thanx',
-  'thnx',
-  'thx',
-  'tnx',
-  'ok thank you',
-  'ok thanks',
-  'ok ty',
-  'ok thanx',
-  'ok thnx',
-  'ok thx',
-  'ok no problem',
-  'ok np',
-  'okay thank you',
-  'okay thanks',
-  'okay ty',
-  'okay thanx',
-  'okay thnx',
-  'okay thx',
-  'okay no problem',
-  'okay np',
-  'okey thank you',
-  'okey thanks',
-  'okey ty',
-  'okey thanx',
-  'okey thnx',
-  'okey thx',
-  'okey no problem',
-  'okey np',
-  'cheers'
-];
-
-const THREAD_STATUS = {
-  OPEN: 1,
-  CLOSED: 2
-};
-
-const THREAD_MESSAGE_TYPE = {
-  SYSTEM: 1,
-  CHAT: 2,
-  FROM_USER: 3,
-  TO_USER: 4,
-  LEGACY: 5
-};
+const Thread = require('./Thread');
+const {THREAD_STATUS} = require('./constants');
 
 /**
- * @property {Number} id
- * @property {Number} status
- * @property {String} user_id
- * @property {String} user_name
- * @property {String} channel_id
- * @property {String} created_at
- * @property {Boolean} _wasCreated
- */
-class Thread {
-  constructor(props) {
-    Object.assign(this, {_wasCreated: false}, props);
-  }
-}
-
-/**
- * Returns information about the modmail thread channel for the given user. We can't return channel objects
- * directly since they're not always available immediately after creation.
- * @param {Eris.User} user
- * @param {Boolean} allowCreate
+ * @param {String} userId
  * @returns {Promise<Thread>}
  */
-async function getOpenThreadForUser(user, allowCreate = true, originalMessage = null) {
-  // Attempt to find an open thread for this user
+async function findOpenThreadByUserId(userId) {
   const thread = await knex('threads')
-    .where('user_id', user.id)
+    .where('user_id', userId)
     .where('status', THREAD_STATUS.OPEN)
     .select();
 
-  if (thread) {
-    return new Thread(thread);
-  }
+  return (thread ? new Thread(thread) : null);
+}
 
-  // If no open thread was found, and we're not allowed to create one, just return null
-  if (! allowCreate) {
-    return null;
-  }
-
-  // No open thread was found, and we *are* allowed to create a new one, so let's do that
-
-  // If the message's content matches any of the values in accidentalThreadMessages,
-  // and config.ignoreAccidentalThreads is enabled, ignore this thread
-  if (config.ignoreAccidentalThreads && originalMessage && originalMessage.cleanContent) {
-    const cleaned = originalMessage.cleanContent.replace(/[^a-z\s]/gi, '').toLowerCase().trim();
-    if (accidentalThreadMessages.includes(cleaned)) {
-      console.log('[NOTE] Skipping thread creation for message:', originalMessage.cleanContent);
-      return null;
-    }
+/**
+ * Creates a new modmail thread for the specified user
+ * @param {Eris.User} user
+ * @returns {Promise<Thread>}
+ * @throws {Error}
+ */
+async function createNewThreadForUser(user) {
+  const existingThread = await findOpenThreadByUserId(user.id);
+  if (existingThread) {
+    throw new Error('Attempted to create a new thread for a user with an existing open thread!');
   }
 
   // Use the user's name+discrim for the thread channel's name
@@ -126,7 +50,7 @@ async function getOpenThreadForUser(user, allowCreate = true, originalMessage = 
   // Attempt to create the inbox channel for this thread
   let createdChannel;
   try {
-    createdChannel = await getUtils().getInboxGuild().createChannel(channelName);
+    createdChannel = await utils.getInboxGuild().createChannel(channelName);
     if (config.newThreadCategoryId) {
       // If a category id for new threads is specified, move the newly created channel there
       bot.editChannel(createdChannel.id, {parentID: config.newThreadCategoryId});
@@ -137,7 +61,7 @@ async function getOpenThreadForUser(user, allowCreate = true, originalMessage = 
   }
 
   // Save the new thread in the database
-  const newThreadId = await create({
+  const newThreadId = await createThreadInDB({
     status: THREAD_STATUS.OPEN,
     user_id: user.id,
     user_name: `${user.username}#${user.discriminator}`,
@@ -145,10 +69,28 @@ async function getOpenThreadForUser(user, allowCreate = true, originalMessage = 
     created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
   });
 
-  const newThreadObj = new Thread(newThread);
-  newThreadObj._wasCreated = true;
+  const newThread = await findById(newThreadId);
 
-  return newThreadObj;
+  // Post some info to the beginning of the new thread
+  const mainGuild = utils.getMainGuild();
+  const member = (mainGuild ? mainGuild.members.get(user.id) : null);
+  if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
+
+  let mainGuildNickname = null;
+  if (member && member.nick) mainGuildNickname = member.nick;
+  else if (member && member.user) mainGuildNickname = member.user.username;
+  else if (member == null) mainGuildNickname = 'NOT ON SERVER';
+
+  if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
+
+  const userLogCount = await getClosedThreadCountByUserId(user.id);
+  const accountAge = humanizeDuration(Date.now() - user.createdAt, {largest: 2});
+  const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${user.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogCount}**\n-------------------------------`;
+
+  await newThread.postSystemMessage(infoHeader);
+
+  // Return the thread
+  return newThread;
 }
 
 /**
@@ -156,32 +98,35 @@ async function getOpenThreadForUser(user, allowCreate = true, originalMessage = 
  * @param {Object} data
  * @returns {Promise<String>} The ID of the created thread
  */
-async function create(data) {
+async function createThreadInDB(data) {
   const threadId = uuid.v4();
   const now = moment.utc().format('YYYY-MM-DD HH:mm:ss');
   const finalData = Object.assign({created_at: now, is_legacy: 0}, data, {id: threadId});
 
-  await knex('threads').insert(newThread);
+  await knex('threads').insert(finalData);
 
   return threadId;
 }
 
-async function addThreadMessage(threadId, messageType, user, body) {
-  return knex('thread_messages').insert({
-    thread_id: threadId,
-    message_type: messageType,
-    user_id: (user ? user.id : 0),
-    user_name: (user ? `${user.username}#${user.discriminator}` : ''),
-    body,
-    created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
-  });
+/**
+ * @param {String} id
+ * @returns {Promise<Thread>}
+ */
+async function findById(id) {
+  const row = await knex('threads')
+    .where('id', id)
+    .first();
+
+  if (! row) return null;
+
+  return new Thread(row);
 }
 
 /**
  * @param {String} channelId
  * @returns {Promise<Thread>}
  */
-async function getByChannelId(channelId) {
+async function findByChannelId(channelId) {
   const thread = await knex('threads')
     .where('channel_id', channelId)
     .first();
@@ -190,24 +135,34 @@ async function getByChannelId(channelId) {
 }
 
 /**
- * Deletes the modmail thread for the given channel id
- * @param {String} channelId
- * @returns {Promise<void>}
+ * @param {String} userId
+ * @returns {Promise<Thread[]>}
  */
-async function closeByChannelId(channelId) {
-  await knex('threads')
-    .where('channel_id', channelId)
-    .update({
-      status: THREAD_STATUS.CLOSED
-    });
+async function getClosedThreadsByUserId(userId) {
+  const threads = await knex('threads')
+    .where('status', THREAD_STATUS.CLOSED)
+    .where('user_id', userId)
+    .select();
+
+  return threads.map(thread => new Thread(thread));
+}
+
+/**
+ * @param {String} userId
+ * @returns {Promise<number>}
+ */
+async function getClosedThreadCountByUserId(userId) {
+  const row = await knex('threads')
+    .where('status', THREAD_STATUS.CLOSED)
+    .where('user_id', userId)
+    .first(knex.raw('COUNT(id) AS thread_count'));
+
+  return parseInt(row.thread_count, 10);
 }
 
 module.exports = {
-  getOpenThreadForUser,
-  getByChannelId,
-  closeByChannelId,
-  create,
-
-  THREAD_STATUS,
-  THREAD_MESSAGE_TYPE,
+  findOpenThreadByUserId,
+  findByChannelId,
+  createNewThreadForUser,
+  getClosedThreadsByUserId,
 };

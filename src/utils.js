@@ -2,7 +2,6 @@ const Eris = require('eris');
 const bot = require('./bot');
 const moment = require('moment');
 const publicIp = require('public-ip');
-const threads = require('./data/threads');
 const attachments = require('./data/attachments');
 const config = require('./config');
 
@@ -87,23 +86,6 @@ function messageIsOnMainServer(msg) {
 }
 
 /**
- * Adds a command that can only be triggered on the inbox server.
- * Command handlers added with this function also get the thread the message was posted in as a third argument, if any.
- * @param cmd
- * @param fn
- * @param opts
- */
-function addInboxCommand(cmd, fn, opts) {
-  bot.registerCommand(cmd, async (msg, args) => {
-    if (! messageIsOnInboxServer(msg)) return;
-    if (! isStaff(msg.member)) return;
-
-    const thread = await threads.getByChannelId(msg.channel.id);
-    fn(msg, args, thread);
-  }, opts);
-}
-
-/**
  * @param attachment
  * @returns {Promise<string>}
  */
@@ -155,16 +137,15 @@ function disableLinkPreviews(str) {
 /**
  * Returns a URL to the bot's web server
  * @param {String} path
- * @returns {String}
+ * @returns {Promise<String>}
  */
-function getSelfUrl(path = '') {
+async function getSelfUrl(path = '') {
   if (config.url) {
-    return Promise.resolve(`${config.url}/${path}`);
+    return `${config.url}/${path}`;
   } else {
     const port = config.port || 8890;
-    return publicIp.v4().then(ip => {
-      return `http://${ip}:${port}/${path}`;
-    });
+    const ip = await publicIp.v4();
+    return `http://${ip}:${port}/${path}`;
   }
 }
 
@@ -206,7 +187,6 @@ module.exports = {
   isStaff,
   messageIsOnInboxServer,
   messageIsOnMainServer,
-  addInboxCommand,
 
   formatAttachment,
 

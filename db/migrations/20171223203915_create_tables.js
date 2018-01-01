@@ -13,10 +13,11 @@ exports.up = async function(knex, Promise) {
     table.increments('id');
     table.string('thread_id', 36).notNullable().index().references('id').inTable('threads').onDelete('CASCADE');
     table.integer('message_type').unsigned().notNullable();
-    table.bigInteger('user_id').unsigned().notNullable();
+    table.bigInteger('user_id').unsigned().nullable();
     table.string('user_name', 128).notNullable();
     table.text('body').notNullable();
-    table.bigInteger('original_message_id').unsigned().nullable();
+    table.integer('is_anonymous').unsigned().notNullable();
+    table.bigInteger('original_message_id').unsigned().nullable().unique();
     table.dateTime('created_at').notNullable().index();
   });
 
