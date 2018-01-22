@@ -173,7 +173,6 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
 // Subscribe to typingStart if it's enabled either way
 if(config.typingProxy || config.typingProxyReverse) {
   bot.on("typingStart", async (channel, user) => {
-    //bot.sendChannelTyping(channel.id);
     // Handle user typing to modmail in DM
     if(config.typingProxy && (channel instanceof Eris.PrivateChannel)) {
       thread = await threads.getForUser(user, false);
