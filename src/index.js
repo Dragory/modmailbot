@@ -183,9 +183,14 @@ if(config.typingProxy || config.typingProxyReverse) {
     else if(config.typingProxyReverse && (channel instanceof Eris.GuildChannel) && ! user.bot) {
       thread = await threads.getByChannelId(channel.id);
       if (! thread) return;
-      let dm;
-      dm = await bot.getDMChannel(thread.userId);
-      bot.sendChannelTyping(dm.id);
+      try {
+        let dm;
+        dm = await bot.getDMChannel(thread.userId);
+        bot.sendChannelTyping(dm.id);
+      }
+      catch(error) {
+        console.log("An error occured when trying to type in DM.");
+      }
     }
   });
 }
