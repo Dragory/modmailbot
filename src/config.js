@@ -25,6 +25,8 @@ const defaultConfig = {
   "alwaysReplyAnon": false,
   "useNicknames": false,
   "ignoreAccidentalThreads": false,
+  "typingProxy": false,
+  "typingProxyReverse": false,
 
   "enableGreeting": false,
   "greetingMessage": null,
