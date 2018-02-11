@@ -5,7 +5,7 @@ const config = require('../config');
 
 const getUtils = () => require('../utils');
 
-const attachmentDir = config.attachmentDir || `${__dirname}/../attachments`;
+const attachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
 
 /**
  * Returns the filesystem path for the given attachment id
@@ -36,7 +36,7 @@ function saveAttachment(attachment, tries = 0) {
     https.get(attachment.url, (res) => {
       res.pipe(writeStream);
       writeStream.on('finish', () => {
-        writeStream.closeByChannelId()
+        writeStream.end();
         resolve();
       });
     }).on('error', (err) => {

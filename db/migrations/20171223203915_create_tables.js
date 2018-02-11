@@ -3,9 +3,9 @@ exports.up = async function(knex, Promise) {
     table.string('id', 36).notNullable().primary();
     table.integer('status').unsigned().notNullable().index();
     table.integer('is_legacy').unsigned().notNullable();
-    table.bigInteger('user_id').unsigned().notNullable().index();
+    table.string('user_id', 20).notNullable().index();
     table.string('user_name', 128).notNullable();
-    table.bigInteger('channel_id').unsigned().nullable().unique();
+    table.string('channel_id', 20).nullable().unique();
     table.dateTime('created_at').notNullable().index();
   });
 
@@ -13,18 +13,18 @@ exports.up = async function(knex, Promise) {
     table.increments('id');
     table.string('thread_id', 36).notNullable().index().references('id').inTable('threads').onDelete('CASCADE');
     table.integer('message_type').unsigned().notNullable();
-    table.bigInteger('user_id').unsigned().nullable();
+    table.string('user_id', 20).nullable();
     table.string('user_name', 128).notNullable();
     table.text('body').notNullable();
     table.integer('is_anonymous').unsigned().notNullable();
-    table.bigInteger('original_message_id').unsigned().nullable().unique();
+    table.string('original_message_id', 20).nullable().unique();
     table.dateTime('created_at').notNullable().index();
   });
 
   await knex.schema.createTableIfNotExists('blocked_users', table => {
-    table.bigInteger('user_id').unsigned().primary().notNullable();
+    table.string('user_id', 20).primary().notNullable();
     table.string('user_name', 128).notNullable();
-    table.bigInteger('blocked_by').unsigned().nullable();
+    table.string('blocked_by', 20).nullable();
     table.dateTime('blocked_at').notNullable();
   });
 
@@ -32,7 +32,7 @@ exports.up = async function(knex, Promise) {
     table.string('trigger', 32).primary().notNullable();
     table.text('body').notNullable();
     table.integer('is_anonymous').unsigned().notNullable();
-    table.bigInteger('created_by').unsigned().nullable();
+    table.string('created_by', 20).nullable();
     table.dateTime('created_at').notNullable();
   });
 };

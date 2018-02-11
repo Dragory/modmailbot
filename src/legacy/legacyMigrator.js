@@ -9,6 +9,8 @@ const config = require('../config');
 const jsonDb = require('./jsonDb');
 const threads = require('../data/threads');
 
+const {THREAD_STATUS, THREAD_MESSAGE_TYPE} = require('../data/constants');
+
 const readDir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 const access = promisify(fs.access);
@@ -75,7 +77,7 @@ async function migrateOpenThreads() {
     if (existingOpenThread) return;
 
     const newThread = {
-      status: threads.THREAD_STATUS.OPEN,
+      status: THREAD_STATUS.OPEN,
       user_id: oldThread.userId,
       user_name: oldThread.username,
       channel_id: oldThread.channelId,
@@ -103,7 +105,7 @@ async function migrateLogs() {
 
     const newThread = {
       id: threadId,
-      status: threads.THREAD_STATUS.CLOSED,
+      status: THREAD_STATUS.CLOSED,
       user_id: userId,
       user_name: '',
       channel_id: null,
@@ -122,10 +124,11 @@ async function migrateLogs() {
 
       await trx('thread_messages').insert({
         thread_id: newThread.id,
-        message_type: threads.THREAD_MESSAGE_TYPE.LEGACY,
+        message_type: THREAD_MESSAGE_TYPE.LEGACY,
         user_id: userId,
         user_name: '',
         body: contents,
+        is_anonymous: 0,
         created_at: date
       });
     });

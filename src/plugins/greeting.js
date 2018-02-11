@@ -1,11 +1,11 @@
 const path = require('path');
 const fs = require('fs');
-const config = require('./config');
+const config = require('../config');
 
-const greetingGuildId = config.mainGuildId || config.greetingGuildId;
-
-function init(bot) {
+module.exports = bot => {
   if (! config.enableGreeting) return;
+
+  const greetingGuildId = config.mainGuildId || config.greetingGuildId;
 
   bot.on('guildMemberAdd', (guild, member) => {
     if (guild.id !== greetingGuildId) return;
@@ -24,11 +24,7 @@ function init(bot) {
         sendGreeting(file);
       });
     } else {
-        sendGreeting();
+      sendGreeting();
     }
   });
-}
-
-module.exports = {
-  init,
 };

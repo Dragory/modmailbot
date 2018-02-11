@@ -1,0 +1,18 @@
+/**
+ * @property {Number} id
+ * @property {String} thread_id
+ * @property {Number} message_type
+ * @property {String} user_id
+ * @property {String} user_name
+ * @property {String} body
+ * @property {Number} is_anonymous
+ * @property {Number} original_message_id
+ * @property {String} created_at
+ */
+class ThreadMessage {
+  constructor(props) {
+    Object.assign(this, props);
+  }
+}
+
+module.exports = ThreadMessage;

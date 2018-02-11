@@ -12,6 +12,14 @@ const utils = require('../utils');
 const Thread = require('./Thread');
 const {THREAD_STATUS} = require('./constants');
 
+async function findById(id) {
+  const thread = await knex('threads')
+    .where('id', id)
+    .first();
+
+  return (thread ? new Thread(thread) : null);
+}
+
 /**
  * @param {String} userId
  * @returns {Promise<Thread>}
@@ -20,7 +28,7 @@ async function findOpenThreadByUserId(userId) {
   const thread = await knex('threads')
     .where('user_id', userId)
     .where('status', THREAD_STATUS.OPEN)
-    .select();
+    .first();
 
   return (thread ? new Thread(thread) : null);
 }
@@ -50,11 +58,7 @@ async function createNewThreadForUser(user) {
   // Attempt to create the inbox channel for this thread
   let createdChannel;
   try {
-    createdChannel = await utils.getInboxGuild().createChannel(channelName);
-    if (config.newThreadCategoryId) {
-      // If a category id for new threads is specified, move the newly created channel there
-      bot.editChannel(createdChannel.id, {parentID: config.newThreadCategoryId});
-    }
+    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, 'New ModMail thread', config.newThreadCategoryId);
   } catch (err) {
     console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
     throw err;
@@ -70,6 +74,10 @@ async function createNewThreadForUser(user) {
   });
 
   const newThread = await findById(newThreadId);
+
+  // Post the log link to the beginning (but don't save it in thread messages)
+  const logUrl = await newThread.getLogUrl();
+  await newThread.postNonLogMessage(`Log URL: <${logUrl}>`);
 
   // Post some info to the beginning of the new thread
   const mainGuild = utils.getMainGuild();
@@ -135,6 +143,19 @@ async function findByChannelId(channelId) {
 }
 
 /**
+ * @param {String} channelId
+ * @returns {Promise<Thread>}
+ */
+async function findOpenThreadByChannelId(channelId) {
+  const thread = await knex('threads')
+    .where('channel_id', channelId)
+    .where('status', THREAD_STATUS.OPEN)
+    .first();
+
+  return (thread ? new Thread(thread) : null);
+}
+
+/**
  * @param {String} userId
  * @returns {Promise<Thread[]>}
  */
@@ -160,9 +181,20 @@ async function getClosedThreadCountByUserId(userId) {
   return parseInt(row.thread_count, 10);
 }
 
+async function findOrCreateThreadForUser(user) {
+  const existingThread = await findOpenThreadByUserId(user.id);
+  if (existingThread) return existingThread;
+
+  return createNewThreadForUser(user);
+}
+
 module.exports = {
+  findById,
   findOpenThreadByUserId,
   findByChannelId,
+  findOpenThreadByChannelId,
   createNewThreadForUser,
   getClosedThreadsByUserId,
+  findOrCreateThreadForUser,
+  createThreadInDB
 };

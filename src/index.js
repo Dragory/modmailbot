@@ -1,4 +1,21 @@
+// Verify NodeJS version
+const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
+if (nodeMajorVersion < 8) {
+  console.error('Unsupported NodeJS version! Please install NodeJS 8 or newer.');
+  process.exit(1);
+}
+
+// Verify node modules have been installed
+const fs = require('fs');
 const path = require('path');
+
+try {
+  fs.accessSync(path.join(__dirname, '..', 'node_modules'));
+} catch (e) {
+  console.error('Please run "npm install" before trying to start the bot.');
+  process.exit(1);
+}
+
 const config = require('./config');
 const utils = require('./utils');
 const main = require('./main');
