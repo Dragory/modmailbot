@@ -17,7 +17,7 @@ exports.up = async function(knex, Promise) {
     table.string('user_name', 128).notNullable();
     table.text('body').notNullable();
     table.integer('is_anonymous').unsigned().notNullable();
-    table.string('original_message_id', 20).nullable().unique();
+    table.string('dm_message_id', 20).nullable().unique();
     table.dateTime('created_at').notNullable().index();
   });
 

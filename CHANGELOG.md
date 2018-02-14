@@ -3,6 +3,7 @@
 ## v2.0.0
 * Rewrote large parts of the code to be more modular and maintainable. There may be some new bugs because of this - please report them through GitHub issues if you encounter any!
 * Threads, logs, and snippets are now stored in an SQLite database. The bot will migrate old data on the first run.
+* Small attachments (<2MB) from users are now relayed as Discord attachments in the modmail thread. Logs will have the link as usual.
 * Fixed system messages like pins in DMs being relayed to the thread
 * Fixed channels sometimes being created without a category
 

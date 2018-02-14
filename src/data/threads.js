@@ -12,6 +12,10 @@ const utils = require('../utils');
 const Thread = require('./Thread');
 const {THREAD_STATUS} = require('./constants');
 
+/**
+ * @param {String} id
+ * @returns {Promise<Thread>}
+ */
 async function findById(id) {
   const thread = await knex('threads')
     .where('id', id)
@@ -78,6 +82,11 @@ async function createNewThreadForUser(user) {
   // Post the log link to the beginning (but don't save it in thread messages)
   const logUrl = await newThread.getLogUrl();
   await newThread.postNonLogMessage(`Log URL: <${logUrl}>`);
+
+  // Send auto-reply to the user
+  if (config.responseMessage) {
+    newThread.postToUser(config.responseMessage);
+  }
 
   // Post some info to the beginning of the new thread
   const mainGuild = utils.getMainGuild();

@@ -12,6 +12,7 @@ const threads = require('./data/threads');
 const snippets = require('./plugins/snippets');
 const webserver = require('./plugins/webserver');
 const greeting = require('./plugins/greeting');
+const attachments = require("./data/attachments");
 
 const messageQueue = new Queue();
 
@@ -38,6 +39,7 @@ bot.on('messageCreate', async msg => {
 
   if (config.alwaysReply) {
     // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
+    if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
     await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false);
     msg.delete();
   } else {
@@ -139,6 +141,7 @@ addInboxServerCommand('reply', async (msg, args, thread) => {
   if (! thread) return;
 
   const text = args.join(' ').trim();
+  if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
   await thread.replyToUser(msg.member, text, msg.attachments, false);
   msg.delete();
 });
@@ -150,6 +153,7 @@ addInboxServerCommand('anonreply', async (msg, args, thread) => {
   if (! thread) return;
 
   const text = args.join(' ').trim();
+  if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
   await thread.replyToUser(msg.member, text, msg.attachments, true);
   msg.delete();
 });

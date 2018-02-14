@@ -1,4 +1,6 @@
+const fs = require("fs");
 const moment = require('moment');
+const {promisify} = require('util');
 
 const bot = require('../bot');
 const knex = require('../knex');
@@ -26,21 +28,11 @@ class Thread {
   /**
    * @param {Eris~Member} moderator
    * @param {String} text
-   * @param {Eris~Attachment[]} replyAttachments
+   * @param {Eris~MessageFile[]} replyAttachments
    * @param {Boolean} isAnonymous
    * @returns {Promise<void>}
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
-    // Try to open a DM channel with the user
-    const dmChannel = await bot.getDMChannel(this.user_id);
-    if (! dmChannel) {
-      const channel = bot.getChannel(this.channel_id);
-      if (channel) {
-        channel.createMessage('Could not send reply: couldn\'t open DM channel with user');
-      }
-      return;
-    }
-
     // Username to reply with
     let modUsername, logModUsername;
     const mainRole = utils.getMainRole(moderator);
@@ -55,29 +47,34 @@ class Thread {
     }
 
     // Build the reply message
+    const timestamp = utils.getTimestamp();
     let dmContent = `**${modUsername}:** ${text}`;
     let threadContent = `**${logModUsername}:** ${text}`;
     let logContent = text;
 
-    let attachmentFile = null;
-    let attachmentUrl = null;
+    let files = [];
 
     // Prepare attachments, if any
     if (replyAttachments.length > 0) {
-      fs.readFile(attachments.getPath(replyAttachments[0].id), async (err, data) => {
-        attachmentFile = {file: data, name: replyAttachments[0].filename};
-        attachmentUrl = await attachments.getUrl(replyAttachments[0].id, replyAttachments[0].filename);
+      for (const attachment of replyAttachments) {
+        files.push(await attachments.attachmentToFile(attachment));
+        const url = await attachments.getUrl(attachment.id, attachment.filename);
 
-        threadContent += `\n\n**Attachment:** ${attachmentUrl}`;
-        logContent += `\n\n**Attachment:** ${attachmentUrl}`;
-      });
+        logContent += `\n\n**Attachment:** ${url}`;
+      }
     }
 
     // Send the reply DM
-    dmChannel.createMessage(dmContent, attachmentFile);
+    let dmMessage;
+    try {
+      dmMessage = await this.postToUser(dmContent, files);
+    } catch (e) {
+      await this.postSystemMessage(`Error while replying to user: ${e.message}`);
+      return;
+    }
 
     // Send the reply to the modmail thread
-    const originalMessage = await this.postToThreadChannel(threadContent);
+    await this.postToThreadChannel(threadContent, files);
 
     // Add the message to the database
     await this.addThreadMessageToDB({
@@ -86,60 +83,84 @@ class Thread {
       user_name: logModUsername,
       body: logContent,
       is_anonymous: (isAnonymous ? 1 : 0),
-      original_message_id: originalMessage.id
+      dm_message_id: dmMessage.id
     });
   }
 
   /**
-   * @param {Eris.Message} msg
+   * @param {Eris~Message} msg
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg) {
-    const timestamp = utils.getTimestamp();
-
     let content = msg.content;
     if (msg.content.trim() === '' && msg.embeds.length) {
       content = '<message contains embeds>';
     }
 
-    let threadContent = `[${timestamp}] « **${msg.author.username}#${msg.author.discriminator}:** ${content}`;
+    let threadContent = `**${msg.author.username}#${msg.author.discriminator}:** ${content}`;
     let logContent = msg.content;
-    let finalThreadContent;
-    let attachmentSavePromise;
+    let attachmentFiles = [];
 
-    if (msg.attachments.length) {
-      attachmentSavePromise = attachments.saveAttachmentsInMessage(msg);
-      const formattedAttachments = await Promise.all(msg.attachments.map(utils.formatAttachment));
-      const attachmentMsg = `\n\n` + formattedAttachments.reduce((str, formatted) => str + `\n\n${formatted}`);
+    for (const attachment of msg.attachments) {
+      await attachments.saveAttachment(attachment);
 
-      finalThreadContent = threadContent + attachmentMsg;
-      threadContent += '\n\n*Attachments pending...*';
-      logContent += attachmentMsg;
+      // Forward small attachments (<2MB) as attachments, just link to larger ones
+      const formatted = '\n\n' + await utils.formatAttachment(attachment);
+      logContent += formatted; // Logs always contain the link
+
+      if (attachment.size > 1024 * 1024 * 2) {
+        threadContent += formatted;
+      } else {
+        const file = await attachments.attachmentToFile(attachment);
+        attachmentFiles.push(file);
+      }
     }
 
-    const createdMessage = await this.postToThreadChannel(threadContent);
+    await this.postToThreadChannel(threadContent, attachmentFiles);
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
       body: logContent,
       is_anonymous: 0,
-      original_message_id: msg.id
+      dm_message_id: msg.id
     });
-
-    if (msg.attachments.length) {
-      await attachmentSavePromise;
-      await createdMessage.edit(finalThreadContent);
-    }
   }
 
   /**
    * @param {String} text
-   * @param {Eris.MessageFile} file
-   * @returns {Promise<Eris.Message>}
+   * @param {Eris~MessageFile|Eris~MessageFile[]} file
+   * @returns {Promise<Eris~Message>}
+   * @throws Error
+   */
+  async postToUser(text, file = null) {
+    // Try to open a DM channel with the user
+    const dmChannel = await bot.getDMChannel(this.user_id);
+    if (! dmChannel) {
+      throw new Error('Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.');
+    }
+
+    // Send the DM
+    return dmChannel.createMessage(text, file);
+  }
+
+  /**
+   * @param {String} text
+   * @param {Eris~MessageFile|Eris~MessageFile[]} file
+   * @returns {Promise<Eris~Message>}
    */
   async postToThreadChannel(text, file = null) {
-    return bot.createMessage(this.channel_id, text, file);
+    try {
+      return await bot.createMessage(this.channel_id, text, file);
+    } catch (e) {
+      // Channel not found
+      if (e.code === 10003) {
+        console.log(`[INFO] Auto-closing thread with ${this.user_name} because the channel no longer exists`);
+        this.close(true);
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**
@@ -154,7 +175,7 @@ class Thread {
       user_name: '',
       body: text,
       is_anonymous: 0,
-      original_message_id: msg.id
+      dm_message_id: msg.id
     });
   }
 
@@ -177,7 +198,7 @@ class Thread {
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
       body: msg.content,
       is_anonymous: 0,
-      original_message_id: msg.id
+      dm_message_id: msg.id
     });
   }
 
@@ -188,7 +209,7 @@ class Thread {
   async updateChatMessage(msg) {
     await knex('thread_messages')
       .where('thread_id', this.id)
-      .where('original_message_id', msg.id)
+      .where('dm_message_id', msg.id)
       .update({
         content: msg.content
       });
@@ -201,7 +222,7 @@ class Thread {
   async deleteChatMessage(messageId) {
     await knex('thread_messages')
       .where('thread_id', this.id)
-      .where('original_message_id', messageId)
+      .where('dm_message_id', messageId)
       .delete();
   }
 
@@ -234,9 +255,11 @@ class Thread {
   /**
    * @returns {Promise<void>}
    */
-  async close() {
-    console.log(`Closing thread ${this.id}`);
-    await this.postToThreadChannel('Closing thread...');
+  async close(silent = false) {
+    if (! silent) {
+      console.log(`Closing thread ${this.id}`);
+      await this.postToThreadChannel('Closing thread...');
+    }
 
     // Update DB status
     await knex('threads')
@@ -246,9 +269,9 @@ class Thread {
       });
 
     // Delete channel
-    console.log(`Deleting channel ${this.channel_id}`);
     const channel = bot.getChannel(this.channel_id);
     if (channel) {
+      console.log(`Deleting channel ${this.channel_id}`);
       await channel.delete('Thread closed');
     }
   }

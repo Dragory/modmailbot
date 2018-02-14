@@ -2,10 +2,16 @@ const Eris = require('eris');
 const fs = require('fs');
 const https = require('https');
 const config = require('../config');
+const {promisify} = require('util');
 
 const getUtils = () => require('../utils');
 
+const access = promisify(fs.access);
+const readFile = promisify(fs.readFile);
+
 const attachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
+
+const attachmentSavePromises = {};
 
 /**
  * Returns the filesystem path for the given attachment id
@@ -22,7 +28,30 @@ function getPath(attachmentId) {
  * @param {Number=0} tries
  * @returns {Promise}
  */
-function saveAttachment(attachment, tries = 0) {
+async function saveAttachment(attachment) {
+  if (attachmentSavePromises[attachment.id]) {
+    return attachmentSavePromises[attachment.id];
+  }
+
+  const filepath = getPath(attachment.id);
+  try {
+    // If the file already exists, resolve immediately
+    await access(filepath);
+    return;
+  } catch (e) {}
+
+  attachmentSavePromises[attachment.id] = saveAttachmentInner(attachment);
+  attachmentSavePromises[attachment.id]
+    .then(() => {
+      delete attachmentSavePromises[attachment.id];
+    }, () => {
+      delete attachmentSavePromises[attachment.id];
+    });
+
+  return attachmentSavePromises[attachment.id];
+}
+
+function saveAttachmentInner(attachment, tries = 0) {
   return new Promise((resolve, reject) => {
     if (tries > 3) {
       console.error('Attachment download failed after 3 tries:', attachment);
@@ -42,7 +71,7 @@ function saveAttachment(attachment, tries = 0) {
     }).on('error', (err) => {
       fs.unlink(filepath);
       console.error('Error downloading attachment, retrying');
-      resolve(saveAttachment(attachment));
+      resolve(saveAttachmentInner(attachment, tries++));
     });
   });
 }
@@ -68,9 +97,16 @@ function getUrl(attachmentId, desiredName = null) {
   return getUtils().getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
 }
 
+async function attachmentToFile(attachment) {
+  await saveAttachment(attachment);
+  const data = await readFile(getPath(attachment.id));
+  return {file: data, name: attachment.filename};
+}
+
 module.exports = {
   getPath,
   saveAttachment,
   saveAttachmentsInMessage,
   getUrl,
+  attachmentToFile
 };
