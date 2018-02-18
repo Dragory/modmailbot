@@ -81,7 +81,10 @@ async function migrateOpenThreads() {
 
         if (existingOpenThread) return;
 
-        const threadMessages = await bot.getChannel(oldThread.channelId).getMessages(1000);
+        const oldChannel = bot.getChannel(oldThread.channelId);
+        if (! oldChannel) return;
+
+        const threadMessages = await oldChannel.getMessages(1000);
         const log = threadMessages.reverse().map(msg => {
           const date = moment.utc(msg.timestamp, 'x').format('YYYY-MM-DD HH:mm:ss');
           return `[${date}] ${msg.author.username}#${msg.author.discriminator}: ${msg.content}`;
