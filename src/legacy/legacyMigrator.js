@@ -94,8 +94,8 @@ async function migrateLogs() {
   const logDir = config.logDir || `${__dirname}/../../logs`;
   const logFiles = await readDir(logDir);
 
-  const promises = logFiles.map(async logFile => {
-    if (! logFile.endsWith('.txt')) return;
+  for (const logFile of logFiles) {
+    if (! logFile.endsWith('.txt')) continue;
 
     const [rawDate, userId, threadId] = logFile.slice(0, -4).split('__');
     const date = `${rawDate.slice(0, 10)} ${rawDate.slice(11).replace('-', ':')}`;
@@ -113,7 +113,7 @@ async function migrateLogs() {
       created_at: date
     };
 
-    return knex.transaction(async trx => {
+    await knex.transaction(async trx => {
       const existingThread = await trx('threads')
         .where('id', newThread.id)
         .first();
@@ -132,9 +132,7 @@ async function migrateLogs() {
         created_at: date
       });
     });
-  });
-
-  return Promise.all(promises);
+  }
 }
 
 async function migrateBlockedUsers() {
