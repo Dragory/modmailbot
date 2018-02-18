@@ -53,7 +53,7 @@ process.on('unhandledRejection', err => {
     console.log('=== LEGACY DATA MIGRATION FINISHED ===');
     console.log('');
     console.log('IMPORTANT: After the bot starts, please verify that all logs, threads, blocked users, and snippets are still working correctly.');
-    console.log('Once you\'ve done that, feel free to delete the following legacy files/directories:');
+    console.log('Once you\'ve done that, the following files/directories are no longer needed. I would recommend keeping a backup of them, however.');
     console.log('');
     console.log('FILE: ' + path.resolve(relativeDbDir, 'threads.json'));
     console.log('FILE: ' + path.resolve(relativeDbDir, 'blocked.json'));
