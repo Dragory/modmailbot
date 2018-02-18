@@ -220,7 +220,7 @@ class Thread {
       .where('thread_id', this.id)
       .where('dm_message_id', msg.id)
       .update({
-        content: msg.content
+        body: msg.content
       });
   }
 
