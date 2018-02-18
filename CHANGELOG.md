@@ -7,6 +7,7 @@
 * Fixed system messages like pins in DMs being relayed to the thread
 * Fixed channels sometimes being created without a category
 * Removed timestamps from threads by default. Logs will still have accurate timestamps. Can be re-enabled with the `threadTimestamps` config option.
+* Added `!move` command to move threads between categories. Can be enabled with the `allowMove` config option, disabled by default.
 
 ## Sep 22, 2017
 * Added `newThreadCategoryId` option. This option can be set to a category ID to place all new threads in that category.

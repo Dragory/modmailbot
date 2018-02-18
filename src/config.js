@@ -28,6 +28,7 @@ const defaultConfig = {
   "useNicknames": false,
   "ignoreAccidentalThreads": false,
   "threadTimestamps": false,
+  "allowMove": false,
 
   "enableGreeting": false,
   "greetingMessage": null,
