@@ -203,7 +203,13 @@ addInboxServerCommand('unblock', (msg, args, thread) => {
 addInboxServerCommand('logs', (msg, args, thread) => {
   async function getLogs(userId) {
     const userThreads = await threads.getClosedThreadsByUserId(userId);
-    userThreads.reverse();
+
+    // Descending by date
+    userThreads.sort((a, b) => {
+      if (a.created_at > b.created_at) return -1;
+      if (a.created_at < b.created_at) return 1;
+      return 0;
+    });
 
     const threadLines = await Promise.all(userThreads.map(async thread => {
       const logUrl = await thread.getLogUrl();
