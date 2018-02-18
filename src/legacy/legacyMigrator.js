@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const promisify = require('util').promisify;
 const moment = require('moment');
-const uuid = require('uuid');
+const Eris = require('eris');
 
 const knex = require('../knex');
 const config = require('../config');
@@ -68,6 +68,9 @@ async function shouldMigrate() {
 }
 
 async function migrateOpenThreads() {
+  const bot = new Eris.Client(config.token);
+  await bot.connect();
+
   const oldThreads = await jsonDb.get('threads', []);
   const promises = oldThreads.map(async oldThread => {
     const existingOpenThread = await knex('threads')
@@ -75,6 +78,12 @@ async function migrateOpenThreads() {
       .first();
 
     if (existingOpenThread) return;
+
+    const threadMessages = await bot.getChannel(oldThread.channelId).getMessages(1000);
+    const log = threadMessages.reverse().map(msg => {
+      const date = moment.utc(msg.timestamp, 'x').format('YYYY-MM-DD HH:mm:ss');
+      return `[${date}] ${msg.author.username}#${msg.author.discriminator}: ${msg.content}`;
+    }).join('\n') + '\n';
 
     const newThread = {
       status: THREAD_STATUS.OPEN,
@@ -84,7 +93,17 @@ async function migrateOpenThreads() {
       is_legacy: 1
     };
 
-    return threads.createThreadInDB(newThread);
+    const threadId = await threads.createThreadInDB(newThread);
+
+    await trx('thread_messages').insert({
+      thread_id: threadId,
+      message_type: THREAD_MESSAGE_TYPE.LEGACY,
+      user_id: oldThread.userId,
+      user_name: '',
+      body: log,
+      is_anonymous: 0,
+      created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
+    });
   });
 
   return Promise.all(promises);
