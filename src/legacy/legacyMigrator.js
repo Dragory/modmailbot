@@ -94,7 +94,8 @@ async function migrateLogs() {
   const logDir = config.logDir || `${__dirname}/../../logs`;
   const logFiles = await readDir(logDir);
 
-  for (const logFile of logFiles) {
+  for (let i = 0; i < logFiles.length; i++) {
+    const logFile = logFiles[i];
     if (! logFile.endsWith('.txt')) continue;
 
     const [rawDate, userId, threadId] = logFile.slice(0, -4).split('__');
@@ -132,6 +133,11 @@ async function migrateLogs() {
         created_at: date
       });
     });
+
+    // Progress indicator for servers with tons of logs
+    if ((i + 1) % 500 === 0) {
+      console.log(`  ${i + 1}...`);
+    }
   }
 }
 
