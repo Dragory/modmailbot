@@ -13,6 +13,7 @@ const snippets = require('./plugins/snippets');
 const webserver = require('./plugins/webserver');
 const greeting = require('./plugins/greeting');
 const attachments = require("./data/attachments");
+const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 
 const messageQueue = new Queue();
 
@@ -62,7 +63,16 @@ bot.on('messageCreate', async msg => {
 
   // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
   messageQueue.add(async () => {
-    const thread = await threads.findOrCreateThreadForUser(msg.author);
+    let thread = await threads.findOpenThreadByUserId(msg.author.id);
+
+    // New thread
+    if (! thread) {
+      // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
+      if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim())) return;
+
+      thread = await threads.createNewThreadForUser(msg.author);
+    }
+
     await thread.receiveUserReply(msg);
   });
 });
@@ -73,6 +83,7 @@ bot.on('messageCreate', async msg => {
  * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
  */
 bot.on('messageUpdate', async (msg, oldMessage) => {
+  if (! msg) return;
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
 
