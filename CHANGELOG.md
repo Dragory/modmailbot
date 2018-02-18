@@ -6,6 +6,7 @@
 * Small attachments (<2MB) from users can now be relayed as Discord attachments in the modmail thread with the `relaySmallAttachmentsAsAttachments` config option. Logs will have the link as usual.
 * Fixed system messages like pins in DMs being relayed to the thread
 * Fixed channels sometimes being created without a category
+* Removed timestamps from threads by default. Logs will still have accurate timestamps. Can be re-enabled with the `threadTimestamps` config option.
 
 ## Sep 22, 2017
 * Added `newThreadCategoryId` option. This option can be set to a category ID to place all new threads in that category.
