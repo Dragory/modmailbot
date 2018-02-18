@@ -70,7 +70,7 @@ async function shouldMigrate() {
 async function migrateOpenThreads() {
   const bot = new Eris.Client(config.token);
 
-  return new Promise(resolve => {
+  const toReturn = new Promise(resolve => {
     bot.on('ready', async () => {
       const oldThreads = await jsonDb.get('threads', []);
 
@@ -100,7 +100,7 @@ async function migrateOpenThreads() {
 
         const threadId = await threads.createThreadInDB(newThread);
 
-        await trx('thread_messages').insert({
+        await knex('thread_messages').insert({
           thread_id: threadId,
           message_type: THREAD_MESSAGE_TYPE.LEGACY,
           user_id: oldThread.userId,
@@ -116,6 +116,10 @@ async function migrateOpenThreads() {
 
     bot.connect();
   });
+
+  await toReturn;
+
+  bot.disconnect();
 }
 
 async function migrateLogs() {
