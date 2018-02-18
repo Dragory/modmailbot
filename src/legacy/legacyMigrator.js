@@ -144,22 +144,21 @@ async function migrateLogs() {
 async function migrateBlockedUsers() {
   const now = moment.utc().format('YYYY-MM-DD HH:mm:ss');
   const blockedUsers = await jsonDb.get('blocked', []);
-  const promises = blockedUsers.map(async userId => {
+
+  for (const userId of blockedUsers) {
     const existingBlockedUser = await knex('blocked_users')
       .where('user_id', userId)
       .first();
 
     if (existingBlockedUser) return;
 
-    return knex('blocked_users').insert({
+    await knex('blocked_users').insert({
       user_id: userId,
       user_name: '',
       blocked_by: 0,
       blocked_at: now
     });
-  });
-
-  return Promise.all(promises);
+  }
 }
 
 async function migrateSnippets() {
