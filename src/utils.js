@@ -128,11 +128,10 @@ function getUserMention(str) {
 
 /**
  * Returns the current timestamp in an easily readable form
- * @param {String|Date|undefined} date
  * @returns {String}
  */
-function getTimestamp(date) {
-  return moment.utc(date).format('HH:mm');
+function getTimestamp(...momentArgs) {
+  return moment.utc(...momentArgs).format('HH:mm');
 }
 
 /**

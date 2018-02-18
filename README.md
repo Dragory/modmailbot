@@ -67,3 +67,4 @@ These go in `config.json`. See also `config.example.json`.
 |logChannelId|Server's default channel|Channel where to post links to closed threads and other alerts|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
 |relaySmallAttachmentsAsAttachments|false|Whether to relay small (<2MB) attachments from users as attachments rather than links in modmail threads|
+|threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|

@@ -47,14 +47,18 @@ class Thread {
     }
 
     // Build the reply message
-    const timestamp = utils.getTimestamp();
     let dmContent = `**${modUsername}:** ${text}`;
     let threadContent = `**${logModUsername}:** ${text}`;
     let logContent = text;
 
-    let files = [];
+    if (config.threadTimestamps) {
+      const timestamp = utils.getTimestamp();
+      threadContent = `[${timestamp}] » ${threadContent}`;
+    }
 
     // Prepare attachments, if any
+    let files = [];
+
     if (replyAttachments.length > 0) {
       for (const attachment of replyAttachments) {
         files.push(await attachments.attachmentToFile(attachment));
@@ -99,6 +103,13 @@ class Thread {
 
     let threadContent = `**${msg.author.username}#${msg.author.discriminator}:** ${content}`;
     let logContent = msg.content;
+
+    if (config.threadTimestamps) {
+      const timestamp = utils.getTimestamp(msg.timestamp, 'x');
+      threadContent = `[${timestamp}] « ${threadContent}`;
+    }
+
+    // Prepare attachments, if any
     let attachmentFiles = [];
 
     for (const attachment of msg.attachments) {
@@ -145,13 +156,11 @@ class Thread {
   }
 
   /**
-   * @param {String} text
-   * @param {Eris~MessageFile|Eris~MessageFile[]} file
    * @returns {Promise<Eris~Message>}
    */
-  async postToThreadChannel(text, file = null) {
+  async postToThreadChannel(...args) {
     try {
-      return await bot.createMessage(this.channel_id, text, file);
+      return await bot.createMessage(this.channel_id, ...args);
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {
@@ -183,8 +192,8 @@ class Thread {
    * @param {String} text
    * @returns {Promise<void>}
    */
-  async postNonLogMessage(text) {
-    await this.postToThreadChannel(text);
+  async postNonLogMessage(...args) {
+    await this.postToThreadChannel(...args);
   }
 
   /**

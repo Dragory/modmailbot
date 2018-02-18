@@ -79,6 +79,12 @@ async function createNewThreadForUser(user) {
 
   const newThread = await findById(newThreadId);
 
+  // Ping moderators of the new thread
+  await newThread.postNonLogMessage({
+    content: `@here New modmail thread (${newThread.user_name})`,
+    disableEveryone: false
+  });
+
   // Post the log link to the beginning (but don't save it in thread messages)
   const logUrl = await newThread.getLogUrl();
   await newThread.postNonLogMessage(`Log URL: <${logUrl}>`);

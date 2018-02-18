@@ -27,6 +27,7 @@ const defaultConfig = {
   "alwaysReplyAnon": false,
   "useNicknames": false,
   "ignoreAccidentalThreads": false,
+  "threadTimestamps": false,
 
   "enableGreeting": false,
   "greetingMessage": null,
