@@ -30,7 +30,7 @@ bot.on('ready', () => {
  */
 bot.on('messageCreate', async msg => {
   if (! utils.messageIsOnInboxServer(msg)) return;
-  if (! utils.isStaff(msg)) return;
+  if (! utils.isStaff(msg.member)) return;
   if (msg.author.bot) return;
   if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) return;
 
