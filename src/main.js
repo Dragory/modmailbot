@@ -76,11 +76,9 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
 
-  let oldContent = oldMessage.content;
-  const newContent = msg.content;
-
   // Old message content doesn't persist between bot restarts
-  if (oldContent == null) oldContent = '*Unavailable due to bot restart*';
+  const oldContent = oldMessage && oldMessage.content || '*Unavailable due to bot restart*';
+  const newContent = msg.content;
 
   // Ignore bogus edit events with no changes
   if (newContent.trim() === oldContent.trim()) return;
