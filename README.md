@@ -5,6 +5,8 @@ Moderators and admins can then reply to these threads, and these responses are r
 
 Inspired by Reddit's modmail system.
 
+### NOTE! If you're upgrading from a version prior to Feb 18, be sure to run `npm install` again and follow the on-screen instructions after `npm start`.
+
 ## Setup
 1. Install Node.js 8 or higher
 2. Clone or download this repository
@@ -14,6 +16,9 @@ Inspired by Reddit's modmail system.
 5. Install dependencies: `npm install`
 6. Add bot to servers, and make sure to give it proper permissions on the mail server.
 7. Run the bot: `npm start`
+
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md)
 
 ## Commands
 
@@ -61,3 +66,4 @@ These go in `config.json`. See also `config.example.json`.
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
 |logChannelId|Server's default channel|Channel where to post links to closed threads and other alerts|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
+|relaySmallAttachmentsAsAttachments|false|Whether to relay small (<2MB) attachments from users as attachments rather than links in modmail threads|
