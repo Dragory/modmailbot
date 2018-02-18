@@ -52,6 +52,10 @@ function getLogChannel() {
   return logChannel;
 }
 
+function postLog(...args) {
+  getLogChannel().createMessage(...args);
+}
+
 function postError(str) {
   getLogChannel().createMessage({
     content: `@here **Error:** ${str.trim()}`,
@@ -182,6 +186,13 @@ function chunk(items, chunkSize) {
   return result;
 }
 
+function trimAll(str) {
+  return str
+    .split('\n')
+    .map(str => str.trim())
+    .join('\n');
+}
+
 module.exports = {
   BotError,
 
@@ -189,6 +200,7 @@ module.exports = {
   getMainGuild,
   getLogChannel,
   postError,
+  postLog,
 
   isStaff,
   messageIsOnInboxServer,
@@ -201,5 +213,7 @@ module.exports = {
   disableLinkPreviews,
   getSelfUrl,
   getMainRole,
+
   chunk,
+  trimAll,
 };

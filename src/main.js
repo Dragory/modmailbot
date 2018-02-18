@@ -163,7 +163,13 @@ bot.registerCommandAlias('ar', 'anonreply');
 // Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
 addInboxServerCommand('close', async (msg, args, thread) => {
   if (! thread) return;
-  thread.close();
+  await thread.close();
+
+  const logUrl = await thread.getLogUrl();
+  utils.postLog(utils.trimAll(`
+    Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${msg.author.username}
+    Logs: ${logUrl}
+  `));
 });
 
 addInboxServerCommand('block', (msg, args, thread) => {
