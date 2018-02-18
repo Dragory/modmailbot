@@ -69,44 +69,50 @@ async function shouldMigrate() {
 
 async function migrateOpenThreads() {
   const bot = new Eris.Client(config.token);
-  await bot.connect();
 
-  const oldThreads = await jsonDb.get('threads', []);
-  const promises = oldThreads.map(async oldThread => {
-    const existingOpenThread = await knex('threads')
-      .where('channel_id', oldThread.channelId)
-      .first();
+  return new Promise(resolve => {
+    bot.on('ready', async () => {
+      const oldThreads = await jsonDb.get('threads', []);
 
-    if (existingOpenThread) return;
+      const promises = oldThreads.map(async oldThread => {
+        const existingOpenThread = await knex('threads')
+          .where('channel_id', oldThread.channelId)
+          .first();
 
-    const threadMessages = await bot.getChannel(oldThread.channelId).getMessages(1000);
-    const log = threadMessages.reverse().map(msg => {
-      const date = moment.utc(msg.timestamp, 'x').format('YYYY-MM-DD HH:mm:ss');
-      return `[${date}] ${msg.author.username}#${msg.author.discriminator}: ${msg.content}`;
-    }).join('\n') + '\n';
+        if (existingOpenThread) return;
 
-    const newThread = {
-      status: THREAD_STATUS.OPEN,
-      user_id: oldThread.userId,
-      user_name: oldThread.username,
-      channel_id: oldThread.channelId,
-      is_legacy: 1
-    };
+        const threadMessages = await bot.getChannel(oldThread.channelId).getMessages(1000);
+        const log = threadMessages.reverse().map(msg => {
+          const date = moment.utc(msg.timestamp, 'x').format('YYYY-MM-DD HH:mm:ss');
+          return `[${date}] ${msg.author.username}#${msg.author.discriminator}: ${msg.content}`;
+        }).join('\n') + '\n';
 
-    const threadId = await threads.createThreadInDB(newThread);
+        const newThread = {
+          status: THREAD_STATUS.OPEN,
+          user_id: oldThread.userId,
+          user_name: oldThread.username,
+          channel_id: oldThread.channelId,
+          is_legacy: 1
+        };
 
-    await trx('thread_messages').insert({
-      thread_id: threadId,
-      message_type: THREAD_MESSAGE_TYPE.LEGACY,
-      user_id: oldThread.userId,
-      user_name: '',
-      body: log,
-      is_anonymous: 0,
-      created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
+        const threadId = await threads.createThreadInDB(newThread);
+
+        await trx('thread_messages').insert({
+          thread_id: threadId,
+          message_type: THREAD_MESSAGE_TYPE.LEGACY,
+          user_id: oldThread.userId,
+          user_name: '',
+          body: log,
+          is_anonymous: 0,
+          created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
+        });
+      });
+
+      resolve(Promise.all(promises));
     });
-  });
 
-  return Promise.all(promises);
+    bot.connect();
+  });
 }
 
 async function migrateLogs() {
