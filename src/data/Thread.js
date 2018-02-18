@@ -108,11 +108,11 @@ class Thread {
       const formatted = '\n\n' + await utils.formatAttachment(attachment);
       logContent += formatted; // Logs always contain the link
 
-      if (attachment.size > 1024 * 1024 * 2) {
-        threadContent += formatted;
-      } else {
+      if (config.relaySmallAttachmentsAsAttachments && attachment.size <= 1024 * 1024 * 2) {
         const file = await attachments.attachmentToFile(attachment);
         attachmentFiles.push(file);
+      } else {
+        threadContent += formatted;
       }
     }
 

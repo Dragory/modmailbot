@@ -32,6 +32,8 @@ const defaultConfig = {
   "greetingMessage": null,
   "greetingAttachment": null,
 
+  "relaySmallAttachmentsAsAttachments": false,
+
   "port": 8890,
   "url": null,
 
