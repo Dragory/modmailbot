@@ -307,6 +307,12 @@ addInboxServerCommand('move', async (msg, args, thread) => {
   thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}`);
 });
 
+addInboxServerCommand('loglink', async (msg, args, thread) => {
+  if (! thread) return;
+  const logUrl = await thread.getLogUrl();
+  thread.postNonLogMessage(`Log URL: ${logUrl}`);
+});
+
 module.exports = {
   async start() {
     // Load plugins
