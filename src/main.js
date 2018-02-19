@@ -84,7 +84,7 @@ bot.on('messageCreate', async msg => {
  * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
  */
 bot.on('messageUpdate', async (msg, oldMessage) => {
-  if (! msg) return;
+  if (! msg || ! msg.author) return;
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
 
@@ -116,6 +116,7 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
  * When a staff message is deleted in a modmail thread, delete it from the database as well
  */
 bot.on('messageDelete', async msg => {
+  if (! msg.author) return;
   if (msg.author.bot) return;
   if (! utils.messageIsOnInboxServer(msg)) return;
   if (! utils.isStaff(msg.member)) return;
