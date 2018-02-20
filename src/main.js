@@ -69,7 +69,7 @@ bot.on('messageCreate', async msg => {
     // New thread
     if (! thread) {
       // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
-      if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim())) return;
+      if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
       thread = await threads.createNewThreadForUser(msg.author);
     }
