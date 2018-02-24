@@ -1,7 +1,7 @@
 # Changelog
 
 ## v2.1.0
-* Added typing proxy (#48):
+* Added typing proxy (https://github.com/Dragory/modmailbot/pull/48):
   * If the `typingProxy` config option is enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing" 
   * If the `typingProxyReverse` config option is enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs
 
