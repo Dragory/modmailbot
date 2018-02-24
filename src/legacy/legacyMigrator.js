@@ -187,7 +187,7 @@ async function migrateBlockedUsers() {
     await knex('blocked_users').insert({
       user_id: userId,
       user_name: '',
-      blocked_by: 0,
+      blocked_by: null,
       blocked_at: now
     });
   }
