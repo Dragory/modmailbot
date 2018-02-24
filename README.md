@@ -62,8 +62,6 @@ These go in `config.json`. See also `config.example.json`.
 |alwaysReplyAnon|false|If `alwaysReply` is set to true, this option controls whether the auto-reply is anonymous|
 |useNicknames|false|If set to true, mod replies will use their nickname (on the inbox server) instead of their username|
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
-|typingProxy|false|If set to true, the bot will start typing in the corresponding modmail channel when the user starts typing in DM.
-|typingProxyReverse|false|If set to true, the bot will start typing in the user's DM when someone starts typing in the corresponding thread.
 |enableGreeting|false|Set to true to send a welcome message to new main guild members. Requires `mainGuildId` to be set.|
 |greetingMessage|None|Text content of the welcome message|
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
