@@ -5,10 +5,13 @@ Moderators and admins can then reply to these threads, and these responses are r
 
 Inspired by Reddit's modmail system.
 
-### NOTE! If you're upgrading from a version prior to Feb 18, be sure to run `npm install` again and follow the on-screen instructions after `npm start`.
+### NOTE! If you're upgrading from a version prior to Feb 24 2018:
+* Take backups
+* Run `npm install` again
+* Follow the on-screen instructions after `npm start`
 
 ## Setup
-1. Install Node.js 8 or higher
+1. Install Node.js 8.9.4 (LTS) or higher
 2. Clone or download this repository
 3. Create a Discord server to be used as the modmail inbox
 4. Make a copy of the file `config.example.json` in the same folder and name the copy `config.json`. Open the file and fill in the values.
@@ -38,7 +41,8 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!logs` Lists previous modmail logs with this user  
 `!block` Blocks the user from using modmail  
 `!unblock` Unblocks the user from using modmail  
-`!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.
+`!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.  
+`!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category
 
 To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
 

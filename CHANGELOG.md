@@ -5,7 +5,7 @@
 * Threads, logs, and snippets are now stored in an SQLite database. The bot will migrate old data on the first run.
 * Small attachments (<2MB) from users can now be relayed as Discord attachments in the modmail thread with the `relaySmallAttachmentsAsAttachments` config option. Logs will have the link as usual.
 * Fixed system messages like pins in DMs being relayed to the thread
-* Fixed channels sometimes being created without a category
+* Fixed channels sometimes being created without a category even when `newThreadCategoryId` was set
 * Removed timestamps from threads by default. Logs will still have accurate timestamps. Can be re-enabled with the `threadTimestamps` config option.
 * Added `!move` command to move threads between categories. Can be enabled with the `allowMove` config option, disabled by default.
 
