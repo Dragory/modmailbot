@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.1.0
+* Added typing proxy:
+  * If the `typingProxy` config option is enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing" 
+  * If the `typingProxyReverse` config option is enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs
+
 ## v2.0.1
 * The link to the current thread's log is no longer posted to the top of the thread. Use `!loglink` instead.
 
