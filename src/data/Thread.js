@@ -139,6 +139,13 @@ class Thread {
   }
 
   /**
+   * @returns {Promise<PrivateChannel>}
+   */
+  getDMChannel() {
+    return bot.getDMChannel(this.user_id);
+  }
+
+  /**
    * @param {String} text
    * @param {Eris~MessageFile|Eris~MessageFile[]} file
    * @returns {Promise<Eris~Message>}
@@ -146,7 +153,7 @@ class Thread {
    */
   async postToUser(text, file = null) {
     // Try to open a DM channel with the user
-    const dmChannel = await bot.getDMChannel(this.user_id);
+    const dmChannel = await this.getDMChannel();
     if (! dmChannel) {
       throw new Error('Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.');
     }

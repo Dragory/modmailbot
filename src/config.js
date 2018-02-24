@@ -29,6 +29,8 @@ const defaultConfig = {
   "ignoreAccidentalThreads": false,
   "threadTimestamps": false,
   "allowMove": false,
+  "typingProxy": false,
+  "typingProxyReverse": false,
 
   "enableGreeting": false,
   "greetingMessage": null,
