@@ -185,7 +185,8 @@ addInboxServerCommand('close', async (msg, args, thread) => {
 
 addInboxServerCommand('block', (msg, args, thread) => {
   async function block(userId) {
-    await blocked.block(userId);
+    const user = bot.users.get(userId);
+    await blocked.block(userId, (user ? `${user.username}#${user.discriminator}` : ''), msg.author.id);
     msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
   }
 
