@@ -58,10 +58,10 @@ async function shouldMigrate() {
     return true;
   }
 
-  // If the log file dir exists, we need to migrate
+  // If the log file dir exists and has logs in it, we need to migrate
   try {
-    await access(config.logDir);
-    return true;
+    const files = await readDir(config.logDir);
+    if (files.length > 1) return true; // > 1, since .gitignore is one of them
   } catch(e) {}
 
   return false;
