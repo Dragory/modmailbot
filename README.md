@@ -42,7 +42,8 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!block` Blocks the user from using modmail  
 `!unblock` Unblocks the user from using modmail  
 `!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.  
-`!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category
+`!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category  
+`!loglink` Shows the link to the current thread's log
 
 To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
 
