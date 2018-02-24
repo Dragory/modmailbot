@@ -85,10 +85,6 @@ async function createNewThreadForUser(user) {
     disableEveryone: false
   });
 
-  // Post the log link to the beginning (but don't save it in thread messages)
-  const logUrl = await newThread.getLogUrl();
-  await newThread.postNonLogMessage(`Log URL: <${logUrl}>`);
-
   // Send auto-reply to the user
   if (config.responseMessage) {
     newThread.postToUser(config.responseMessage);

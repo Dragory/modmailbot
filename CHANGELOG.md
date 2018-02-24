@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.0.1
+* The link to the current thread's log is no longer posted to the top of the thread. Use `!loglink` instead.
+
 ## v2.0.0
 * Rewrote large parts of the code to be more modular and maintainable. There may be some new bugs because of this - please report them through GitHub issues if you encounter any!
 * Threads, logs, and snippets are now stored in an SQLite database. The bot will migrate old data on the first run.
