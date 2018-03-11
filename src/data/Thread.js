@@ -91,7 +91,8 @@ class Thread {
       dm_message_id: dmMessage.id
     });
 
-    if (this.scheduled_close_at) {
+    // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276
+    if (this.scheduled_close_at && typeof this.scheduled_close_at === 'string') {
       await this.cancelScheduledClose();
       await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
     }
