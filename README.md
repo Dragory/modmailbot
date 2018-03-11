@@ -45,6 +45,8 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.  
 `!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category  
 `!loglink` Shows the link to the current thread's log
+`!suspend` Suspend a thread. The thread will act as closed and not receive any messages until unsuspended.
+`!unsuspend` Unsuspend a thread
 
 To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
 

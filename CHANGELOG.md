@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.4.0
+* Add thread suspending. A modmail thread can now be suspended with `!suspend`. Suspended threads will function as closed until unsuspended with `!unsuspend`.
+
 ## v2.3.2
 * Auto-close threads if their modmail channel is deleted
 

@@ -155,6 +155,19 @@ async function findOpenThreadByChannelId(channelId) {
 }
 
 /**
+ * @param {String} channelId
+ * @returns {Promise<Thread>}
+ */
+async function findSuspendedThreadByChannelId(channelId) {
+  const thread = await knex('threads')
+    .where('channel_id', channelId)
+    .where('status', THREAD_STATUS.SUSPENDED)
+    .first();
+
+  return (thread ? new Thread(thread) : null);
+}
+
+/**
  * @param {String} userId
  * @returns {Promise<Thread[]>}
  */
@@ -203,6 +216,7 @@ module.exports = {
   findOpenThreadByUserId,
   findByChannelId,
   findOpenThreadByChannelId,
+  findSuspendedThreadByChannelId,
   createNewThreadForUser,
   getClosedThreadsByUserId,
   findOrCreateThreadForUser,

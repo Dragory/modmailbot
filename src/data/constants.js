@@ -1,7 +1,8 @@
 module.exports = {
   THREAD_STATUS: {
     OPEN: 1,
-    CLOSED: 2
+    CLOSED: 2,
+    SUSPENDED: 3
   },
 
   THREAD_MESSAGE_TYPE: {

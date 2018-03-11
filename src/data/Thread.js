@@ -307,6 +307,11 @@ class Thread {
     }
   }
 
+  /**
+   * @param {String} time
+   * @param {Eris~User} user
+   * @returns {Promise<void>}
+   */
   async scheduleClose(time, user) {
     await knex('threads')
       .where('id', this.id)
@@ -317,6 +322,9 @@ class Thread {
       });
   }
 
+  /**
+   * @returns {Promise<void>}
+   */
   async cancelScheduledClose() {
     await knex('threads')
       .where('id', this.id)
@@ -324,6 +332,28 @@ class Thread {
         scheduled_close_at: null,
         scheduled_close_id: null,
         scheduled_close_name: null
+      });
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async suspend() {
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        status: THREAD_STATUS.SUSPENDED
+      });
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async unsuspend() {
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        status: THREAD_STATUS.OPEN
       });
   }
 
