@@ -28,7 +28,7 @@ async function serveLogs(res, pathParts) {
       return message.body;
     }
 
-    let line = `[${moment(message.created_at).format('YYYY-MM-DD HH:mm:ss')}] `;
+    let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}] `;
 
     if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
       // System messages don't need the username
