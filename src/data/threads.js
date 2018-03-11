@@ -206,6 +206,7 @@ async function getThreadsThatShouldBeClosed() {
     .where('status', THREAD_STATUS.OPEN)
     .whereNotNull('scheduled_close_at')
     .where('scheduled_close_at', '<=', now)
+    .whereNotNull('scheduled_close_at')
     .select();
 
   return threads.map(thread => new Thread(thread));
