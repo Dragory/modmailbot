@@ -256,7 +256,8 @@ addInboxServerCommand('close', async (msg, args, thread) => {
   if (args.length) {
     if (args[0] === 'cancel') {
       // Cancel timed close
-      if (thread.scheduled_close_at) {
+      // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276
+      if (thread.scheduled_close_at && typeof thread.scheduled_close_at === 'string') {
         await thread.cancelScheduledClose();
         thread.postSystemMessage(`Cancelled scheduled closing`);
       }

@@ -143,7 +143,7 @@ class Thread {
       dm_message_id: msg.id
     });
 
-    // The 1970 check is a knex bug, see https://github.com/tgriesser/knex/issues/1276
+    // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276
     if (this.scheduled_close_at && typeof this.scheduled_close_at === 'string') {
       await this.cancelScheduledClose();
       await this.postSystemMessage({
