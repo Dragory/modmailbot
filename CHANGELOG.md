@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.3.1
+* Fixed incorrect default value for `mentionRole` (was `null`, should've been `"here"`)
+
 ## v2.3.0
 * Added `mentionRole` configuration option ([#59](https://github.com/Dragory/modmailbot/pull/59)). This option can be used to set the role that is pinged when new threads are created or the bot is mentioned. See README for more details.
 
