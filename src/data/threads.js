@@ -130,20 +130,6 @@ async function createThreadInDB(data) {
 }
 
 /**
- * @param {String} id
- * @returns {Promise<Thread>}
- */
-async function findById(id) {
-  const row = await knex('threads')
-    .where('id', id)
-    .first();
-
-  if (! row) return null;
-
-  return new Thread(row);
-}
-
-/**
  * @param {String} channelId
  * @returns {Promise<Thread>}
  */
