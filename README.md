@@ -54,6 +54,7 @@ These go in `config.json`. See also `config.example.json`.
 |------|-------|-----------|
 |token|None|**Required!** The bot user's token|
 |mailGuildId|None|**Required!** The inbox server's ID|
+|logChannelId|**Required!** Server's default channel|Channel where to post links to closed threads and other alerts|
 |mainGuildId|None|ID of the main server where people contact the bot from, used for e.g. displaying users' nicknames|
 |prefix|"!"|Prefix for bot commands|
 |status|"Message me for help"|The bot's "Playing" text|
@@ -69,7 +70,6 @@ These go in `config.json`. See also `config.example.json`.
 |url|None|URL to use for attachment and log links. Defaults to `IP:PORT`|
 |snippetPrefix|"!!"|Prefix to use snippets. Defaults to `prefix` x2.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
-|logChannelId|Server's default channel|Channel where to post links to closed threads and other alerts|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
 |relaySmallAttachmentsAsAttachments|false|Whether to relay small (<2MB) attachments from users as attachments rather than links in modmail threads|
 |threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|
