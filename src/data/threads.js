@@ -79,14 +79,13 @@ async function createNewThreadForUser(user) {
 
   const newThread = await findById(newThreadId);
 
-  //If no role is set, mention @here
-  const mention = (config.mentionRoleID == null) ? "@here" : `<@&${config.mentionRoleID}>`;
-
   // Ping moderators of the new thread
-  await newThread.postNonLogMessage({
-    content: `${mention} New modmail thread (${newThread.user_name})`,
-    disableEveryone: false
-  });
+  if (config.mentionRole) {
+    await newThread.postNonLogMessage({
+      content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
+      disableEveryone: false
+    });
+  }
 
   // Send auto-reply to the user
   if (config.responseMessage) {

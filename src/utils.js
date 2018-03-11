@@ -58,7 +58,7 @@ function postLog(...args) {
 
 function postError(str) {
   getLogChannel().createMessage({
-    content: `@here **Error:** ${str.trim()}`,
+    content: `${getInboxMention()}**Error:** ${str.trim()}`,
     disableEveryone: false
   });
 }
@@ -216,6 +216,13 @@ function convertDelayStringToMS(str) {
   return ms;
 }
 
+function getInboxMention() {
+  if (config.mentionRole == null) return '';
+  else if (config.mentionRole === 'here') return '@here ';
+  else if (config.mentionRole === 'everyone') return '@everyone ';
+  else return `<@&${config.mentionRole}> `;
+}
+
 module.exports = {
   BotError,
 
@@ -237,6 +244,7 @@ module.exports = {
   getSelfUrl,
   getMainRole,
   convertDelayStringToMS,
+  getInboxMention,
 
   chunk,
   trimAll,

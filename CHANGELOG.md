@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.3.0
+* Added `mentionRole` configuration option ([#59](https://github.com/Dragory/modmailbot/pull/59)). This option can be used to set the role that is pinged when new threads are created or the bot is mentioned. See README for more details.
+
 ## v2.2.0
 * Added the ability to schedule a thread to close by specifying a time after `!close`, e.g. `!close 1h`. The scheduling is cancelled if a new message is sent to or received from the user.
 
