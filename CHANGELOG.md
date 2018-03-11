@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.2.0
+* Added the ability to schedule a thread to close by specifying a time after `!close`, e.g. `!close 1h`. The scheduling is cancelled if a new message is sent to or received from the user.
+
 ## v2.1.0
 * Added typing proxy (https://github.com/Dragory/modmailbot/pull/48):
   * If the `typingProxy` config option is enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing" 
