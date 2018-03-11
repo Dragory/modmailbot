@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.4.1-v2.4.3
+* Fix errors on first run after upgrading to v2.2.0
+* Various other fixes
+
 ## v2.4.0
 * Add thread suspending. A modmail thread can now be suspended with `!suspend`. Suspended threads will function as closed until unsuspended with `!unsuspend`.
 

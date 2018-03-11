@@ -188,17 +188,15 @@ async function applyScheduledCloses() {
   }
 }
 
-async function closeLoop() {
+async function scheduledCloseLoop() {
   try {
     await applyScheduledCloses();
   } catch (e) {
     console.error(e);
   }
 
-  setTimeout(closeLoop, 2000);
+  setTimeout(scheduledCloseLoop, 2000);
 }
-
-closeLoop();
 
 // Auto-close threads if their channel is deleted
 bot.on('channelDelete', async (channel) => {
@@ -442,8 +440,12 @@ module.exports = {
     await greeting(bot);
     await webserver(bot);
 
+    // Connect to Discord
     console.log('Connecting to Discord...');
     await bot.connect();
+
+    // Start scheduled close loop
+    scheduledCloseLoop();
 
     console.log('Done! Now listening to DMs.');
   }
