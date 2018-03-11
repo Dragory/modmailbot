@@ -185,11 +185,35 @@ function chunk(items, chunkSize) {
   return result;
 }
 
+/**
+ * Trims every line in the string
+ * @param {String} str
+ * @returns {String}
+ */
 function trimAll(str) {
   return str
     .split('\n')
     .map(str => str.trim())
     .join('\n');
+}
+
+/**
+ * Turns a "delay string" such as "1h30m" to milliseconds
+ * @param {String} str
+ * @returns {Number}
+ */
+function convertDelayStringToMS(str) {
+  const regex = /([0-9]+)\s*([hms])/g;
+  let match;
+  let ms = 0;
+
+  while (match = regex.exec(str)) {
+    if (match[2] === 'h') ms += match[1] * 1000 * 60 * 60;
+    else if (match[2] === 'm') ms += match[1] * 1000 * 60;
+    else if (match[2] === 's') ms += match[1] * 1000;
+  }
+
+  return ms;
 }
 
 module.exports = {
@@ -212,6 +236,7 @@ module.exports = {
   disableLinkPreviews,
   getSelfUrl,
   getMainRole,
+  convertDelayStringToMS,
 
   chunk,
   trimAll,

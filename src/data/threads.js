@@ -199,6 +199,17 @@ async function findOrCreateThreadForUser(user) {
   return createNewThreadForUser(user);
 }
 
+async function getThreadsThatShouldBeClosed() {
+  const now = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+  const threads = await knex('threads')
+    .where('status', THREAD_STATUS.OPEN)
+    .whereNotNull('scheduled_close_at')
+    .where('scheduled_close_at', '<=', now)
+    .select();
+
+  return threads.map(thread => new Thread(thread));
+}
+
 module.exports = {
   findById,
   findOpenThreadByUserId,
@@ -207,5 +218,6 @@ module.exports = {
   createNewThreadForUser,
   getClosedThreadsByUserId,
   findOrCreateThreadForUser,
+  getThreadsThatShouldBeClosed,
   createThreadInDB
 };

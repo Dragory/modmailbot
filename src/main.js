@@ -164,7 +164,7 @@ if(config.typingProxy || config.typingProxyReverse) {
       const thread = await threads.findByChannelId(channel.id);
       if (! thread) return;
 
-      const dmChannel = await thread.getDMChannel(thread.user_id);
+      const dmChannel = await thread.getDMChannel();
       if (! dmChannel) return;
 
       try {
@@ -173,6 +173,32 @@ if(config.typingProxy || config.typingProxyReverse) {
     }
   });
 }
+
+// Check for threads that are scheduled to be closed and close them
+async function applyScheduledCloses() {
+  const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
+  for (const thread of threadsToBeClosed) {
+    await thread.close();
+
+    const logUrl = await thread.getLogUrl();
+    utils.postLog(utils.trimAll(`
+      Modmail thread with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}
+      Logs: ${logUrl}
+    `));
+  }
+}
+
+async function closeLoop() {
+  try {
+    await applyScheduledCloses();
+  } catch (e) {
+    console.error(e);
+  }
+
+  setTimeout(closeLoop, 2000);
+}
+
+closeLoop();
 
 // Mods can reply to modmail threads using !r or !reply
 // These messages get relayed back to the DM thread between the bot and the user
@@ -202,6 +228,34 @@ bot.registerCommandAlias('ar', 'anonreply');
 // Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
 addInboxServerCommand('close', async (msg, args, thread) => {
   if (! thread) return;
+
+  // Timed close
+  if (args.length) {
+    if (args[0] === 'cancel') {
+      // Cancel timed close
+      if (thread.scheduled_close_at) {
+        await thread.cancelScheduledClose();
+        thread.postSystemMessage(`Cancelled scheduled closing`);
+      }
+
+      return;
+    }
+
+    // Set a timed close
+    const delay = utils.convertDelayStringToMS(args.join(' '));
+    if (delay === 0) {
+      thread.postNonLogMessage(`Invalid delay specified. Format: "1h30m"`);
+      return;
+    }
+
+    const closeAt = moment.utc().add(delay, 'ms');
+    await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
+    thread.postSystemMessage(`Thread is scheduled to be closed ${moment.duration(delay).humanize(true)} by ${msg.author.username}. Use \`${config.prefix}close cancel\` to cancel.`);
+
+    return;
+  }
+
+  // Regular close
   await thread.close();
 
   const logUrl = await thread.getLogUrl();

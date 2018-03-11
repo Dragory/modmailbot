@@ -1,6 +1,4 @@
-const fs = require("fs");
 const moment = require('moment');
-const {promisify} = require('util');
 
 const bot = require('../bot');
 const knex = require('../knex');
@@ -18,6 +16,9 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
  * @property {String} user_id
  * @property {String} user_name
  * @property {String} channel_id
+ * @property {String} scheduled_close_at
+ * @property {String} scheduled_close_id
+ * @property {String} scheduled_close_name
  * @property {String} created_at
  */
 class Thread {
@@ -89,6 +90,11 @@ class Thread {
       is_anonymous: (isAnonymous ? 1 : 0),
       dm_message_id: dmMessage.id
     });
+
+    if (this.scheduled_close_at) {
+      await this.cancelScheduledClose();
+      await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+    }
   }
 
   /**
@@ -136,6 +142,14 @@ class Thread {
       is_anonymous: 0,
       dm_message_id: msg.id
     });
+
+    if (this.scheduled_close_at) {
+      await this.cancelScheduledClose();
+      await this.postSystemMessage({
+        content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
+        disableEveryone: false
+      });
+    }
   }
 
   /**
@@ -181,22 +195,23 @@ class Thread {
 
   /**
    * @param {String} text
+   * @param {*} args
    * @returns {Promise<void>}
    */
-  async postSystemMessage(text) {
-    const msg = await this.postToThreadChannel(text);
+  async postSystemMessage(text, ...args) {
+    const msg = await this.postToThreadChannel(text, ...args);
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.SYSTEM,
       user_id: null,
       user_name: '',
-      body: text,
+      body: typeof text === 'string' ? text : text.content,
       is_anonymous: 0,
       dm_message_id: msg.id
     });
   }
 
   /**
-   * @param {String} text
+   * @param {*} args
    * @returns {Promise<void>}
    */
   async postNonLogMessage(...args) {
@@ -290,6 +305,26 @@ class Thread {
       console.log(`Deleting channel ${this.channel_id}`);
       await channel.delete('Thread closed');
     }
+  }
+
+  async scheduleClose(time, user) {
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        scheduled_close_at: time,
+        scheduled_close_id: user.id,
+        scheduled_close_name: user.username
+      });
+  }
+
+  async cancelScheduledClose() {
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        scheduled_close_at: null,
+        scheduled_close_id: null,
+        scheduled_close_name: null
+      });
   }
 
   /**
