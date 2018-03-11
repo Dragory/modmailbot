@@ -11,6 +11,10 @@ const blocked = require('./data/blocked');
 const threads = require('./data/threads');
 
 const snippets = require('./plugins/snippets');
+const logCommands = require('./plugins/logCommands');
+const moving = require('./plugins/moving');
+const blocking = require('./plugins/blocking');
+const suspending = require('./plugins/suspending');
 const webserver = require('./plugins/webserver');
 const greeting = require('./plugins/greeting');
 const attachments = require("./data/attachments");
@@ -32,15 +36,19 @@ bot.on('ready', () => {
  */
 bot.on('messageCreate', async msg => {
   if (! utils.messageIsOnInboxServer(msg)) return;
-  if (! utils.isStaff(msg.member)) return;
   if (msg.author.bot) return;
-  if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) return;
 
   const thread = await threads.findByChannelId(msg.channel.id);
   if (! thread) return;
 
-  if (config.alwaysReply) {
+  if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) {
+    // Save commands as "command messages"
+    if (msg.content.startsWith(config.snippetPrefix)) return; // Ignore snippets
+    thread.saveCommandMessage(msg);
+  } else if (config.alwaysReply) {
     // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
+    if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
+
     if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
     await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false);
     msg.delete();
@@ -259,7 +267,7 @@ addInboxServerCommand('close', async (msg, args, thread) => {
     // Set a timed close
     const delay = utils.convertDelayStringToMS(args.join(' '));
     if (delay === 0) {
-      thread.postNonLogMessage(`Invalid delay specified. Format: "1h30m"`);
+      thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
       return;
     }
 
@@ -280,163 +288,15 @@ addInboxServerCommand('close', async (msg, args, thread) => {
   `));
 });
 
-addInboxServerCommand('block', (msg, args, thread) => {
-  async function block(userId) {
-    const user = bot.users.get(userId);
-    await blocked.block(userId, (user ? `${user.username}#${user.discriminator}` : ''), msg.author.id);
-    msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
-  }
-
-  if (args.length > 0) {
-    // User mention/id as argument
-    const userId = utils.getUserMention(args.join(' '));
-    if (! userId) return;
-    block(userId);
-  } else if (thread) {
-    // Calling !block without args in a modmail thread blocks the user of that thread
-    block(thread.user_id);
-  }
-});
-
-addInboxServerCommand('unblock', (msg, args, thread) => {
-  async function unblock(userId) {
-    await blocked.unblock(userId);
-    msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
-  }
-
-  if (args.length > 0) {
-    // User mention/id as argument
-    const userId = utils.getUserMention(args.join(' '));
-    if (! userId) return;
-    unblock(userId);
-  } else if (thread) {
-    // Calling !unblock without args in a modmail thread unblocks the user of that thread
-    unblock(thread.user_id);
-  }
-});
-
-addInboxServerCommand('logs', (msg, args, thread) => {
-  async function getLogs(userId) {
-    const userThreads = await threads.getClosedThreadsByUserId(userId);
-
-    // Descending by date
-    userThreads.sort((a, b) => {
-      if (a.created_at > b.created_at) return -1;
-      if (a.created_at < b.created_at) return 1;
-      return 0;
-    });
-
-    const threadLines = await Promise.all(userThreads.map(async thread => {
-      const logUrl = await thread.getLogUrl();
-      const formattedDate = moment.utc(thread.created_at).format('MMM Do [at] HH:mm [UTC]');
-      return `\`${formattedDate}\`: <${logUrl}>`;
-    }));
-
-    const message = `**Log files for <@${userId}>:**\n${threadLines.join('\n')}`;
-
-    // Send the list of logs in chunks of 15 lines per message
-    const lines = message.split('\n');
-    const chunks = utils.chunk(lines, 15);
-
-    let root = Promise.resolve();
-    chunks.forEach(lines => {
-      root = root.then(() => msg.channel.createMessage(lines.join('\n')));
-    });
-  }
-
-  if (args.length > 0) {
-    // User mention/id as argument
-    const userId = utils.getUserMention(args.join(' '));
-    if (! userId) return;
-    getLogs(userId);
-  } else if (thread) {
-    // Calling !logs without args in a modmail thread returns the logs of the user of that thread
-    getLogs(thread.user_id);
-  }
-});
-
-addInboxServerCommand('move', async (msg, args, thread) => {
-  if (! config.allowMove) return;
-
-  if (! thread) return;
-
-  const searchStr = args[0];
-  if (! searchStr || searchStr.trim() === '') return;
-
-  const normalizedSearchStr = transliterate.slugify(searchStr);
-
-  const categories = msg.channel.guild.channels.filter(c => {
-    // Filter to categories that are not the thread's current parent category
-    return (c instanceof Eris.CategoryChannel) && (c.id !== msg.channel.parentID);
-  });
-
-  if (categories.length === 0) return;
-
-  // See if any category name contains a part of the search string
-  const containsRankings = categories.map(cat => {
-    const normalizedCatName = transliterate.slugify(cat.name);
-
-    let i;
-    for (i = 1; i < normalizedSearchStr.length; i++) {
-      if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i))) {
-        i--;
-        break;
-      }
-    }
-
-    return [cat, i];
-  });
-
-  // Sort by best match
-  containsRankings.sort((a, b) => {
-    return a[1] > b[1] ? -1 : 1;
-  });
-
-  if (containsRankings[0][1] === 0) {
-    thread.postNonLogMessage('No matching category');
-    return;
-  }
-
-  const targetCategory = containsRankings[0][0];
-
-  await bot.editChannel(thread.channel_id, {
-    parentID: targetCategory.id
-  });
-
-  thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}`);
-});
-
-addInboxServerCommand('loglink', async (msg, args, thread) => {
-  if (! thread) return;
-  const logUrl = await thread.getLogUrl();
-  thread.postNonLogMessage(`Log URL: ${logUrl}`);
-});
-
-addInboxServerCommand('suspend', async (msg, args, thread) => {
-  if (! thread) return;
-  await thread.suspend();
-  thread.postSystemMessage(`**Thread suspended!** This thread will act as closed until unsuspended with \`!unsuspend\``);
-});
-
-addInboxServerCommand('unsuspend', async (msg, args) => {
-  const thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
-  if (! thread) return;
-
-  const otherOpenThread = await threads.findOpenThreadByUserId(thread.user_id);
-  if (otherOpenThread) {
-    thread.postSystemMessage(`Cannot unsuspend; there is another open thread with this user: <#${otherOpenThread.channel_id}>`);
-    return;
-  }
-
-  await thread.unsuspend();
-  thread.postSystemMessage(`**Thread unsuspended!**`);
-});
-
 module.exports = {
   async start() {
     // Load plugins
     console.log('Loading plugins...');
+    await logCommands(bot);
+    await blocking(bot);
+    await moving(bot);
     await snippets(bot);
+    await suspending(bot);
     await greeting(bot);
     await webserver(bot);
 

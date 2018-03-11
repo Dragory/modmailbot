@@ -223,6 +223,14 @@ function getInboxMention() {
   else return `<@&${config.mentionRole}> `;
 }
 
+function postSystemMessageWithFallback(channel, thread, text) {
+  if (thread) {
+    thread.postSystemMessage(text);
+  } else {
+    channel.createMessage(text);
+  }
+}
+
 module.exports = {
   BotError,
 
@@ -245,6 +253,7 @@ module.exports = {
   getMainRole,
   convertDelayStringToMS,
   getInboxMention,
+  postSystemMessageWithFallback,
 
   chunk,
   trimAll,

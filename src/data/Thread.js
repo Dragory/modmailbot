@@ -234,6 +234,17 @@ class Thread {
     });
   }
 
+  async saveCommandMessage(msg) {
+    return this.addThreadMessageToDB({
+      message_type: THREAD_MESSAGE_TYPE.COMMAND,
+      user_id: msg.author.id,
+      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      body: msg.content,
+      is_anonymous: 0,
+      dm_message_id: msg.id
+    });
+  }
+
   /**
    * @param {Eris.Message} msg
    * @returns {Promise<void>}

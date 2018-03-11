@@ -10,7 +10,8 @@ module.exports = {
     CHAT: 2,
     FROM_USER: 3,
     TO_USER: 4,
-    LEGACY: 5
+    LEGACY: 5,
+    COMMAND: 6
   },
 
   ACCIDENTAL_THREAD_MESSAGES: [

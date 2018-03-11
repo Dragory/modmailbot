@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.5.0
+* Commands used in inbox threads are now saved in logs again
+* Moved more of the code to individual plugin files
+
 ## v2.4.1-v2.4.4
 * Fix errors on first run after upgrading to v2.2.0
 * Various other fixes
