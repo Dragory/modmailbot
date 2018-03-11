@@ -144,7 +144,7 @@ class Thread {
     });
 
     // The 1970 check is a knex bug, see https://github.com/tgriesser/knex/issues/1276
-    if (this.scheduled_close_at && this.scheduled_close_at !== '1970-01-01T00:00:00.000Z') {
+    if (this.scheduled_close_at && typeof this.scheduled_close_at === 'string') {
       await this.cancelScheduledClose();
       await this.postSystemMessage({
         content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
