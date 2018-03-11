@@ -21,7 +21,7 @@ const defaultConfig = {
   "responseMessage": "Thank you for your message! Our mod team will reply to you here as soon as possible.",
 
   "newThreadCategoryId": null,
-  "mentionRole": null,
+  "mentionRole": "here",
 
   "inboxServerPermission": null,
   "alwaysReply": false,
