@@ -200,6 +200,23 @@ async function closeLoop() {
 
 closeLoop();
 
+// Auto-close threads if their channel is deleted
+bot.on('channelDelete', async (channel) => {
+  if (! (channel instanceof Eris.TextChannel)) return;
+  if (channel.guild.id !== utils.getInboxGuild().id) return;
+  const thread = await threads.findOpenThreadByChannelId(channel.id);
+  if (! thread) return;
+
+  console.log(`[INFO] Auto-closing thread with ${thread.user_name} because the channel was deleted`);
+  await thread.close(true);
+
+  const logUrl = await thread.getLogUrl();
+  utils.postLog(utils.trimAll(`
+    Modmail thread with ${thread.user_name} (${thread.user_id}) was closed automatically because the channel was deleted
+    Logs: ${logUrl}
+  `));
+});
+
 // Mods can reply to modmail threads using !r or !reply
 // These messages get relayed back to the DM thread between the bot and the user
 addInboxServerCommand('reply', async (msg, args, thread) => {

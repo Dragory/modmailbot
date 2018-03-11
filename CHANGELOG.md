@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.3.2
+* Auto-close threads if their modmail channel is deleted
+
 ## v2.3.1
 * Fixed incorrect default value for `mentionRole` (was `null`, should've been `"here"`)
 
