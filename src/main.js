@@ -140,8 +140,11 @@ bot.on('messageCreate', async msg => {
   // If the person who mentioned the bot is blocked, ignore them
   if (await blocked.isBlocked(msg.author.id)) return;
 
+  //If no role is set, mention @here
+  const mention = (config.mentionRoleID == null) ? "@here" : `<@&${config.mentionRoleID}>`;
+
   bot.createMessage(utils.getLogChannel(bot).id, {
-    content: `@here Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
+    content: `${mention} Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
     disableEveryone: false,
   });
 });
