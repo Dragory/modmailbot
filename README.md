@@ -7,6 +7,7 @@ Inspired by Reddit's modmail system.
 
 ### NOTE! If you're upgrading from a version prior to Feb 24 2018:
 * Take backups
+* Remove the `node_modules` directory
 * Run `npm install` again
 * Follow the on-screen instructions after `npm start`
 
