@@ -1,6 +1,6 @@
 {
   "name": "modmailbot",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "",
   "license": "MIT",
   "main": "src/index.js",
