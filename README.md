@@ -54,7 +54,7 @@ These go in `config.json`. See also `config.example.json`.
 |------|-------|-----------|
 |token|None|**Required!** The bot user's token|
 |mailGuildId|None|**Required!** The inbox server's ID|
-|logChannelId|**Required!** Server's default channel|Channel where to post links to closed threads and other alerts|
+|logChannelId|None|**Required!** Channel where to post links to closed threads and other alerts|
 |mainGuildId|None|ID of the main server where people contact the bot from, used for e.g. displaying users' nicknames|
 |prefix|"!"|Prefix for bot commands|
 |status|"Message me for help"|The bot's "Playing" text|
