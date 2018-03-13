@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.8.0
+* Add a `!version` command for checking the version of the bot you're running
+
 ## v2.7.0
 * Split more code from main.js to individual module files
 

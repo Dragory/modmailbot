@@ -34,6 +34,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!edit_snippet <shortcut> <text>` Edits an existing snippet (alias `!es`)  
 `!delete_snippet <shortcut>` Deletes the specified snippet (alias `!ds`)  
 `!snippets` Lists all available snippets
+`!version` Print the version of the bot you're running
 
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
