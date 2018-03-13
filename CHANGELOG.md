@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.7.0
+* Split more code from main.js to individual module files
+
 ## v2.6.0
 * Warn the user if new dependencies haven't been installed
 * `!close` now supports `d` for days in the delay
