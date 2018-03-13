@@ -203,14 +203,24 @@ function trimAll(str) {
  * @returns {Number}
  */
 function convertDelayStringToMS(str) {
-  const regex = /([0-9]+)\s*([hms])/g;
+  const regex = /^([0-9]+)\s*([dhms])?[a-z]*\s*/;
   let match;
   let ms = 0;
 
-  while (match = regex.exec(str)) {
-    if (match[2] === 'h') ms += match[1] * 1000 * 60 * 60;
+  str = str.trim();
+
+  while (str !== '' && (match = str.match(regex)) !== null) {
+    if (match[2] === 'd') ms += match[1] * 1000 * 60 * 60 * 24;
+    else if (match[2] === 'h') ms += match[1] * 1000 * 60 * 60;
     else if (match[2] === 'm') ms += match[1] * 1000 * 60;
-    else if (match[2] === 's') ms += match[1] * 1000;
+    else if (match[2] === 's' || ! match[2]) ms += match[1] * 1000;
+
+    str = str.slice(match[0].length);
+  }
+
+  // Invalid delay string
+  if (str !== '') {
+    return null;
   }
 
   return ms;

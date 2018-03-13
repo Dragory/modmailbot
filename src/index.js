@@ -12,7 +12,20 @@ const path = require('path');
 try {
   fs.accessSync(path.join(__dirname, '..', 'node_modules'));
 } catch (e) {
-  console.error('Please run "npm install" before trying to start the bot.');
+  console.error('Please run "npm install" before starting the bot');
+  process.exit(1);
+}
+
+let testedPackage = '';
+try {
+  const packageJson = require('../package.json');
+  const modules = Object.keys(packageJson.dependencies);
+  modules.forEach(mod => {
+    testedPackage = mod;
+    fs.accessSync(path.join(__dirname, '..', 'node_modules', mod))
+  });
+} catch (e) {
+  console.error(`Please run "npm install" again! Package "${testedPackage}" is missing.`);
   process.exit(1);
 }
 

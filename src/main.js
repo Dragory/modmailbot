@@ -1,6 +1,6 @@
 const Eris = require('eris');
 const moment = require('moment');
-const transliterate = require('transliteration');
+const humanizeDuration = require('humanize-duration');
 
 const config = require('./config');
 const bot = require('./bot');
@@ -23,6 +23,7 @@ const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 const messageQueue = new Queue();
 
 const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
+const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));
 
 // Once the bot has connected, set the status/"playing" message
 bot.on('ready', () => {
@@ -256,7 +257,7 @@ addInboxServerCommand('close', async (msg, args, thread) => {
   if (args.length) {
     if (args[0] === 'cancel') {
       // Cancel timed close
-      // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276
+      // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276git
       if (thread.scheduled_close_at) {
         await thread.cancelScheduledClose();
         thread.postSystemMessage(`Cancelled scheduled closing`);
@@ -267,14 +268,14 @@ addInboxServerCommand('close', async (msg, args, thread) => {
 
     // Set a timed close
     const delay = utils.convertDelayStringToMS(args.join(' '));
-    if (delay === 0) {
+    if (delay === 0 || delay === null) {
       thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
       return;
     }
 
     const closeAt = moment.utc().add(delay, 'ms');
     await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
-    thread.postSystemMessage(`Thread is scheduled to be closed ${moment.duration(delay).humanize(true)} by ${msg.author.username}. Use \`${config.prefix}close cancel\` to cancel.`);
+    thread.postSystemMessage(`Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`);
 
     return;
   }
