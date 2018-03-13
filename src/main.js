@@ -1,33 +1,31 @@
 const Eris = require('eris');
-const moment = require('moment');
-const humanizeDuration = require('humanize-duration');
 
 const config = require('./config');
 const bot = require('./bot');
 const Queue = require('./queue');
 const utils = require('./utils');
-const threadUtils = require('./threadUtils');
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
 
-const snippets = require('./plugins/snippets');
-const logCommands = require('./plugins/logCommands');
-const moving = require('./plugins/moving');
-const blocking = require('./plugins/blocking');
-const suspending = require('./plugins/suspending');
-const webserver = require('./plugins/webserver');
-const greeting = require('./plugins/greeting');
+const reply = require('./modules/reply');
+const close = require('./modules/close');
+const snippets = require('./modules/snippets');
+const logs = require('./modules/logs');
+const move = require('./modules/move');
+const block = require('./modules/block');
+const suspend = require('./modules/suspend');
+const webserver = require('./modules/webserver');
+const greeting = require('./modules/greeting');
+const typingProxy = require('./modules/typingProxy');
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 
 const messageQueue = new Queue();
 
-const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));
-
 // Once the bot has connected, set the status/"playing" message
 bot.on('ready', () => {
   bot.editStatus(null, {name: config.status});
+  console.log('Connected! Now listening to DMs.');
 });
 
 /**
@@ -155,160 +153,23 @@ bot.on('messageCreate', async msg => {
   });
 });
 
-// Typing proxy: forwarding typing events between the DM and the modmail thread
-if(config.typingProxy || config.typingProxyReverse) {
-  bot.on("typingStart", async (channel, user) => {
-    // config.typingProxy: forward user typing in a DM to the modmail thread
-    if (config.typingProxy && (channel instanceof Eris.PrivateChannel)) {
-      const thread = await threads.findOpenThreadByUserId(user.id);
-      if (! thread) return;
-
-      try {
-        await bot.sendChannelTyping(thread.channel_id);
-      } catch (e) {}
-    }
-
-    // config.typingProxyReverse: forward moderator typing in a thread to the DM
-    else if (config.typingProxyReverse && (channel instanceof Eris.GuildChannel) && ! user.bot) {
-      const thread = await threads.findByChannelId(channel.id);
-      if (! thread) return;
-
-      const dmChannel = await thread.getDMChannel();
-      if (! dmChannel) return;
-
-      try {
-        await bot.sendChannelTyping(dmChannel.id);
-      } catch(e) {}
-    }
-  });
-}
-
-// Check for threads that are scheduled to be closed and close them
-async function applyScheduledCloses() {
-  const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
-  for (const thread of threadsToBeClosed) {
-    await thread.close();
-
-    const logUrl = await thread.getLogUrl();
-    utils.postLog(utils.trimAll(`
-      Modmail thread with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}
-      Logs: ${logUrl}
-    `));
-  }
-}
-
-async function scheduledCloseLoop() {
-  try {
-    await applyScheduledCloses();
-  } catch (e) {
-    console.error(e);
-  }
-
-  setTimeout(scheduledCloseLoop, 2000);
-}
-
-// Auto-close threads if their channel is deleted
-bot.on('channelDelete', async (channel) => {
-  if (! (channel instanceof Eris.TextChannel)) return;
-  if (channel.guild.id !== utils.getInboxGuild().id) return;
-  const thread = await threads.findOpenThreadByChannelId(channel.id);
-  if (! thread) return;
-
-  console.log(`[INFO] Auto-closing thread with ${thread.user_name} because the channel was deleted`);
-  await thread.close(true);
-
-  const logUrl = await thread.getLogUrl();
-  utils.postLog(utils.trimAll(`
-    Modmail thread with ${thread.user_name} (${thread.user_id}) was closed automatically because the channel was deleted
-    Logs: ${logUrl}
-  `));
-});
-
-// Mods can reply to modmail threads using !r or !reply
-// These messages get relayed back to the DM thread between the bot and the user
-addInboxServerCommand('reply', async (msg, args, thread) => {
-  if (! thread) return;
-
-  const text = args.join(' ').trim();
-  if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-  await thread.replyToUser(msg.member, text, msg.attachments, false);
-  msg.delete();
-});
-
-bot.registerCommandAlias('r', 'reply');
-
-// Anonymous replies only show the role, not the username
-addInboxServerCommand('anonreply', async (msg, args, thread) => {
-  if (! thread) return;
-
-  const text = args.join(' ').trim();
-  if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-  await thread.replyToUser(msg.member, text, msg.attachments, true);
-  msg.delete();
-});
-
-bot.registerCommandAlias('ar', 'anonreply');
-
-// Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
-addInboxServerCommand('close', async (msg, args, thread) => {
-  if (! thread) return;
-
-  // Timed close
-  if (args.length) {
-    if (args[0] === 'cancel') {
-      // Cancel timed close
-      // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276git
-      if (thread.scheduled_close_at) {
-        await thread.cancelScheduledClose();
-        thread.postSystemMessage(`Cancelled scheduled closing`);
-      }
-
-      return;
-    }
-
-    // Set a timed close
-    const delay = utils.convertDelayStringToMS(args.join(' '));
-    if (delay === 0 || delay === null) {
-      thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
-      return;
-    }
-
-    const closeAt = moment.utc().add(delay, 'ms');
-    await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
-    thread.postSystemMessage(`Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`);
-
-    return;
-  }
-
-  // Regular close
-  await thread.close();
-
-  const logUrl = await thread.getLogUrl();
-  utils.postLog(utils.trimAll(`
-    Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${msg.author.username}
-    Logs: ${logUrl}
-  `));
-});
-
 module.exports = {
   async start() {
-    // Load plugins
-    console.log('Loading plugins...');
-    await logCommands(bot);
-    await blocking(bot);
-    await moving(bot);
+    // Load modules
+    console.log('Loading modules...');
+    await reply(bot);
+    await close(bot);
+    await logs(bot);
+    await block(bot);
+    await move(bot);
     await snippets(bot);
-    await suspending(bot);
+    await suspend(bot);
     await greeting(bot);
     await webserver(bot);
+    await typingProxy(bot);
 
     // Connect to Discord
     console.log('Connecting to Discord...');
     await bot.connect();
-
-    // Start scheduled close loop
-    scheduledCloseLoop();
-
-    console.log('Done! Now listening to DMs.');
   }
 };

@@ -20,6 +20,7 @@ module.exports = {
     'thanks',
     'ty',
     'k',
+    'kk',
     'thank you',
     'thanx',
     'thnx',
