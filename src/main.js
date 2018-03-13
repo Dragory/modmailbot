@@ -17,6 +17,7 @@ const suspend = require('./modules/suspend');
 const webserver = require('./modules/webserver');
 const greeting = require('./modules/greeting');
 const typingProxy = require('./modules/typingProxy');
+const version = require('./modules/version');
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 
@@ -167,6 +168,7 @@ module.exports = {
     await greeting(bot);
     await webserver(bot);
     await typingProxy(bot);
+    await version(bot);
 
     // Connect to Discord
     console.log('Connecting to Discord...');
