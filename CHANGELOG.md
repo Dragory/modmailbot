@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.6.0
+* Warn the user if new dependencies haven't been installed
+* `!close` now supports `d` for days in the delay
+* `!close` is now stricter about the time format
+
 ## v2.5.0
 * Commands used in inbox threads are now saved in logs again
 * Moved more of the code to individual plugin files
