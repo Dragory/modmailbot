@@ -1,3 +1,5 @@
+const utils = require("../utils");
+
 /**
  * @property {String} trigger
  * @property {String} body
@@ -7,7 +9,7 @@
  */
 class Snippet {
   constructor(props) {
-    Object.assign(this, props);
+    utils.setDataModelProps(this, props);
   }
 }
 

@@ -1,3 +1,5 @@
+const utils = require("../utils");
+
 /**
  * @property {Number} id
  * @property {String} thread_id
@@ -11,7 +13,7 @@
  */
 class ThreadMessage {
   constructor(props) {
-    Object.assign(this, props);
+    utils.setDataModelProps(this, props);
   }
 }
 

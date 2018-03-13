@@ -23,7 +23,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
  */
 class Thread {
   constructor(props) {
-    Object.assign(this, props);
+    utils.setDataModelProps(this, props);
   }
 
   /**
@@ -92,7 +92,7 @@ class Thread {
     });
 
     // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276
-    if (this.scheduled_close_at && typeof this.scheduled_close_at === 'string') {
+    if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
       await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
     }
@@ -145,7 +145,7 @@ class Thread {
     });
 
     // The string type check is due to a knex bug, see https://github.com/tgriesser/knex/issues/1276
-    if (this.scheduled_close_at && typeof this.scheduled_close_at === 'string') {
+    if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
       await this.postSystemMessage({
         content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,

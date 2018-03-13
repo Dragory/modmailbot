@@ -231,6 +231,29 @@ function postSystemMessageWithFallback(channel, thread, text) {
   }
 }
 
+/**
+ * A normalized way to set props in data models, fixing some inconsistencies between different DB drivers in knex
+ * @param {Object} target
+ * @param {Object} props
+ */
+function setDataModelProps(target, props) {
+  for (const prop in props) {
+    if (! props.hasOwnProperty(prop)) continue;
+    // DATETIME fields are always returned as Date objects in MySQL/MariaDB
+    if (props[prop] instanceof Date) {
+      // ...even when NULL, in which case the date's set to unix epoch
+      if (props[prop].getUTCFullYear() === 1970) {
+        target[prop] = null;
+      } else {
+        // Set the value as a string in the same format it's returned in SQLite
+        target[prop] = moment.utc(props[prop]).format('YYYY-MM-DD HH:mm:ss');
+      }
+    } else {
+      target[prop] = props[prop];
+    }
+  }
+}
+
 module.exports = {
   BotError,
 
@@ -257,4 +280,6 @@ module.exports = {
 
   chunk,
   trimAll,
+
+  setDataModelProps,
 };
