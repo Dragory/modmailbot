@@ -40,10 +40,11 @@ async function findOpenThreadByUserId(userId) {
 /**
  * Creates a new modmail thread for the specified user
  * @param {Eris.User} user
+ * @param {Boolean} quiet If true, doesn't ping mentionRole or reply with responseMessage
  * @returns {Promise<Thread>}
  * @throws {Error}
  */
-async function createNewThreadForUser(user) {
+async function createNewThreadForUser(user, quiet = false) {
   const existingThread = await findOpenThreadByUserId(user.id);
   if (existingThread) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
@@ -79,17 +80,19 @@ async function createNewThreadForUser(user) {
 
   const newThread = await findById(newThreadId);
 
-  // Ping moderators of the new thread
-  if (config.mentionRole) {
-    await newThread.postNonLogMessage({
-      content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
-      disableEveryone: false
-    });
-  }
+  if (! quiet) {
+    // Ping moderators of the new thread
+    if (config.mentionRole) {
+      await newThread.postNonLogMessage({
+        content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
+        disableEveryone: false
+      });
+    }
 
-  // Send auto-reply to the user
-  if (config.responseMessage) {
-    newThread.postToUser(config.responseMessage);
+    // Send auto-reply to the user
+    if (config.responseMessage) {
+      newThread.postToUser(config.responseMessage);
+    }
   }
 
   // Post some info to the beginning of the new thread
