@@ -13,7 +13,12 @@ module.exports = bot => {
     function sendGreeting(file) {
       bot.getDMChannel(member.id).then(channel => {
         if (! channel) return;
-        channel.createMessage(config.greetingMessage || '', file);
+
+        channel.createMessage(config.greetingMessage || '', file)
+          .catch(e => {
+            if (e.code === 50007) return;
+            throw e;
+          });
       });
     }
 
