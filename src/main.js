@@ -19,6 +19,7 @@ const greeting = require('./modules/greeting');
 const typingProxy = require('./modules/typingProxy');
 const version = require('./modules/version');
 const newthread = require('./modules/newthread');
+const idModule = require('./modules/id');
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
@@ -172,6 +173,7 @@ module.exports = {
     await typingProxy(bot);
     await version(bot);
     await newthread(bot);
+    await idModule(bot);
 
     // Connect to Discord
     console.log('Connecting to Discord...');
