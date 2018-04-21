@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.9.1
+* If using multiple main guilds, the originating server is now specified in bot mention notifications
+
 ## v2.9.0
 * Added multi-server support.  
 Multi-server support allows you to set an array of ids in mainGuildId.
