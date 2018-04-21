@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.9.0
+* Added multi-server support.  
+Multi-server support allows you to set an array of ids in mainGuildId.
+Nickname and join date will be displayed for each main guild the user is in.
+* Information posted at the top of modmail threads now also includes time since the user joined the guild(s)
+* Added `!id`  
+`!id` posts the user ID of the current thread. Useful on mobile when you need to get the user ID.
+* Added `!newthread`  
+`!newthread <userid>` opens a new thread with the specified user
+* Fixed a crash when the bot was unable to send a greeting message due to the user's privacy options
+
 ## v2.8.0
 * Added a `!version` command for checking the version of the bot you're running
 

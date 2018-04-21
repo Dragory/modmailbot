@@ -34,7 +34,8 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!edit_snippet <shortcut> <text>` Edits an existing snippet (alias `!es`)  
 `!delete_snippet <shortcut>` Deletes the specified snippet (alias `!ds`)  
 `!snippets` Lists all available snippets
-`!version` Print the version of the bot you're running
+`!version` Print the version of the bot you're running  
+`!newthread <user>` Opens a new thread with the specified user
 
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
@@ -45,9 +46,10 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!unblock` Unblocks the user from using modmail  
 `!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.  
 `!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category  
-`!loglink` Shows the link to the current thread's log
-`!suspend` Suspend a thread. The thread will act as closed and not receive any messages until unsuspended.
-`!unsuspend` Unsuspend a thread
+`!loglink` Shows the link to the current thread's log  
+`!suspend` Suspend a thread. The thread will act as closed and not receive any messages until unsuspended.  
+`!unsuspend` Unsuspend a thread  
+`!id` Prints the user's ID
 
 To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
 
@@ -59,7 +61,7 @@ These go in `config.json`. See also `config.example.json`.
 |token|None|**Required!** The bot user's token|
 |mailGuildId|None|**Required!** The inbox server's ID|
 |logChannelId|None|**Required!** Channel where to post log links to closed threads and other alerts|
-|mainGuildId|None|ID of the main server where people contact the bot from, used for e.g. displaying users' nicknames|
+|mainGuildId|None|ID (or array of IDs) of the main server where people contact the bot from. Used for displaying users' nicknames and join dates, and catching bot pings.|
 |prefix|"!"|Prefix for bot commands|
 |status|"Message me for help"|The bot's "Playing" text|
 |responseMessage|"Thank you for your message! Our mod team will reply to you here as soon as possible."|The bot's response to DMs that start a new thread|
