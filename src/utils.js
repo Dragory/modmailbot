@@ -7,10 +7,10 @@ const config = require('./config');
 
 class BotError extends Error {}
 
-const userMentionRegex = /^<@\!?([0-9]+?)>$/;
+const userMentionRegex = /^<@!?([0-9]+?)>$/;
 
 let inboxGuild = null;
-let mainGuild = null;
+let mainGuilds = [];
 let logChannel = null;
 
 /**
@@ -23,17 +23,26 @@ function getInboxGuild() {
 }
 
 /**
- * @returns {Eris~Guild}
+ * @returns {Eris~Guild[]}
  */
-function getMainGuild() {
-  if (! mainGuild) mainGuild = bot.guilds.find(g => g.id === config.mainGuildId);
-  if (! mainGuild) console.warn('[WARN] The bot is not on the main server! If this is intentional, you can ignore this warning.');
-  return mainGuild;
+function getMainGuilds() {
+  if (mainGuilds.length === 0) {
+    mainGuilds = bot.guilds.filter(g => config.mainGuildId.includes(g.id));
+  }
+
+  if (mainGuilds.length !== config.mainGuildId.length) {
+    if (config.mainGuildId.length === 1) {
+      console.warn(`[WARN] The bot hasn't joined the main guild!`);
+    } else {
+      console.warn(`[WARN] The bot hasn't joined one or more main guilds!`);
+    }
+  }
+
+  return mainGuilds;
 }
 
 /**
  * Returns the designated log channel, or the default channel if none is set
- * @param bot
  * @returns {Eris~TextChannel}
  */
 function getLogChannel() {
@@ -91,8 +100,9 @@ function messageIsOnInboxServer(msg) {
  */
 function messageIsOnMainServer(msg) {
   if (! msg.channel.guild) return false;
-  if (msg.channel.guild.id !== getMainGuild().id) return false;
-  return true;
+
+  return getMainGuilds()
+    .some(g => msg.channel.guild.id === g.id);
 }
 
 /**
@@ -268,7 +278,7 @@ module.exports = {
   BotError,
 
   getInboxGuild,
-  getMainGuild,
+  getMainGuilds,
   getLogChannel,
   postError,
   postLog,

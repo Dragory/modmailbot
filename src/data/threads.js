@@ -4,7 +4,6 @@ const moment = require('moment');
 const uuid = require('uuid');
 const humanizeDuration = require('humanize-duration');
 
-const bot = require('../bot');
 const knex = require('../knex');
 const config = require('../config');
 const utils = require('../utils');
@@ -35,6 +34,13 @@ async function findOpenThreadByUserId(userId) {
     .first();
 
   return (thread ? new Thread(thread) : null);
+}
+
+function getHeaderGuildInfo(member) {
+  return {
+    nickname: member.nick || member.user.username,
+    joinDate: humanizeDuration(Date.now() - member.joinedAt, {largest: 2, round: true})
+  };
 }
 
 /**
@@ -96,20 +102,45 @@ async function createNewThreadForUser(user, quiet = false) {
   }
 
   // Post some info to the beginning of the new thread
-  const mainGuild = utils.getMainGuild();
-  const member = (mainGuild ? mainGuild.members.get(user.id) : null);
-  if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
+  const infoHeaderItems = [];
 
-  let mainGuildNickname = null;
-  if (member && member.nick) mainGuildNickname = member.nick;
-  else if (member && member.user) mainGuildNickname = member.user.username;
-  else if (member == null) mainGuildNickname = 'NOT ON SERVER';
+  // Account age
+  const accountAge = humanizeDuration(Date.now() - user.createdAt, {largest: 2, round: true});
+  infoHeaderItems.push(`ACCOUNT AGE **${accountAge}**`);
 
-  if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
+  // User id
+  infoHeaderItems.push(`ID **${user.id}**`);
+
+  let infoHeader = infoHeaderItems.join(', ');
+
+  // Guild info
+  const guildInfoHeaderItems = new Map();
+
+  utils.getMainGuilds().forEach(guild => {
+    const member = guild.members.get(user.id);
+    if (! member) return;
+
+    const {nickname, joinDate} = getHeaderGuildInfo(member);
+    guildInfoHeaderItems.set(guild.name, [
+      `NICKNAME **${nickname}**`,
+      `JOINED **${joinDate}** ago`
+    ]);
+  });
+
+  guildInfoHeaderItems.forEach((items, guildName) => {
+    if (guildInfoHeaderItems.size === 1) {
+      infoHeader += `\n${items.join(', ')}`;
+    } else {
+      infoHeader += `\n**[${guildName}]** ${items.join(', ')}`;
+    }
+  });
 
   const userLogCount = await getClosedThreadCountByUserId(user.id);
-  const accountAge = humanizeDuration(Date.now() - user.createdAt, {largest: 2});
-  const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${user.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogCount}**\n-------------------------------`;
+  if (userLogCount > 0) {
+    infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
+  }
+
+  infoHeader += '\n────────────────';
 
   await newThread.postSystemMessage(infoHeader);
 

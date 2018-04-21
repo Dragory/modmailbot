@@ -60,6 +60,7 @@ for (const [prop, value] of Object.entries(userConfig)) {
   finalConfig[prop] = value;
 }
 
+// Default knex config
 if (! finalConfig['knex']) {
   finalConfig['knex'] = {
     client: 'sqlite',
@@ -70,17 +71,24 @@ if (! finalConfig['knex']) {
   };
 }
 
+// Make sure migration settings are always present in knex config
 Object.assign(finalConfig['knex'], {
   migrations: {
     directory: path.join(finalConfig.dbDir, 'migrations')
   }
 });
 
+// Make sure all of the required config options are present
 for (const opt of required) {
   if (! finalConfig[opt]) {
     console.error(`Missing required config.json value: ${opt}`);
     process.exit(1);
   }
+}
+
+// Make sure mainGuildId is internally always an array
+if (! Array.isArray(finalConfig['mainGuildId'])) {
+  finalConfig['mainGuildId'] = [finalConfig['mainGuildId']];
 }
 
 module.exports = finalConfig;
