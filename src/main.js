@@ -151,8 +151,17 @@ bot.on('messageCreate', async msg => {
   // If the person who mentioned the bot is blocked, ignore them
   if (await blocked.isBlocked(msg.author.id)) return;
 
+  let content;
+  const mainGuilds = utils.getMainGuilds();
+
+  if (mainGuilds.length === 1) {
+    content = `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
+  } else {
+    content = `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
+  }
+
   bot.createMessage(utils.getLogChannel(bot).id, {
-    content: `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
+    content,
     disableEveryone: false,
   });
 });
