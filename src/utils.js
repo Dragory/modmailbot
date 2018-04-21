@@ -222,8 +222,8 @@ function convertDelayStringToMS(str) {
   while (str !== '' && (match = str.match(regex)) !== null) {
     if (match[2] === 'd') ms += match[1] * 1000 * 60 * 60 * 24;
     else if (match[2] === 'h') ms += match[1] * 1000 * 60 * 60;
-    else if (match[2] === 'm') ms += match[1] * 1000 * 60;
-    else if (match[2] === 's' || ! match[2]) ms += match[1] * 1000;
+    else if (match[2] === 's') ms += match[1] * 1000;
+    else if (match[2] === 'm' || ! match[2]) ms += match[1] * 1000 * 60;
 
     str = str.slice(match[0].length);
   }
