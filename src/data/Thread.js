@@ -19,6 +19,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
  * @property {String} scheduled_close_at
  * @property {String} scheduled_close_id
  * @property {String} scheduled_close_name
+ * @property {String} alert_id
  * @property {String} created_at
  */
 class Thread {
@@ -145,10 +146,12 @@ class Thread {
 
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage({
-        content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
-        disableEveryone: false
-      });
+      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
+    }
+
+    if (this.alert_id) {
+      await this.setAlert(null);
+      await this.postSystemMessage(`<@!${this.alert_id}> New message from ${this.user_name}`);
     }
   }
 
@@ -365,6 +368,18 @@ class Thread {
       .where('id', this.id)
       .update({
         status: THREAD_STATUS.OPEN
+      });
+  }
+
+  /**
+   * @param {String} userId
+   * @returns {Promise<void>}
+   */
+  async setAlert(userId) {
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        alert_id: userId
       });
   }
 
