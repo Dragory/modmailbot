@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.10.0
+* Added `!alert`  
+Using `!alert` in a modmail thread will ping you the next time the thread gets a new reply.
+Use `!alert cancel` to cancel.
+
 ## v2.9.1
 * If using multiple main guilds, the originating server is now specified in bot mention notifications
 

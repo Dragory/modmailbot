@@ -50,6 +50,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!suspend` Suspend a thread. The thread will act as closed and not receive any messages until unsuspended.  
 `!unsuspend` Unsuspend a thread  
 `!id` Prints the user's ID
+`!alert` Pings you when the thread gets a new reply. Use `!alert cancel` to cancel.
 
 To automatically reply without using !reply or !r, enable `alwaysReply` in the config. `alwaysReplyAnon` sets whether to reply anonymously. If you do not wish to reply, it will ignore any message starting in the prefix (which defaults to !), such as !note
 
