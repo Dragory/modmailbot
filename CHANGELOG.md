@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.10.1
+* Change timed close default unit from seconds to minutes.
+This means that doing e.g. `!close 30` now closes the thread in 30 *minutes*, not seconds.
+
 ## v2.10.0
 * Added `!alert`  
 Using `!alert` in a modmail thread will ping you the next time the thread gets a new reply.
