@@ -42,7 +42,7 @@ module.exports = bot => {
 
     // Timed close
     if (args.length) {
-      if (args[0] === 'cancel') {
+      if (args[0].startsWith('c')) {
         // Cancel timed close
         if (thread.scheduled_close_at) {
           await thread.cancelScheduledClose();
