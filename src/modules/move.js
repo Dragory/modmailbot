@@ -27,13 +27,11 @@ module.exports = bot => {
     const containsRankings = categories.map(cat => {
       const normalizedCatName = transliterate.slugify(cat.name);
 
-      let i;
-      for (i = 1; i < normalizedSearchStr.length; i++) {
-        if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i))) {
-          i--;
-          break;
-        }
-      }
+      let i = 0;
+      do {
+        if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i + 1))) break;
+        i++;
+      } while (i < normalizedSearchStr.length);
 
       return [cat, i];
     });
