@@ -32,6 +32,11 @@ module.exports = bot => {
         if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i + 1))) break;
         i++;
       } while (i < normalizedSearchStr.length);
+      
+      if (i > 0 && normalizedCatName.startsWith(normalizedSearchStr.slice(0, i))) {
+        // Slightly prioritize categories that *start* with the search string
+        i += 0.5;
+      }
 
       return [cat, i];
     });
