@@ -176,7 +176,14 @@ class Thread {
     }
 
     // Send the DM
-    return dmChannel.createMessage(text, file);
+    const chunks = utils.chunk(text, 2000);
+    const messages = await Promise.all(chunks.map((chunk, i) => {
+      return dmChannel.createMessage(
+        chunk,
+        (i === chunks.length - 1 ? file : undefined)  // Only send the file with the last message
+      );
+    }));
+    return messages[0];
   }
 
   /**
@@ -184,7 +191,16 @@ class Thread {
    */
   async postToThreadChannel(...args) {
     try {
-      return await bot.createMessage(this.channel_id, ...args);
+      if (typeof args[0] === 'string') {
+        const chunks = utils.chunk(args[0], 2000);
+        const messages = await Promise.all(chunks.map((chunk, i) => {
+          const rest = (i === chunks.length - 1 ? args.slice(1) : []); // Only send the rest of the args (files, embeds) with the last message
+          return bot.createMessage(this.channel_id, chunk, ...rest);
+        }));
+        return messages[0];
+      } else {
+        return bot.createMessage(this.channel_id, ...args);
+      }
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {

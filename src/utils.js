@@ -181,7 +181,7 @@ function getMainRole(member) {
 
 /**
  * Splits array items into chunks of the specified size
- * @param {Array} items
+ * @param {Array|String} items
  * @param {Number} chunkSize
  * @returns {Array}
  */
