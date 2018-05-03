@@ -2,5 +2,8 @@
 /.idea
 /node_modules
 /config.json
+/config.json5
+/config.json.json
+/config.json.txt
 /welcome.png
 /update.sh

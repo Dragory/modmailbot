@@ -1,11 +1,37 @@
+const json5 = require('json5');
+const fs = require('fs');
 const path = require('path');
 
 let userConfig;
 
+// Try to find our config file from several options
+const configFiles = [
+  'config.json',
+  'config.json5',
+  'config.json.json',
+  'config.json.txt'
+];
+
+let foundConfigFile;
+
+for (const configFile of configFiles) {
+  try {
+    fs.accessSync(__dirname + '/../' + configFile);
+    foundConfigFile = configFile;
+    break;
+  } catch (e) {}
+}
+
+if (! foundConfigFile) {
+  throw new Error(`Could not find config.json!`);
+}
+
+// Parse the config using JSON5
 try {
-  userConfig = require('../config');
+  const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile);
+  userConfig = json5.parse(raw);
 } catch (e) {
-  throw new Error(`Config file could not be found or read! The error given was: ${e.message}`);
+  throw new Error(`Error reading config file! The error given was: ${e.message}`);
 }
 
 const defaultConfig = {

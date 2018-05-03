@@ -13,6 +13,7 @@
   "dependencies": {
     "eris": "^0.8.4",
     "humanize-duration": "^3.12.1",
+    "json5": "^1.0.1",
     "knex": "^0.14.2",
     "mime": "^1.3.4",
     "moment": "^2.21.0",
