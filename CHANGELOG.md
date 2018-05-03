@@ -1,7 +1,17 @@
 # Changelog
 
+## v2.11.0
+* Config files are now parsed using [JSON5](https://json5.org/), allowing you to use comments, trailing commas, and other neat things in your config.json
+* When using multiple main guilds, the originating guild name is now always included at the top of the thread (if possible).
+Previously, if the user that messaged modmail was on only one of the guilds, the guild name would not be shown at the top.
+* Fixed crash when a user edited a message in their DMs with modmail without an open thread
+* Small fixes to category name matching when using `!move`
+* Fixed crash when the bot was unable to send an auto-response to a user
+* Added option `pingOnBotMention` (defaults to `true`) that allows you to control whether staff are pinged when the bot is mentioned
+* Long messages are now chunked so they don't fail to send due to added length from e.g. user name
+
 ## v2.10.1
-* Change timed close default unit from seconds to minutes.
+* Changed timed close default unit from seconds to minutes.
 This means that doing e.g. `!close 30` now closes the thread in 30 *minutes*, not seconds.
 
 ## v2.10.0
