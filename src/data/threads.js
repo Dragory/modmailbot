@@ -115,8 +115,9 @@ async function createNewThreadForUser(user, quiet = false) {
 
   // Guild info
   const guildInfoHeaderItems = new Map();
-
-  utils.getMainGuilds().forEach(guild => {
+  const mainGuilds = utils.getMainGuilds();
+  
+  mainGuilds.forEach(guild => {
     const member = guild.members.get(user.id);
     if (! member) return;
 
@@ -128,7 +129,7 @@ async function createNewThreadForUser(user, quiet = false) {
   });
 
   guildInfoHeaderItems.forEach((items, guildName) => {
-    if (guildInfoHeaderItems.size === 1) {
+    if (mainGuilds.length === 1) {
       infoHeader += `\n${items.join(', ')}`;
     } else {
       infoHeader += `\n**[${guildName}]** ${items.join(', ')}`;
