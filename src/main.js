@@ -110,8 +110,9 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
   // 1) Edit in DMs
   if (msg.channel instanceof Eris.PrivateChannel) {
     const thread = await threads.findOpenThreadByUserId(msg.author.id);
+    if (! thread) return;
+    
     const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
-
     thread.postSystemMessage(editMessage);
   }
 
