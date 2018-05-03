@@ -155,11 +155,12 @@ bot.on('messageCreate', async msg => {
 
   let content;
   const mainGuilds = utils.getMainGuilds();
+  const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : '');
 
   if (mainGuilds.length === 1) {
-    content = `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
+    content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
   } else {
-    content = `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
+    content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
   }
 
   bot.createMessage(utils.getLogChannel(bot).id, {

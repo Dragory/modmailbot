@@ -85,6 +85,7 @@ async function createNewThreadForUser(user, quiet = false) {
   });
 
   const newThread = await findById(newThreadId);
+  let responseMessageError = null;
 
   if (! quiet) {
     // Ping moderators of the new thread
@@ -97,7 +98,11 @@ async function createNewThreadForUser(user, quiet = false) {
 
     // Send auto-reply to the user
     if (config.responseMessage) {
-      newThread.postToUser(config.responseMessage);
+      try {
+        await newThread.postToUser(config.responseMessage);
+      } catch (err) {
+        responseMessageError = err;
+      }
     }
   }
 
@@ -144,6 +149,11 @@ async function createNewThreadForUser(user, quiet = false) {
   infoHeader += '\n────────────────';
 
   await newThread.postSystemMessage(infoHeader);
+
+  // If there were errors sending a response to the user, note that
+  if (responseMessageError) {
+    await newThread.postSystemMessage(`**NOTE:** Could not send auto-response to the user. The error given was: \`${responseMessageError.message}\``);
+  }
 
   // Return the thread
   return newThread;

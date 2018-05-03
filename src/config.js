@@ -48,6 +48,7 @@ const defaultConfig = {
 
   "newThreadCategoryId": null,
   "mentionRole": "here",
+  "pingOnBotMention": true,
 
   "inboxServerPermission": null,
   "alwaysReply": false,
