@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.11.1
+* Fixed greetings not being sent since multi-server support was added in 2.9.0
+
 ## v2.11.0
 * Config files are now parsed using [JSON5](https://json5.org/), allowing you to use comments, trailing commas, and other neat things in your config.json
 * When using multiple main guilds, the originating guild name is now always included at the top of the thread (if possible).
