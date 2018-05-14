@@ -5,10 +5,10 @@ const config = require('../config');
 module.exports = bot => {
   if (! config.enableGreeting) return;
 
-  const greetingGuildId = config.mainGuildId || config.greetingGuildId;
+  const greetingGuilds = config.mainGuildId;
 
   bot.on('guildMemberAdd', (guild, member) => {
-    if (guild.id !== greetingGuildId) return;
+    if (! greetingGuilds.includes(guild.id)) return;
 
     function sendGreeting(file) {
       bot.getDMChannel(member.id).then(channel => {
