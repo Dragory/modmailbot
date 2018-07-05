@@ -66,6 +66,7 @@ These go in `config.json`. See also `config.example.json`.
 |prefix|"!"|Prefix for bot commands|
 |status|"Message me for help"|The bot's "Playing" text|
 |responseMessage|"Thank you for your message! Our mod team will reply to you here as soon as possible."|The bot's response to DMs that start a new thread|
+|closeMessage|None|The bot's message to the user when the thread is closed|
 |alwaysReply|false|If set to true, all messages in modmail threads will be relayed back to the user, even ones without `!r`|
 |alwaysReplyAnon|false|If `alwaysReply` is set to true, this option controls whether the auto-reply is anonymous|
 |useNicknames|false|If set to true, mod replies will use their nickname (on the inbox server) instead of their username|

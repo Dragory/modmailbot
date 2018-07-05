@@ -14,6 +14,7 @@ module.exports = bot => {
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
     for (const thread of threadsToBeClosed) {
+      if(config.closeMessage) await thread.postToUser(config.closeMessage);
       await thread.close();
 
       const logUrl = await thread.getLogUrl();
@@ -67,6 +68,7 @@ module.exports = bot => {
     }
 
     // Regular close
+    if(config.closeMessage) await thread.postToUser(config.closeMessage);
     await thread.close();
 
     const logUrl = await thread.getLogUrl();
@@ -84,6 +86,7 @@ module.exports = bot => {
     if (! thread) return;
 
     console.log(`[INFO] Auto-closing thread with ${thread.user_name} because the channel was deleted`);
+    if(config.closeMessage) await thread.postToUser(config.closeMessage);
     await thread.close(true);
 
     const logUrl = await thread.getLogUrl();
