@@ -65,6 +65,9 @@ const defaultConfig = {
   "greetingMessage": null,
   "greetingAttachment": null,
 
+  "userOlderThan": null, // Amount of days
+  "userDeniedMessage": "Your Discord account is not old enough to contact modmail.",
+
   "relaySmallAttachmentsAsAttachments": false,
 
   "port": 8890,

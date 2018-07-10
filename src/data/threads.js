@@ -56,6 +56,18 @@ async function createNewThreadForUser(user, quiet = false) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
   }
 
+  // Check the config for a requirement of account age to contact modmail,
+  // if the account is too young, return an optional message without making a new thread
+  if (config.userOlderThan) {
+    if (user.createdAt > moment() - config.userOlderThan * 86400000){
+      if (config.userDeniedMessage) {
+        const privateChannel = await user.getDMChannel();
+        await privateChannel.createMessage(config.userDeniedMessage);
+      }
+      return;
+    } 
+  }
+
   // Use the user's name+discrim for the thread channel's name
   // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
   let cleanName = transliterate.slugify(user.username);

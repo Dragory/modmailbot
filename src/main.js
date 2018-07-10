@@ -86,7 +86,7 @@ bot.on('messageCreate', async msg => {
       thread = await threads.createNewThreadForUser(msg.author);
     }
 
-    await thread.receiveUserReply(msg);
+    if (thread) await thread.receiveUserReply(msg);
   });
 });
 
