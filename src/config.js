@@ -54,6 +54,7 @@ const defaultConfig = {
   "inboxServerPermission": null,
   "alwaysReply": false,
   "alwaysReplyAnon": false,
+  "replyIsAnon": false,
   "useNicknames": false,
   "ignoreAccidentalThreads": false,
   "threadTimestamps": false,

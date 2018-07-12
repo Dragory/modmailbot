@@ -25,14 +25,14 @@ module.exports = bot => {
     const snippet = await snippets.get(trigger);
     if (! snippet) return;
 
-    await thread.replyToUser(msg.member, snippet.body, [], !! snippet.is_anonymous);
+    await thread.replyToUser(msg.member, snippet.body, [], (!! snippet.is_anonymous) || config.replyIsAnon);
     msg.delete();
   });
 
   // Show or add a snippet
   addInboxServerCommand('snippet', async (msg, args, thread) => {
     const trigger = args[0];
-    if (! trigger) return
+    if (! trigger) return;
 
     const text = args.slice(1).join(' ').trim();
     const snippet = await snippets.get(trigger);
