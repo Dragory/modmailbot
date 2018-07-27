@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.13.0
+* Added `requiredAccountAge` and `accountAgeDeniedMessage` options for restricting how new accounts can message modmail
+
+## v2.12.0
+* Added `closeMessage` option. This option can be used to send a message to the user when their modmail thread is closed.
+* Documented `pingOnBotMention` option
+
 ## v2.11.1
 * Fixed greetings not being sent since multi-server support was added in 2.9.0
 
