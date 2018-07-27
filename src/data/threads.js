@@ -58,14 +58,14 @@ async function createNewThreadForUser(user, quiet = false) {
 
   // Check the config for a requirement of account age to contact modmail,
   // if the account is too young, return an optional message without making a new thread
-  if (config.userOlderThan) {
-    if (user.createdAt > moment() - config.userOlderThan * 86400000){
-      if (config.userDeniedMessage) {
+  if (config.requiredAccountAge) {
+    if (user.createdAt > moment() - config.requiredAccountAge * 86400000){
+      if (config.accountAgeDeniedMessage) {
         const privateChannel = await user.getDMChannel();
-        await privateChannel.createMessage(config.userDeniedMessage);
+        await privateChannel.createMessage(config.accountAgeDeniedMessage);
       }
       return;
-    } 
+    }
   }
 
   // Use the user's name+discrim for the thread channel's name
@@ -133,7 +133,7 @@ async function createNewThreadForUser(user, quiet = false) {
   // Guild info
   const guildInfoHeaderItems = new Map();
   const mainGuilds = utils.getMainGuilds();
-  
+
   mainGuilds.forEach(guild => {
     const member = guild.members.get(user.id);
     if (! member) return;

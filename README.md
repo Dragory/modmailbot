@@ -84,9 +84,6 @@ These go in `config.json`. See also `config.example.json`.
 |typingProxy|false|If enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing"|
 |typingProxyReverse|false|If enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely.|
-<<<<<<< HEAD
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
-=======
-|userOlderThan|null|The amount of days the user's account has to exist. If the user's account is not old enough, the bot will not make a new thread and reply to the user with the message defined in `userDeniedMessage`.|
-|userDeniedMessage|"Your Discord account is not old enough to contact modmail."|The message to reply to a user when their account is not old enough to contact modmail.|
->>>>>>> 9c1a5863f52d51a40e480efcdbd2275a7e3b4978
+|requiredAccountAge|null|Required account age for contacting modmail (in days). If the account is not old enough, a new thread will not be created and the bot will reply with `accountAgeDeniedMessage` (if set) instead.|
+|accountAgeDeniedMessage|"Your Discord account is not old enough to contact modmail."|See `requiredAccountAge` above|
