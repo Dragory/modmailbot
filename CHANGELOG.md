@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.14.0
+* Changed `requiredAccountAge` to be in hours instead of days
+
 ## v2.13.0
 * Added `requiredAccountAge` and `accountAgeDeniedMessage` options for restricting how new accounts can message modmail
 

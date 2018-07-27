@@ -59,7 +59,7 @@ async function createNewThreadForUser(user, quiet = false) {
   // Check the config for a requirement of account age to contact modmail,
   // if the account is too young, return an optional message without making a new thread
   if (config.requiredAccountAge) {
-    if (user.createdAt > moment() - config.requiredAccountAge * 86400000){
+    if (user.createdAt > moment() - config.requiredAccountAge * 3600000){
       if (config.accountAgeDeniedMessage) {
         const privateChannel = await user.getDMChannel();
         await privateChannel.createMessage(config.accountAgeDeniedMessage);
