@@ -146,6 +146,7 @@ bot.on('messageDelete', async msg => {
 bot.on('messageCreate', async msg => {
   if (! utils.messageIsOnMainServer(msg)) return;
   if (! msg.mentions.some(user => user.id === bot.user.id)) return;
+  if (msg.author.bot) return;
 
   // If the person who mentioned the modmail bot is also on the modmail server, ignore them
   if (utils.getInboxGuild().members.get(msg.author.id)) return;

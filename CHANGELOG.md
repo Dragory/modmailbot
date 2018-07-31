@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.14.1
+* Don't alert for main server pings if the pinger is a bot
+
 ## v2.14.0
 * Changed `requiredAccountAge` to be in hours instead of days
 
