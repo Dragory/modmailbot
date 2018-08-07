@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.15.1
+* Update `node-sqlite3` dependency to hopefully fix installation issues on some setups
+
 ## v2.15.0
 * Add `smallAttachmentLimit` config option to control the max size of attachments forwarded by `relaySmallAttachmentsAsAttachments`
 * Fix crash when `closeMessage` failed to send
