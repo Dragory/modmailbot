@@ -84,5 +84,9 @@ module.exports = () => {
     }
   });
 
+  server.on('error', err => {
+    console.log('[WARN] Web server error:', err.message);
+  });
+
   server.listen(config.port);
 };
