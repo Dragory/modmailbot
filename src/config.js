@@ -69,6 +69,7 @@ const defaultConfig = {
   "accountAgeDeniedMessage": "Your Discord account is not old enough to contact modmail.",
 
   "relaySmallAttachmentsAsAttachments": false,
+  "smallAttachmentLimit": 1024 * 1024 * 2,
 
   "port": 8890,
   "url": null,
@@ -115,6 +116,11 @@ for (const opt of required) {
     console.error(`Missing required config.json value: ${opt}`);
     process.exit(1);
   }
+}
+
+if (finalConfig.smallAttachmentLimit > 1024 * 1024 * 8) {
+  finalConfig.smallAttachmentLimit = 1024 * 1024 * 8;
+  console.log('[WARN] smallAttachmentLimit capped at 8MB');
 }
 
 // Make sure mainGuildId is internally always an array
