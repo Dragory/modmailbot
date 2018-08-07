@@ -61,7 +61,7 @@ function serveAttachments(res, pathParts) {
 
     const filenameParts = desiredFilename.split('.');
     const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : 'bin');
-    const fileMime = mime.lookup(ext);
+    const fileMime = mime.getType(ext);
 
     res.setHeader('Content-Type', fileMime);
 
