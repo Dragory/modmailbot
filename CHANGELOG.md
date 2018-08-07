@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.15.2
+* Update several other packages as well
+
 ## v2.15.1
 * Update `node-sqlite3` dependency to hopefully fix installation issues on some setups
 
