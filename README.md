@@ -79,7 +79,8 @@ These go in `config.json`. See also `config.example.json`.
 |snippetPrefix|"!!"|Prefix to use snippets. Defaults to `prefix` x2.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
-|relaySmallAttachmentsAsAttachments|false|Whether to relay small (<2MB) attachments from users as attachments rather than links in modmail threads|
+|relaySmallAttachmentsAsAttachments|false|Whether to relay small attachments from users as native attachments rather than links in modmail threads|
+|smallAttachmentLimit|2097152|Size limit of `relaySmallAttachmentsAsAttachments`, in bytes (default is 2MB)|
 |threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|
 |typingProxy|false|If enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing"|
 |typingProxyReverse|false|If enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs|

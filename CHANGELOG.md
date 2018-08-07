@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.15.0
+* Add `smallAttachmentLimit` config option to control the max size of attachments forwarded by `relaySmallAttachmentsAsAttachments`
+* Fix crash when `closeMessage` failed to send
+* Handle webserver errors gracefully
+
 ## v2.14.1
 * Don't alert for main server pings if the pinger is a bot
 
