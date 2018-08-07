@@ -9,7 +9,8 @@ const configFiles = [
   'config.json',
   'config.json5',
   'config.json.json',
-  'config.json.txt'
+  'config.json.txt',
+  'config.js'
 ];
 
 let foundConfigFile;
@@ -28,8 +29,12 @@ if (! foundConfigFile) {
 
 // Parse the config using JSON5
 try {
-  const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile);
-  userConfig = json5.parse(raw);
+  if (foundConfigFile.endsWith('.js')) {
+    userConfig = require(`../${foundConfigFile}`);
+  } else {
+    const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile);
+    userConfig = json5.parse(raw);
+  }
 } catch (e) {
   throw new Error(`Error reading config file! The error given was: ${e.message}`);
 }

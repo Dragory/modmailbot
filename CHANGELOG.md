@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.16.0
+* Add support for a .js config file (export config with `module.exports`)
+
 ## v2.15.2
 * Update several other packages as well
 
