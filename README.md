@@ -88,3 +88,4 @@ These go in `config.json`. See also `config.example.json`.
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
 |requiredAccountAge|None|Required account age for contacting modmail (in hours). If the account is not old enough, a new thread will not be created and the bot will reply with `accountAgeDeniedMessage` (if set) instead.|
 |accountAgeDeniedMessage|"Your Discord account is not old enough to contact modmail."|See `requiredAccountAge` above|
+|allowMove|false|If enabled, allows you to move the thread to another category using `!move <category>`|
