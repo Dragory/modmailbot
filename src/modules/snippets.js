@@ -16,16 +16,38 @@ module.exports = bot => {
 
     if (msg.author.bot) return;
     if (! msg.content) return;
-    if (! msg.content.startsWith(config.snippetPrefix)) return;
+    if (! msg.content.startsWith(config.snippetPrefix) && ! msg.content.startsWith(config.snippetPrefixAnon)) return;
+
+    let snippetPrefix, isAnonymous;
+
+    if (config.snippetPrefixAnon.length > config.snippetPrefix.length) {
+      // Anonymous prefix is longer -> check it first
+      if (msg.content.startsWith(config.snippetPrefixAnon)) {
+        snippetPrefix = config.snippetPrefixAnon;
+        isAnonymous = true;
+      } else {
+        snippetPrefix = config.snippetPrefix;
+        isAnonymous = false;
+      }
+    } else {
+      // Regular prefix is longer -> check it first
+      if (msg.content.startsWith(config.snippetPrefix)) {
+        snippetPrefix = config.snippetPrefix;
+        isAnonymous = false;
+      } else {
+        snippetPrefix = config.snippetPrefixAnon;
+        isAnonymous = true;
+      }
+    }
 
     const thread = await threads.findByChannelId(msg.channel.id);
     if (! thread) return;
 
-    const trigger = msg.content.replace(config.snippetPrefix, '').toLowerCase();
+    const trigger = msg.content.replace(snippetPrefix, '').toLowerCase();
     const snippet = await snippets.get(trigger);
     if (! snippet) return;
 
-    await thread.replyToUser(msg.member, snippet.body, [], !! snippet.is_anonymous);
+    await thread.replyToUser(msg.member, snippet.body, [], isAnonymous);
     msg.delete();
   });
 
@@ -43,12 +65,12 @@ module.exports = bot => {
         utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" already exists! You can edit or delete it with ${config.prefix}edit_snippet and ${config.prefix}delete_snippet respectively.`);
       } else {
         // If the snippet exists and we're NOT trying to create a new one, show info about the existing snippet
-        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${trigger}\` replies ${snippet.is_anonymous ? 'anonymously ' : ''}with:\n${snippet.body}`);
+        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${trigger}\` replies with:\n${snippet.body}`);
       }
     } else {
       if (text) {
         // If the snippet doesn't exist and the user wants to create it, create it
-        await snippets.add(trigger, text, false);
+        await snippets.add(trigger, text, msg.author.id);
         utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" created!`);
       } else {
         // If the snippet doesn't exist and the user isn't trying to create it, inform them how to create it
@@ -89,7 +111,7 @@ module.exports = bot => {
     }
 
     await snippets.del(trigger);
-    await snippets.add(trigger, text, snippet.isAnonymous);
+    await snippets.add(trigger, text, msg.author.id);
 
     utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" edited!`);
   });
