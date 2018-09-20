@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.17.0
+* Add `mentionUserInThreadHeader` option. When set to `true`, mentions the thread's user in the thread header. Fixes #152.
+* Add `botMentionResponse` option. If set, the bot auto-responds to bot mentions with this message. Fixes #143.
+* Fix member info sometimes missing in thread header. Thanks @Akhawais (#136)! 
+* Add support for role and user IDs in inboxServerPermission instead of just permission names
+* Allow specifying multiple values (an array) for inboxServerPermission. Members will be considered "staff" if they pass any of the values.
+* Update Eris to 0.9.0, Knex to 0.15.2
+* Add support for sending anonymous snippets. By default, you can do this by using `!!!` instead of `!!`. Fixes #82.
+* Add `snippetPrefixAnon` option
+* Add `allowUserClose` option. When set to `true`, users can use the close command to close threads by themselves.
+* Fix `allowMove` missing from README. Thanks @AndreasGassmann (#126)!
+
 ## v2.16.0
 * Add support for a .js config file (export config with `module.exports`)
 
