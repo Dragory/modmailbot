@@ -148,8 +148,14 @@ bot.on('messageCreate', async msg => {
   if (! msg.mentions.some(user => user.id === bot.user.id)) return;
   if (msg.author.bot) return;
 
-  // If the person who mentioned the modmail bot is also on the modmail server, ignore them
-  if (utils.getInboxGuild().members.get(msg.author.id)) return;
+  if (utils.messageIsOnInboxServer(msg)) {
+    // For same server setups, check if the person who pinged modmail is staff. If so, ignore the ping.
+    if (utils.isStaff(msg.member)) return;
+  } else {
+    // For separate server setups, check if the member is staff on the modmail server
+    const inboxMember = utils.getInboxGuild().members.get(msg.author.id);
+    if (inboxMember && utils.isStaff(inboxMember)) return;
+  }
 
   // If the person who mentioned the bot is blocked, ignore them
   if (await blocked.isBlocked(msg.author.id)) return;
