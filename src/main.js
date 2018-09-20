@@ -170,10 +170,15 @@ bot.on('messageCreate', async msg => {
     content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
   }
 
-  bot.createMessage(utils.getLogChannel(bot).id, {
+  bot.createMessage(utils.getLogChannel().id, {
     content,
     disableEveryone: false,
   });
+
+  // Send an auto-response to the mention, if enabled
+  if (config.botMentionResponse) {
+    bot.createMessage(msg.channel.id, config.botMentionResponse);
+  }
 });
 
 module.exports = {
