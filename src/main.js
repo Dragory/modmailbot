@@ -2,7 +2,7 @@ const Eris = require('eris');
 
 const config = require('./config');
 const bot = require('./bot');
-const Queue = require('./queue');
+const {messageQueue} = require('./queue');
 const utils = require('./utils');
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
@@ -24,8 +24,6 @@ const alert = require('./modules/alert');
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
-
-const messageQueue = new Queue();
 
 // Once the bot has connected, set the status/"playing" message
 bot.on('ready', () => {

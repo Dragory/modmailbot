@@ -5,8 +5,16 @@ class Queue {
   }
 
   add(fn) {
-    this.queue.push(fn);
-    if (! this.running) this.next();
+    const promise = new Promise(resolve => {
+      this.queue.push(async () => {
+        await Promise.resolve(fn());
+        resolve();
+      });
+
+      if (! this.running) this.next();
+    });
+
+    return promise;
   }
 
   next() {
@@ -20,10 +28,13 @@ class Queue {
     const fn = this.queue.shift();
     new Promise(resolve => {
       // Either fn() completes or the timeout of 10sec is reached
-      Promise.resolve(fn()).then(resolve);
+      fn().then(resolve);
       setTimeout(resolve, 10000);
     }).then(() => this.next());
   }
 }
 
-module.exports = Queue;
+module.exports = {
+  Queue,
+  messageQueue: new Queue()
+};

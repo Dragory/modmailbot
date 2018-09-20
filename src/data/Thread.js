@@ -204,7 +204,7 @@ class Thread {
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {
-        console.log(`[INFO] Auto-closing thread with ${this.user_name} because the channel no longer exists`);
+        console.log(`[INFO] Failed to send message to thread channel for ${this.user_name} because the channel no longer exists. Auto-closing the thread.`);
         this.close(true);
       } else {
         throw e;
@@ -319,7 +319,7 @@ class Thread {
   async close(silent = false) {
     if (! silent) {
       console.log(`Closing thread ${this.id}`);
-      await this.postToThreadChannel('Closing thread...');
+      await this.postSystemMessage('Closing thread...');
     }
 
     // Update DB status
