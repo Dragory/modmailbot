@@ -78,8 +78,20 @@ function postError(str) {
  * @returns {boolean}
  */
 function isStaff(member) {
-  if (! config.inboxServerPermission) return true;
-  return member.permission.has(config.inboxServerPermission);
+  if (config.inboxServerPermission.length === 0) return true;
+
+  return config.inboxServerPermission.some(perm => {
+    if (isSnowflake(perm)) {
+      // If perm is a snowflake, check it against the member's user id and roles
+      if (member.id === perm) return true;
+      if (member.roles.includes(perm)) return true;
+    } else {
+      // Otherwise assume perm is the name of a permission
+      return member.permission.has(perm);
+    }
+
+    return false;
+  });
 }
 
 /**
@@ -274,6 +286,11 @@ function setDataModelProps(target, props) {
   }
 }
 
+const snowflakeRegex = /^[0-9]{17,}$/;
+function isSnowflake(str) {
+  return snowflakeRegex.test(str);
+}
+
 module.exports = {
   BotError,
 
@@ -302,4 +319,6 @@ module.exports = {
   trimAll,
 
   setDataModelProps,
+
+  isSnowflake,
 };

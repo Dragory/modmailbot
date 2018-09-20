@@ -135,4 +135,13 @@ if (! Array.isArray(finalConfig['mainGuildId'])) {
   finalConfig['mainGuildId'] = [finalConfig['mainGuildId']];
 }
 
+// Make sure inboxServerPermission is always an array
+if (! Array.isArray(finalConfig['inboxServerPermission'])) {
+  if (finalConfig['inboxServerPermission'] == null) {
+    finalConfig['inboxServerPermission'] = [];
+  } else {
+    finalConfig['inboxServerPermission'] = [finalConfig['inboxServerPermission']];
+  }
+}
+
 module.exports = finalConfig;
