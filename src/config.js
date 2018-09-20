@@ -65,6 +65,7 @@ const defaultConfig = {
   "allowMove": false,
   "typingProxy": false,
   "typingProxyReverse": false,
+  "mentionUserInThreadHeader": false,
 
   "enableGreeting": false,
   "greetingMessage": null,

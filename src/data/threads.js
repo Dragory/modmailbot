@@ -125,8 +125,12 @@ async function createNewThreadForUser(user, quiet = false) {
   const accountAge = humanizeDuration(Date.now() - user.createdAt, {largest: 2, round: true});
   infoHeaderItems.push(`ACCOUNT AGE **${accountAge}**`);
 
-  // User id
-  infoHeaderItems.push(`ID **${user.id}**`);
+  // User id (and mention, if enabled)
+  if (config.mentionUserInThreadHeader) {
+    infoHeaderItems.push(`ID **${user.id}** (<@!${user.id}>)`);
+  } else {
+    infoHeaderItems.push(`ID **${user.id}**`);
+  }
 
   let infoHeader = infoHeaderItems.join(', ');
 
