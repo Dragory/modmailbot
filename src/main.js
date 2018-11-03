@@ -6,6 +6,7 @@ const {messageQueue} = require('./queue');
 const utils = require('./utils');
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
+const logfiles = require('./data/logsfile');
 
 const reply = require('./modules/reply');
 const close = require('./modules/close');
