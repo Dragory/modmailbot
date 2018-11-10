@@ -118,8 +118,8 @@ async function firstWrite(msg, user, checkFile) {
 
     try {
 
-        let firstWriteText = await `-- Logs -- ${user.username}#${user.discriminator} (${user.id})\n`+
-        `\n[${(new Date(msg.timestamp)).toUTCString()}] ${msg.member.username}#${msg.member.discriminator} (${msg.member.id}) : ${msg.content}\n`;
+        let firstWriteText = await `-- Logs -- ${user.username}#${user.discriminator} (${user.id})\r\n`+
+        `\r\n[${(new Date(msg.timestamp)).toUTCString()}] ${msg.member.username}#${msg.member.discriminator} (${msg.member.id}) : ${msg.content}\r\n`;
     
         fs.writeFile(`${folder}/${checkFile}.txt`, firstWriteText, function(writeError) {
             if (writeError) return console.log(writeError);
@@ -136,7 +136,7 @@ async function firstWrite(msg, user, checkFile) {
 // Append the message to the .txt file if it exists, if not, a new one will be created without the header
 async function append(msg, checkFile) {
     try {
-        let content = await `\n[${(new Date(msg.timestamp)).toUTCString()}] ${msg.member.username}#${msg.member.discriminator} (${msg.member.id}) : ${msg.content}\n`;
+        let content = await `\r\n[${(new Date(msg.timestamp)).toUTCString()}] ${msg.member.username}#${msg.member.discriminator} (${msg.member.id}) : ${msg.content}\r\n`;
 
         fs.appendFile(`${folder}/${checkFile}.txt`, content, function(error) {
             if (error) {
