@@ -179,6 +179,8 @@ bot.on('messageCreate', async msg => {
   }
 });
 
+bot.on("error", console.error);
+
 module.exports = {
   async start() {
     // Load modules
