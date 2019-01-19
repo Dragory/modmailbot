@@ -70,7 +70,6 @@ These go in `config.json`. See also `config.example.json`.
 |alwaysReplyAnon|false|If `alwaysReply` is set to true, this option controls whether the auto-reply is anonymous|
 |alwaysReply|false|If set to true, all messages in modmail threads will be relayed back to the user, even ones without `!r`|
 |botMentionResponse|None|If set, the bot auto-responds to bot mentions with this message|
-|botMentionResponse|None|If set, the bot auto-responds to mentions with this message|
 |closeMessage|None|The bot's message to the user when the thread is closed|
 |enableGreeting|false|Set to true to send a welcome message to new main guild members. Requires `mainGuildId` to be set.|
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
