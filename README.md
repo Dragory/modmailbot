@@ -69,8 +69,7 @@ These go in `config.json`. See also `config.example.json`.
 |allowUserClose|false|If set to true, users can use the close command to close threads by themselves from their DMs with the bot|
 |alwaysReplyAnon|false|If `alwaysReply` is set to true, this option controls whether the auto-reply is anonymous|
 |alwaysReply|false|If set to true, all messages in modmail threads will be relayed back to the user, even ones without `!r`|
-|botMentionResponse|None|If set, the bot auto-responds to bot mentions with this message|
-|botMentionResponse|None|If set, the bot auto-responds to mentions with this message|
+|botMentionResponse|None|If set, the bot auto-responds to bot mentions with this message. Allows `{userMention}` to be added to mention the user who mentioned the bot.|
 |closeMessage|None|The bot's message to the user when the thread is closed|
 |enableGreeting|false|Set to true to send a welcome message to new main guild members. Requires `mainGuildId` to be set.|
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
@@ -80,7 +79,7 @@ These go in `config.json`. See also `config.example.json`.
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
-|pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server. Allows `{userMention}` to be added to mention the user who mentioned the bot.|
+|pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
 |port|8890|Port from which to serve attachments and logs|
 |prefix|"!"|Prefix for bot commands|
 |relaySmallAttachmentsAsAttachments|false|Whether to relay small attachments from users as native attachments rather than links in modmail threads|
