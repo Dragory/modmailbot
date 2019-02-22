@@ -175,7 +175,7 @@ bot.on('messageCreate', async msg => {
 
   // Send an auto-response to the mention, if enabled
   if (config.botMentionResponse) {
-    bot.createMessage(msg.channel.id, config.botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`);
+    bot.createMessage(msg.channel.id, config.botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`));
   }
 });
 
