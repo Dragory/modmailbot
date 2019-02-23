@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.18.0
+* Add `silent` option to `!close` (e.g. `!close silent`) to close threads without sending the specified `closeMessage`
+* Update some package versions (may help with sqlite3 install issues)
+
 ## v2.17.0
 * Add `mentionUserInThreadHeader` option. When set to `true`, mentions the thread's user in the thread header. Fixes #152.
 * Add `botMentionResponse` option. If set, the bot auto-responds to bot mentions with this message. Fixes #143.
