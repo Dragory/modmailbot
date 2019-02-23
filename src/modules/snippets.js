@@ -47,8 +47,8 @@ module.exports = bot => {
     const snippet = await snippets.get(trigger);
     if (! snippet) return;
 
-    await thread.replyToUser(msg.member, snippet.body, [], isAnonymous);
-    msg.delete();
+    const replied = await thread.replyToUser(msg.member, snippet.body, [], isAnonymous);
+    if (replied) msg.delete();
   });
 
   // Show or add a snippet

@@ -32,7 +32,7 @@ class Thread {
    * @param {String} text
    * @param {Eris~MessageFile[]} replyAttachments
    * @param {Boolean} isAnonymous
-   * @returns {Promise<void>}
+   * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
     // Username to reply with
@@ -75,8 +75,16 @@ class Thread {
     try {
       dmMessage = await this.postToUser(dmContent, files);
     } catch (e) {
+      await this.addThreadMessageToDB({
+        message_type: THREAD_MESSAGE_TYPE.COMMAND,
+        user_id: moderator.id,
+        user_name: logModUsername,
+        body: logContent
+      });
+
       await this.postSystemMessage(`Error while replying to user: ${e.message}`);
-      return;
+
+      return false;
     }
 
     // Send the reply to the modmail thread
@@ -96,6 +104,8 @@ class Thread {
       await this.cancelScheduledClose();
       await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
     }
+
+    return true;
   }
 
   /**

@@ -11,8 +11,9 @@ module.exports = bot => {
 
     const text = args.join(' ').trim();
     if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-    await thread.replyToUser(msg.member, text, msg.attachments, false);
-    msg.delete();
+
+    const replied = await thread.replyToUser(msg.member, text, msg.attachments, false);
+    if (replied) msg.delete();
   });
 
   bot.registerCommandAlias('r', 'reply');
@@ -23,8 +24,9 @@ module.exports = bot => {
 
     const text = args.join(' ').trim();
     if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-    await thread.replyToUser(msg.member, text, msg.attachments, true);
-    msg.delete();
+
+    const replied = await thread.replyToUser(msg.member, text, msg.attachments, true);
+    if (replied) msg.delete();
   });
 
   bot.registerCommandAlias('ar', 'anonreply');
