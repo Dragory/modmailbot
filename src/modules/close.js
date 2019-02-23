@@ -41,6 +41,8 @@ module.exports = bot => {
   bot.registerCommand('close', async (msg, args) => {
     let thread, closedBy;
 
+    let sendCloseMessage = !! config.closeMessage;
+
     if (msg.channel instanceof Eris.PrivateChannel) {
       // User is closing the thread by themselves (if enabled)
       if (! config.allowUserClose) return;
@@ -67,7 +69,7 @@ module.exports = bot => {
 
       // Timed close
       if (args.length) {
-        if (args[0].startsWith('c')) {
+        if (args.includes('cancel') || args.includes('c')) {
           // Cancel timed close
           if (thread.scheduled_close_at) {
             await thread.cancelScheduledClose();
@@ -75,20 +77,22 @@ module.exports = bot => {
           }
 
           return;
-        }
+        } else if (args.includes('silent') || args.includes('s')) {
+          sendCloseMessage = false;
+        } else {
+          // Set a timed close
+          const delay = utils.convertDelayStringToMS(args.join(' '));
+          if (delay === 0 || delay === null) {
+            thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
+            return;
+          }
 
-        // Set a timed close
-        const delay = utils.convertDelayStringToMS(args.join(' '));
-        if (delay === 0 || delay === null) {
-          thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
+          const closeAt = moment.utc().add(delay, 'ms');
+          await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
+          thread.postSystemMessage(`Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`);
+
           return;
         }
-
-        const closeAt = moment.utc().add(delay, 'ms');
-        await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
-        thread.postSystemMessage(`Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`);
-
-        return;
       }
 
       // Regular close
@@ -96,7 +100,7 @@ module.exports = bot => {
       closedBy = msg.author.username;
     }
 
-    if (config.closeMessage) {
+    if (sendCloseMessage) {
       await thread.postToUser(config.closeMessage).catch(() => {});
     }
 

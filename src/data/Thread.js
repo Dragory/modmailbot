@@ -326,8 +326,8 @@ class Thread {
   /**
    * @returns {Promise<void>}
    */
-  async close(silent = false) {
-    if (! silent) {
+  async close(noSystemMessage = false) {
+    if (! noSystemMessage) {
       console.log(`Closing thread ${this.id}`);
       await this.postSystemMessage('Closing thread...');
     }
