@@ -10,8 +10,6 @@ module.exports = bot => {
     if (! thread) return;
 
     const text = args.join(' ').trim();
-    if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-
     const replied = await thread.replyToUser(msg.member, text, msg.attachments, false);
     if (replied) msg.delete();
   });
@@ -23,8 +21,6 @@ module.exports = bot => {
     if (! thread) return;
 
     const text = args.join(' ').trim();
-    if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-
     const replied = await thread.replyToUser(msg.member, text, msg.attachments, true);
     if (replied) msg.delete();
   });

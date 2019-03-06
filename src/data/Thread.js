@@ -64,10 +64,18 @@ class Thread {
 
     if (replyAttachments.length > 0) {
       for (const attachment of replyAttachments) {
-        files.push(await attachments.attachmentToFile(attachment));
-        const url = await attachments.getUrl(attachment.id, attachment.filename);
+        let savedAttachment;
 
-        logContent += `\n\n**Attachment:** ${url}`;
+        await Promise.all([
+          attachments.attachmentToFile(attachment).then(file => {
+            files.push(file);
+          }),
+          attachments.saveAttachment(attachment).then(result => {
+            savedAttachment = result;
+          })
+        ]);
+
+        logContent += `\n\n**Attachment:** ${savedAttachment.url}`;
       }
     }
 
@@ -131,10 +139,10 @@ class Thread {
     let attachmentFiles = [];
 
     for (const attachment of msg.attachments) {
-      await attachments.saveAttachment(attachment);
+      const savedAttachment = await attachments.saveAttachment(attachment);
 
       // Forward small attachments (<2MB) as attachments, just link to larger ones
-      const formatted = '\n\n' + await utils.formatAttachment(attachment);
+      const formatted = '\n\n' + await utils.formatAttachment(attachment, savedAttachment.url);
       logContent += formatted; // Logs always contain the link
 
       if (config.relaySmallAttachmentsAsAttachments && attachment.size <= 1024 * 1024 * 2) {

@@ -80,6 +80,8 @@ const defaultConfig = {
 
   "relaySmallAttachmentsAsAttachments": false,
   "smallAttachmentLimit": 1024 * 1024 * 2,
+  "attachmentStorage": "local",
+  "attachmentStorageChannelId": null,
 
   "port": 8890,
   "url": null,
@@ -130,7 +132,13 @@ for (const opt of required) {
 
 if (finalConfig.smallAttachmentLimit > 1024 * 1024 * 8) {
   finalConfig.smallAttachmentLimit = 1024 * 1024 * 8;
-  console.log('[WARN] smallAttachmentLimit capped at 8MB');
+  console.warn('[WARN] smallAttachmentLimit capped at 8MB');
+}
+
+// Specific checks
+if (finalConfig.attachmentStorage === 'discord' && ! finalConfig.attachmentStorageChannelId) {
+  console.error('Config option \'attachmentStorageChannelId\' is required with attachment storage \'discord\'');
+  process.exit(1);
 }
 
 // Make sure mainGuildId is internally always an array

@@ -3,7 +3,6 @@ const bot = require('./bot');
 const moment = require('moment');
 const humanizeDuration = require('humanize-duration');
 const publicIp = require('public-ip');
-const attachments = require('./data/attachments');
 const config = require('./config');
 
 class BotError extends Error {}
@@ -123,11 +122,10 @@ function messageIsOnMainServer(msg) {
  * @param attachment
  * @returns {Promise<string>}
  */
-async function formatAttachment(attachment) {
+async function formatAttachment(attachment, attachmentUrl) {
   let filesize = attachment.size || 0;
   filesize /= 1024;
 
-  const attachmentUrl = await attachments.getUrl(attachment.id, attachment.filename);
   return `**Attachment:** ${attachment.filename} (${filesize.toFixed(1)}KB)\n${attachmentUrl}`;
 }
 

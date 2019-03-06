@@ -1,57 +1,62 @@
 const Eris = require('eris');
 const fs = require('fs');
 const https = require('https');
-const config = require('../config');
 const {promisify} = require('util');
+const tmp = require('tmp');
+const config = require('../config');
+const utils = require('../utils');
 
 const getUtils = () => require('../utils');
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
+const rename = promisify(fs.rename);
 
-const attachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
+const localAttachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
 
 const attachmentSavePromises = {};
 
-/**
- * Returns the filesystem path for the given attachment id
- * @param {String} attachmentId
- * @returns {String}
- */
-function getPath(attachmentId) {
-  return `${attachmentDir}/${attachmentId}`;
+function getErrorResult(msg = null) {
+  return {
+    url: `Attachment could not be saved${msg ? ': ' + msg : ''}`,
+    failed: true
+  };
 }
 
 /**
  * Attempts to download and save the given attachement
  * @param {Object} attachment
  * @param {Number=0} tries
- * @returns {Promise}
+ * @returns {Promise<{ url: string }>}
  */
-async function saveAttachment(attachment) {
-  if (attachmentSavePromises[attachment.id]) {
-    return attachmentSavePromises[attachment.id];
-  }
+async function saveLocalAttachment(attachment) {
+  const targetPath = getLocalAttachmentPath(attachment.id);
 
-  const filepath = getPath(attachment.id);
   try {
     // If the file already exists, resolve immediately
-    await access(filepath);
-    return;
+    await access(targetPath);
+    const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
+    return { url };
   } catch (e) {}
 
-  attachmentSavePromises[attachment.id] = saveAttachmentInner(attachment);
-  attachmentSavePromises[attachment.id]
-    .then(() => {
-      delete attachmentSavePromises[attachment.id];
-    }, () => {
-      delete attachmentSavePromises[attachment.id];
-    });
+  // Download the attachment
+  const downloadResult = await downloadAttachment(attachment);
 
-  return attachmentSavePromises[attachment.id];
+  // Move the temp file to the attachment folder
+  await rename(downloadResult.path, targetPath);
+
+  // Resolve the attachment URL
+  const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
+
+  return { url };
 }
 
-function saveAttachmentInner(attachment, tries = 0) {
+/**
+ * @param {Object} attachment
+ * @param {Number} tries
+ * @returns {Promise<{ path: string, cleanup: function }>}
+ */
+function downloadAttachment(attachment, tries = 0) {
   return new Promise((resolve, reject) => {
     if (tries > 3) {
       console.error('Attachment download failed after 3 tries:', attachment);
@@ -59,54 +64,130 @@ function saveAttachmentInner(attachment, tries = 0) {
       return;
     }
 
-    const filepath = getPath(attachment.id);
-    const writeStream = fs.createWriteStream(filepath);
+    tmp.file((err, filepath, fd, cleanupCallback) => {
+      const writeStream = fs.createWriteStream(filepath);
 
-    https.get(attachment.url, (res) => {
-      res.pipe(writeStream);
-      writeStream.on('finish', () => {
-        writeStream.end();
-        resolve();
+      https.get(attachment.url, (res) => {
+        res.pipe(writeStream);
+        writeStream.on('finish', () => {
+          writeStream.end();
+          resolve({
+            path: filepath,
+            cleanup: cleanupCallback
+          });
+        });
+      }).on('error', (err) => {
+        fs.unlink(filepath);
+        console.error('Error downloading attachment, retrying');
+        resolve(downloadAttachment(attachment, tries++));
       });
-    }).on('error', (err) => {
-      fs.unlink(filepath);
-      console.error('Error downloading attachment, retrying');
-      resolve(saveAttachmentInner(attachment, tries++));
     });
   });
 }
 
 /**
- * Attempts to download and save all attachments in the given message
- * @param {Eris.Message} msg
- * @returns {Promise}
+ * Returns the filesystem path for the given attachment id
+ * @param {String} attachmentId
+ * @returns {String}
  */
-function saveAttachmentsInMessage(msg) {
-  if (! msg.attachments || msg.attachments.length === 0) return Promise.resolve();
-  return Promise.all(msg.attachments.map(saveAttachment));
+function getLocalAttachmentPath(attachmentId) {
+  return `${localAttachmentDir}/${attachmentId}`;
 }
 
 /**
  * Returns the self-hosted URL to the given attachment ID
  * @param {String} attachmentId
  * @param {String=null} desiredName Custom name for the attachment as a hint for the browser
- * @returns {String}
+ * @returns {Promise<String>}
  */
-function getUrl(attachmentId, desiredName = null) {
+function getLocalAttachmentUrl(attachmentId, desiredName = null) {
   if (desiredName == null) desiredName = 'file.bin';
   return getUtils().getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
 }
 
+/**
+ * @param {Object} attachment
+ * @returns {Promise<{ url: string }>}
+ */
+async function saveDiscordAttachment(attachment) {
+  if (attachment.size > 1024 * 1024 * 8) {
+    return getErrorResult('attachment too large (max 8MB)');
+  }
+
+  const attachmentChannelId = config.attachmentStorageChannelId;
+  const inboxGuild = utils.getInboxGuild();
+
+  if (! inboxGuild.channels.has(attachmentChannelId)) {
+    throw new Error('Attachment storage channel not found!');
+  }
+
+  const attachmentChannel = inboxGuild.channels.get(attachmentChannelId);
+  if (! (attachmentChannel instanceof Eris.TextChannel)) {
+    throw new Error('Attachment storage channel must be a text channel!');
+  }
+
+  const file = await attachmentToFile(attachment);
+  const savedAttachment = await createDiscordAttachmentMessage(attachmentChannel, file);
+  if (! savedAttachment) return getErrorResult();
+
+  return { url: savedAttachment.url };
+}
+
+async function createDiscordAttachmentMessage(channel, file, tries = 0) {
+  tries++;
+
+  try {
+    const attachmentMessage = await channel.createMessage(undefined, file);
+    return attachmentMessage.attachments[0];
+  } catch (e) {
+    if (tries > 3) {
+      console.error(`Attachment storage message could not be created after 3 tries: ${e.message}`);
+      return;
+    }
+
+    return createDiscordAttachmentMessage(channel, file, tries);
+  }
+}
+
+/**
+ * Turns the given attachment into a file object that can be sent forward as a new attachment
+ * @param {Object} attachment
+ * @returns {Promise<{file, name: string}>}
+ */
 async function attachmentToFile(attachment) {
-  await saveAttachment(attachment);
-  const data = await readFile(getPath(attachment.id));
+  const downloadResult = await downloadAttachment(attachment);
+  const data = await readFile(downloadResult.path);
+  downloadResult.cleanup();
   return {file: data, name: attachment.filename};
 }
 
+/**
+ * Saves the given attachment based on the configured storage system
+ * @param {Object} attachment
+ * @returns {Promise<{ url: string }>}
+ */
+function saveAttachment(attachment) {
+  if (attachmentSavePromises[attachment.id]) {
+    return attachmentSavePromises[attachment.id];
+  }
+
+  if (config.attachmentStorage === 'local') {
+    attachmentSavePromises[attachment.id] = saveLocalAttachment(attachment);
+  } else if (config.attachmentStorage === 'discord') {
+    attachmentSavePromises[attachment.id] = saveDiscordAttachment(attachment);
+  } else {
+    throw new Error(`Unknown attachment storage option: ${config.attachmentStorage}`);
+  }
+
+  attachmentSavePromises[attachment.id].then(() => {
+    delete attachmentSavePromises[attachment.id];
+  });
+
+  return attachmentSavePromises[attachment.id];
+}
+
 module.exports = {
-  getPath,
-  saveAttachment,
-  saveAttachmentsInMessage,
-  getUrl,
-  attachmentToFile
+  getLocalAttachmentPath,
+  attachmentToFile,
+  saveAttachment
 };

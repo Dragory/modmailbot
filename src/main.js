@@ -51,8 +51,6 @@ bot.on('messageCreate', async msg => {
     // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
     if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
 
-    if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-
     const replied = await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false);
     if (replied) msg.delete();
   } else {

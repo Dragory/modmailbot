@@ -55,7 +55,7 @@ function serveAttachments(res, pathParts) {
   if (id.match(/^[0-9]+$/) === null) return notfound(res);
   if (desiredFilename.match(/^[0-9a-z._-]+$/i) === null) return notfound(res);
 
-  const attachmentPath = attachments.getPath(id);
+  const attachmentPath = attachments.getLocalAttachmentPath(id);
   fs.access(attachmentPath, (err) => {
     if (err) return notfound(res);
 
