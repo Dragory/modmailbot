@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.19.0
+* Add `attachmentStorage` option to control where attachments are saved. Currently supported:
+  * `"local"` (default) - Same as before: attachments are saved locally on the machine running the bot and served through the bot's web server
+  * `"discord"` - Attachments are saved on a special Discord channel specified by the `attachmentStorageChannelId` option
+* Add `syncPermissionsOnMove` option. When enabled, thread channel permissions are synced with the category when the thread is moved with `!move`.
+* Add support for scheduling `!suspend`. Works the same way as with `!close`, just specify the time after the command. Can be cancelled with `!suspend cancel`.
+* Scheduled `!close` can now be silent - just add `silent` as an argument to the command before or after the schedule time
+* The schedule time format for `!close` is now stricter and times with whitespace (e.g. `2 h 30 m`) no longer work. Use e.g. `2h30m` instead.
+* `!loglink` can now be used in suspended threads
+* User can now be mentioned in `botMentionResponse` by adding `{userMention}` to the response text. Thanks @reboxer (#225)!
+* Fixed a small mistake in README, thanks @GabrielLewis2 (#226)!
+
 ## v2.18.0
 * Add `silent` option to `!close` (e.g. `!close silent`) to close threads without sending the specified `closeMessage`
 * Update some package versions (may help with sqlite3 install issues)
