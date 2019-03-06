@@ -2,6 +2,7 @@ const config = require('../config');
 const Eris = require('eris');
 const threadUtils = require('../threadUtils');
 const transliterate = require("transliteration");
+const erisEndpoints = require('eris/lib/rest/Endpoints');
 
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
@@ -53,9 +54,35 @@ module.exports = bot => {
 
     const targetCategory = containsRankings[0][0];
 
-    await bot.editChannel(thread.channel_id, {
-      parentID: targetCategory.id
-    });
+    try {
+      await bot.editChannel(thread.channel_id, {
+        parentID: targetCategory.id
+      });
+    } catch (e) {
+      thread.postSystemMessage(`Failed to move thread: ${e.message}`);
+      return;
+    }
+
+    // If enabled, sync thread channel permissions with the category it's moved to
+    if (config.syncPermissionsOnMove) {
+      const newPerms = Array.from(targetCategory.permissionOverwrites.map(ow => {
+        return {
+          id: ow.id,
+          type: ow.type,
+          allow: ow.allow,
+          deny: ow.deny
+        };
+      }));
+
+      try {
+        await bot.requestHandler.request("PATCH", erisEndpoints.CHANNEL(thread.channel_id), true, {
+          permission_overwrites: newPerms
+        });
+      } catch (e) {
+        thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}, but failed to sync permissions: ${e.message}`);
+        return;
+      }
+    }
 
     thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}`);
   });
