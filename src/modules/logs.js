@@ -47,7 +47,11 @@ module.exports = bot => {
   });
 
   addInboxServerCommand('loglink', async (msg, args, thread) => {
-    if (! thread) return;
+    if (! thread) {
+      thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
+      if (! thread) return;
+    }
+
     const logUrl = await thread.getLogUrl();
     thread.postSystemMessage(`Log URL: ${logUrl}`);
   });
