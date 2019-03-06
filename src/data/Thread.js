@@ -19,6 +19,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
  * @property {String} scheduled_close_at
  * @property {String} scheduled_close_id
  * @property {String} scheduled_close_name
+ * @property {Number} scheduled_close_silent
  * @property {String} alert_id
  * @property {String} created_at
  */
@@ -326,10 +327,15 @@ class Thread {
   /**
    * @returns {Promise<void>}
    */
-  async close(noSystemMessage = false) {
-    if (! noSystemMessage) {
+  async close(suppressSystemMessage = false, silent = false) {
+    if (! suppressSystemMessage) {
       console.log(`Closing thread ${this.id}`);
-      await this.postSystemMessage('Closing thread...');
+
+      if (silent) {
+        await this.postSystemMessage('Closing thread silently...');
+      } else {
+        await this.postSystemMessage('Closing thread...');
+      }
     }
 
     // Update DB status
@@ -352,13 +358,14 @@ class Thread {
    * @param {Eris~User} user
    * @returns {Promise<void>}
    */
-  async scheduleClose(time, user) {
+  async scheduleClose(time, user, silent) {
     await knex('threads')
       .where('id', this.id)
       .update({
         scheduled_close_at: time,
         scheduled_close_id: user.id,
-        scheduled_close_name: user.username
+        scheduled_close_name: user.username,
+        scheduled_close_silent: silent
       });
   }
 
@@ -371,7 +378,8 @@ class Thread {
       .update({
         scheduled_close_at: null,
         scheduled_close_id: null,
-        scheduled_close_name: null
+        scheduled_close_name: null,
+        scheduled_close_silent: null
       });
   }
 

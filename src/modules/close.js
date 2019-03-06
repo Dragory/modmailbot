@@ -14,8 +14,11 @@ module.exports = bot => {
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
     for (const thread of threadsToBeClosed) {
-      if(config.closeMessage) await thread.postToUser(config.closeMessage).catch(() => {});
-      await thread.close();
+      if (config.closeMessage && ! thread.scheduled_close_silent) {
+        await thread.postToUser(config.closeMessage).catch(() => {});
+      }
+
+      await thread.close(false, thread.scheduled_close_silent);
 
       const logUrl = await thread.getLogUrl();
       utils.postLog(utils.trimAll(`
@@ -41,7 +44,8 @@ module.exports = bot => {
   bot.registerCommand('close', async (msg, args) => {
     let thread, closedBy;
 
-    let sendCloseMessage = !! config.closeMessage;
+    let hasCloseMessage = !! config.closeMessage;
+    let silentClose = false;
 
     if (msg.channel instanceof Eris.PrivateChannel) {
       // User is closing the thread by themselves (if enabled)
@@ -67,7 +71,6 @@ module.exports = bot => {
       thread = await threads.findOpenThreadByChannelId(msg.channel.id);
       if (! thread) return;
 
-      // Timed close
       if (args.length) {
         if (args.includes('cancel') || args.includes('c')) {
           // Cancel timed close
@@ -77,30 +80,46 @@ module.exports = bot => {
           }
 
           return;
-        } else if (args.includes('silent') || args.includes('s')) {
-          sendCloseMessage = false;
-        } else {
+        }
+
+        // Silent close (= no close message)
+        if (args.includes('silent') || args.includes('s')) {
+          silentClose = true;
+        }
+
+        // Timed close
+        const delayStringArg = args.find(arg => utils.delayStringRegex.test(arg));
+        if (delayStringArg) {
           // Set a timed close
-          const delay = utils.convertDelayStringToMS(args.join(' '));
+          const delay = utils.convertDelayStringToMS(delayStringArg);
           if (delay === 0 || delay === null) {
             thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
             return;
           }
 
           const closeAt = moment.utc().add(delay, 'ms');
-          await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
-          thread.postSystemMessage(`Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`);
+          await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author, silentClose ? 1 : 0);
+
+          let response;
+          if (silentClose) {
+            response = `Thread is now scheduled to be closed silently in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
+          } else {
+            response = `Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
+          }
+
+          thread.postSystemMessage(response);
 
           return;
         }
       }
 
       // Regular close
-      await thread.close();
+      await thread.close(false, silentClose);
       closedBy = msg.author.username;
     }
 
-    if (sendCloseMessage) {
+    // Send close message (unless suppressed with a silent close)
+    if (hasCloseMessage && ! silentClose) {
       await thread.postToUser(config.closeMessage).catch(() => {});
     }
 

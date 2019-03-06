@@ -220,19 +220,20 @@ function trimAll(str) {
     .join('\n');
 }
 
+const delayStringRegex = /^([0-9]+)(?:([dhms])[a-z]*)?/i;
+
 /**
  * Turns a "delay string" such as "1h30m" to milliseconds
  * @param {String} str
  * @returns {Number}
  */
 function convertDelayStringToMS(str) {
-  const regex = /^([0-9]+)\s*([dhms])?[a-z]*\s*/;
   let match;
   let ms = 0;
 
   str = str.trim();
 
-  while (str !== '' && (match = str.match(regex)) !== null) {
+  while (str !== '' && (match = str.match(delayStringRegex)) !== null) {
     if (match[2] === 'd') ms += match[1] * 1000 * 60 * 60 * 24;
     else if (match[2] === 'h') ms += match[1] * 1000 * 60 * 60;
     else if (match[2] === 's') ms += match[1] * 1000;
@@ -312,6 +313,7 @@ module.exports = {
   disableLinkPreviews,
   getSelfUrl,
   getMainRole,
+  delayStringRegex,
   convertDelayStringToMS,
   getInboxMention,
   postSystemMessageWithFallback,
