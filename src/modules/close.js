@@ -1,4 +1,3 @@
-const humanizeDuration = require('humanize-duration');
 const moment = require('moment');
 const Eris = require('eris');
 const config = require('../config');
@@ -8,8 +7,6 @@ const blocked = require('../data/blocked');
 const {messageQueue} = require('../queue');
 
 module.exports = bot => {
-  const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));
-
   // Check for threads that are scheduled to be closed and close them
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
@@ -90,7 +87,6 @@ module.exports = bot => {
         // Timed close
         const delayStringArg = args.find(arg => utils.delayStringRegex.test(arg));
         if (delayStringArg) {
-          // Set a timed close
           const delay = utils.convertDelayStringToMS(delayStringArg);
           if (delay === 0 || delay === null) {
             thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
@@ -102,9 +98,9 @@ module.exports = bot => {
 
           let response;
           if (silentClose) {
-            response = `Thread is now scheduled to be closed silently in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
+            response = `Thread is now scheduled to be closed silently in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
           } else {
-            response = `Thread is now scheduled to be closed in ${humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
+            response = `Thread is now scheduled to be closed in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
           }
 
           thread.postSystemMessage(response);

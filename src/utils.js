@@ -1,6 +1,7 @@
 const Eris = require('eris');
 const bot = require('./bot');
 const moment = require('moment');
+const humanizeDuration = require('humanize-duration');
 const publicIp = require('public-ip');
 const attachments = require('./data/attachments');
 const config = require('./config');
@@ -293,6 +294,8 @@ function isSnowflake(str) {
   return snowflakeRegex.test(str);
 }
 
+const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));
+
 module.exports = {
   BotError,
 
@@ -324,4 +327,6 @@ module.exports = {
   setDataModelProps,
 
   isSnowflake,
+
+  humanizeDelay,
 };

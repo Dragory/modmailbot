@@ -273,6 +273,18 @@ async function getThreadsThatShouldBeClosed() {
   return threads.map(thread => new Thread(thread));
 }
 
+async function getThreadsThatShouldBeSuspended() {
+  const now = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+  const threads = await knex('threads')
+    .where('status', THREAD_STATUS.OPEN)
+    .whereNotNull('scheduled_suspend_at')
+    .where('scheduled_suspend_at', '<=', now)
+    .whereNotNull('scheduled_suspend_at')
+    .select();
+
+  return threads.map(thread => new Thread(thread));
+}
+
 module.exports = {
   findById,
   findOpenThreadByUserId,
@@ -283,5 +295,6 @@ module.exports = {
   getClosedThreadsByUserId,
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
+  getThreadsThatShouldBeSuspended,
   createThreadInDB
 };
