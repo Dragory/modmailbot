@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Eris = require('eris');
 
 const config = require('./config');
@@ -6,21 +7,6 @@ const {messageQueue} = require('./queue');
 const utils = require('./utils');
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
-
-const reply = require('./modules/reply');
-const close = require('./modules/close');
-const snippets = require('./modules/snippets');
-const logs = require('./modules/logs');
-const move = require('./modules/move');
-const block = require('./modules/block');
-const suspend = require('./modules/suspend');
-const webserver = require('./modules/webserver');
-const greeting = require('./modules/greeting');
-const typingProxy = require('./modules/typingProxy');
-const version = require('./modules/version');
-const newthread = require('./modules/newthread');
-const idModule = require('./modules/id');
-const alert = require('./modules/alert');
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
@@ -182,21 +168,12 @@ module.exports = {
   async start() {
     // Load modules
     console.log('Loading modules...');
-    await reply(bot);
-    await close(bot);
-    await logs(bot);
-    await block(bot);
-    await move(bot);
-    await snippets(bot);
-    await suspend(bot);
-    await greeting(bot);
-    await webserver(bot);
-    await typingProxy(bot);
-    await version(bot);
-    await newthread(bot);
-    await idModule(bot);
-    await alert(bot);
-
+    const files = fs.readdirSync('./src/modules/').filter(file => file.endsWith('.js'));
+    for (const moduleName of files) {
+        const requireModule = require(`./modules/${moduleName}`);
+        if (! requireModule instanceof Function) throw TypeError('Modules must export a function');
+        requireModule(bot);
+    }
     // Connect to Discord
     console.log('Connecting to Discord...');
     await bot.connect();
