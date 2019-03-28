@@ -294,6 +294,11 @@ function isSnowflake(str) {
 
 const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));
 
+const markdownCharsRegex = /([\\_*|`~])/g;
+function escapeMarkdown(str) {
+  return str.replace(markdownCharsRegex, '\\$1');
+}
+
 module.exports = {
   BotError,
 
@@ -327,4 +332,6 @@ module.exports = {
   isSnowflake,
 
   humanizeDelay,
+
+  escapeMarkdown,
 };

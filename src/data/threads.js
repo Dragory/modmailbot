@@ -177,14 +177,14 @@ async function createNewThreadForUser(user, quiet = false) {
   for (const [guildId, guildData] of userGuildData.entries()) {
     const {nickname, joinDate} = getHeaderGuildInfo(guildData.member);
     const headerItems = [
-      `NICKNAME **${nickname}**`,
+      `NICKNAME **${utils.escapeMarkdown(nickname)}**`,
       `JOINED **${joinDate}** ago`
     ];
 
     if (guildData.member.voiceState.channelID) {
       const voiceChannel = guildData.guild.channels.get(guildData.member.voiceState.channelID);
       if (voiceChannel) {
-        headerItems.push(`VOICE CHANNEL **${voiceChannel.name}**`);
+        headerItems.push(`VOICE CHANNEL **${utils.escapeMarkdown(voiceChannel.name)}**`);
       }
     }
 
@@ -193,7 +193,7 @@ async function createNewThreadForUser(user, quiet = false) {
     if (mainGuilds.length === 1) {
       infoHeader += `\n${headerStr}`;
     } else {
-      infoHeader += `\n**[${guildData.guild.name}]** ${headerStr}`;
+      infoHeader += `\n**[${utils.escapeMarkdown(guildData.guild.name)}]** ${headerStr}`;
     }
   }
 
