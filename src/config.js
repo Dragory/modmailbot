@@ -83,6 +83,8 @@ const defaultConfig = {
   "attachmentStorage": "local",
   "attachmentStorageChannelId": null,
 
+  "categoryAutomation": {},
+
   "port": 8890,
   "url": null,
 
@@ -153,6 +155,12 @@ if (! Array.isArray(finalConfig['inboxServerPermission'])) {
   } else {
     finalConfig['inboxServerPermission'] = [finalConfig['inboxServerPermission']];
   }
+}
+
+// newThreadCategoryId is syntactic sugar for categoryAutomation.newThread
+if (finalConfig.newThreadCategoryId) {
+  finalConfig.categoryAutomation.newThread = finalConfig.newThreadCategoryId;
+  delete finalConfig.newThreadCategoryId;
 }
 
 module.exports = finalConfig;

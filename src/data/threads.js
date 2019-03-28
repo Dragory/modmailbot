@@ -79,10 +79,48 @@ async function createNewThreadForUser(user, quiet = false) {
 
   console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
+  // Find which main guilds this user is part of
+  const mainGuilds = utils.getMainGuilds();
+  const userGuildData = new Map();
+
+  for (const guild of mainGuilds) {
+    let member = guild.members.get(user.id);
+
+    if (! member) {
+      try {
+        member = await bot.getRESTGuildMember(guild.id, user.id);
+      } catch (e) {
+        continue;
+      }
+    }
+
+    if (member) {
+      userGuildData.set(guild.id, { guild, member });
+    }
+  }
+
+  // Figure out which category we should place the thread channel in
+  let newThreadCategoryId;
+
+  if (config.categoryAutomation.newThreadFromGuild) {
+    // Categories for specific source guilds (in case of multiple main guilds)
+    for (const [guildId, categoryId] of Object.entries(config.categoryAutomation.newThreadFromGuild)) {
+      if (userGuildData.has(guildId)) {
+        newThreadCategoryId = categoryId;
+        break;
+      }
+    }
+  }
+
+  if (! newThreadCategoryId && config.categoryAutomation.newThread) {
+    // Blanket category id for all new threads (also functions as a fallback for the above)
+    newThreadCategoryId = config.categoryAutomation.newThread;
+  }
+
   // Attempt to create the inbox channel for this thread
   let createdChannel;
   try {
-    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, 'New ModMail thread', config.newThreadCategoryId);
+    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, 'New ModMail thread', newThreadCategoryId);
   } catch (err) {
     console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
     throw err;
@@ -136,31 +174,17 @@ async function createNewThreadForUser(user, quiet = false) {
   let infoHeader = infoHeaderItems.join(', ');
 
   // Guild member info
-  const mainGuilds = utils.getMainGuilds();
+  for (const [guildId, guildData] of userGuildData.entries()) {
+    const {nickname, joinDate} = getHeaderGuildInfo(guildData.member);
+    const headerStr = [
+      `NICKNAME **${nickname}**`,
+      `JOINED **${joinDate}** ago`
+    ].join(', ');
 
-  for (const guild of mainGuilds) {
-    let member = guild.members.get(user.id);
-
-    if (! member) {
-      try {
-        member = await bot.getRESTGuildMember(guild.id, user.id);
-      } catch (e) {
-        continue;
-      }
-    }
-
-    if (member) {
-      const {nickname, joinDate} = getHeaderGuildInfo(member);
-      const headerStr = [
-        `NICKNAME **${nickname}**`,
-        `JOINED **${joinDate}** ago`
-      ].join(', ');
-
-      if (mainGuilds.length === 1) {
-        infoHeader += `\n${headerStr}`;
-      } else {
-        infoHeader += `\n**[${guild.name}]** ${headerStr}`;
-      }
+    if (mainGuilds.length === 1) {
+      infoHeader += `\n${headerStr}`;
+    } else {
+      infoHeader += `\n**[${guildData.guild.name}]** ${headerStr}`;
     }
   }
 
