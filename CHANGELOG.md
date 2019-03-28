@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.20.0
+* Add `categoryAutomation` option to automate thread categories. Currently supported sub-options:
+  * `newThread` - same as `newThreadCategoryId`, the default category for new threads
+  * `newThreadFromGuild` - default category on a per-guild basis, value is an object with guild IDs as keys and category IDs as values 
+* Threads should now include member information (nickname, joined at, etc.) more reliably
+* Thread header now also includes the member's current voice channel, if any
+
 ## v2.19.0
 * Add `attachmentStorage` option to control where attachments are saved. Currently supported:
   * `"local"` (default) - Same as before: attachments are saved locally on the machine running the bot and served through the bot's web server

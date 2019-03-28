@@ -72,6 +72,9 @@ These go in `config.json`. See also `config.example.json`.
 |attachmentStorage|"local"|Controls where sent/received attachments are saved.<br><br>**"local"** - Files are saved locally on the machine running the bot<br>**"discord"** - Files are saved as attachments on a special channel on the inbox server. Requires `attachmentStorageChannelId` to be set.|
 |attachmentStorageChannelId|null|When using "discord" attachment storage, the id of the channel on the inbox server where attachments should be saved|
 |botMentionResponse|None|If set, the bot auto-responds to bot mentions with this message. Allows `{userMention}` to be added to mention the user who mentioned the bot.|
+|categoryAutomation|{}|Various ways of automating thread categories on the inbox server. **Note that the options below with a dot in the name are object properties for `categoryAutomation`.**|
+|categoryAutomation.newThread|None|Same as `newThreadCategoryId`. Specifies a category to open all new threads in. Also functions as a fallback for `categoryAutomation.newThreadFromGuild`.|
+|categoryAutomation.newThreadFromGuild|None|Allows you to open threads in specific categories based on which guild the user is messaging the bot from. The value is an object with guild ids as the keys and category ids as the values.|
 |closeMessage|None|The bot's message to the user when the thread is closed|
 |enableGreeting|false|Set to true to send a welcome message to new main guild members. Requires `mainGuildId` to be set.|
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
