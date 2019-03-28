@@ -3,6 +3,7 @@ const config = require('./config');
 
 const bot = new Eris.CommandClient(config.token, {
   getAllUsers: true,
+  restMode: true,
 }, {
   prefix: config.prefix,
   ignoreSelf: true,

@@ -4,6 +4,7 @@ const moment = require('moment');
 const uuid = require('uuid');
 const humanizeDuration = require('humanize-duration');
 
+const bot = require('../bot');
 const knex = require('../knex');
 const config = require('../config');
 const utils = require('../utils');
@@ -134,29 +135,36 @@ async function createNewThreadForUser(user, quiet = false) {
 
   let infoHeader = infoHeaderItems.join(', ');
 
-  // Guild info
-  const guildInfoHeaderItems = new Map();
+  // Guild member info
   const mainGuilds = utils.getMainGuilds();
 
-  mainGuilds.forEach(guild => {
-    const member = guild.members.get(user.id);
-    if (! member) return;
+  for (const guild of mainGuilds) {
+    let member = guild.members.get(user.id);
 
-    const {nickname, joinDate} = getHeaderGuildInfo(member);
-    guildInfoHeaderItems.set(guild.name, [
-      `NICKNAME **${nickname}**`,
-      `JOINED **${joinDate}** ago`
-    ]);
-  });
-
-  guildInfoHeaderItems.forEach((items, guildName) => {
-    if (mainGuilds.length === 1) {
-      infoHeader += `\n${items.join(', ')}`;
-    } else {
-      infoHeader += `\n**[${guildName}]** ${items.join(', ')}`;
+    if (! member) {
+      try {
+        member = await bot.getRESTGuildMember(guild.id, user.id);
+      } catch (e) {
+        continue;
+      }
     }
-  });
 
+    if (member) {
+      const {nickname, joinDate} = getHeaderGuildInfo(member);
+      const headerStr = [
+        `NICKNAME **${nickname}**`,
+        `JOINED **${joinDate}** ago`
+      ].join(', ');
+
+      if (mainGuilds.length === 1) {
+        infoHeader += `\n${headerStr}`;
+      } else {
+        infoHeader += `\n**[${guild.name}]** ${headerStr}`;
+      }
+    }
+  }
+
+  // ModMail history / previous logs
   const userLogCount = await getClosedThreadCountByUserId(user.id);
   if (userLogCount > 0) {
     infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
