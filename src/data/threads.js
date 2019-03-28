@@ -176,10 +176,19 @@ async function createNewThreadForUser(user, quiet = false) {
   // Guild member info
   for (const [guildId, guildData] of userGuildData.entries()) {
     const {nickname, joinDate} = getHeaderGuildInfo(guildData.member);
-    const headerStr = [
+    const headerItems = [
       `NICKNAME **${nickname}**`,
       `JOINED **${joinDate}** ago`
-    ].join(', ');
+    ];
+
+    if (guildData.member.voiceState.channelID) {
+      const voiceChannel = guildData.guild.channels.get(guildData.member.voiceState.channelID);
+      if (voiceChannel) {
+        headerItems.push(`VOICE CHANNEL **${voiceChannel.name}**`);
+      }
+    }
+
+    const headerStr = headerItems.join(', ');
 
     if (mainGuilds.length === 1) {
       infoHeader += `\n${headerStr}`;
