@@ -22,7 +22,6 @@ const newthread = require('./modules/newthread');
 const idModule = require('./modules/id');
 const alert = require('./modules/alert');
 
-const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 
 // Once the bot has connected, set the status/"playing" message
