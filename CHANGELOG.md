@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.21.0
+* Add `requiredTimeOnServer` and `timeOnServerDeniedMessage` config options to restrict modmail from users who have just joined the server. Thanks [@reboxer](https://github.com/reboxer) ([#270](https://github.com/Dragory/modmailbot/pull/270))!
+
 ## v2.20.0
 * Add `categoryAutomation` option to automate thread categories. Currently supported sub-options:
   * `newThread` - same as `newThreadCategoryId`, the default category for new threads
