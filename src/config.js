@@ -78,8 +78,8 @@ const defaultConfig = {
   "requiredAccountAge": null, // In hours
   "accountAgeDeniedMessage": "Your Discord account is not old enough to contact modmail.",
 
-  "requiredJoinedAt": null, // In hours too
-  "joinedAtDeniedMessage": "You haven't been a member of the server for enough time to contact modmail",
+  "requiredTimeOnServer": null, // In minutes
+  "timeOnServerDeniedMessage": "You haven't been a member of the server for long enough to contact modmail.",
 
   "relaySmallAttachmentsAsAttachments": false,
   "smallAttachmentLimit": 1024 * 1024 * 2,

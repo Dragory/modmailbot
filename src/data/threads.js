@@ -1,4 +1,5 @@
-const Eris = require('eris');
+const {User, Member} = require('eris');
+
 const transliterate = require('transliteration');
 const moment = require('moment');
 const uuid = require('uuid');
@@ -11,6 +12,9 @@ const utils = require('../utils');
 
 const Thread = require('./Thread');
 const {THREAD_STATUS} = require('./constants');
+
+const MINUTES = 60 * 1000;
+const HOURS = 60 * MINUTES;
 
 /**
  * @param {String} id
@@ -46,33 +50,22 @@ function getHeaderGuildInfo(member) {
 
 /**
  * Creates a new modmail thread for the specified user
- * @param {Eris.User} user
+ * @param {User} user
+ * @param {Member} member
  * @param {Boolean} quiet If true, doesn't ping mentionRole or reply with responseMessage
- * @returns {Promise<Thread>}
+ * @returns {Promise<Thread|undefined>}
  * @throws {Error}
  */
-async function createNewThreadForUser(user, member, quiet = false) {
+async function createNewThreadForUser(user, quiet = false) {
   const existingThread = await findOpenThreadByUserId(user.id);
   if (existingThread) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
   }
 
-  // Check the config for a requirement of a minimum time the user must be a member of the guild to contact modmail,
-  // if the user hasn't been a member of the guild for the specified time, return an optional message without making a new thread
-  if (config.requiredJoinedAt && member) {
-    if (member.joinedAt > moment() - config.requiredJoinedAt) {
-      if (config.joinedAtDeniedMessage) {
-        const privateChannel = await user.getDMChannel();
-        await privateChannel.createMessage(config.joinedAtDeniedMessage);
-      }
-      return;
-    }
-  }
-
-  // Check the config for a requirement of account age to contact modmail,
-  // if the account is too young, return an optional message without making a new thread
+  // If set in config, check that the user's account is old enough (time since they registered on Discord)
+  // If the account is too new, don't start a new thread and optionally reply to them with a message
   if (config.requiredAccountAge) {
-    if (user.createdAt > moment() - config.requiredAccountAge * 3600000){
+    if (user.createdAt > moment() - config.requiredAccountAge * HOURS){
       if (config.accountAgeDeniedMessage) {
         const privateChannel = await user.getDMChannel();
         await privateChannel.createMessage(config.accountAgeDeniedMessage);
@@ -80,16 +73,6 @@ async function createNewThreadForUser(user, member, quiet = false) {
       return;
     }
   }
-
-  // Use the user's name+discrim for the thread channel's name
-  // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
-  let cleanName = transliterate.slugify(user.username);
-  if (cleanName === '') cleanName = 'unknown';
-  cleanName = cleanName.slice(0, 95); // Make sure the discrim fits
-
-  const channelName = `${cleanName}-${user.discriminator}`;
-
-  console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
   // Find which main guilds this user is part of
   const mainGuilds = utils.getMainGuilds();
@@ -110,6 +93,34 @@ async function createNewThreadForUser(user, member, quiet = false) {
       userGuildData.set(guild.id, { guild, member });
     }
   }
+
+  // If set in config, check that the user has been a member of one of the main guilds long enough
+  // If they haven't, don't start a new thread and optionally reply to them with a message
+  if (config.requiredTimeOnServer) {
+    // Check if the user joined any of the main servers a long enough time ago
+    // If we don't see this user on any of the main guilds (the size check below), assume we're just missing some data and give the user the benefit of the doubt
+    const isAllowed = userGuildData.size === 0 || Array.from(userGuildData.values()).some(({guild, member}) => {
+      return member.joinedAt < moment() - config.requiredTimeOnServer * MINUTES;
+    });
+
+    if (! isAllowed) {
+      if (config.timeOnServerDeniedMessage) {
+        const privateChannel = await user.getDMChannel();
+        await privateChannel.createMessage(config.timeOnServerDeniedMessage);
+      }
+      return;
+    }
+  }
+
+  // Use the user's name+discrim for the thread channel's name
+  // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
+  let cleanName = transliterate.slugify(user.username);
+  if (cleanName === '') cleanName = 'unknown';
+  cleanName = cleanName.slice(0, 95); // Make sure the discrim fits
+
+  const channelName = `${cleanName}-${user.discriminator}`;
+
+  console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
   // Figure out which category we should place the thread channel in
   let newThreadCategoryId;
