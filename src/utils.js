@@ -78,7 +78,7 @@ function postError(str) {
  * @returns {boolean}
  */
 function isStaff(member) {
-  if (!member) return false;
+  if (! member) return false;
   if (config.inboxServerPermission.length === 0) return true;
 
   return config.inboxServerPermission.some(perm => {

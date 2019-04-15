@@ -17,13 +17,24 @@ module.exports = bot => {
       return;
     }
 
+    let member;
+    const mainGuilds = utils.getMainGuilds();
+    if (mainGuilds.length === 1) {
+      member = bot.guilds.get(mainGuilds[0]).members.get(msg.author.id);
+      if (! member) {
+        member = false;
+      }
+    } else {
+      member = false;
+    }
+
     const existingThread = await threads.findOpenThreadByUserId(user.id);
     if (existingThread) {
       utils.postSystemMessageWithFallback(msg.channel, thread, `Cannot create a new thread; there is another open thread with this user: <#${existingThread.channel_id}>`);
       return;
     }
 
-    const createdThread = await threads.createNewThreadForUser(user, true);
+    const createdThread = await threads.createNewThreadForUser(user, member, true);
     createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
 
     if (thread) {

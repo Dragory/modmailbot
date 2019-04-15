@@ -74,12 +74,25 @@ bot.on('messageCreate', async msg => {
   messageQueue.add(async () => {
     let thread = await threads.findOpenThreadByUserId(msg.author.id);
 
+    // Due the way discord works, private channels don't have a member property as they are a guild only property,
+    // if more than one main guild have been set, we just ignore the requiredJoinedAt config option
+    let member;
+    const mainGuilds = utils.getMainGuilds();
+    if (mainGuilds.length === 1) {
+      member = bot.guilds.get(mainGuilds[0]).members.get(msg.author.id);
+      if (! member) {
+        member = false;
+      }
+    } else {
+      member = false;
+    }
+
     // New thread
     if (! thread) {
       // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
       if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
-      thread = await threads.createNewThreadForUser(msg.author);
+      thread = await threads.createNewThreadForUser(msg.author, member);
     }
 
     if (thread) await thread.receiveUserReply(msg);

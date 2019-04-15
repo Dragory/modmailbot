@@ -51,10 +51,22 @@ function getHeaderGuildInfo(member) {
  * @returns {Promise<Thread>}
  * @throws {Error}
  */
-async function createNewThreadForUser(user, quiet = false) {
+async function createNewThreadForUser(user, member, quiet = false) {
   const existingThread = await findOpenThreadByUserId(user.id);
   if (existingThread) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
+  }
+
+  // Check the config for a requirement of a minimum time the user must be a member of the guild to contact modmail,
+  // if the user hasn't been a member of the guild for the specified time, return an optional message without making a new thread
+  if (config.requiredJoinedAt && member) {
+    if (member.joinedAt > moment() - config.requiredJoinedAt) {
+      if (config.joinedAtDeniedMessage) {
+        const privateChannel = await user.getDMChannel();
+        await privateChannel.createMessage(config.joinedAtDeniedMessage);
+      }
+      return;
+    }
   }
 
   // Check the config for a requirement of account age to contact modmail,
