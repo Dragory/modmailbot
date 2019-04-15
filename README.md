@@ -81,6 +81,7 @@ These go in `config.json`. See also `config.example.json`.
 |greetingMessage|None|Text content of the welcome message|
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
+|joinedAtDeniedMessage|"You haven't been a member of the server for enough time to contact modmail"|See `requiredJoinedAt` below|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
@@ -89,6 +90,7 @@ These go in `config.json`. See also `config.example.json`.
 |prefix|"!"|Prefix for bot commands|
 |relaySmallAttachmentsAsAttachments|false|Whether to relay small attachments from users as native attachments rather than links in modmail threads|
 |requiredAccountAge|None|Required account age for contacting modmail (in hours). If the account is not old enough, a new thread will not be created and the bot will reply with `accountAgeDeniedMessage` (if set) instead.|
+|requiredJoinedAt|None|Required amount of time (in hours) the user must be a member of the server before being able to contact modmail. If the user hasn't been a member of the server for the specified time, a new thread will not be created and the bot will reply with `joinedAtDeniedMessage` (if set) instead. Only works if one main guild has been set.|
 |responseMessage|"Thank you for your message! Our mod team will reply to you here as soon as possible."|The bot's response to DMs that start a new thread|
 |smallAttachmentLimit|2097152|Size limit of `relaySmallAttachmentsAsAttachments`, in bytes (default is 2MB)|
 |snippetPrefix|"!!"|Prefix to use snippets|
