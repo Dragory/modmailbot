@@ -81,7 +81,7 @@ These go in `config.json`. See also `config.example.json`.
 |greetingMessage|None|Text content of the welcome message|
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
-|joinedAtDeniedMessage|None|"You haven't been a member of the server for enough time to contact modmail"|See `requiredJoinedAt` below|
+|joinedAtDeniedMessage|"You haven't been a member of the server for enough time to contact modmail"|See `requiredJoinedAt` below|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
