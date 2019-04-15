@@ -23,7 +23,7 @@ module.exports = bot => {
       return;
     }
 
-    const createdThread = await threads.createNewThreadForUser(user, true);
+    const createdThread = await threads.createNewThreadForUser(user, true, true);
     createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
 
     if (thread) {

@@ -56,7 +56,7 @@ function getHeaderGuildInfo(member) {
  * @returns {Promise<Thread|undefined>}
  * @throws {Error}
  */
-async function createNewThreadForUser(user, quiet = false) {
+async function createNewThreadForUser(user, quiet = false, ignoreRequirements = false) {
   const existingThread = await findOpenThreadByUserId(user.id);
   if (existingThread) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
@@ -64,7 +64,7 @@ async function createNewThreadForUser(user, quiet = false) {
 
   // If set in config, check that the user's account is old enough (time since they registered on Discord)
   // If the account is too new, don't start a new thread and optionally reply to them with a message
-  if (config.requiredAccountAge) {
+  if (config.requiredAccountAge && ! ignoreRequirements) {
     if (user.createdAt > moment() - config.requiredAccountAge * HOURS){
       if (config.accountAgeDeniedMessage) {
         const privateChannel = await user.getDMChannel();
@@ -96,7 +96,7 @@ async function createNewThreadForUser(user, quiet = false) {
 
   // If set in config, check that the user has been a member of one of the main guilds long enough
   // If they haven't, don't start a new thread and optionally reply to them with a message
-  if (config.requiredTimeOnServer) {
+  if (config.requiredTimeOnServer && ! ignoreRequirements) {
     // Check if the user joined any of the main servers a long enough time ago
     // If we don't see this user on any of the main guilds (the size check below), assume we're just missing some data and give the user the benefit of the doubt
     const isAllowed = userGuildData.size === 0 || Array.from(userGuildData.values()).some(({guild, member}) => {
