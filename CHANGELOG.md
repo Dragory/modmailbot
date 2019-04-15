@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.21.1
+* "Account age" and "time on server" requirements are now ignored when using `!newthread`
+
 ## v2.21.0
 * Add `requiredTimeOnServer` and `timeOnServerDeniedMessage` config options to restrict modmail from users who have just joined the server. Thanks [@reboxer](https://github.com/reboxer) ([#270](https://github.com/Dragory/modmailbot/pull/270))!
 
