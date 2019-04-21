@@ -40,7 +40,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 ##### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
 `!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias `!ar`)  
-`!close <time>` Closes the modmail thread. If a time is specified, the thread is scheduled to be closed later. Scheduled closing is cancelled if a message is sent to or received from the user.  
+`!close <time in minutes>` Closes the modmail thread. If a time is specified, the thread is scheduled to be closed later. Scheduled closing is cancelled if a message is sent to or received from the user.  
 `!logs` Lists previous modmail logs with this user  
 `!block` Blocks the user from using modmail  
 `!unblock` Unblocks the user from using modmail  
