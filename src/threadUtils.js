@@ -10,15 +10,15 @@ const utils = require("./utils");
  * @param {Eris~CommandOptions} opts
  */
 function addInboxServerCommand(bot, cmd, commandHandler, opts) {
-  bot.registerCommand(cmd, async (msg, args) => {
-    if (! utils.messageIsOnInboxServer(msg)) return;
-    if (! utils.isStaff(msg.member)) return;
+    bot.registerCommand(cmd, async (msg, args) => {
+        if (!utils.messageIsOnInboxServer(msg)) return;
+        if (!utils.isStaff(msg.member)) return;
 
-    const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
-    commandHandler(msg, args, thread);
-  }, opts);
+        const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
+        commandHandler(msg, args, thread);
+    }, opts);
 }
 
 module.exports = {
-  addInboxServerCommand
+    addInboxServerCommand
 };

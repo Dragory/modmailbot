@@ -12,9 +12,9 @@ const utils = require("../utils");
  * @property {String} created_at
  */
 class ThreadMessage {
-  constructor(props) {
-    utils.setDataModelProps(this, props);
-  }
+    constructor(props) {
+        utils.setDataModelProps(this, props);
+    }
 }
 
 module.exports = ThreadMessage;

@@ -7,11 +7,11 @@ const knex = require('../knex');
  * @returns {Promise<Boolean>}
  */
 async function isBlocked(userId) {
-  const row = await knex('blocked_users')
-    .where('user_id', userId)
-    .first();
+    const row = await knex('blocked_users')
+        .where('user_id', userId)
+        .first();
 
-  return !! row;
+    return !!row;
 }
 
 /**
@@ -22,15 +22,15 @@ async function isBlocked(userId) {
  * @returns {Promise}
  */
 async function block(userId, userName = '', blockedBy = null) {
-  if (await isBlocked(userId)) return;
+    if (await isBlocked(userId)) return;
 
-  return knex('blocked_users')
-    .insert({
-      user_id: userId,
-      user_name: userName,
-      blocked_by: blockedBy,
-      blocked_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
-    });
+    return knex('blocked_users')
+        .insert({
+            user_id: userId,
+            user_name: userName,
+            blocked_by: blockedBy,
+            blocked_at: moment.utc().format('YYYY-MM-DD HH:mm:ss')
+        });
 }
 
 /**
@@ -39,13 +39,13 @@ async function block(userId, userName = '', blockedBy = null) {
  * @returns {Promise}
  */
 async function unblock(userId) {
-  return knex('blocked_users')
-    .where('user_id', userId)
-    .delete();
+    return knex('blocked_users')
+        .where('user_id', userId)
+        .delete();
 }
 
 module.exports = {
-  isBlocked,
-  block,
-  unblock,
+    isBlocked,
+    block,
+    unblock,
 };
