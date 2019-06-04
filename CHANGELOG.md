@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.21.2
+* Update Eris to fix crashes with news channels and nitro boosting
+
 ## v2.21.1
 * "Account age" and "time on server" requirements are now ignored when using `!newthread`
 
