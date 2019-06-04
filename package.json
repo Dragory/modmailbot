@@ -11,7 +11,7 @@
   },
   "author": "",
   "dependencies": {
-    "eris": "^0.9.0",
+    "eris": "github:abalabahaha/eris#dev",
     "humanize-duration": "^3.12.1",
     "json5": "^1.0.1",
     "knex": "^0.15.2",
