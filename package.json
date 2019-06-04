@@ -24,6 +24,6 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
-    "eslint": "^5.6.0"
+    "eslint": "^5.16.0"
   }
 }
