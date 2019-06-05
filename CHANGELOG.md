@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.21.3
+* Fix crash caused by Nitro Boosting notifications
+
 ## v2.21.2
 * Update Eris to fix crashes with news channels and nitro boosting
 
