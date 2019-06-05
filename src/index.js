@@ -16,6 +16,18 @@ try {
   process.exit(1);
 }
 
+// Error handling
+process.on('uncaughtException', err => {
+  // Unknown message types (nitro boosting messages at the time) should be safe to ignore
+  if (err && err.message && err.message.startsWith('Unhandled MESSAGE_CREATE type')) {
+    return;
+  }
+
+  // For everything else, crash with the error
+  console.error(err);
+  process.exit(1);
+});
+
 let testedPackage = '';
 try {
   const packageJson = require('../package.json');
