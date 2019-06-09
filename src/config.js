@@ -70,6 +70,7 @@ const defaultConfig = {
   "typingProxy": false,
   "typingProxyReverse": false,
   "mentionUserInThreadHeader": false,
+  "rolesInThreadHeader": false,
 
   "enableGreeting": false,
   "greetingMessage": null,
