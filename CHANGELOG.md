@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.22.0
+* Add `guildGreetings` option to allow configuring greeting messages on a per-server basis
+* Add `rolesInThreadHeader` option to show the user's roles in the modmail thread's header
+
 ## v2.21.3
 * Fix crash caused by Nitro Boosting notifications
 
