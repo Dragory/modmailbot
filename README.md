@@ -81,6 +81,7 @@ These go in `config.json`. See also `config.example.json`.
 |categoryAutomation.newThread|None|Same as `newThreadCategoryId`. Specifies a category to open all new threads in. Also functions as a fallback for `categoryAutomation.newThreadFromGuild`.|
 |categoryAutomation.newThreadFromGuild|None|Allows you to open threads in specific categories based on which guild the user is messaging the bot from. The value is an object with guild ids as the keys and category ids as the values.|
 |closeMessage|None|The bot's message to the user when the thread is closed|
+|commandAliases|None|Custom aliases for commands. Value is an object with the alias as the key and the real command as the value.|
 |enableGreeting|false|Set to true to send a welcome message to new main guild members. Requires `mainGuildId` to be set.|
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
 |greetingMessage|None|Text content of the welcome message|

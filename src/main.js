@@ -213,6 +213,13 @@ module.exports = {
       updates.startVersionRefreshLoop();
     }
 
+    // Register command aliases
+    if (config.commandAliases) {
+      for (const alias in config.commandAliases) {
+        bot.registerCommandAlias(alias, config.commandAliases[alias]);
+      }
+    }
+
     // Connect to Discord
     console.log('Connecting to Discord...');
     await bot.connect();

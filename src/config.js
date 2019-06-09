@@ -94,6 +94,8 @@ const defaultConfig = {
   "updateNotifications": true,
   "plugins": [],
 
+  "commandAliases": {},
+
   "port": 8890,
   "url": null,
 
