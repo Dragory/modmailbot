@@ -5,6 +5,17 @@ Moderators and admins can then reply to these threads, and these responses are r
 
 Inspired by Reddit's modmail system.
 
+## Table of contents
+- [Setup](#setup)
+- [Changelog](#changelog)
+- [Commands](#commands)
+  - [Anywhere on the inbox server](#anywhere-on-the-inbox-server)
+  - [Inside a modmail thread](#inside-a-modmail-thread)
+- [Configuration options](#configuration-options)
+- [Plugins](#plugins)
+  - [Specifying plugins to load](#specifying-plugins-to-load)
+  - [Creating a plugin](#creating-a-plugin)
+
 ## Setup
 1. Install Node.js 8.9.4 (LTS) or higher
 2. Clone or download this repository
@@ -20,7 +31,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 
 ## Commands
 
-##### Anywhere on the modmail inbox server
+### Anywhere on the inbox server
 `!logs <user>` Lists previous modmail logs with the specified user  
 `!block <user>` Blocks the specified user from using modmail  
 `!unblock <user>` Unblocks the specified user from using modmail  
@@ -31,7 +42,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!version` Print the version of the bot you're running  
 `!newthread <user>` Opens a new thread with the specified user
 
-##### Inside a modmail thread
+### Inside a modmail thread
 `!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
 `!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias `!ar`)  
 `!close <time>` Closes the modmail thread. If a time is specified, the thread is scheduled to be closed later. Scheduled closing is cancelled if a message is sent to or received from the user.  
@@ -81,6 +92,7 @@ These go in `config.json`. See also `config.example.json`.
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
+|plugins|None|Array of plugins to load on startup. See [Plugins](#plugins) section below for more information.|
 |port|8890|Port from which to serve attachments and logs|
 |prefix|"!"|Prefix for bot commands|
 |relaySmallAttachmentsAsAttachments|false|Whether to relay small attachments from users as native attachments rather than links in modmail threads|
@@ -99,3 +111,29 @@ These go in `config.json`. See also `config.example.json`.
 |updateNotifications|true|Whether to automatically check for bot updates and notify about them in new threads|
 |url|None|URL to use for attachment and log links. Defaults to `IP:PORT`|
 |useNicknames|false|If set to true, mod replies will use their nickname (on the inbox server) instead of their username|
+
+## Plugins
+The bot supports loading external plugins.
+
+### Specifying plugins to load
+Add the path to the plugin's file to the `plugins` array in the config.
+The plugin will be automatically loaded on startup.
+The path is relative to the bot's folder.
+
+### Creating a plugin
+Create a `.js` file that exports a function.
+This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config)`
+where `bot` is the [Eris Client object](https://abal.moe/Eris/docs/Client),
+`knex` is the [Knex database object](https://knexjs.org/#Builder),
+and `config` is the loaded config object.
+
+#### Example plugin file
+```js
+module.exports = function(bot, knex, config) {
+  console.log('Plugin loaded!');
+}
+```
+
+### Work in progress
+The current plugin API is fairly rudimentary and will be expanded in the future.
+Please send any feature suggestions to the [issue tracker](https://github.com/Dragory/modmailbot/issues)!

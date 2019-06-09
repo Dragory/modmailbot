@@ -92,6 +92,7 @@ const defaultConfig = {
   "categoryAutomation": {},
 
   "updateNotifications": true,
+  "plugins": [],
 
   "port": 8890,
   "url": null,

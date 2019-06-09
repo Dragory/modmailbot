@@ -1,7 +1,9 @@
 const Eris = require('eris');
+const path = require('path');
 
 const config = require('./config');
 const bot = require('./bot');
+const knex = require('./knex');
 const {messageQueue} = require('./queue');
 const utils = require('./utils');
 const blocked = require('./data/blocked');
@@ -197,7 +199,19 @@ module.exports = {
     await idModule(bot);
     await alert(bot);
 
-    updates.startVersionRefreshLoop();
+    // Load plugins
+    if (config.plugins && config.plugins.length) {
+      console.log('Loading plugins...');
+      for (const plugin of config.plugins) {
+        const pluginFn = require(`../${plugin}`);
+        pluginFn(bot, knex, config);
+      }
+      console.log(`Loaded ${config.plugins.length} plugin(s)`);
+    }
+
+    if (config.updateNotifications) {
+      updates.startVersionRefreshLoop();
+    }
 
     // Connect to Discord
     console.log('Connecting to Discord...');
