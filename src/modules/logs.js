@@ -3,47 +3,62 @@ const threads = require("../data/threads");
 const moment = require('moment');
 const utils = require("../utils");
 
+const LOG_LINES_PER_PAGE = 10;
+
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
-  addInboxServerCommand('logs', (msg, args, thread) => {
-    async function getLogs(userId) {
-      const userThreads = await threads.getClosedThreadsByUserId(userId);
+  addInboxServerCommand('logs', async (msg, args, thread) => {
+    const firstArgUserId = utils.getUserMention(args[0]);
+    let userId = firstArgUserId
+      ? firstArgUserId
+      : thread && thread.user_id;
 
-      // Descending by date
-      userThreads.sort((a, b) => {
-        if (a.created_at > b.created_at) return -1;
-        if (a.created_at < b.created_at) return 1;
-        return 0;
-      });
+    if (! userId) return;
 
-      const threadLines = await Promise.all(userThreads.map(async thread => {
-        const logUrl = await thread.getLogUrl();
-        const formattedDate = moment.utc(thread.created_at).format('MMM Do [at] HH:mm [UTC]');
-        return `\`${formattedDate}\`: <${logUrl}>`;
-      }));
+    let userThreads = await threads.getClosedThreadsByUserId(userId);
 
-      const message = `**Log files for <@${userId}>:**\n${threadLines.join('\n')}`;
+    // Descending by date
+    userThreads.sort((a, b) => {
+      if (a.created_at > b.created_at) return -1;
+      if (a.created_at < b.created_at) return 1;
+      return 0;
+    });
 
-      // Send the list of logs in chunks of 15 lines per message
-      const lines = message.split('\n');
-      const chunks = utils.chunk(lines, 15);
+    // Pagination
+    const totalUserThreads = userThreads.length;
+    const maxPage = Math.ceil(totalUserThreads / LOG_LINES_PER_PAGE);
+    const inputPage = firstArgUserId ? args[1] : args[0];
+    const page = Math.max(Math.min(inputPage ? parseInt(inputPage, 10) : 1, maxPage), 1); // Clamp page to 1-<max page>
+    const isPaginated = totalUserThreads > LOG_LINES_PER_PAGE;
+    const start = (page - 1) * LOG_LINES_PER_PAGE;
+    const end = page * LOG_LINES_PER_PAGE;
+    userThreads = userThreads.slice((page - 1) * LOG_LINES_PER_PAGE, page * LOG_LINES_PER_PAGE);
 
-      let root = Promise.resolve();
-      chunks.forEach(lines => {
-        root = root.then(() => msg.channel.createMessage(lines.join('\n')));
-      });
+    const threadLines = await Promise.all(userThreads.map(async thread => {
+      const logUrl = await thread.getLogUrl();
+      const formattedDate = moment.utc(thread.created_at).format('MMM Do [at] HH:mm [UTC]');
+      return `\`${formattedDate}\`: <${logUrl}>`;
+    }));
+
+    let message = isPaginated
+      ? `**Log files for <@${userId}>** (page **${page}/${maxPage}**, showing logs **${start + 1}-${end}/${totalUserThreads}**):`
+      : `**Log files for <@${userId}>:**`;
+
+    message += `\n${threadLines.join('\n')}`;
+
+    if (isPaginated) {
+      message += `\nTo view more, add a page number to the end of the command`;
     }
 
-    if (args.length > 0) {
-      // User mention/id as argument
-      const userId = utils.getUserMention(args.join(' '));
-      if (! userId) return;
-      getLogs(userId);
-    } else if (thread) {
-      // Calling !logs without args in a modmail thread returns the logs of the user of that thread
-      getLogs(thread.user_id);
-    }
+    // Send the list of logs in chunks of 15 lines per message
+    const lines = message.split('\n');
+    const chunks = utils.chunk(lines, 15);
+
+    let root = Promise.resolve();
+    chunks.forEach(lines => {
+      root = root.then(() => msg.channel.createMessage(lines.join('\n')));
+    });
   });
 
   addInboxServerCommand('loglink', async (msg, args, thread) => {
