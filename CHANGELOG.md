@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.23.0
+* Add update notifications. The bot will check for new versions every 12 hours and notify moderators at the top of new
+modmail threads when there are new versions available. Can be disabled by setting the `updateNotifications` option to `false`.
+New available versions are also shown in `!version`.
+  * If you have forked the repository and want to check for updates in your own repository instead,
+  change the `repository` value in `package.json`
+* Add basic support for plugins. See the **Plugins** section in README for more information.
+* Add support for snippet arguments. To use these, put {1}, {2}, etc. in the snippet text and they will be replaced by the given arguments when using the snippet.
+* Add support for multiple `mentionRole` config option values in an array
+* Add `commandAliases` config option to set custom command aliases
+* Add support for timed blocks. Simply specify the duration as the last argument in `!block` or `!unblock`.
+* Add pagination to `!logs`
+
 ## v2.22.0
 * Add `guildGreetings` option to allow configuring greeting messages on a per-server basis
 * Add `rolesInThreadHeader` option to show the user's roles in the modmail thread's header
