@@ -35,10 +35,11 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!logs <user>` Lists previous modmail logs with the specified user  
 `!block <user>` Blocks the specified user from using modmail  
 `!unblock <user>` Unblocks the specified user from using modmail  
+`!is_blocked <user>` Checks whether the user is blocked and for how long  
 `!s <shortcut> <text>` Adds a snippet (a canned response). See below for how to use it.  
 `!edit_snippet <shortcut> <text>` Edits an existing snippet (alias `!es`)  
 `!delete_snippet <shortcut>` Deletes the specified snippet (alias `!ds`)  
-`!snippets` Lists all available snippets
+`!snippets` Lists all available snippets  
 `!version` Print the version of the bot you're running  
 `!newthread <user>` Opens a new thread with the specified user
 
@@ -47,8 +48,8 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias `!ar`)  
 `!close <time>` Closes the modmail thread. If a time is specified, the thread is scheduled to be closed later. Scheduled closing is cancelled if a message is sent to or received from the user.  
 `!logs` Lists previous modmail logs with this user  
-`!block` Blocks the user from using modmail  
-`!unblock` Unblocks the user from using modmail  
+`!block <time>` Blocks the user from using modmail. If a time is specified, the block is temporary.  
+`!unblock <time>` Unblocks the user from using modmail. If a time is specified, the user will be scheduled to be unblocked after that time.  
 `!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.  
 `!!!shortcut` Reply with a snippet anonymously. Replace `shortcut` with the snippet's actual shortcut.  
 `!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category  

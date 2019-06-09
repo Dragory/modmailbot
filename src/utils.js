@@ -224,7 +224,7 @@ const delayStringRegex = /^([0-9]+)(?:([dhms])[a-z]*)?/i;
 /**
  * Turns a "delay string" such as "1h30m" to milliseconds
  * @param {String} str
- * @returns {Number}
+ * @returns {Number|null}
  */
 function convertDelayStringToMS(str) {
   let match;
