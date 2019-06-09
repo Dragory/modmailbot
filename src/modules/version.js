@@ -3,6 +3,8 @@ const fs = require('fs');
 const {promisify} = require('util');
 const utils = require("../utils");
 const threadUtils = require("../threadUtils");
+const updates = require('../data/updates');
+const config = require('../config');
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
@@ -40,6 +42,13 @@ module.exports = bot => {
       }
 
       response += ` (${commitHash.slice(0, 7)})`;
+    }
+
+    if (config.updateNotifications) {
+      const availableUpdate = await updates.getAvailableUpdate();
+      if (availableUpdate) {
+        response += ` (version ${availableUpdate} available)`;
+      }
     }
 
     utils.postSystemMessageWithFallback(msg.channel, thread, response);

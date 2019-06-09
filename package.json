@@ -10,7 +10,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "./node_modules/.bin/eslint ./src"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dragory/modmailbot"
+  },
   "dependencies": {
     "eris": "github:abalabahaha/eris#dev",
     "humanize-duration": "^3.12.1",

@@ -6,6 +6,7 @@ const {messageQueue} = require('./queue');
 const utils = require('./utils');
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
+const updates = require('./data/updates');
 
 const reply = require('./modules/reply');
 const close = require('./modules/close');
@@ -195,6 +196,8 @@ module.exports = {
     await newthread(bot);
     await idModule(bot);
     await alert(bot);
+
+    updates.startVersionRefreshLoop();
 
     // Connect to Discord
     console.log('Connecting to Discord...');

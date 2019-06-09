@@ -9,6 +9,7 @@ const bot = require('../bot');
 const knex = require('../knex');
 const config = require('../config');
 const utils = require('../utils');
+const updates = require('./updates');
 
 const Thread = require('./Thread');
 const {THREAD_STATUS} = require('./constants');
@@ -234,6 +235,13 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
   infoHeader += '\n────────────────';
 
   await newThread.postSystemMessage(infoHeader);
+
+  if (config.updateNotifications) {
+    const availableUpdate = await updates.getAvailableUpdate();
+    if (availableUpdate) {
+      await newThread.postNonLogMessage(`📣 New bot version available (${availableUpdate})`);
+    }
+  }
 
   // If there were errors sending a response to the user, note that
   if (responseMessageError) {

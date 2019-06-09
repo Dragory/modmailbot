@@ -96,5 +96,6 @@ These go in `config.json`. See also `config.example.json`.
 |threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|
 |typingProxy|false|If enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing"|
 |typingProxyReverse|false|If enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs|
+|updateNotifications|true|Whether to automatically check for bot updates and notify about them in new threads|
 |url|None|URL to use for attachment and log links. Defaults to `IP:PORT`|
 |useNicknames|false|If set to true, mod replies will use their nickname (on the inbox server) instead of their username|
