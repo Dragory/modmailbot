@@ -250,10 +250,15 @@ function convertDelayStringToMS(str) {
 }
 
 function getInboxMention() {
-  if (config.mentionRole == null) return '';
-  else if (config.mentionRole === 'here') return '@here ';
-  else if (config.mentionRole === 'everyone') return '@everyone ';
-  else return `<@&${config.mentionRole}> `;
+  const mentionRoles = Array.isArray(config.mentionRole) ? config.mentionRole : [config.mentionRole];
+  const mentions = [];
+  for (const role of mentionRoles) {
+    if (role == null) continue;
+    else if (role === 'here') mentions.push('@here');
+    else if (role === 'everyone') mentions.push('@everyone');
+    else mentions.push(`<@&${role}>`);
+  }
+  return mentions.join(' ') + ' ';
 }
 
 function postSystemMessageWithFallback(channel, thread, text) {

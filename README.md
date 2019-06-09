@@ -88,7 +88,7 @@ These go in `config.json`. See also `config.example.json`.
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
 |timeOnServerDeniedMessage|"You haven't been a member of the server for long enough to contact modmail."|See `requiredTimeOnServer` below|
-|mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely.|
+|mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely. Multiple values in an array are supported.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
 |newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
