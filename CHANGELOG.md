@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.23.2
+* Update Node.js version check at startup to require Node.js 10
+
 ## v2.23.1
 * Updated required Node.js version in .nvmrc and README (v10 is now the minimum)
 
