@@ -5,6 +5,8 @@ Moderators and admins can then reply to these threads, and these responses are r
 
 Inspired by Reddit's modmail system.
 
+## NOTE! If you're upgrading to v2.23.0, note that Node.js 10 is now required at minimum.
+
 ## Table of contents
 - [Setup](#setup)
 - [Changelog](#changelog)
@@ -17,7 +19,7 @@ Inspired by Reddit's modmail system.
   - [Creating a plugin](#creating-a-plugin)
 
 ## Setup
-1. Install Node.js 8.9.4 (LTS) or higher
+1. Install Node.js 10 (LTS) or higher
 2. Clone or download this repository
 3. Create a Discord server to be used as the modmail inbox
 4. Make a copy of the file `config.example.json` in the same folder and name the copy `config.json`. Open the file and fill in the values.
