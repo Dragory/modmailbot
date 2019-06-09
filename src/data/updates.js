@@ -44,7 +44,7 @@ async function refreshVersions() {
     apiUrl,
     {
       headers: {
-        'User-Agent': `Modmailbot (https://github.com/dragory/modmailbot) (${packageJson.version})`
+        'User-Agent': `Modmailbot (https://github.com/${owner}/${repo}) (${packageJson.version})`
       }
     },
     async res => {
