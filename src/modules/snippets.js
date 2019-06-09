@@ -4,8 +4,63 @@ const config = require('../config');
 const utils = require('../utils');
 const threadUtils = require('../threadUtils');
 
+const whitespaceRegex = /\s/;
+const quoteChars = ["'", '"'];
+
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
+
+  /**
+   * Parse a string of arguments, e.g.
+   * arg "quoted arg" with\ some\ escapes
+   * ...to an array of said arguments
+   * @param {String} str
+   * @returns {String[]}
+   */
+  function parseArgs(str) {
+    const args = [];
+    let current = '';
+    let inQuote = false;
+    let escapeNext = false;
+
+    for (const char of [...str]) {
+      if (escapeNext) {
+        current += char;
+        escapeNext = false;
+      } else if (char === '\\') {
+        escapeNext = true;
+      } else if (! inQuote && whitespaceRegex.test(char)) {
+        args.push(current);
+        current = '';
+      } else if (! inQuote && quoteChars.includes(char)) {
+        inQuote = char;
+      } else if (inQuote && inQuote === char) {
+        inQuote = false;
+      } else {
+        current += char;
+      }
+    }
+
+    if (current !== '') args.push(current);
+
+    return args;
+  }
+
+  /**
+   * "Renders" a snippet by replacing all argument placeholders e.g. {1} {2} with their corresponding arguments.
+   * The number in the placeholder is the argument's order in the argument list, i.e. {1} is the first argument (= index 0)
+   * @param {String} body
+   * @param {String[]} args
+   * @returns {String}
+   */
+  function renderSnippet(body, args) {
+    return body
+      .replace(/(?<!\\){\d+}/g, match => {
+        const index = parseInt(match.slice(1, -1), 10) - 1;
+        return (args[index] != null ? args[index] : match);
+      })
+      .replace(/\\{/g, '{');
+  }
 
   /**
    * When a staff member uses a snippet (snippet prefix + trigger word), find the snippet and post it as a reply in the thread
@@ -43,11 +98,16 @@ module.exports = bot => {
     const thread = await threads.findByChannelId(msg.channel.id);
     if (! thread) return;
 
-    const trigger = msg.content.replace(snippetPrefix, '').toLowerCase();
+    let [, trigger, rawArgs] = msg.content.slice(snippetPrefix.length).match(/(\S+)(?:\s+(.*))?/s);
+    trigger = trigger.toLowerCase();
+
     const snippet = await snippets.get(trigger);
     if (! snippet) return;
 
-    const replied = await thread.replyToUser(msg.member, snippet.body, [], isAnonymous);
+    const args = rawArgs ? parseArgs(rawArgs) : [];
+    const rendered = renderSnippet(snippet.body, args);
+
+    const replied = await thread.replyToUser(msg.member, rendered, [], isAnonymous);
     if (replied) msg.delete();
   });
 
