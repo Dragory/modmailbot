@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.23.1
+* Updated required Node.js version in .nvmrc and README (v10 is now the minimum)
+
 ## v2.23.0
 * Add update notifications. The bot will check for new versions every 12 hours and notify moderators at the top of new
 modmail threads when there are new versions available. Can be disabled by setting the `updateNotifications` option to `false`.
