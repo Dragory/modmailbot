@@ -135,9 +135,11 @@ async function formatAttachment(attachment, attachmentUrl) {
  * @returns {String|null}
  */
 function getUserMention(str) {
+  if (! str) return null;
+
   str = str.trim();
 
-  if (str.match(/^[0-9]+$/)) {
+  if (isSnowflake(str)) {
     // User ID
     return str;
   } else {
@@ -294,7 +296,7 @@ function setDataModelProps(target, props) {
 
 const snowflakeRegex = /^[0-9]{17,}$/;
 function isSnowflake(str) {
-  return snowflakeRegex.test(str);
+  return str && snowflakeRegex.test(str);
 }
 
 const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));

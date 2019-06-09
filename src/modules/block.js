@@ -29,8 +29,9 @@ module.exports = bot => {
   bot.on('ready', expiredBlockLoop);
 
   addInboxServerCommand('block', async (msg, args, thread) => {
-    const userIdToBlock = args[0]
-      ? utils.getUserMention(args[0])
+    const firstArgUserId = utils.getUserMention(args[0]);
+    const userIdToBlock = firstArgUserId
+      ? firstArgUserId
       : thread && thread.user_id;
 
     if (! userIdToBlock) return;
@@ -41,7 +42,8 @@ module.exports = bot => {
       return;
     }
 
-    const expiryTime = args[1] ? utils.convertDelayStringToMS(args[1]) : null;
+    const inputExpiryTime = firstArgUserId ? args[1] : args[0];
+    const expiryTime = inputExpiryTime ? utils.convertDelayStringToMS(inputExpiryTime) : null;
     const expiresAt = expiryTime
       ? moment.utc().add(expiryTime, 'ms').format('YYYY-MM-DD HH:mm:ss')
       : null;
@@ -58,13 +60,21 @@ module.exports = bot => {
   });
 
   addInboxServerCommand('unblock', async (msg, args, thread) => {
-    const userIdToUnblock = args[0]
-      ? utils.getUserMention(args[0])
+    const firstArgUserId = utils.getUserMention(args[0]);
+    const userIdToUnblock = firstArgUserId
+      ? firstArgUserId
       : thread && thread.user_id;
 
     if (! userIdToUnblock) return;
 
-    const unblockDelay = args[1] ? utils.convertDelayStringToMS(args[1]) : null;
+    const isBlocked = await blocked.isBlocked(userIdToUnblock);
+    if (! isBlocked) {
+      msg.channel.createMessage('User is not blocked');
+      return;
+    }
+
+    const inputUnblockDelay = firstArgUserId ? args[1] : args[0];
+    const unblockDelay = inputUnblockDelay ? utils.convertDelayStringToMS(inputUnblockDelay) : null;
     const unblockAt = unblockDelay
       ? moment.utc().add(unblockDelay, 'ms').format('YYYY-MM-DD HH:mm:ss')
       : null;
