@@ -79,6 +79,7 @@ These go in `config.json`. See also `config.example.json`.
 |enableGreeting|false|Set to true to send a welcome message to new main guild members. Requires `mainGuildId` to be set.|
 |greetingAttachment|None|Path to an image or other attachment to send along with the greeting|
 |greetingMessage|None|Text content of the welcome message|
+|guildGreetings|None|When using multiple mainGuildIds, this option allows you to configure greetings on a per-server basis. The syntax is an object with the guild ID as the key, and another object with `message` and `attachment` properties as the value (identical to greetingMessage and greetingAttachment)|
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
 |inboxServerPermission|None|Permission required to use bot commands on the inbox server|
 |timeOnServerDeniedMessage|"You haven't been a member of the server for long enough to contact modmail."|See `requiredTimeOnServer` below|

@@ -75,6 +75,8 @@ const defaultConfig = {
   "greetingMessage": null,
   "greetingAttachment": null,
 
+  "guildGreetings": {},
+
   "requiredAccountAge": null, // In hours
   "accountAgeDeniedMessage": "Your Discord account is not old enough to contact modmail.",
 
@@ -157,6 +159,20 @@ if (! Array.isArray(finalConfig['inboxServerPermission'])) {
     finalConfig['inboxServerPermission'] = [];
   } else {
     finalConfig['inboxServerPermission'] = [finalConfig['inboxServerPermission']];
+  }
+}
+
+// Move greetingMessage/greetingAttachment to the guildGreetings object internally
+// Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
+// already have something set up in guildGreetings. This retains backwards compatibility while allowing you to override
+// greetings for specific servers in guildGreetings.
+if (finalConfig.greetingMessage || finalConfig.greetingAttachment) {
+  for (const guildId of finalConfig.mainGuildId) {
+    if (finalConfig.guildGreetings[guildId]) continue;
+    finalConfig.guildGreetings[guildId] = {
+      message: finalConfig.greetingMessage,
+      message: finalConfig.greetingMessage
+    };
   }
 }
 
