@@ -36,7 +36,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 `!block <user> <time>` Blocks the specified user from using modmail. If a time is specified, the block is temporary.  
 `!unblock <user> <time>` Unblocks the specified user from using modmail. If a time is specified, the user will be scheduled to be unblocked after that time.  
 `!is_blocked <user>` Checks whether the user is blocked and for how long  
-`!s <shortcut> <text>` Adds a snippet (a canned response). See below for how to use it.  
+`!s <shortcut> <text>` Adds a snippet (a canned response). Supports {1}, {2}, etc. for arguments. See below for how to use it.  
 `!edit_snippet <shortcut> <text>` Edits an existing snippet (alias `!es`)  
 `!delete_snippet <shortcut>` Deletes the specified snippet (alias `!ds`)  
 `!snippets` Lists all available snippets  
