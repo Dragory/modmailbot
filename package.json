@@ -15,7 +15,7 @@
     "url": "https://github.com/Dragory/modmailbot"
   },
   "dependencies": {
-    "eris": "github:abalabahaha/eris#dev",
+    "eris": "^0.10.0",
     "humanize-duration": "^3.12.1",
     "json5": "^1.0.1",
     "knex": "^0.15.2",

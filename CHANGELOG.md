@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.24.0
+* Switch to the new stable version of Eris (0.10.0) instead of the dev version
+
 ## v2.23.2
 * Update Node.js version check at startup to require Node.js 10
 
