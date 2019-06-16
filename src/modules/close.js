@@ -6,7 +6,7 @@ const threads = require('../data/threads');
 const blocked = require('../data/blocked');
 const {messageQueue} = require('../queue');
 
-module.exports = bot => {
+module.exports = (bot, knex, config, commands) => {
   // Check for threads that are scheduled to be closed and close them
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
@@ -38,7 +38,7 @@ module.exports = bot => {
   scheduledCloseLoop();
 
   // Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
-  bot.registerCommand('close', async (msg, args) => {
+  commands.addGlobalCommand('close', '[opts...]', async (msg, args) => {
     let thread, closedBy;
 
     let hasCloseMessage = !! config.closeMessage;
@@ -68,8 +68,8 @@ module.exports = bot => {
       thread = await threads.findOpenThreadByChannelId(msg.channel.id);
       if (! thread) return;
 
-      if (args.length) {
-        if (args.includes('cancel') || args.includes('c')) {
+      if (args.opts && args.opts.length) {
+        if (args.opts.includes('cancel') || args.opts.includes('c')) {
           // Cancel timed close
           if (thread.scheduled_close_at) {
             await thread.cancelScheduledClose();
@@ -80,12 +80,12 @@ module.exports = bot => {
         }
 
         // Silent close (= no close message)
-        if (args.includes('silent') || args.includes('s')) {
+        if (args.opts.includes('silent') || args.opts.includes('s')) {
           silentClose = true;
         }
 
         // Timed close
-        const delayStringArg = args.find(arg => utils.delayStringRegex.test(arg));
+        const delayStringArg = args.opts.find(arg => utils.delayStringRegex.test(arg));
         if (delayStringArg) {
           const delay = utils.convertDelayStringToMS(delayStringArg);
           if (delay === 0 || delay === null) {

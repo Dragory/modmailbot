@@ -1,10 +1,5 @@
-const threadUtils = require("../threadUtils");
-
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand('id', async (msg, args, thread) => {
-    if (! thread) return;
+module.exports = (bot, knex, config, commands) => {
+  commands.addInboxThreadCommand('id', [], async (msg, args, thread) => {
     thread.postSystemMessage(thread.user_id);
   });
 };

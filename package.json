@@ -19,10 +19,11 @@
     "humanize-duration": "^3.12.1",
     "json5": "^1.0.1",
     "knex": "^0.15.2",
+    "knub-command-manager": "^3.1.2",
     "mime": "^2.3.1",
     "moment": "^2.21.0",
     "public-ip": "^2.0.1",
-    "sqlite3": "^4.0.6",
+    "sqlite3": "^4.0.9",
     "tmp": "0.0.33",
     "transliteration": "^1.6.2",
     "uuid": "^3.1.0"

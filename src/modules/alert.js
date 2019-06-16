@@ -1,12 +1,6 @@
-const threadUtils = require('../threadUtils');
-
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand('alert', async (msg, args, thread) => {
-    if (! thread) return;
-
-    if (args[0] && args[0].startsWith('c')) {
+module.exports = (bot, knex, config, commands) => {
+  commands.addInboxThreadCommand('alert', '[opt:string]', async (msg, args, thread) => {
+    if (args.opt && args.opt.startsWith('c')) {
       await thread.setAlert(null);
       await thread.postSystemMessage(`Cancelled new message alert`);
     } else {

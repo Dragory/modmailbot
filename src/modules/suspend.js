@@ -1,14 +1,11 @@
 const moment = require('moment');
-const threadUtils = require('../threadUtils');
 const threads = require("../data/threads");
 const utils = require('../utils');
 const config = require('../config');
 
 const {THREAD_STATUS} = require('../data/constants');
 
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
+module.exports = (bot, knex, config, commands) => {
   // Check for threads that are scheduled to be suspended and suspend them
   async function applyScheduledSuspensions() {
     const threadsToBeSuspended = await threads.getThreadsThatShouldBeSuspended();
@@ -32,46 +29,41 @@ module.exports = bot => {
 
   scheduledSuspendLoop();
 
-  addInboxServerCommand('suspend', async (msg, args, thread) => {
-    if (! thread) return;
+  commands.addInboxThreadCommand('suspend cancel', [], async (msg, args, thread) => {
+    // Cancel timed suspend
+    if (thread.scheduled_suspend_at) {
+      await thread.cancelScheduledSuspend();
+      thread.postSystemMessage(`Cancelled scheduled suspension`);
+    } else {
+      thread.postSystemMessage(`Thread is not scheduled to be suspended`);
+    }
+  });
 
-    if (args.length) {
-      // Cancel timed suspend
-      if (args.includes('cancel') || args.includes('c')) {
-        // Cancel timed suspend
-        if (thread.scheduled_suspend_at) {
-          await thread.cancelScheduledSuspend();
-          thread.postSystemMessage(`Cancelled scheduled suspension`);
-        }
+  commands.addInboxThreadCommand('suspend', '[delay:delay]', async (msg, args, thread) => {
+    if (args.delay) {
+      const suspendAt = moment.utc().add(args.delay, 'ms');
+      await thread.scheduleSuspend(suspendAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
 
-        return;
-      }
+      thread.postSystemMessage(`Thread will be suspended in ${utils.humanizeDelay(args.delay)}. Use \`${config.prefix}suspend cancel\` to cancel.`);
 
-      // Timed suspend
-      const delayStringArg = args.find(arg => utils.delayStringRegex.test(arg));
-      if (delayStringArg) {
-        const delay = utils.convertDelayStringToMS(delayStringArg);
-        if (delay === 0 || delay === null) {
-          thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
-          return;
-        }
-
-        const suspendAt = moment.utc().add(delay, 'ms');
-        await thread.scheduleSuspend(suspendAt.format('YYYY-MM-DD HH:mm:ss'), msg.author);
-
-        thread.postSystemMessage(`Thread will be suspended in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}suspend cancel\` to cancel.`);
-
-        return;
-      }
+      return;
     }
 
     await thread.suspend();
     thread.postSystemMessage(`**Thread suspended!** This thread will act as closed until unsuspended with \`!unsuspend\``);
   });
 
-  addInboxServerCommand('unsuspend', async msg => {
-    const thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
-    if (! thread) return;
+  commands.addInboxServerCommand('unsuspend', [], async (msg, args, thread) => {
+    if (thread) {
+      thread.postSystemMessage(`Thread is not suspended`);
+      return;
+    }
+
+    thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
+    if (! thread) {
+      thread.postSystemMessage(`Not in a thread`);
+      return;
+    }
 
     const otherOpenThread = await threads.findOpenThreadByUserId(thread.user_id);
     if (otherOpenThread) {

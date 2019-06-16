@@ -65,10 +65,10 @@ function postLog(...args) {
   getLogChannel().createMessage(...args);
 }
 
-function postError(str) {
-  getLogChannel().createMessage({
-    content: `${getInboxMention()}**Error:** ${str.trim()}`,
-    disableEveryone: false
+function postError(channel, str, opts = {}) {
+  return channel.createMessage({
+    ...opts,
+    content: `⚠ ${str}`
   });
 }
 
@@ -306,6 +306,10 @@ function escapeMarkdown(str) {
   return str.replace(markdownCharsRegex, '\\$1');
 }
 
+function disableCodeBlocks(str) {
+  return str.replace(/`/g, "`\u200b");
+}
+
 module.exports = {
   BotError,
 
@@ -341,4 +345,5 @@ module.exports = {
   humanizeDelay,
 
   escapeMarkdown,
+  disableCodeBlocks,
 };

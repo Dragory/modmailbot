@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const {promisify} = require('util');
 const utils = require("../utils");
-const threadUtils = require("../threadUtils");
 const updates = require('../data/updates');
 const config = require('../config');
 
@@ -11,10 +10,8 @@ const readFile = promisify(fs.readFile);
 
 const GIT_DIR = path.join(__dirname, '..', '..', '.git');
 
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand('version', async (msg, args, thread) => {
+module.exports = (bot, knex, config, commands) => {
+  commands.addInboxServerCommand('version', [], async (msg, args, thread) => {
     const packageJson = require('../../package.json');
     const packageVersion = packageJson.version;
 

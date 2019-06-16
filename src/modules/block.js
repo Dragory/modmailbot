@@ -1,12 +1,9 @@
 const humanizeDuration = require('humanize-duration');
 const moment = require('moment');
-const threadUtils = require('../threadUtils');
 const blocked = require("../data/blocked");
 const utils = require("../utils");
 
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
+module.exports = (bot, knex, config, commands) => {
   async function removeExpiredBlocks() {
     const expiredBlocks = await blocked.getExpiredBlocks();
     const logChannel = utils.getLogChannel();
@@ -28,12 +25,8 @@ module.exports = bot => {
 
   bot.on('ready', expiredBlockLoop);
 
-  addInboxServerCommand('block', async (msg, args, thread) => {
-    const firstArgUserId = utils.getUserMention(args[0]);
-    const userIdToBlock = firstArgUserId
-      ? firstArgUserId
-      : thread && thread.user_id;
-
+  const blockCmd = async (msg, args, thread) => {
+    const userIdToBlock = args.userId || (thread && thread.user_id);
     if (! userIdToBlock) return;
 
     const isBlocked = await blocked.isBlocked(userIdToBlock);
@@ -42,29 +35,26 @@ module.exports = bot => {
       return;
     }
 
-    const inputExpiryTime = firstArgUserId ? args[1] : args[0];
-    const expiryTime = inputExpiryTime ? utils.convertDelayStringToMS(inputExpiryTime) : null;
-    const expiresAt = expiryTime
-      ? moment.utc().add(expiryTime, 'ms').format('YYYY-MM-DD HH:mm:ss')
+    const expiresAt = args.blockTime
+      ? moment.utc().add(args.blockTime, 'ms').format('YYYY-MM-DD HH:mm:ss')
       : null;
 
     const user = bot.users.get(userIdToBlock);
     await blocked.block(userIdToBlock, (user ? `${user.username}#${user.discriminator}` : ''), msg.author.id, expiresAt);
 
     if (expiresAt) {
-      const humanized = humanizeDuration(expiryTime, { largest: 2, round: true });
+      const humanized = humanizeDuration(args.blockTime, { largest: 2, round: true });
       msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail for ${humanized}`);
     } else {
       msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail indefinitely`);
     }
-  });
+  };
 
-  addInboxServerCommand('unblock', async (msg, args, thread) => {
-    const firstArgUserId = utils.getUserMention(args[0]);
-    const userIdToUnblock = firstArgUserId
-      ? firstArgUserId
-      : thread && thread.user_id;
+  commands.addInboxServerCommand('block', '<userId:userId> [blockTime:delay]', blockCmd);
+  commands.addInboxServerCommand('block', '[blockTime:delay]', blockCmd);
 
+  const unblockCmd = async (msg, args, thread) => {
+    const userIdToUnblock = args.userId || (thread && thread.user_id);
     if (! userIdToUnblock) return;
 
     const isBlocked = await blocked.isBlocked(userIdToUnblock);
@@ -73,28 +63,26 @@ module.exports = bot => {
       return;
     }
 
-    const inputUnblockDelay = firstArgUserId ? args[1] : args[0];
-    const unblockDelay = inputUnblockDelay ? utils.convertDelayStringToMS(inputUnblockDelay) : null;
-    const unblockAt = unblockDelay
-      ? moment.utc().add(unblockDelay, 'ms').format('YYYY-MM-DD HH:mm:ss')
+    const unblockAt = args.unblockDelay
+      ? moment.utc().add(args.unblockDelay, 'ms').format('YYYY-MM-DD HH:mm:ss')
       : null;
 
     const user = bot.users.get(userIdToUnblock);
     if (unblockAt) {
-      const humanized = humanizeDuration(unblockDelay, { largest: 2, round: true });
+      const humanized = humanizeDuration(args.unblockDelay, { largest: 2, round: true });
       await blocked.updateExpiryTime(userIdToUnblock, unblockAt);
       msg.channel.createMessage(`Scheduled <@${userIdToUnblock}> (id \`${userIdToUnblock}\`) to be unblocked in ${humanized}`);
     } else {
       await blocked.unblock(userIdToUnblock);
       msg.channel.createMessage(`Unblocked <@${userIdToUnblock}> (id ${userIdToUnblock}) from modmail`);
     }
-  });
+  };
 
-  addInboxServerCommand('is_blocked', async (msg, args, thread) => {
-    const userIdToCheck = args[0]
-      ? utils.getUserMention(args[0])
-      : thread && thread.user_id;
+  commands.addInboxServerCommand('unblock', '<userId:userId> [unblockDelay:delay]', unblockCmd);
+  commands.addInboxServerCommand('unblock', '[unblockDelay:delay]', unblockCmd);
 
+  commands.addInboxServerCommand('is_blocked',  '[userId:userId]',async (msg, args, thread) => {
+    const userIdToCheck = args.userId || (thread && thread.user_id);
     if (! userIdToCheck) return;
 
     const blockStatus = await blocked.getBlockStatus(userIdToCheck);

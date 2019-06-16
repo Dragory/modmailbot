@@ -1,29 +1,21 @@
 const attachments = require("../data/attachments");
-const threadUtils = require("../threadUtils");
 
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
+module.exports = (bot, knex, config, commands) => {
   // Mods can reply to modmail threads using !r or !reply
   // These messages get relayed back to the DM thread between the bot and the user
-  addInboxServerCommand('reply', async (msg, args, thread) => {
-    if (! thread) return;
-
-    const text = args.join(' ').trim();
-    const replied = await thread.replyToUser(msg.member, text, msg.attachments, false);
+  commands.addInboxThreadCommand('reply', '<text$>', async (msg, args, thread) => {
+    const replied = await thread.replyToUser(msg.member, args.text, msg.attachments, false);
     if (replied) msg.delete();
+  }, {
+    aliases: ['r']
   });
 
-  bot.registerCommandAlias('r', 'reply');
 
   // Anonymous replies only show the role, not the username
-  addInboxServerCommand('anonreply', async (msg, args, thread) => {
-    if (! thread) return;
-
-    const text = args.join(' ').trim();
-    const replied = await thread.replyToUser(msg.member, text, msg.attachments, true);
+  commands.addInboxThreadCommand('anonreply', '<text$>', async (msg, args, thread) => {
+    const replied = await thread.replyToUser(msg.member, args.text, msg.attachments, true);
     if (replied) msg.delete();
+  }, {
+    aliases: ['ar']
   });
-
-  bot.registerCommandAlias('ar', 'anonreply');
 };

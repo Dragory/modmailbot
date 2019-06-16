@@ -1,19 +1,12 @@
-const threadUtils = require('../threadUtils');
 const threads = require("../data/threads");
 const moment = require('moment');
 const utils = require("../utils");
 
 const LOG_LINES_PER_PAGE = 10;
 
-module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand('logs', async (msg, args, thread) => {
-    const firstArgUserId = utils.getUserMention(args[0]);
-    let userId = firstArgUserId
-      ? firstArgUserId
-      : thread && thread.user_id;
-
+module.exports = (bot, knex, config, commands) => {
+  const logsCmd = async (msg, args, thread) => {
+    let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;
 
     let userThreads = await threads.getClosedThreadsByUserId(userId);
@@ -28,7 +21,7 @@ module.exports = bot => {
     // Pagination
     const totalUserThreads = userThreads.length;
     const maxPage = Math.ceil(totalUserThreads / LOG_LINES_PER_PAGE);
-    const inputPage = firstArgUserId ? args[1] : args[0];
+    const inputPage = args.page;
     const page = Math.max(Math.min(inputPage ? parseInt(inputPage, 10) : 1, maxPage), 1); // Clamp page to 1-<max page>
     const isPaginated = totalUserThreads > LOG_LINES_PER_PAGE;
     const start = (page - 1) * LOG_LINES_PER_PAGE;
@@ -59,9 +52,12 @@ module.exports = bot => {
     chunks.forEach(lines => {
       root = root.then(() => msg.channel.createMessage(lines.join('\n')));
     });
-  });
+  };
 
-  addInboxServerCommand('loglink', async (msg, args, thread) => {
+  commands.addInboxServerCommand('logs', '<userId:userId> [page:number]', logsCmd);
+  commands.addInboxServerCommand('logs', '[page:number]', logsCmd);
+
+  commands.addInboxServerCommand('loglink', [], async (msg, args, thread) => {
     if (! thread) {
       thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
       if (! thread) return;

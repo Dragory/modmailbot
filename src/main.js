@@ -6,6 +6,8 @@ const bot = require('./bot');
 const knex = require('./knex');
 const {messageQueue} = require('./queue');
 const utils = require('./utils');
+const { createCommandManager } = require('./commands');
+
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
 const updates = require('./data/updates');
@@ -182,42 +184,52 @@ bot.on('messageCreate', async msg => {
 
 module.exports = {
   async start() {
-    // Load modules
-    console.log('Loading modules...');
-    await reply(bot);
-    await close(bot);
-    await logs(bot);
-    await block(bot);
-    await move(bot);
-    await snippets(bot);
-    await suspend(bot);
-    await greeting(bot);
-    await webserver(bot);
-    await typingProxy(bot);
-    await version(bot);
-    await newthread(bot);
-    await idModule(bot);
-    await alert(bot);
-
-    // Load plugins
-    if (config.plugins && config.plugins.length) {
-      console.log('Loading plugins...');
-      for (const plugin of config.plugins) {
-        const pluginFn = require(`../${plugin}`);
-        pluginFn(bot, knex, config);
-      }
-      console.log(`Loaded ${config.plugins.length} plugin(s)`);
-    }
-
-    if (config.updateNotifications) {
-      updates.startVersionRefreshLoop();
-    }
+    // Initialize command manager
+    const commands = createCommandManager(bot);
 
     // Register command aliases
     if (config.commandAliases) {
       for (const alias in config.commandAliases) {
-        bot.registerCommandAlias(alias, config.commandAliases[alias]);
+        commands.addAlias(config.commandAliases[alias], alias);
       }
+    }
+
+    // Load modules
+    console.log('Loading plugins...');
+    const builtInPlugins = [
+      reply,
+      close,
+      logs,
+      block,
+      move,
+      snippets,
+      suspend,
+      greeting,
+      webserver,
+      typingProxy,
+      version,
+      newthread,
+      idModule,
+      alert
+    ];
+
+    const plugins = [...builtInPlugins];
+
+    if (config.plugins && config.plugins.length) {
+      for (const plugin of config.plugins) {
+        const pluginFn = require(`../${plugin}`);
+        plugins.push(pluginFn);
+      }
+    }
+
+    plugins.forEach(pluginFn => {
+      pluginFn(bot, knex, config, commands);
+    });
+
+    console.log(`Loaded ${plugins.length} plugins (${builtInPlugins.length} built-in plugins, ${plugins.length - builtInPlugins.length} external plugins)`);
+
+    if (config.updateNotifications) {
+      updates.startVersionRefreshLoop();
     }
 
     // Connect to Discord
