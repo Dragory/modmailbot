@@ -20,7 +20,7 @@ Inspired by Reddit's modmail system.
 
 ## Setup
 1. Install Node.js 10 (LTS) or higher
-2. Clone or download this repository
+2. Download the latest release from [the releases page](https://github.com/Dragory/modmailbot/releases)
 3. Create a Discord server to be used as the modmail inbox
 4. Make a copy of the file `config.example.json` in the same folder and name the copy `config.json`. Open the file and fill in the values.
    - You can also find more configurable options at the end of this page!
