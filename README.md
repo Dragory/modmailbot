@@ -126,18 +126,23 @@ The path is relative to the bot's folder.
 
 ### Creating a plugin
 Create a `.js` file that exports a function.
-This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config)`
+This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config, commands)`
 where `bot` is the [Eris Client object](https://abal.moe/Eris/docs/Client),
 `knex` is the [Knex database object](https://knexjs.org/#Builder),
-and `config` is the loaded config object.
+`config` is the loaded config object,
+and `commands` is an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
 
 #### Example plugin file
 ```js
-module.exports = function(bot, knex, config) {
-  console.log('Plugin loaded!');
+module.exports = function(bot, knex, config, commands) {
+  commands.addInboxThreadCommand('mycommand', [], (msg, args, thread) => {
+    thread.replyToUser(msg.author, 'Reply from my custom plugin!');
+  });
 }
 ```
 
 ### Work in progress
 The current plugin API is fairly rudimentary and will be expanded in the future.
+The API can change in non-major releases during this early stage. Keep an eye on [CHANGELOG.md](CHANGELOG.md) for any changes.
+
 Please send any feature suggestions to the [issue tracker](https://github.com/Dragory/modmailbot/issues)!
