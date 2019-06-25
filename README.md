@@ -27,6 +27,10 @@ Inspired by Reddit's modmail system.
 5. Install dependencies: `npm ci`
 6. Add bot to servers, and make sure to give it proper permissions on the mail server.
 7. Run the bot: `npm start`
+   - (Optional) Install PM to automatically restart the bot
+      - `npm install pm2@latest -g`
+      - Once installed, start the bot with `pm2 start modmailbot-pm2.json`
+        instead of `npm start`
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
