@@ -30,8 +30,9 @@ const alert = require('./modules/alert');
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 
 // Once the bot has connected, set the status/"playing" message
+// The type of game. 0 is playing, 1 is streaming , 2 is listening, 3 is watching
 bot.on('ready', () => {
-  bot.editStatus(null, {name: config.status});
+  bot.editStatus(null,{name: "Message me for help!", type: 0,url: "twitch Only" })
   console.log('Connected! Now listening to DMs.');
 });
 
