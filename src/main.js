@@ -209,10 +209,11 @@ function initBaseMessageHandlers() {
     const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : '');
 
     if (mainGuilds.length === 1) {
-      content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
+    content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"\n\nhttps:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/$msg.channel.id}\/${msg.id}`;
     } else {
-      content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`;
+    content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/$msg.channel.id}\/${msg.id}`;
     }
+
 
     bot.createMessage(utils.getLogChannel().id, {
       content,
