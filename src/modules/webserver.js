@@ -7,6 +7,9 @@ const config = require('../config');
 const threads = require('../data/threads');
 const attachments = require('../data/attachments');
 
+const pug = require('pug');
+const logTemplate = pug.compileFile('./src/pug/log.pug');
+
 const {THREAD_MESSAGE_TYPE} = require('../data/constants');
 
 function notfound(res) {
@@ -21,6 +24,8 @@ async function serveLogs(res, pathParts) {
   const thread = await threads.findById(threadId);
   if (! thread) return notfound(res);
 
+  let messages = [];
+
   const threadMessages = await thread.getThreadMessages();
   const lines = threadMessages.map(message => {
     // Legacy messages are the entire log in one message, so just serve them as they are
@@ -28,24 +33,38 @@ async function serveLogs(res, pathParts) {
       return message.body;
     }
 
-    let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}] `;
+    let line = {'created_at': `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}]`};
 
     if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
       // System messages don't need the username
-      line += message.body;
+      line['username'] = 'Modmail';
+      line['body'] = message.body;
+      line['type'] = 'SYSTEM';
     } else if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
-      line += `[FROM USER] ${message.user_name}: ${message.body}`;
+      line['username'] = message.user_name;
+      line['body'] = message.body;
+      line['type'] = 'FROM USER';
     } else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-      line += `[TO USER] ${message.user_name}: ${message.body}`;
+      line['username'] = message.user_name;
+      line['body'] = message.body;
+      line['type'] = 'TO USER';
     } else {
-      line += `${message.user_name}: ${message.body}`;
+      line['username'] = message.user_name;
+      line['body'] = message.body;
+      line['type'] = 'LEGACY';
     }
 
     return line;
   });
 
-  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
-  res.end(lines.join('\n'));
+  messages.push(lines);
+  const log = logTemplate({
+    user: "USER",
+    message: messages
+  });
+
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.end(log);
 }
 
 function serveAttachments(res, pathParts) {
