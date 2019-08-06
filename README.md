@@ -94,6 +94,7 @@ These go in `config.json`. See also `config.example.json`.
 |timeOnServerDeniedMessage|"You haven't been a member of the server for long enough to contact modmail."|See `requiredTimeOnServer` below|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely. Multiple values in an array are supported.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
+|newThreadCategoryId|None|**Deprecated** ID of the category where new modmail thread channels should be placed|
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
 |plugins|None|Array of plugins to load on startup. See [Plugins](#plugins) section below for more information.|
 |port|8890|Port from which to serve attachments and logs|
