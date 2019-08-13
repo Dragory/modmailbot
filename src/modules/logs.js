@@ -4,7 +4,7 @@ const utils = require("../utils");
 
 const LOG_LINES_PER_PAGE = 10;
 
-module.exports = (bot, knex, config, commands) => {
+module.exports = ({ bot, knex, config, commands }) => {
   const logsCmd = async (msg, args, thread) => {
     let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;

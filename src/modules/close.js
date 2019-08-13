@@ -6,7 +6,7 @@ const threads = require('../data/threads');
 const blocked = require('../data/blocked');
 const {messageQueue} = require('../queue');
 
-module.exports = (bot, knex, config, commands) => {
+module.exports = ({ bot, knex, config, commands }) => {
   // Check for threads that are scheduled to be closed and close them
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();

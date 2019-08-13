@@ -126,20 +126,22 @@ The path is relative to the bot's folder.
 
 ### Creating a plugin
 Create a `.js` file that exports a function.
-This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config, commands)`
-where `bot` is the [Eris Client object](https://abal.moe/Eris/docs/Client),
-`knex` is the [Knex database object](https://knexjs.org/#Builder),
-`config` is the loaded config object,
-and `commands` is an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
+This function will be called when the plugin is loaded with an object that has the following properties:
+* `bot` - the [Eris Client object](https://abal.moe/Eris/docs/Client)
+* `knex` - the [Knex database object](https://knexjs.org/#Builder)
+* `config` - the loaded config
+* `commands` - an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
 
 #### Example plugin file
 ```js
-module.exports = function(bot, knex, config, commands) {
+module.exports = function({ bot, knex, config, commands }) {
   commands.addInboxThreadCommand('mycommand', [], (msg, args, thread) => {
     thread.replyToUser(msg.author, 'Reply from my custom plugin!');
   });
 }
 ```
+
+(Note the use of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Unpacking_fields_from_objects_passed_as_function_parameter) in the function parameters)
 
 ### Work in progress
 The current plugin API is fairly rudimentary and will be expanded in the future.

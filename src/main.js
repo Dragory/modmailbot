@@ -265,7 +265,7 @@ function initPlugins() {
   }
 
   plugins.forEach(pluginFn => {
-    pluginFn(bot, knex, config, commands);
+    pluginFn({ bot, knex, config, commands });
   });
 
   console.log(`Loaded ${plugins.length} plugins (${builtInPlugins.length} built-in plugins, ${plugins.length - builtInPlugins.length} external plugins)`);

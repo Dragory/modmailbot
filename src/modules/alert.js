@@ -1,4 +1,4 @@
-module.exports = (bot, knex, config, commands) => {
+module.exports = ({ bot, knex, config, commands }) => {
   commands.addInboxThreadCommand('alert', '[opt:string]', async (msg, args, thread) => {
     if (args.opt && args.opt.startsWith('c')) {
       await thread.setAlert(null);
