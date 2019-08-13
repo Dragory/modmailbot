@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.26.0
+* The bot now waits for the main server(s) and inbox server to become available before initializing.
+This is a potential fix to [#335](https://github.com/Dragory/modmailbot/issues/335).
+This should have little to no effect on smaller servers.
+* The bot status ("Playing") is now reapplied hourly since the status can sometimes disappear
+
 ## v2.25.0
 * Fix regression introduced in v2.24.0 where line breaks would get turned to spaces in replies and snippets ([#304](https://github.com/Dragory/modmailbot/issues/304))
 * Replace the internal command handler with a new one. This should be fairly thoroughly tested, but please report any issues you encounter!
