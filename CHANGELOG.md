@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.25.0
+* Fix regression introduced in v2.24.0 where line breaks would get turned to spaces in replies and snippets ([#304](https://github.com/Dragory/modmailbot/issues/304))
+* Replace the internal command handler with a new one. This should be fairly thoroughly tested, but please report any issues you encounter!
+* Plugins are now called with a fourth parameter that allows you to easily add specific types of commands
+  * Due to the command handler change, any calls to `bot.registerCommand` should be replaced with the new system
+
 ## v2.24.0
 * Switch to the new stable version of Eris (0.10.0) instead of the dev version
 

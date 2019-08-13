@@ -94,7 +94,7 @@ These go in `config.json`. See also `config.example.json`.
 |timeOnServerDeniedMessage|"You haven't been a member of the server for long enough to contact modmail."|See `requiredTimeOnServer` below|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely. Multiple values in an array are supported.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
-|newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
+|newThreadCategoryId|None|**Deprecated** ID of the category where new modmail thread channels should be placed|
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
 |plugins|None|Array of plugins to load on startup. See [Plugins](#plugins) section below for more information.|
 |port|8890|Port from which to serve attachments and logs|
@@ -126,18 +126,23 @@ The path is relative to the bot's folder.
 
 ### Creating a plugin
 Create a `.js` file that exports a function.
-This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config)`
+This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config, commands)`
 where `bot` is the [Eris Client object](https://abal.moe/Eris/docs/Client),
 `knex` is the [Knex database object](https://knexjs.org/#Builder),
-and `config` is the loaded config object.
+`config` is the loaded config object,
+and `commands` is an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
 
 #### Example plugin file
 ```js
-module.exports = function(bot, knex, config) {
-  console.log('Plugin loaded!');
+module.exports = function(bot, knex, config, commands) {
+  commands.addInboxThreadCommand('mycommand', [], (msg, args, thread) => {
+    thread.replyToUser(msg.author, 'Reply from my custom plugin!');
+  });
 }
 ```
 
 ### Work in progress
 The current plugin API is fairly rudimentary and will be expanded in the future.
+The API can change in non-major releases during this early stage. Keep an eye on [CHANGELOG.md](CHANGELOG.md) for any changes.
+
 Please send any feature suggestions to the [issue tracker](https://github.com/Dragory/modmailbot/issues)!
