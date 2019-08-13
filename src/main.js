@@ -67,7 +67,13 @@ function waitForGuild(guildId) {
 }
 
 function initStatus() {
-  bot.editStatus(null, {name: config.status});
+  function applyStatus() {
+    bot.editStatus(null, {name: config.status});
+  }
+
+  // Set the bot status initially, then reapply it every hour since in some cases it gets unset
+  applyStatus();
+  setInterval(applyStatus, 60 * 60 * 1000);
 }
 
 function initBaseMessageHandlers() {
