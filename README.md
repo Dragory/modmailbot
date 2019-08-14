@@ -90,7 +90,7 @@ These go in `config.json`. See also `config.example.json`.
 |greetingMessage|None|Text content of the welcome message|
 |guildGreetings|None|When using multiple mainGuildIds, this option allows you to configure greetings on a per-server basis. The syntax is an object with the guild ID as the key, and another object with `message` and `attachment` properties as the value (identical to greetingMessage and greetingAttachment)|
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
-|inboxServerPermission|None|Permission required to use bot commands on the inbox server|
+|inboxServerPermission|None|Permission name, user id, or role id required to use bot commands on the inbox server. Also supports arrays. See ["Permissions" on this page](https://abal.moe/Eris/docs/reference) for supported permission names (e.g. `kickMembers`).|
 |timeOnServerDeniedMessage|"You haven't been a member of the server for long enough to contact modmail."|See `requiredTimeOnServer` below|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely. Multiple values in an array are supported.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
@@ -108,7 +108,7 @@ These go in `config.json`. See also `config.example.json`.
 |snippetPrefix|"!!"|Prefix to use snippets|
 |snippetPrefixAnon|"!!!"|Prefix to use snippets anonymously|
 |status|"Message me for help"|The bot's "Playing" text|
-|syncPermissionsOnMove|false|Whether to sync thread channel permissions to the category when moved with !move|
+|syncPermissionsOnMove|true|Whether to sync thread channel permissions to the category when moved with !move|
 |threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|
 |typingProxy|false|If enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing"|
 |typingProxyReverse|false|If enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs|
