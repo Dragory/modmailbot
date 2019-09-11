@@ -9,6 +9,7 @@ Inspired by Reddit's modmail system.
 
 ## Table of contents
 - [Setup](#setup)
+- [Support server](#support-server)
 - [Changelog](#changelog)
 - [Commands](#commands)
   - [Anywhere on the inbox server](#anywhere-on-the-inbox-server)
@@ -27,6 +28,11 @@ Inspired by Reddit's modmail system.
 5. Install dependencies: `npm ci`
 6. Add bot to servers, and make sure to give it proper permissions on the mail server.
 7. Run the bot: `npm start`
+
+## Support server
+If you need help with setting up the bot or would like to discuss other things related to the bot, join the support server on Discord here:
+
+https://discord.gg/vRuhG9R
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
