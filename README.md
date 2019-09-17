@@ -137,6 +137,7 @@ This function will be called when the plugin is loaded with an object that has t
 * `knex` - the [Knex database object](https://knexjs.org/#Builder)
 * `config` - the loaded config
 * `commands` - an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
+* `attachments` - an object with functions to save attachments (see bottom of [src/data/attachments.js](src/data/attachments.js))
 
 #### Example plugin file
 ```js
@@ -148,6 +149,17 @@ module.exports = function({ bot, knex, config, commands }) {
 ```
 
 (Note the use of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Unpacking_fields_from_objects_passed_as_function_parameter) in the function parameters)
+
+#### Example of a custom attachment storage type
+This example adds a custom type for the `attachmentStorage` option called `"original"` that simply returns the original attachment URL without rehosting it in any way.
+```js
+module.exports = function({ attachments }) {
+  attachments.addStorageType('original', attachment => {
+    return { url: attachment.url };
+  });
+};
+```
+To use this custom attachment storage type, you would set the `attachmentStorage` config option to `"original"`. 
 
 ### Work in progress
 The current plugin API is fairly rudimentary and will be expanded in the future.
