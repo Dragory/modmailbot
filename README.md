@@ -136,10 +136,13 @@ This function will be called when the plugin is loaded with an object that has t
 * `bot` - the [Eris Client object](https://abal.moe/Eris/docs/Client)
 * `knex` - the [Knex database object](https://knexjs.org/#Builder)
 * `config` - the loaded config
-* `commands` - an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
-* `attachments` - an object with functions to save attachments (see bottom of [src/data/attachments.js](src/data/attachments.js))
+* `commands` - an object with functions to add and manage commands
+* `attachments` - an object with functions to save attachments and manage attachment storage types
+
+See [src/plugins.js#L4](src/plugins.js#L4) for more details
 
 #### Example plugin file
+This example adds a command `!mycommand` that replies with `"Reply from my custom plugin!"` when the command is used inside a modmail inbox thread channel.
 ```js
 module.exports = function({ bot, knex, config, commands }) {
   commands.addInboxThreadCommand('mycommand', [], (msg, args, thread) => {
