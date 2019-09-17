@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.28.0
+* Fix error when saving attachments locally with `attachmentStorage` set to `"local"` (default) when the bot's folder is
+  on a different storage device than the system's temp folder
+* Add `attachments` object to the plugin API
+  * This allows plugins to add new storage types via `attachments.addStorageType()`
+  * See the [Plugins section in the README](README.md#plugins) for more details
+
 ## v2.27.0
 * The `syncPermissionsOnMove` option now defaults to `true`, which should be more intuitive
 * **Plugins:** Plugin functions are no longer called with 4 arguments. Instead, the function is called with 1 argument,
