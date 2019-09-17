@@ -3,7 +3,7 @@ const Eris = require('eris');
 const transliterate = require("transliteration");
 const erisEndpoints = require('eris/lib/rest/Endpoints');
 
-module.exports = (bot, knex, config, commands) => {
+module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowMove) return;
 
   commands.addInboxThreadCommand('move', '<category:string$>', async (msg, args, thread) => {

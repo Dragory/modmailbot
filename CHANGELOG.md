@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.27.0
+* The `syncPermissionsOnMove` option now defaults to `true`, which should be more intuitive
+* **Plugins:** Plugin functions are no longer called with 4 arguments. Instead, the function is called with 1 argument,
+which is an object that contains the previous 4 values as properties: `bot`, `knex`, `config`, `commands`.
+This will make it easier to scale the plugin system in the future with new features.
+You can see an [updated example in the README](https://github.com/Dragory/modmailbot/blob/master/README.md#example-plugin-file).
+
+## v2.26.0
+* The bot now waits for the main server(s) and inbox server to become available before initializing.
+This is a potential fix to [#335](https://github.com/Dragory/modmailbot/issues/335).
+This should have little to no effect on smaller servers.
+* The bot status ("Playing") is now reapplied hourly since the status can sometimes disappear
+
 ## v2.25.0
 * Fix regression introduced in v2.24.0 where line breaks would get turned to spaces in replies and snippets ([#304](https://github.com/Dragory/modmailbot/issues/304))
 * Replace the internal command handler with a new one. This should be fairly thoroughly tested, but please report any issues you encounter!

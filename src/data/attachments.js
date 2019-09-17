@@ -5,16 +5,18 @@ const {promisify} = require('util');
 const tmp = require('tmp');
 const config = require('../config');
 const utils = require('../utils');
+const mv = promisify(require('mv'));
 
 const getUtils = () => require('../utils');
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
-const rename = promisify(fs.rename);
 
 const localAttachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
 
 const attachmentSavePromises = {};
+
+const attachmentStorageTypes = {};
 
 function getErrorResult(msg = null) {
   return {
@@ -43,7 +45,7 @@ async function saveLocalAttachment(attachment) {
   const downloadResult = await downloadAttachment(attachment);
 
   // Move the temp file to the attachment folder
-  await rename(downloadResult.path, targetPath);
+  await mv(downloadResult.path, targetPath);
 
   // Resolve the attachment URL
   const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
@@ -126,7 +128,7 @@ async function saveDiscordAttachment(attachment) {
     throw new Error('Attachment storage channel must be a text channel!');
   }
 
-  const file = await attachmentToFile(attachment);
+  const file = await attachmentToDiscordFileObject(attachment);
   const savedAttachment = await createDiscordAttachmentMessage(attachmentChannel, file);
   if (! savedAttachment) return getErrorResult();
 
@@ -154,7 +156,7 @@ async function createDiscordAttachmentMessage(channel, file, tries = 0) {
  * @param {Object} attachment
  * @returns {Promise<{file, name: string}>}
  */
-async function attachmentToFile(attachment) {
+async function attachmentToDiscordFileObject(attachment) {
   const downloadResult = await downloadAttachment(attachment);
   const data = await readFile(downloadResult.path);
   downloadResult.cleanup();
@@ -171,10 +173,8 @@ function saveAttachment(attachment) {
     return attachmentSavePromises[attachment.id];
   }
 
-  if (config.attachmentStorage === 'local') {
-    attachmentSavePromises[attachment.id] = saveLocalAttachment(attachment);
-  } else if (config.attachmentStorage === 'discord') {
-    attachmentSavePromises[attachment.id] = saveDiscordAttachment(attachment);
+  if (attachmentStorageTypes[config.attachmentStorage]) {
+    attachmentSavePromises[attachment.id] = Promise.resolve(attachmentStorageTypes[config.attachmentStorage](attachment));
   } else {
     throw new Error(`Unknown attachment storage option: ${config.attachmentStorage}`);
   }
@@ -186,8 +186,17 @@ function saveAttachment(attachment) {
   return attachmentSavePromises[attachment.id];
 }
 
+function addStorageType(name, handler) {
+  attachmentStorageTypes[name] = handler;
+}
+
+attachmentStorageTypes.local = saveLocalAttachment;
+attachmentStorageTypes.discord = saveDiscordAttachment;
+
 module.exports = {
   getLocalAttachmentPath,
-  attachmentToFile,
-  saveAttachment
+  attachmentToDiscordFileObject,
+  saveAttachment,
+  addStorageType,
+  downloadAttachment
 };

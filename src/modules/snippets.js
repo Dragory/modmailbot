@@ -7,7 +7,7 @@ const { parseArguments } = require('knub-command-manager');
 const whitespaceRegex = /\s/;
 const quoteChars = ["'", '"'];
 
-module.exports = (bot, knex, config, commands) => {
+module.exports = ({ bot, knex, config, commands }) => {
   /**
    * "Renders" a snippet by replacing all argument placeholders e.g. {1} {2} with their corresponding arguments.
    * The number in the placeholder is the argument's order in the argument list, i.e. {1} is the first argument (= index 0)

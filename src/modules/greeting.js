@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const config = require('../config');
 
-module.exports = bot => {
+module.exports = ({ bot }) => {
   if (! config.enableGreeting) return;
 
   bot.on('guildMemberAdd', (guild, member) => {

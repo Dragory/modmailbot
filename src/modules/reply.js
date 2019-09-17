@@ -1,7 +1,7 @@
 const attachments = require("../data/attachments");
 const utils = require('../utils');
 
-module.exports = (bot, knex, config, commands) => {
+module.exports = ({ bot, knex, config, commands }) => {
   // Mods can reply to modmail threads using !r or !reply
   // These messages get relayed back to the DM thread between the bot and the user
   commands.addInboxThreadCommand('reply', '[text$]', async (msg, args, thread) => {
