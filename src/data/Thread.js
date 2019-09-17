@@ -67,7 +67,7 @@ class Thread {
         let savedAttachment;
 
         await Promise.all([
-          attachments.attachmentToFile(attachment).then(file => {
+          attachments.attachmentToDiscordFileObject(attachment).then(file => {
             files.push(file);
           }),
           attachments.saveAttachment(attachment).then(result => {
@@ -146,7 +146,7 @@ class Thread {
       logContent += formatted; // Logs always contain the link
 
       if (config.relaySmallAttachmentsAsAttachments && attachment.size <= 1024 * 1024 * 2) {
-        const file = await attachments.attachmentToFile(attachment);
+        const file = await attachments.attachmentToDiscordFileObject(attachment);
         attachmentFiles.push(file);
       } else {
         threadContent += formatted;

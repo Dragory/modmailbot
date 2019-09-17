@@ -128,7 +128,7 @@ async function saveDiscordAttachment(attachment) {
     throw new Error('Attachment storage channel must be a text channel!');
   }
 
-  const file = await attachmentToFile(attachment);
+  const file = await attachmentToDiscordFileObject(attachment);
   const savedAttachment = await createDiscordAttachmentMessage(attachmentChannel, file);
   if (! savedAttachment) return getErrorResult();
 
@@ -156,7 +156,7 @@ async function createDiscordAttachmentMessage(channel, file, tries = 0) {
  * @param {Object} attachment
  * @returns {Promise<{file, name: string}>}
  */
-async function attachmentToFile(attachment) {
+async function attachmentToDiscordFileObject(attachment) {
   const downloadResult = await downloadAttachment(attachment);
   const data = await readFile(downloadResult.path);
   downloadResult.cleanup();
@@ -195,7 +195,8 @@ attachmentStorageTypes.discord = saveDiscordAttachment;
 
 module.exports = {
   getLocalAttachmentPath,
-  attachmentToFile,
+  attachmentToDiscordFileObject,
   saveAttachment,
-  addStorageType
+  addStorageType,
+  downloadAttachment
 };
