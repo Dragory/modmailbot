@@ -16,6 +16,8 @@ const localAttachmentDir = config.attachmentDir || `${__dirname}/../../attachmen
 
 const attachmentSavePromises = {};
 
+const attachmentStorageTypes = {};
+
 function getErrorResult(msg = null) {
   return {
     url: `Attachment could not be saved${msg ? ': ' + msg : ''}`,
@@ -171,10 +173,8 @@ function saveAttachment(attachment) {
     return attachmentSavePromises[attachment.id];
   }
 
-  if (config.attachmentStorage === 'local') {
-    attachmentSavePromises[attachment.id] = saveLocalAttachment(attachment);
-  } else if (config.attachmentStorage === 'discord') {
-    attachmentSavePromises[attachment.id] = saveDiscordAttachment(attachment);
+  if (attachmentStorageTypes[config.attachmentStorage]) {
+    attachmentSavePromises[attachment.id] = Promise.resolve(attachmentStorageTypes[config.attachmentStorage](attachment));
   } else {
     throw new Error(`Unknown attachment storage option: ${config.attachmentStorage}`);
   }
@@ -186,8 +186,16 @@ function saveAttachment(attachment) {
   return attachmentSavePromises[attachment.id];
 }
 
+function addStorageType(name, handler) {
+  attachmentStorageTypes[name] = handler;
+}
+
+attachmentStorageTypes.local = saveLocalAttachment;
+attachmentStorageTypes.discord = saveDiscordAttachment;
+
 module.exports = {
   getLocalAttachmentPath,
   attachmentToFile,
-  saveAttachment
+  saveAttachment,
+  addStorageType
 };
