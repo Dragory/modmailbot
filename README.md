@@ -9,6 +9,7 @@ Inspired by Reddit's modmail system.
 
 ## Table of contents
 - [Setup](#setup)
+- [Support server](#support-server)
 - [Changelog](#changelog)
 - [Commands](#commands)
   - [Anywhere on the inbox server](#anywhere-on-the-inbox-server)
@@ -27,6 +28,11 @@ Inspired by Reddit's modmail system.
 5. Install dependencies: `npm ci`
 6. Add bot to servers, and make sure to give it proper permissions on the mail server.
 7. Run the bot: `npm start`
+
+## Support server
+If you need help with setting up the bot or would like to discuss other things related to the bot, join the support server on Discord here:
+
+https://discord.gg/vRuhG9R
 
 ## Changelog
 See [CHANGELOG.md](CHANGELOG.md)
@@ -90,11 +96,11 @@ These go in `config.json`. See also `config.example.json`.
 |greetingMessage|None|Text content of the welcome message|
 |guildGreetings|None|When using multiple mainGuildIds, this option allows you to configure greetings on a per-server basis. The syntax is an object with the guild ID as the key, and another object with `message` and `attachment` properties as the value (identical to greetingMessage and greetingAttachment)|
 |ignoreAccidentalThreads|false|If set to true, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.|
-|inboxServerPermission|None|Permission required to use bot commands on the inbox server|
+|inboxServerPermission|None|Permission name, user id, or role id required to use bot commands on the inbox server. Also supports arrays. See ["Permissions" on this page](https://abal.moe/Eris/docs/reference) for supported permission names (e.g. `kickMembers`).|
 |timeOnServerDeniedMessage|"You haven't been a member of the server for long enough to contact modmail."|See `requiredTimeOnServer` below|
 |mentionRole|"here"|Role that is mentioned when new threads are created or the bot is mentioned. Accepted values are "here", "everyone", or a role id as a string. Set to null to disable these pings entirely. Multiple values in an array are supported.|
 |mentionUserInThreadHeader|false|If set to true, mentions the thread's user in the thread header|
-|newThreadCategoryId|None|ID of the category where new modmail thread channels should be placed|
+|newThreadCategoryId|None|**Deprecated** ID of the category where new modmail thread channels should be placed|
 |pingOnBotMention|true|If enabled, the bot will mention staff (see mentionRole above) on the inbox server when the bot is mentioned on the main server.|
 |plugins|None|Array of plugins to load on startup. See [Plugins](#plugins) section below for more information.|
 |port|8890|Port from which to serve attachments and logs|
@@ -108,7 +114,7 @@ These go in `config.json`. See also `config.example.json`.
 |snippetPrefix|"!!"|Prefix to use snippets|
 |snippetPrefixAnon|"!!!"|Prefix to use snippets anonymously|
 |status|"Message me for help"|The bot's "Playing" text|
-|syncPermissionsOnMove|false|Whether to sync thread channel permissions to the category when moved with !move|
+|syncPermissionsOnMove|true|Whether to sync thread channel permissions to the category when moved with !move|
 |threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|
 |typingProxy|false|If enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing"|
 |typingProxyReverse|false|If enabled, any time a moderator is typing in a modmail thread, the user will see the bot "typing" in their DMs|
@@ -126,20 +132,37 @@ The path is relative to the bot's folder.
 
 ### Creating a plugin
 Create a `.js` file that exports a function.
-This function will be called when the plugin is loaded with the following arguments: `(bot, knex, config, commands)`
-where `bot` is the [Eris Client object](https://abal.moe/Eris/docs/Client),
-`knex` is the [Knex database object](https://knexjs.org/#Builder),
-`config` is the loaded config object,
-and `commands` is an object with functions to add and manage commands (see bottom of [src/commands.js](src/commands.js))
+This function will be called when the plugin is loaded with an object that has the following properties:
+* `bot` - the [Eris Client object](https://abal.moe/Eris/docs/Client)
+* `knex` - the [Knex database object](https://knexjs.org/#Builder)
+* `config` - the loaded config
+* `commands` - an object with functions to add and manage commands
+* `attachments` - an object with functions to save attachments and manage attachment storage types
+
+See [src/plugins.js#L4](src/plugins.js#L4) for more details
 
 #### Example plugin file
+This example adds a command `!mycommand` that replies with `"Reply from my custom plugin!"` when the command is used inside a modmail inbox thread channel.
 ```js
-module.exports = function(bot, knex, config, commands) {
+module.exports = function({ bot, knex, config, commands }) {
   commands.addInboxThreadCommand('mycommand', [], (msg, args, thread) => {
     thread.replyToUser(msg.author, 'Reply from my custom plugin!');
   });
 }
 ```
+
+(Note the use of [object destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Unpacking_fields_from_objects_passed_as_function_parameter) in the function parameters)
+
+#### Example of a custom attachment storage type
+This example adds a custom type for the `attachmentStorage` option called `"original"` that simply returns the original attachment URL without rehosting it in any way.
+```js
+module.exports = function({ attachments }) {
+  attachments.addStorageType('original', attachment => {
+    return { url: attachment.url };
+  });
+};
+```
+To use this custom attachment storage type, you would set the `attachmentStorage` config option to `"original"`. 
 
 ### Work in progress
 The current plugin API is fairly rudimentary and will be expanded in the future.
