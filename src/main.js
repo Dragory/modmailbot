@@ -118,13 +118,6 @@ function initBaseMessageHandlers() {
 
     if (await blocked.isBlocked(msg.author.id)) return;
 
-
-  if (mainGuilds.length === 1) {
-    content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"\n\nhttps:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/$msg.channel.id}\/${msg.id}`;
-  } else {
-    content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"\n\nhttps:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/$msg.channel.id}\/${msg.id}`;
-  }
-
     // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
     messageQueue.add(async () => {
       let thread = await threads.findOpenThreadByUserId(msg.author.id);
