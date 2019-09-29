@@ -85,16 +85,16 @@ function initBaseMessageHandlers() {
    */
   bot.on('messageCreate', async msg => {
     if (! utils.messageIsOnInboxServer(msg)) return;
-    if (msg.author.bot) return;
+    if (msg.author.id === bot.user.id) return;
 
     const thread = await threads.findByChannelId(msg.channel.id);
     if (! thread) return;
 
-    if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) {
+    if (! msg.author.bot && (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix))) {
       // Save commands as "command messages"
       if (msg.content.startsWith(config.snippetPrefix)) return; // Ignore snippets
       thread.saveCommandMessage(msg);
-    } else if (config.alwaysReply) {
+    } else if (! msg.author.bot && config.alwaysReply) {
       // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
       if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
 
@@ -141,7 +141,7 @@ function initBaseMessageHandlers() {
    */
   bot.on('messageUpdate', async (msg, oldMessage) => {
     if (! msg || ! msg.author) return;
-    if (msg.author.bot) return;
+    if (msg.author.id === bot.user.id) return;
     if (await blocked.isBlocked(msg.author.id)) return;
 
     // Old message content doesn't persist between bot restarts
@@ -152,7 +152,7 @@ function initBaseMessageHandlers() {
     if (newContent.trim() === oldContent.trim()) return;
 
     // 1) Edit in DMs
-    if (msg.channel instanceof Eris.PrivateChannel) {
+    if (! msg.author.bot && msg.channel instanceof Eris.PrivateChannel) {
       const thread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! thread) return;
 
@@ -161,7 +161,7 @@ function initBaseMessageHandlers() {
     }
 
     // 2) Edit in the thread
-    else if (utils.messageIsOnInboxServer(msg) && utils.isStaff(msg.member)) {
+    else if (utils.messageIsOnInboxServer(msg) && (msg.author.bot || utils.isStaff(msg.member))) {
       const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
       if (! thread) return;
 
@@ -174,9 +174,9 @@ function initBaseMessageHandlers() {
    */
   bot.on('messageDelete', async msg => {
     if (! msg.author) return;
-    if (msg.author.bot) return;
+    if (msg.author.id === bot.user.id) return;
     if (! utils.messageIsOnInboxServer(msg)) return;
-    if (! utils.isStaff(msg.member)) return;
+    if (! msg.author.bot && ! utils.isStaff(msg.member)) return;
 
     const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
     if (! thread) return;
