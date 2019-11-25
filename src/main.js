@@ -71,12 +71,15 @@ function initStatus() {
   function applyStatus() {
     let gameStatus = config.gameType;
     if (typeof gameStatus === "string") {
-        gameStatus = parseInt(gameStatus);
-        if (isNaN(gameStatus))
-        {
-          gameStatus = 1;
-        }
-      }   
+      gameStatus = parseInt(gameStatus);
+      if (isNaN(gameStatus))
+      {
+        gameStatus = 1;
+      }
+    } else if (gameStatus > 3 || gameStatus < 1)
+    {
+      gameStatus = 1;
+    }
     bot.editStatus(null, {name: config.status, type: gameStatus});
   }
 
