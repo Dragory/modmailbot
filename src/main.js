@@ -69,7 +69,7 @@ function waitForGuild(guildId) {
 
 function initStatus() {
   function applyStatus() {
-    bot.editStatus(null, {name: config.status});
+    bot.editStatus(null, {name: config.status, type: config.gameType});
   }
 
   // Set the bot status initially, then reapply it every hour since in some cases it gets unset
