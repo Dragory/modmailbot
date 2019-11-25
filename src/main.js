@@ -69,18 +69,18 @@ function waitForGuild(guildId) {
 
 function initStatus() {
   function applyStatus() {
-    let gameStatus = config.gameStatus;
-    if (typeof gameStatus === "string") {
-      gameStatus = parseInt(gameStatus);
-      if (isNaN(gameStatus))
+    let statusType = config.statusType;
+    if (typeof statusType === "string") {
+      statusType = parseInt(statusType);
+      if (isNaN(statusType))
       {
-        gameStatus = 1;
+        statusType = 1;
       }
-    } else if (gameStatus > 3 || gameStatus < 1)
+    } else if (statusType > 3 || statusType < 1)
     {
-      gameStatus = 1;
+      statusType = 1;
     }
-    bot.editStatus(null, {name: config.status, type: gameStatus});
+    bot.editStatus(null, {name: config.status, type: statusType});
   }
 
   // Set the bot status initially, then reapply it every hour since in some cases it gets unset
