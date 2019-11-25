@@ -69,7 +69,7 @@ function waitForGuild(guildId) {
 
 function initStatus() {
   function applyStatus() {
-    let gameStatus = config.gameType;
+    let gameStatus = config.gameStatus;
     if (typeof gameStatus === "string") {
       gameStatus = parseInt(gameStatus);
       if (isNaN(gameStatus))
