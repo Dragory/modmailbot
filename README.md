@@ -114,6 +114,7 @@ These go in `config.json`. See also `config.example.json`.
 |snippetPrefix|"!!"|Prefix to use snippets|
 |snippetPrefixAnon|"!!!"|Prefix to use snippets anonymously|
 |status|"Message me for help"|The bot's "Playing" text|
+|statusType|"1"|The bot's "Playing" type. 1 = Playing, 2 = Listening, 3 = Watching.|
 |syncPermissionsOnMove|true|Whether to sync thread channel permissions to the category when moved with !move|
 |threadTimestamps|false|Whether to show custom timestamps in threads, in addition to Discord's own timestamps. Logs always have accurate timestamps, regardless of this setting.|
 |typingProxy|false|If enabled, any time a user is typing to modmail in their DMs, the modmail thread will show the bot as "typing"|
