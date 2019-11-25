@@ -88,7 +88,7 @@ const defaultConfig = {
   "smallAttachmentLimit": 1024 * 1024 * 2,
   "attachmentStorage": "local",
   "attachmentStorageChannelId": null,
-  "statusType" // Must be an integer between 1 and 3. 1 = playing, 2 = listening, 3 = watching.
+  "statusType" // Must be an integer between 0 and 3. 0 = playing, 2 = listening, 3 = watching.
   "categoryAutomation": {},
 
   "updateNotifications": true,
