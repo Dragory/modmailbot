@@ -74,11 +74,11 @@ function initStatus() {
       statusType = parseInt(statusType);
       if (isNaN(statusType))
       {
-        statusType = 1;
+        statusType = 0;
       }
-    } else if (statusType > 3 || statusType < 1)
+    } else if (! statusType === 0 && ! statusType === 2 && ! statusType === 3)
     {
-      statusType = 1;
+      statusType = 0;
     }
     bot.editStatus(null, {name: config.status, type: statusType});
   }
