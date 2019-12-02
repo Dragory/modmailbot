@@ -5,5 +5,9 @@
 /config.json5
 /config.json.json
 /config.json.txt
+/config.js
+/config.toml
+/config.toml.toml
+/config.toml.txt
 /welcome.png
 /update.sh

@@ -8,13 +8,14 @@
     "start": "node src/index.js",
     "watch": "nodemon -w src src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "./node_modules/.bin/eslint ./src"
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Dragory/modmailbot"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.3",
     "eris": "^0.11.1",
     "humanize-duration": "^3.12.1",
     "json5": "^2.1.1",
@@ -30,6 +31,7 @@
     "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "eslint": "^6.7.2"
+    "eslint": "^6.7.2",
+    "nodemon": "^2.0.1"
   }
 }
