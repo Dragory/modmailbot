@@ -16,8 +16,9 @@ let userConfig;
 
 // Config files to search for, in priority order
 const configFiles = [
-  'config.toml',
-  'config.toml.toml',
+  'config.ini',
+  'config.ini.ini',
+  'config.ini.txt',
   'config.json',
   'config.json5',
   'config.json.json',
@@ -44,9 +45,9 @@ try {
   if (foundConfigFile.endsWith('.js')) {
     userConfig = require(`../${foundConfigFile}`);
   } else {
-    const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile);
-    if (foundConfigFile.endsWith('.toml') || foundConfigFile.endsWith('.toml.txt')) {
-      userConfig = require('@iarna/toml').parse(raw);
+    const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile, { encoding: "utf8" });
+    if (foundConfigFile.endsWith('.ini') || foundConfigFile.endsWith('.ini.txt')) {
+      userConfig = require('ini').decode(raw);
     } else {
       userConfig = require('json5').parse(raw);
     }
@@ -193,8 +194,15 @@ if (finalConfig.greetingMessage || finalConfig.greetingAttachment) {
     if (finalConfig.guildGreetings[guildId]) continue;
     finalConfig.guildGreetings[guildId] = {
       message: finalConfig.greetingMessage,
-      message: finalConfig.greetingMessage
+      attachment: finalConfig.greetingAttachment
     };
+  }
+}
+
+// Convert arrays of lines to multiline strings in greetings
+for (const obj of Object.values(finalConfig.guildGreetings)) {
+  if (Array.isArray(obj.message)) {
+    obj.message = obj.message.join('\n');
   }
 }
 
@@ -204,6 +212,6 @@ if (finalConfig.newThreadCategoryId) {
   delete finalConfig.newThreadCategoryId;
 }
 
-console.log("Configuration ok");''
+console.log("Configuration ok");
 
 module.exports = finalConfig;

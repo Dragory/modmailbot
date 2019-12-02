@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.29.0
+* **Change default configuration format to .ini**
+  * Existing `config.json` files will continue to work and will not be deprecated
+* New, rewritten instructions for setting up and using the bot
+* Updated several package dependencies
+* Fixed incompatibility with certain Node.js 10 versions
+
 ## v2.28.0
 * Fix error when saving attachments locally with `attachmentStorage` set to `"local"` (default) when the bot's folder is
   on a different storage device than the system's temp folder

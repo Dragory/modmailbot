@@ -1,13 +1,7 @@
 /.vscode
 /.idea
 /node_modules
-/config.json
-/config.json5
-/config.json.json
-/config.json.txt
-/config.js
-/config.toml
-/config.toml.toml
-/config.toml.txt
+/config.*
+!/config.example.ini
 /welcome.png
 /update.sh

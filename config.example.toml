@@ -1,7 +1,0 @@
-# Basic settings
-token = "enter your token here"
-mailGuildId = "enter the id of the modmail inbox server here"
-mainGuildId = "enter the id of the main server here"
-logChannelId = "enter the id of the channel on the inbox server where notifications of new logs etc. will be posted"
-
-# Put other options below this line
