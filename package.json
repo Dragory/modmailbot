@@ -15,21 +15,21 @@
     "url": "https://github.com/Dragory/modmailbot"
   },
   "dependencies": {
-    "eris": "^0.11.0",
+    "eris": "^0.11.1",
     "humanize-duration": "^3.12.1",
-    "json5": "^1.0.1",
-    "knex": "^0.15.2",
+    "json5": "^2.1.1",
+    "knex": "^0.20.3",
     "knub-command-manager": "^6.1.0",
-    "mime": "^2.3.1",
-    "moment": "^2.21.0",
+    "mime": "^2.4.4",
+    "moment": "^2.24.0",
     "mv": "^2.1.1",
-    "public-ip": "^2.0.1",
-    "sqlite3": "^4.0.9",
-    "tmp": "0.0.33",
-    "transliteration": "^1.6.2",
-    "uuid": "^3.1.0"
+    "public-ip": "^4.0.0",
+    "sqlite3": "^4.1.0",
+    "tmp": "^0.1.0",
+    "transliteration": "^2.1.7",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "eslint": "^5.16.0"
+    "eslint": "^6.7.2"
   }
 }
