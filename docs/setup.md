@@ -25,8 +25,8 @@ In this setup, modmail threads are opened on a separate inbox server.
 2. Invite the bot to the inbox server.
 3. Open `config.ini` in a text editor and fill in the values
 4. Make sure the bot has the `Manage Channels`, `Manage Messages`, and `Attach Files` permissions on the **inbox** server
-5. [🏃 Start the bot!](starting-the-bot.md)
-5. Want to change other bot options? See [📝 Configuration](configuration.md).
+5. **[🏃 Start the bot!](starting-the-bot.md)**
+5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
 
 ## Single-server setup
 In this setup, modmail threads are opened on the main server in a special category.
@@ -34,5 +34,5 @@ In this setup, modmail threads are opened on the main server in a special catego
 2. On a new line at the end of `config.ini`, add `categoryAutomation.newThread = CATEGORY_ID_HERE`
     - Replace `CATEGORY_ID_HERE` with the ID of the category where new modmail threads should go
 3. Make sure the bot has `Manage Channels`, `Manage Messages`, and `Attach Files` permissions in the category
-4. [🏃 Start the bot!](starting-the-bot.md)
-5. Want to change other bot options? See [📝 Configuration](configuration.md).
+4. **[🏃 Start the bot!](starting-the-bot.md)**
+5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
