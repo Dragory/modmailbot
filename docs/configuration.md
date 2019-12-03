@@ -7,6 +7,7 @@ Haven't set up the bot yet? Check out [Setting up the bot](setup.md) first!
 - [Required options](#required-options)
 - [Other options](#other-options)
 - [config.ini vs config.json](#configini-vs-configjson)
+- [Environment variables](#environment-variables)
 
 ## Configuration file
 All bot options are saved in a configuration file in the bot's folder.
@@ -313,3 +314,23 @@ by escaping the newline with a backslash (`\ `):
 This is the second line of the greeting."
 }
 ```
+
+## Environment variables
+Config options can be passed via environment variables.
+
+To get the name of the corresponding environment variable for an option, convert the option to SNAKE_CASE with periods
+being replaced by two underscores and add `MM_` as a prefix. If adding multiple values for the same option, separate the
+values with two pipe characters: `||`.
+
+Examples:
+* `mainGuildId` -> `MM_MAIN_GUILD_ID`
+* `commandAliases.mv` -> `MM_COMMAND_ALIASES__MV`
+* From:  
+  ```ini
+  inboxServerPermission[] = kickMembers
+  inboxServerPermission[] = manageMessages
+  ```  
+  To:  
+  `MM_INBOX_SERVER_PERMISSION=kickMembers||manageMessages`
+
+The `port` option also accepts the environment variable `PORT` without a prefix, but `MM_PORT` takes precedence.

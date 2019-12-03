@@ -4,6 +4,8 @@
 * **Change default configuration format to .ini**
   * Existing `config.json` files will continue to work and will not be deprecated
   * This makes the default configuration format for the bot much more approachable than JSON
+* Config values can now also be loaded from environment variables
+  (see [Configuration](docs/configuration.md#environment-variables) for more details)
 * New rewritten instructions for setting up and using the bot
 * New easy-to-use `start.bat` file for Windows
 * Update several package dependencies

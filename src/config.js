@@ -137,17 +137,21 @@ for (const [key, value] of Object.entries(process.env)) {
     .replace(/([a-z])_([a-z])/g, (m, m1, m2) => `${m1}${m2.toUpperCase()}`)
     .replace('__', '.');
 
-  userConfig[configKey] = process.env[key];
+  userConfig[configKey] = value.includes('||')
+    ? value.split('||')
+    : value;
+
+  loadedEnvValues++;
+}
+
+if (process.env.PORT && !process.env.MM_PORT) {
+  // Special case: allow common "PORT" environment variable without prefix
+  userConfig.port = process.env.PORT;
   loadedEnvValues++;
 }
 
 if (loadedEnvValues > 0) {
-  console.log(`Loaded ${loadedEnvValues} values from environment variables`);
-}
-
-if (process.env.PORT) {
-  // Special case: allow common "PORT" environment variable without prefix
-  userConfig.port = process.env.PORT;
+  console.log(`Loaded ${loadedEnvValues} ${loadedEnvValues === 1 ? 'value' : 'values'} from environment variables`);
 }
 
 // Convert config keys with periods to objects
