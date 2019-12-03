@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.29.1
+* Fix boolean values in `config.ini` not being handled properly
+
 ## v2.29.0
 * **Default configuration format is now .ini**
   * Existing `config.json` files will continue to work and will not be deprecated
