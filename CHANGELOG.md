@@ -1,7 +1,7 @@
 # Changelog
 
 ## v2.29.0
-* **Change default configuration format to .ini**
+* **Default configuration format is now .ini**
   * Existing `config.json` files will continue to work and will not be deprecated
   * This makes the default configuration format for the bot much more approachable than JSON
 * Config values can now also be loaded from environment variables

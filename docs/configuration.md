@@ -7,6 +7,7 @@ Haven't set up the bot yet? Check out [Setting up the bot](setup.md) first!
 - [Required options](#required-options)
 - [Other options](#other-options)
 - [config.ini vs config.json](#configini-vs-configjson)
+- [Other formats](#other-formats)
 - [Environment variables](#environment-variables)
 
 ## Configuration file
@@ -314,6 +315,11 @@ by escaping the newline with a backslash (`\ `):
 This is the second line of the greeting."
 }
 ```
+
+## Other formats
+Loading config values programmatically is also supported.
+Create a `config.js` in the bot's folder and export the config object with `module.exports`.
+All other configuration files take precedence, so make sure you don't have both.
 
 ## Environment variables
 Config options can be passed via environment variables.
