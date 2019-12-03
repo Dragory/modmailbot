@@ -273,6 +273,16 @@ for (const numericOpt of numericOptions) {
   }
 }
 
+// Cast boolean options (on, true, 1) (off, false, 0)
+for (const [key, value] of Object.entries(finalConfig)) {
+  if (typeof value !== "string") continue;
+  if (["on", "true", "1"].includes(value)) {
+    finalConfig[key] = true;
+  } else if (["off", "false", "0"].includes(value)) {
+    finalConfig[key] = false;
+  }
+}
+
 // Make sure all of the required config options are present
 for (const opt of required) {
   if (! finalConfig[opt]) {
