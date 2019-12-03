@@ -144,7 +144,7 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
   // Attempt to create the inbox channel for this thread
   let createdChannel;
   try {
-    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, 'New ModMail thread', newThreadCategoryId);
+    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, 'New Modmail thread', newThreadCategoryId);
   } catch (err) {
     console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
     throw err;
@@ -226,7 +226,7 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
     }
   }
 
-  // ModMail history / previous logs
+  // Modmail history / previous logs
   const userLogCount = await getClosedThreadCountByUserId(user.id);
   if (userLogCount > 0) {
     infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
