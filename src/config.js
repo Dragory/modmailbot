@@ -35,26 +35,27 @@ for (const configFile of configFiles) {
   } catch (e) {}
 }
 
-if (! foundConfigFile) {
-  throw new Error(`Could not find a config file!`);
+// Load config file
+if (foundConfigFile) {
+  console.log(`Loading configuration from ${foundConfigFile}...`);
+  try {
+    if (foundConfigFile.endsWith('.js')) {
+      userConfig = require(`../${foundConfigFile}`);
+    } else {
+      const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile, {encoding: "utf8"});
+      if (foundConfigFile.endsWith('.ini') || foundConfigFile.endsWith('.ini.txt')) {
+        userConfig = require('ini').decode(raw);
+      } else {
+        userConfig = require('json5').parse(raw);
+      }
+    }
+  } catch (e) {
+    throw new Error(`Error reading config file! The error given was: ${e.message}`);
+  }
 }
 
-// Load config file
-console.log(`Loading configuration from ${foundConfigFile}...`);
-try {
-  if (foundConfigFile.endsWith('.js')) {
-    userConfig = require(`../${foundConfigFile}`);
-  } else {
-    const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile, { encoding: "utf8" });
-    if (foundConfigFile.endsWith('.ini') || foundConfigFile.endsWith('.ini.txt')) {
-      userConfig = require('ini').decode(raw);
-    } else {
-      userConfig = require('json5').parse(raw);
-    }
-  }
-} catch (e) {
-  throw new Error(`Error reading config file! The error given was: ${e.message}`);
-}
+const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
+const numericOptions = ['requiredAccountAge', 'requiredTimeOnServer', 'smallAttachmentLimit', 'port'];
 
 const defaultConfig = {
   "token": null,
@@ -122,9 +123,53 @@ const defaultConfig = {
   "logDir": path.join(__dirname, '..', 'logs'),
 };
 
-const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
-const numericOptions = ['requiredAccountAge', 'requiredTimeOnServer', 'smallAttachmentLimit', 'port'];
+// Load config values from environment variables
+const envKeyPrefix = 'MM_';
+let loadedEnvValues = 0;
 
+for (const [key, value] of Object.entries(process.env)) {
+  if (! key.startsWith(envKeyPrefix)) continue;
+
+  // MM_CLOSE_MESSAGE -> closeMessage
+  // MM_COMMAND_ALIASES__MV => commandAliases.mv
+  const configKey = key.slice(envKeyPrefix.length)
+    .toLowerCase()
+    .replace(/([a-z])_([a-z])/g, (m, m1, m2) => `${m1}${m2.toUpperCase()}`)
+    .replace('__', '.');
+
+  userConfig[configKey] = process.env[key];
+  loadedEnvValues++;
+}
+
+if (loadedEnvValues > 0) {
+  console.log(`Loaded ${loadedEnvValues} values from environment variables`);
+}
+
+if (process.env.PORT) {
+  // Special case: allow common "PORT" environment variable without prefix
+  userConfig.port = process.env.PORT;
+}
+
+// Convert config keys with periods to objects
+// E.g. commandAliases.mv -> commandAliases: { mv: ... }
+for (const [key, value] of Object.entries(userConfig)) {
+  if (! key.includes('.')) continue;
+
+  const keys = key.split('.');
+  let cursor = userConfig;
+  for (let i = 0; i < keys.length; i++) {
+    if (i === keys.length - 1) {
+      cursor[keys[i]] = value;
+    } else {
+      cursor[keys[i]] = cursor[keys[i]] || {};
+      cursor = cursor[keys[i]];
+    }
+  }
+
+  delete userConfig[key];
+}
+
+// Combine user config with default config to form final config
 const finalConfig = Object.assign({}, defaultConfig);
 
 for (const [prop, value] of Object.entries(userConfig)) {
