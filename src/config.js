@@ -40,7 +40,7 @@ if (! foundConfigFile) {
 }
 
 // Load config file
-console.log(`Loading configuration from ${foundConfigFile}`);
+console.log(`Loading configuration from ${foundConfigFile}...`);
 try {
   if (foundConfigFile.endsWith('.js')) {
     userConfig = require(`../${foundConfigFile}`);
@@ -123,6 +123,7 @@ const defaultConfig = {
 };
 
 const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
+const numericOptions = ['requiredAccountAge', 'requiredTimeOnServer', 'smallAttachmentLimit', 'port'];
 
 const finalConfig = Object.assign({}, defaultConfig);
 
@@ -151,14 +152,6 @@ Object.assign(finalConfig['knex'], {
     directory: path.join(finalConfig.dbDir, 'migrations')
   }
 });
-
-// Make sure all of the required config options are present
-for (const opt of required) {
-  if (! finalConfig[opt]) {
-    console.error(`Missing required config.json value: ${opt}`);
-    process.exit(1);
-  }
-}
 
 if (finalConfig.smallAttachmentLimit > 1024 * 1024 * 8) {
   finalConfig.smallAttachmentLimit = 1024 * 1024 * 8;
@@ -212,6 +205,33 @@ if (finalConfig.newThreadCategoryId) {
   delete finalConfig.newThreadCategoryId;
 }
 
-console.log("Configuration ok");
+// Turn empty string options to null (i.e. "option=" without a value in config.ini)
+for (const [key, value] of Object.entries(finalConfig)) {
+  if (value === '') {
+    finalConfig[key] = null;
+  }
+}
+
+// Cast numeric options to numbers
+for (const numericOpt of numericOptions) {
+  if (finalConfig[numericOpt] != null) {
+    const number = parseFloat(finalConfig[numericOpt]);
+    if (Number.isNaN(number)) {
+      console.error(`Invalid numeric value for ${numericOpt}: ${finalConfig[numericOpt]}`);
+      process.exit(1);
+    }
+    finalConfig[numericOpt] = number;
+  }
+}
+
+// Make sure all of the required config options are present
+for (const opt of required) {
+  if (! finalConfig[opt]) {
+    console.error(`Missing required config.json value: ${opt}`);
+    process.exit(1);
+  }
+}
+
+console.log("Configuration ok!");
 
 module.exports = finalConfig;

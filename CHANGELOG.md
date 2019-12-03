@@ -3,8 +3,10 @@
 ## v2.29.0
 * **Change default configuration format to .ini**
   * Existing `config.json` files will continue to work and will not be deprecated
-* New, rewritten instructions for setting up and using the bot
-* Updated several package dependencies
+  * This makes the default configuration format for the bot much more approachable than JSON
+* New rewritten instructions for setting up and using the bot
+* New easy-to-use `start.bat` file for Windows
+* Update several package dependencies
 * Fixed incompatibility with certain Node.js 10 versions
 
 ## v2.28.0

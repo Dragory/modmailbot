@@ -35,18 +35,20 @@ module.exports = {
     console.log('Connecting to Discord...');
 
     bot.once('ready', async () => {
-      console.log('Connected, waiting for guilds to become available');
+      console.log('Connected! Waiting for guilds to become available...');
       await Promise.all([
         ...config.mainGuildId.map(id => waitForGuild(id)),
         waitForGuild(config.mailGuildId)
       ]);
 
-      console.log('Initializing');
+      console.log('Initializing...');
       initStatus();
       initBaseMessageHandlers();
       initPlugins();
 
+      console.log('');
       console.log('Done! Now listening to DMs.');
+      console.log('');
     });
 
     bot.connect();
