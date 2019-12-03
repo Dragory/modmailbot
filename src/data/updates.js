@@ -39,12 +39,12 @@ async function refreshVersions() {
   const [, owner, repo] = parsedUrl.pathname.split('/');
   if (! owner || ! repo) return;
 
-  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/tags`;
   https.get(
-    apiUrl,
     {
+      hostname: 'api.github.com',
+      path: `/repos/${owner}/${repo}/tags`,
       headers: {
-        'User-Agent': `Modmailbot (https://github.com/${owner}/${repo}) (${packageJson.version})`
+        'User-Agent': `Modmail Bot (https://github.com/${owner}/${repo}) (${packageJson.version})`
       }
     },
     async res => {

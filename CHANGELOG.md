@@ -7,7 +7,7 @@
 * New rewritten instructions for setting up and using the bot
 * New easy-to-use `start.bat` file for Windows
 * Update several package dependencies
-* Fixed incompatibility with certain Node.js 10 versions
+* Fixed incompatibility with Node.js 10 versions prior to 10.9.0
 
 ## v2.28.0
 * Fix error when saving attachments locally with `attachmentStorage` set to `"local"` (default) when the bot's folder is
