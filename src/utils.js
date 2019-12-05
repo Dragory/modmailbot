@@ -50,11 +50,11 @@ function getLogChannel() {
   const logChannel = inboxGuild.channels.get(config.logChannelId);
 
   if (! logChannel) {
-    throw new BotError('Log channel not found!');
+    throw new BotError('Log channel (logChannelId) not found!');
   }
 
   if (! (logChannel instanceof Eris.TextChannel)) {
-    throw new BotError('Make sure log channel is set to a text channel!');
+    throw new BotError('Make sure the logChannelId option is set to a text channel!');
   }
 
   return logChannel;
