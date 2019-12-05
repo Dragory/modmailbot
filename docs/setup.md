@@ -19,8 +19,22 @@ To keep it online, you need to keep the bot process running.
 4. Download the latest bot version from [the releases page](https://github.com/Dragory/modmailbot/releases) and extract it to a folder
 5. In the bot's folder, make a copy of the file `config.example.ini` and rename the copy to `config.ini`
 
+## Single-server setup
+In this setup, modmail threads are opened on the main server in a special category.
+This is the recommended setup for small and medium sized servers.
+
+1. Open `config.ini` in a text editor and fill in the required values. `mainGuildId` and `mailGuildId` should both be set to your server's id.
+2. On a new line at the end of `config.ini`, add `categoryAutomation.newThread = CATEGORY_ID_HERE`
+    - Replace `CATEGORY_ID_HERE` with the ID of the category where new modmail threads should go
+3. Make sure the bot has `Manage Channels`, `Manage Messages`, and `Attach Files` permissions in the category
+4. **[🏃 Start the bot!](starting-the-bot.md)**
+5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
+
 ## Two-server setup
 In this setup, modmail threads are opened on a separate inbox server.
+This is the recommended setup for large servers that get a lot of modmails, where a single-server setup could get messy.
+You might also want this setup for privacy concerns*.
+
 1. Create an inbox server on Discord
 2. Invite the bot to the inbox server.
 3. Open `config.ini` in a text editor and fill in the values
@@ -28,11 +42,5 @@ In this setup, modmail threads are opened on a separate inbox server.
 5. **[🏃 Start the bot!](starting-the-bot.md)**
 5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
 
-## Single-server setup
-In this setup, modmail threads are opened on the main server in a special category.
-1. Open `config.ini` in a text editor and fill in the required values. `mainGuildId` and `mailGuildId` should both be set to your server's id.
-2. On a new line at the end of `config.ini`, add `categoryAutomation.newThread = CATEGORY_ID_HERE`
-    - Replace `CATEGORY_ID_HERE` with the ID of the category where new modmail threads should go
-3. Make sure the bot has `Manage Channels`, `Manage Messages`, and `Attach Files` permissions in the category
-4. **[🏃 Start the bot!](starting-the-bot.md)**
-5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
+*\* Since all channel names, even for channels you can't see, are public information through the API, a user with a
+modified client could see the names of all users contacting modmail through the modmail channel names.* 
