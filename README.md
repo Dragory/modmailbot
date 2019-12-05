@@ -11,6 +11,7 @@ Inspired by Reddit's modmail system.
 * [📝 Configuration](docs/configuration.md)
 * [🤖 Commands](docs/commands.md)
 * [🧩 Plugins](docs/plugins.md)
+* [🙋 Frequently Asked Questions](docs/faq.md)
 * [Release notes](CHANGELOG.md)
 
 ## Support server

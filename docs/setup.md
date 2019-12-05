@@ -29,6 +29,8 @@ This is the recommended setup for small and medium sized servers.
 3. Make sure the bot has `Manage Channels`, `Manage Messages`, and `Attach Files` permissions in the category
 4. **[🏃 Start the bot!](starting-the-bot.md)**
 5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
+6. Have any other questions? Check out the **[🙋 Frequently Asked Questions](faq.md)** or
+   **[join the support server!](../README.md#support-server)**
 
 ## Two-server setup
 In this setup, modmail threads are opened on a separate inbox server.
@@ -41,6 +43,8 @@ You might also want this setup for privacy concerns*.
 4. Make sure the bot has the `Manage Channels`, `Manage Messages`, and `Attach Files` permissions on the **inbox** server
 5. **[🏃 Start the bot!](starting-the-bot.md)**
 5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
+6. Have any other questions? Check out the **[🙋 Frequently Asked Questions](faq.md)** or
+   **[join the support server!](../README.md#support-server)**
 
 *\* Since all channel names, even for channels you can't see, are public information through the API, a user with a
 modified client could see the names of all users contacting modmail through the modmail channel names.* 
