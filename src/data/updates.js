@@ -60,7 +60,9 @@ async function refreshVersions() {
       res.on('data', chunk => data += chunk);
       res.on('end', async () => {
         const parsed = JSON.parse(data);
-        let latestVersion = parsed[0].name;
+        if (! Array.isArray(parsed) || parsed.length === 0) return;
+
+        const latestVersion = parsed[0].name;
         await knex('updates').update({
           available_version: latestVersion,
           last_checked: moment.utc().format('YYYY-MM-DD HH:mm:ss')
