@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-let userConfig;
+let userConfig = {};
 
 // Config files to search for, in priority order
 const configFiles = [
