@@ -243,7 +243,7 @@ Size limit of `relaySmallAttachmentsAsAttachments` in bytes (default is 2MB)
 Prefix for snippets
 
 #### snippetPrefixAnon
-**Default:** `"!!!"`  
+**Default:** `!!!`  
 Prefix to use snippets anonymously
 
 #### status
