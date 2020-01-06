@@ -146,6 +146,7 @@ for (const [key, value] of Object.entries(process.env)) {
 
 if (process.env.PORT && !process.env.MM_PORT) {
   // Special case: allow common "PORT" environment variable without prefix
+  !userConfig ? userConfig = {} : null;
   userConfig.port = process.env.PORT;
   loadedEnvValues++;
 }
