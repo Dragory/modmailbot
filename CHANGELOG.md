@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.30.0
+* The following config options now also support multi-line values:
+  * `responseMessage`
+  * `closeMessage`
+  * `botMentionResponse`
+  * `greetingMessage`
+  * `accountAgeDeniedMessage`
+  * `timeOnServerDeniedMessage`
+* When the bot is mentioned on the main server, the log message about this now
+  also includes a link to the message ([#319](https://github.com/Dragory/modmailbot/pull/319))
+* Fix error when supplying all config values from env variables without a config file
+* Fix crash in update checker if the repository value in package.json is set to
+  a GitHub repository without releases (this only applies to forks)
+
 ## v2.29.1
 * Fix boolean values in `config.ini` not being handled properly
 
