@@ -50,6 +50,7 @@ module.exports = {
     'okey thx',
     'okey no problem',
     'okey np',
-    'cheers'
+    'cheers',
+    '!close'
   ],
 };
