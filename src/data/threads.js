@@ -68,8 +68,9 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
   if (config.requiredAccountAge && ! ignoreRequirements) {
     if (user.createdAt > moment() - config.requiredAccountAge * HOURS){
       if (config.accountAgeDeniedMessage) {
+        const accountAgeDeniedMessage = utils.readMultilineConfigValue(config.accountAgeDeniedMessage);
         const privateChannel = await user.getDMChannel();
-        await privateChannel.createMessage(config.accountAgeDeniedMessage);
+        await privateChannel.createMessage(accountAgeDeniedMessage);
       }
       return;
     }
@@ -106,8 +107,9 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
 
     if (! isAllowed) {
       if (config.timeOnServerDeniedMessage) {
+        const timeOnServerDeniedMessage = utils.readMultilineConfigValue(config.timeOnServerDeniedMessage);
         const privateChannel = await user.getDMChannel();
-        await privateChannel.createMessage(config.timeOnServerDeniedMessage);
+        await privateChannel.createMessage(timeOnServerDeniedMessage);
       }
       return;
     }
@@ -173,8 +175,10 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
 
     // Send auto-reply to the user
     if (config.responseMessage) {
+      const responseMessage = utils.readMultilineConfigValue(config.responseMessage);
+
       try {
-        await newThread.postToUser(config.responseMessage);
+        await newThread._sendDMToUser(responseMessage);
       } catch (err) {
         responseMessageError = err;
       }

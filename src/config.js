@@ -241,13 +241,6 @@ if (finalConfig.greetingMessage || finalConfig.greetingAttachment) {
   }
 }
 
-// Convert arrays of lines to multiline strings in greetings
-for (const obj of Object.values(finalConfig.guildGreetings)) {
-  if (Array.isArray(obj.message)) {
-    obj.message = obj.message.join('\n');
-  }
-}
-
 // newThreadCategoryId is syntactic sugar for categoryAutomation.newThread
 if (finalConfig.newThreadCategoryId) {
   finalConfig.categoryAutomation.newThread = finalConfig.newThreadCategoryId;

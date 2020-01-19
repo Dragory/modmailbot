@@ -309,6 +309,13 @@ function disableCodeBlocks(str) {
   return str.replace(/`/g, "`\u200b");
 }
 
+/**
+ *
+ */
+function readMultilineConfigValue(str) {
+  return Array.isArray(str) ? str.join('\n') : str;
+}
+
 module.exports = {
   BotError,
 
@@ -345,4 +352,6 @@ module.exports = {
 
   escapeMarkdown,
   disableCodeBlocks,
+
+  readMultilineConfigValue,
 };
