@@ -178,7 +178,7 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
       const responseMessage = utils.readMultilineConfigValue(config.responseMessage);
 
       try {
-        await newThread._sendDMToUser(responseMessage);
+        await newThread.postToUser(responseMessage);
       } catch (err) {
         responseMessageError = err;
       }
