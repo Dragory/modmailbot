@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.30.1
+* Fix crash with `responseMessage` and `closeMessage` introduced in v2.30.0
+  ([#369](https://github.com/Dragory/modmailbot/pull/369))
+
 ## v2.30.0
 * The following config options now also support multi-line values:
   * `responseMessage`
