@@ -23,13 +23,14 @@ To keep it online, you need to keep the bot process running.
 In this setup, modmail threads are opened on the main server in a special category.
 This is the recommended setup for small and medium sized servers.
 
-1. Open `config.ini` in a text editor and fill in the required values. `mainGuildId` and `mailGuildId` should both be set to your server's id.
-2. On a new line at the end of `config.ini`, add `categoryAutomation.newThread = CATEGORY_ID_HERE`
+1. **Go through the [prerequisites](#prerequisites) above first!**
+2. Open `config.ini` in a text editor and fill in the required values. `mainGuildId` and `mailGuildId` should both be set to your server's id.
+3. On a new line at the end of `config.ini`, add `categoryAutomation.newThread = CATEGORY_ID_HERE`
     - Replace `CATEGORY_ID_HERE` with the ID of the category where new modmail threads should go
-3. Make sure the bot has `Manage Channels`, `Manage Messages`, and `Attach Files` permissions in the category
-4. **[🏃 Start the bot!](starting-the-bot.md)**
-5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
-6. Have any other questions? Check out the **[🙋 Frequently Asked Questions](faq.md)** or
+4. Make sure the bot has `Manage Channels`, `Manage Messages`, and `Attach Files` permissions in the category
+5. **[🏃 Start the bot!](starting-the-bot.md)**
+6. Want to change other bot options? See **[📝 Configuration](configuration.md)**
+7. Have any other questions? Check out the **[🙋 Frequently Asked Questions](faq.md)** or
    **[join the support server!](../README.md#support-server)**
 
 ## Two-server setup
@@ -37,13 +38,14 @@ In this setup, modmail threads are opened on a separate inbox server.
 This is the recommended setup for large servers that get a lot of modmails, where a single-server setup could get messy.
 You might also want this setup for privacy concerns*.
 
-1. Create an inbox server on Discord
-2. Invite the bot to the inbox server.
-3. Open `config.ini` in a text editor and fill in the values
-4. Make sure the bot has the `Manage Channels`, `Manage Messages`, and `Attach Files` permissions on the **inbox** server
-5. **[🏃 Start the bot!](starting-the-bot.md)**
-5. Want to change other bot options? See **[📝 Configuration](configuration.md)**
-6. Have any other questions? Check out the **[🙋 Frequently Asked Questions](faq.md)** or
+1. **Go through the [prerequisites](#prerequisites) above first!**
+2. Create an inbox server on Discord
+3. Invite the bot to the inbox server.
+4. Open `config.ini` in a text editor and fill in the values
+5. Make sure the bot has the `Manage Channels`, `Manage Messages`, and `Attach Files` permissions on the **inbox** server
+6. **[🏃 Start the bot!](starting-the-bot.md)**
+7. Want to change other bot options? See **[📝 Configuration](configuration.md)**
+8. Have any other questions? Check out the **[🙋 Frequently Asked Questions](faq.md)** or
    **[join the support server!](../README.md#support-server)**
 
 *\* Since all channel names, even for channels you can't see, are public information through the API, a user with a
