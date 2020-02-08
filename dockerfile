@@ -29,4 +29,4 @@ COPY . .
 # 런타임 정의
 RUN echo "pm2-runtime src/index.js --max-memory-restart 1024M" > "modmail.sh"
 RUN chmod 777 modmail.sh
-CMD ./enc.sh
+CMD ./modmail.sh
