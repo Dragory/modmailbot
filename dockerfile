@@ -1,7 +1,7 @@
-FROM node:latest
+FROM node:lts-alpine
 WORKDIR /usr/src/modmail
 
-RUN apt-get update -y
+RUN apk update
 
 # Copy Sources
 COPY . .
@@ -11,7 +11,7 @@ RUN npm i -g pm2
 RUN npm ci
 
 # Volumes
-VOLUME [ "/usr/src/modmail/attachments", "/usr/src/modmail/logs" ]
+VOLUME [ "/usr/src/modmail/attachments", "/usr/src/modmail/db" ]
 
 # Expose Port
 EXPOSE 8890
