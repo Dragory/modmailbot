@@ -1,22 +1,21 @@
-FROM node:8
+FROM node:latest
 WORKDIR /usr/src/modmail
 
-RUN apt-get update
-RUN apt-get install sudo
-RUN apt-get install curl
-RUN apt-get install apt-transport-https
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-RUN sudo apt-get update && sudo apt-get -y install yarn
-RUN npm install n -g
-RUN n stable
+RUN apt-get update -y
 
-COPY package.json package.json
-RUN yarn
-RUN npm install pm2 -g
-
+# Copy Sources
 COPY . .
 
-RUN echo "pm2-runtime src/index.js --max-memory-restart 1024M" > "modmail.sh"
+# Install Packages
+RUN npm i -g pm2
+RUN npm ci
+
+# Volumes
+VOLUME [ "/usr/src/modmail/attachments", "/usr/src/modmail/logs" ]
+
+# Expose Port
+EXPOSE 8890
+
+RUN echo "pm2 start npm -- start" > "modmail.sh"
 RUN chmod 777 modmail.sh
 CMD ./modmail.sh
