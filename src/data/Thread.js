@@ -169,8 +169,8 @@ class Thread {
     }
 
     if (this.alert_id) {
-      await this.setAlert(null);
-      await this.postSystemMessage(`<@!${this.alert_id}> New message from ${this.user_name}`);
+      await this.deleteAlerts();
+      await this.postSystemMessage(`${this.alert_id} New message from ${this.user_name}`);
     }
   }
 
@@ -449,12 +449,63 @@ class Thread {
    * @param {String} userId
    * @returns {Promise<void>}
    */
-  async setAlert(userId) {
+  async addAlert(userId) {
+    let alerts = await knex('threads')
+      .where('id', this.id)
+      .select('alert_id')
+      .first();
+    alerts = alerts.alert_id;
+
+    if (alerts == null) {
+      alerts = `<@!${userId}>`;
+    } else {
+      if (! alerts.includes(`<@!${userId}>`)) {
+        alerts += ` <@!${userId}>`;
+      }
+    }
+
     await knex('threads')
       .where('id', this.id)
       .update({
-        alert_id: userId
+        alert_id: alerts
       });
+  }
+
+  /**
+   * @param {String} userId 
+   * @returns {Promise<void>}
+   */
+  async removeAlert(userId) {
+    let alerts = await knex('threads')
+      .where('id', this.id)
+      .select('alert_id')
+      .first();
+    alerts = alerts.alert_id;
+
+    if (! (alerts == null)) {
+      if (alerts.startsWith(`<@!${userId}>`)) { // we do this to properly handle the spacing between @s
+        alerts = alerts.replace(`<@!${userId}> `, "");
+      } else {
+        alerts = alerts.replace(` <@!${userId}>`, "");
+      }
+    }
+
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        alert_id: alerts
+      });
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async deleteAlerts() {
+    await knex('threads')
+      .where('id', this.id)
+      .update({
+        alert_id: null
+      })
   }
 
   /**
