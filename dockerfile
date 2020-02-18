@@ -1,7 +1,17 @@
-FROM node:lts-alpine
+FROM centos:7
 WORKDIR /usr/src/modmail
 
-RUN apk update
+RUN yum update -y
+
+# Install NVM
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+SHELL ["bash", "-lc"]
+RUN nvm --version
+
+# Copy .nvmrc and install node version
+COPY .nvmrc .nvmrc
+RUN nvm install
+RUN node --version
 
 # Copy Sources
 COPY . .
