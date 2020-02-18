@@ -26,6 +26,6 @@ VOLUME [ "/usr/src/modmail/attachments", "/usr/src/modmail/db" ]
 # Expose Port
 EXPOSE 8890
 
-RUN echo "pm2 start npm -- start" > "modmail.sh"
+RUN echo "node ." > "modmail.sh"
 RUN chmod 777 modmail.sh
 CMD ./modmail.sh
