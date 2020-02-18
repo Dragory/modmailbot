@@ -169,8 +169,15 @@ class Thread {
     }
 
     if (this.alert_id) {
+      const ids = this.alert_id.split(",");
+      let mentions = "";
+      
+      ids.forEach(id => {
+        mentions += `<@!${id}> `;
+      });
+
       await this.deleteAlerts();
-      await this.postSystemMessage(`${this.alert_id} New message from ${this.user_name}`);
+      await this.postSystemMessage(`${mentions}New message from ${this.user_name}`);
     }
   }
 
@@ -457,13 +464,15 @@ class Thread {
     alerts = alerts.alert_id;
 
     if (alerts == null) {
-      alerts = `<@!${userId}>`;
+      alerts = [userId]
     } else {
-      if (! alerts.includes(`<@!${userId}>`)) {
-        alerts += ` <@!${userId}>`;
+      alerts = alerts.split(",");
+      if (!alerts.includes(userId)) {
+        alerts.push(userId);
       }
     }
 
+    alerts = alerts.join(",");
     await knex('threads')
       .where('id', this.id)
       .update({
@@ -482,12 +491,20 @@ class Thread {
       .first();
     alerts = alerts.alert_id;
 
-    if (! (alerts == null)) {
-      if (alerts.startsWith(`<@!${userId}>`)) { // we do this to properly handle the spacing between @s
-        alerts = alerts.replace(`<@!${userId}> `, "");
-      } else {
-        alerts = alerts.replace(` <@!${userId}>`, "");
+    if (alerts != null) {
+      alerts = alerts.split(",");
+
+      for (let i = 0; i < alerts.length; i++) {
+        if (alerts[i] == userId) {
+          alerts.splice(i, 1);
+        }
       }
+    } else return;
+
+    if (alerts.length == 0) {
+      alerts = null;
+    } else {
+      alerts = alerts.join(",");
     }
 
     await knex('threads')
