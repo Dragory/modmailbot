@@ -64,6 +64,24 @@ module.exports = ({ bot, knex, config, commands }) => {
     }
 
     const logUrl = await thread.getLogUrl();
-    thread.postSystemMessage(`Log URL: ${logUrl}`);
+    const query = [];
+    if (args.verbose) query.push('verbose=1');
+    if (args.simple) query.push('simple=1');
+    let qs = query.length ? `?${query.join('&')}` : '';
+
+    thread.postSystemMessage(`Log URL: ${logUrl}${qs}`);
+  }, {
+    options: [
+      {
+        name: 'verbose',
+        shortcut: 'v',
+        isSwitch: true,
+      },
+      {
+        name: 'simple',
+        shortcut: 's',
+        isSwitch: true,
+      },
+    ],
   });
 };

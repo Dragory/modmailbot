@@ -2,6 +2,7 @@ const http = require('http');
 const mime = require('mime');
 const url = require('url');
 const fs = require('fs');
+const qs = require('querystring');
 const moment = require('moment');
 const config = require('../config');
 const threads = require('../data/threads');
@@ -14,46 +15,82 @@ function notfound(res) {
   res.end('Page Not Found');
 }
 
-async function serveLogs(res, pathParts) {
+async function serveLogs(req, res, pathParts, query) {
   const threadId = pathParts[pathParts.length - 1];
   if (threadId.match(/^[0-9a-f\-]+$/) === null) return notfound(res);
 
   const thread = await threads.findById(threadId);
   if (! thread) return notfound(res);
 
-  const threadMessages = await thread.getThreadMessages();
+  let threadMessages = await thread.getThreadMessages();
+
+  if (query.simple) {
+    threadMessages = threadMessages.filter(message => {
+      return (
+        message.message_type !== THREAD_MESSAGE_TYPE.SYSTEM
+        && message.message_type !== THREAD_MESSAGE_TYPE.SYSTEM_TO_USER
+        && message.message_type !== THREAD_MESSAGE_TYPE.CHAT
+        && message.message_type !== THREAD_MESSAGE_TYPE.COMMAND
+      );
+    });
+  }
+
   const lines = threadMessages.map(message => {
     // Legacy messages are the entire log in one message, so just serve them as they are
     if (message.message_type === THREAD_MESSAGE_TYPE.LEGACY) {
       return message.body;
     }
 
-    let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}] `;
+    let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}]`;
+
+    if (query.verbose) {
+      if (message.dm_channel_id) {
+        line += ` [DM CHA ${message.dm_channel_id}]`;
+      }
+
+      if (message.dm_message_id) {
+        line += ` [DM MSG ${message.dm_message_id}]`;
+      }
+    }
 
     if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
-      line += `[FROM USER] [${message.user_name}] ${message.body}`;
+      line += ` [FROM USER] [${message.user_name}] ${message.body}`;
     } else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-      line += `[TO USER] [${message.user_name}] ${message.body}`;
+      line += ` [TO USER] [${message.user_name}] ${message.body}`;
     } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
-      line += `[SYSTEM] ${message.body}`;
+      line += ` [SYSTEM] ${message.body}`;
     } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM_TO_USER) {
-      line += `[SYSTEM TO USER] ${message.body}`;
+      line += ` [SYSTEM TO USER] ${message.body}`;
     } else if (message.message_type === THREAD_MESSAGE_TYPE.CHAT) {
-      line += `[CHAT] [${message.user_name}] ${message.body}`;
+      line += ` [CHAT] [${message.user_name}] ${message.body}`;
     } else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
-      line += `[COMMAND] [${message.user_name}] ${message.body}`;
+      line += ` [COMMAND] [${message.user_name}] ${message.body}`;
     } else {
-      line += `[${message.user_name}] ${message.body}`;
+      line += ` [${message.user_name}] ${message.body}`;
     }
 
     return line;
   });
 
+  const openedAt = moment(thread.created_at).format('YYYY-MM-DD HH:mm:ss');
+  let header = `# ModMail thread with ${thread.user_name} (${thread.user_id}) started at ${openedAt}.`;
+  header += `\n# All times are in UTC+0.`;
+
+  if (! query.simple) {
+    header += `\n# Add ?simple=1 to the end of the log link to view only messages from the user and replies.`;
+  }
+
+  if (! query.verbose) {
+    header += `\n# Add ?verbose=1 to the end of the log link to view message IDs.`;
+  }
+
+  const fullResponse = header + '\n\n' + lines.join('\n');
+
   res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
-  res.end(lines.join('\n'));
+  res.end(fullResponse);
 }
 
-function serveAttachments(res, pathParts) {
+function serveAttachments(req, res, pathParts) {
   const desiredFilename = pathParts[pathParts.length - 1];
   const id = pathParts[pathParts.length - 2];
 
@@ -78,12 +115,13 @@ function serveAttachments(res, pathParts) {
 module.exports = () => {
   const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(`http://${req.url}`);
-    const pathParts = parsedUrl.path.split('/').filter(v => v !== '');
+    const pathParts = parsedUrl.pathname.split('/').filter(v => v !== '');
+    const query = qs.parse(parsedUrl.query);
 
-    if (parsedUrl.path.startsWith('/logs/')) {
-      serveLogs(res, pathParts);
-    } else if (parsedUrl.path.startsWith('/attachments/')) {
-      serveAttachments(res, pathParts);
+    if (parsedUrl.pathname.startsWith('/logs/')) {
+      serveLogs(req, res, pathParts, query);
+    } else if (parsedUrl.pathname.startsWith('/attachments/')) {
+      serveAttachments(req, res, pathParts, query);
     } else {
       notfound(res);
     }
