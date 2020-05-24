@@ -29,165 +29,140 @@ class Thread {
   }
 
   /**
-   * @param {Eris~Member} moderator
-   * @param {String} text
-   * @param {Eris~MessageFile[]} replyAttachments
-   * @param {Boolean} isAnonymous
-   * @returns {Promise<boolean>} Whether we were able to send the reply
+   * @param {Eris.Member} moderator
+   * @param {string} text
+   * @param {boolean} isAnonymous
+   * @returns {string}
+   * @private
    */
-  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
-    // Username to reply with
-    let modUsername, logModUsername;
+  _formatStaffReplyDM(moderator, text, isAnonymous) {
     const mainRole = utils.getMainRole(moderator);
+    const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
+    const modInfo = isAnonymous
+      ? (mainRole ? mainRole.name : 'Moderator')
+      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
 
-    if (isAnonymous) {
-      modUsername = (mainRole ? mainRole.name : 'Moderator');
-      logModUsername = `(Anonymous) (${moderator.user.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
-    } else {
-      const name = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
-      modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
-      logModUsername = modUsername;
-    }
+    return `**${modInfo}:** ${text}`;
+  }
 
-    // Build the reply message
-    let dmContent = `**${modUsername}:** ${text}`;
-    let threadContent = `**${logModUsername}:** ${text}`;
-    let logContent = text;
+  /**
+   * @param {Eris.Member} moderator
+   * @param {string} text
+   * @param {boolean} isAnonymous
+   * @param {number} messageNumber
+   * @param {number} timestamp
+   * @returns {string}
+   * @private
+   */
+  _formatStaffReplyThreadMessage(moderator, text, isAnonymous, messageNumber, timestamp) {
+    const mainRole = utils.getMainRole(moderator);
+    const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
+    const modInfo = isAnonymous
+      ? `(Anonymous) (${modName}) ${mainRole ? mainRole.name : 'Moderator'}`
+      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
+
+    // TODO: Add \`[${messageNumber}]\` here once !edit and !delete exist
+    let result = `**${modInfo}:** ${text}`;
 
     if (config.threadTimestamps) {
-      const timestamp = utils.getTimestamp();
-      threadContent = `[${timestamp}] » ${threadContent}`;
+      const formattedTimestamp = timestamp ? utils.getTimestamp(timestamp, 'x') : utils.getTimestamp();
+      result = `[${formattedTimestamp}] ${result}`;
     }
 
-    // Prepare attachments, if any
-    let files = [];
+    return result;
+  }
 
-    if (replyAttachments.length > 0) {
-      for (const attachment of replyAttachments) {
-        let savedAttachment;
+  /**
+   * @param {Eris.Member} moderator
+   * @param {string} text
+   * @param {boolean} isAnonymous
+   * @param {string[]} attachmentLinks
+   * @returns {string}
+   * @private
+   */
+  _formatStaffReplyLogMessage(moderator, text, isAnonymous, attachmentLinks = []) {
+    const mainRole = utils.getMainRole(moderator);
+    const modName = moderator.user.username;
 
-        await Promise.all([
-          attachments.attachmentToDiscordFileObject(attachment).then(file => {
-            files.push(file);
-          }),
-          attachments.saveAttachment(attachment).then(result => {
-            savedAttachment = result;
-          })
-        ]);
+    // Mirroring the DM formatting here...
+    const modInfo = isAnonymous
+      ? (mainRole ? mainRole.name : 'Moderator')
+      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
 
-        logContent += `\n\n**Attachment:** ${savedAttachment.url}`;
+    let result = `**${modInfo}:** ${text}`;
+
+    if (attachmentLinks.length) {
+      result += '\n';
+      for (const link of attachmentLinks) {
+        result += `\n**Attachment:** ${link}`;
       }
     }
 
-    // Send the reply DM
-    let dmMessage;
-    try {
-      dmMessage = await this.postToUser(dmContent, files);
-    } catch (e) {
-      await this.addThreadMessageToDB({
-        message_type: THREAD_MESSAGE_TYPE.COMMAND,
-        user_id: moderator.id,
-        user_name: logModUsername,
-        body: logContent
-      });
-
-      await this.postSystemMessage(`Error while replying to user: ${e.message}`);
-
-      return false;
-    }
-
-    // Send the reply to the modmail thread
-    await this.postToThreadChannel(threadContent, files);
-
-    // Add the message to the database
-    await this.addThreadMessageToDB({
-      message_type: THREAD_MESSAGE_TYPE.TO_USER,
-      user_id: moderator.id,
-      user_name: logModUsername,
-      body: logContent,
-      is_anonymous: (isAnonymous ? 1 : 0),
-      dm_message_id: dmMessage.id
-    });
-
-    if (this.scheduled_close_at) {
-      await this.cancelScheduledClose();
-      await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
-    }
-
-    return true;
+    return result;
   }
 
   /**
-   * @param {Eris~Message} msg
-   * @returns {Promise<void>}
+   * @param {Eris.User} user
+   * @param {string} body
+   * @param {Eris.EmbedBase[]} embeds
+   * @param {string[]} formattedAttachments
+   * @param {number} timestamp
+   * @return string
+   * @private
    */
-  async receiveUserReply(msg) {
-    let content = msg.content;
-    if (msg.content.trim() === '' && msg.embeds.length) {
-      content = '<message contains embeds>';
-    }
+  _formatUserReplyThreadMessage(user, body, embeds, formattedAttachments = [], timestamp) {
+    const content = (body.trim() === '' && embeds.length)
+      ? '<message contains embeds>'
+      : body;
 
-    let threadContent = `**${msg.author.username}#${msg.author.discriminator}:** ${content}`;
-    let logContent = msg.content;
+    let result = `**${user.username}#${user.discriminator}:** ${content}`;
 
-    if (config.threadTimestamps) {
-      const timestamp = utils.getTimestamp(msg.timestamp, 'x');
-      threadContent = `[${timestamp}] « ${threadContent}`;
-    }
-
-    // Prepare attachments, if any
-    let attachmentFiles = [];
-
-    for (const attachment of msg.attachments) {
-      const savedAttachment = await attachments.saveAttachment(attachment);
-
-      // Forward small attachments (<2MB) as attachments, just link to larger ones
-      const formatted = '\n\n' + await utils.formatAttachment(attachment, savedAttachment.url);
-      logContent += formatted; // Logs always contain the link
-
-      if (config.relaySmallAttachmentsAsAttachments && attachment.size <= 1024 * 1024 * 2) {
-        const file = await attachments.attachmentToDiscordFileObject(attachment);
-        attachmentFiles.push(file);
-      } else {
-        threadContent += formatted;
+    if (formattedAttachments.length) {
+      for (const formatted of formattedAttachments) {
+        result += `\n\n${formatted}`;
       }
     }
 
-    await this.postToThreadChannel(threadContent, attachmentFiles);
-    await this.addThreadMessageToDB({
-      message_type: THREAD_MESSAGE_TYPE.FROM_USER,
-      user_id: this.user_id,
-      user_name: `${msg.author.username}#${msg.author.discriminator}`,
-      body: logContent,
-      is_anonymous: 0,
-      dm_message_id: msg.id
-    });
-
-    if (this.scheduled_close_at) {
-      await this.cancelScheduledClose();
-      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
+    if (config.threadTimestamps) {
+      const formattedTimestamp = timestamp ? utils.getTimestamp(timestamp, 'x') : utils.getTimestamp();
+      result = `[${formattedTimestamp}] ${result}`;
     }
 
-    if (this.alert_id) {
-      await this.setAlert(null);
-      await this.postSystemMessage(`<@!${this.alert_id}> New message from ${this.user_name}`);
-    }
+    return result;
   }
 
   /**
-   * @returns {Promise<PrivateChannel>}
+   * @param {Eris.User} user
+   * @param {string} body
+   * @param {Eris.EmbedBase[]} embeds
+   * @param {string[]} formattedAttachments
+   * @return string
+   * @private
    */
-  getDMChannel() {
-    return bot.getDMChannel(this.user_id);
+  _formatUserReplyLogMessage(user, body, embeds, formattedAttachments = []) {
+    const content = (body.trim() === '' && embeds.length)
+      ? '<message contains embeds>'
+      : body;
+
+    let result = content;
+
+    if (formattedAttachments.length) {
+      for (const formatted of formattedAttachments) {
+        result += `\n\n${formatted}`;
+      }
+    }
+
+    return result;
   }
 
   /**
-   * @param {String} text
-   * @param {Eris~MessageFile|Eris~MessageFile[]} file
-   * @returns {Promise<Eris~Message>}
+   * @param {string} text
+   * @param {Eris.MessageFile|Eris.MessageFile[]} file
+   * @returns {Promise<Eris.Message>}
    * @throws Error
+   * @private
    */
-  async postToUser(text, file = null) {
+  async _sendDMToUser(text, file = null) {
     // Try to open a DM channel with the user
     const dmChannel = await this.getDMChannel();
     if (! dmChannel) {
@@ -206,9 +181,10 @@ class Thread {
   }
 
   /**
-   * @returns {Promise<Eris~Message>}
+   * @returns {Promise<Eris.Message>}
+   * @private
    */
-  async postToThreadChannel(...args) {
+  async _postToThreadChannel(...args) {
     try {
       if (typeof args[0] === 'string') {
         const chunks = utils.chunk(args[0], 2000);
@@ -232,17 +208,208 @@ class Thread {
   }
 
   /**
-   * @param {String} text
+   * @param {Object} data
+   * @returns {Promise<ThreadMessage>}
+   * @private
+   */
+  async _addThreadMessageToDB(data) {
+    if (data.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
+      data.message_number = knex.raw(`IFNULL((${this._lastMessageNumberInThreadSQL()}), 0) + 1`);
+    }
+
+    const dmChannel = await this.getDMChannel();
+    const insertedIds = await knex('thread_messages').insert({
+      thread_id: this.id,
+      created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+      is_anonymous: 0,
+      dm_channel_id: dmChannel.id,
+      ...data
+    });
+
+    const threadMessage = await knex('thread_messages')
+      .where('id', insertedIds[0])
+      .select();
+
+    return new ThreadMessage(threadMessage[0]);
+  }
+
+  /**
+   * @param {string} id
+   * @param {Object} data
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _updateThreadMessage(id, data) {
+    await knex('thread_messages')
+      .where('id', id)
+      .update(data);
+  }
+
+  /**
+   * @returns {string}
+   * @private
+   */
+  _lastMessageNumberInThreadSQL() {
+    return knex('thread_messages')
+      .select(knex.raw('MAX(message_number)'))
+      .whereRaw(`thread_messages.thread_id = '${this.id}'`)
+      .toSQL()
+      .sql;
+  }
+
+  /**
+   * @param {Eris.Member} moderator
+   * @param {string} text
+   * @param {Eris.MessageFile[]} replyAttachments
+   * @param {boolean} isAnonymous
+   * @returns {Promise<boolean>} Whether we were able to send the reply
+   */
+  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
+    const fullModeratorName = `${moderator.user.username}#${moderator.user.discriminator}`;
+
+    // Prepare attachments, if any
+    const files = [];
+    const attachmentLinks = [];
+
+    if (replyAttachments.length > 0) {
+      for (const attachment of replyAttachments) {
+        await Promise.all([
+          attachments.attachmentToDiscordFileObject(attachment).then(file => {
+            files.push(file);
+          }),
+          attachments.saveAttachment(attachment).then(result => {
+            attachmentLinks.push(result.url);
+          })
+        ]);
+      }
+    }
+
+    // Send the reply DM
+    const dmContent = this._formatStaffReplyDM(moderator, text, isAnonymous);
+    let dmMessage;
+    try {
+      dmMessage = await this._sendDMToUser(dmContent, files);
+    } catch (e) {
+      await this.postSystemMessage(`Error while replying to user: ${e.message}`);
+      return false;
+    }
+
+    // Save the log entry
+    const logContent = this._formatStaffReplyLogMessage(moderator, text, isAnonymous, attachmentLinks);
+    const threadMessage = await this._addThreadMessageToDB({
+      message_type: THREAD_MESSAGE_TYPE.TO_USER,
+      user_id: moderator.id,
+      user_name: fullModeratorName,
+      body: logContent,
+      is_anonymous: (isAnonymous ? 1 : 0),
+      dm_message_id: dmMessage.id
+    });
+
+    // Show the reply in the inbox thread
+    const inboxContent = this._formatStaffReplyThreadMessage(moderator, text, isAnonymous, threadMessage.message_number, null);
+    const inboxMessage = await this._postToThreadChannel(inboxContent, files);
+    await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+
+    // Interrupt scheduled closing, if in progress
+    if (this.scheduled_close_at) {
+      await this.cancelScheduledClose();
+      await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+    }
+
+    return true;
+  }
+
+  /**
+   * @param {Eris.Message} msg
+   * @returns {Promise<void>}
+   */
+  async receiveUserReply(msg) {
+    // Prepare attachments
+    const attachmentFiles = [];
+    const threadFormattedAttachments = [];
+    const logFormattedAttachments = [];
+
+    // TODO: Save attachment info with the message, use that to re-create attachment formatting in
+    // TODO: this._formatUserReplyLogMessage and this._formatUserReplyThreadMessage
+    for (const attachment of msg.attachments) {
+      const savedAttachment = await attachments.saveAttachment(attachment);
+
+      const formatted = await utils.formatAttachment(attachment, savedAttachment.url);
+      logFormattedAttachments.push(formatted);
+
+      // Forward small attachments (<2MB) as attachments, link to larger ones
+      if (config.relaySmallAttachmentsAsAttachments && attachment.size <= config.smallAttachmentLimit) {
+        const file = await attachments.attachmentToDiscordFileObject(attachment);
+        attachmentFiles.push(file);
+      } else {
+        threadFormattedAttachments.push(formatted);
+      }
+    }
+
+    // Save log entry
+    const logContent = this._formatUserReplyLogMessage(msg.author, msg.content, msg.embeds, logFormattedAttachments);
+    const threadMessage = await this._addThreadMessageToDB({
+      message_type: THREAD_MESSAGE_TYPE.FROM_USER,
+      user_id: this.user_id,
+      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      body: logContent,
+      is_anonymous: 0,
+      dm_message_id: msg.id
+    });
+
+    // Show user reply in the inbox thread
+    const inboxContent = this._formatUserReplyThreadMessage(msg.author, msg.content, msg.embeds, threadFormattedAttachments, null);
+    const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
+    await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+
+    // Interrupt scheduled closing, if in progress
+    if (this.scheduled_close_at) {
+      await this.cancelScheduledClose();
+      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
+    }
+
+    if (this.alert_id) {
+      await this.setAlert(null);
+      await this.postSystemMessage(`<@!${this.alert_id}> New message from ${this.user_name}`);
+    }
+  }
+
+  /**
+   * @returns {Promise<PrivateChannel>}
+   */
+  getDMChannel() {
+    return bot.getDMChannel(this.user_id);
+  }
+
+  /**
+   * @param {string|Eris.MessageContent} content
    * @param {*} args
    * @returns {Promise<void>}
    */
-  async postSystemMessage(text, ...args) {
-    const msg = await this.postToThreadChannel(text, ...args);
-    await this.addThreadMessageToDB({
+  async postSystemMessage(content, ...args) {
+    const msg = await this._postToThreadChannel(content, ...args);
+    await this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.SYSTEM,
       user_id: null,
       user_name: '',
-      body: typeof text === 'string' ? text : text.content,
+      body: typeof content === 'string' ? content : content.content,
+      is_anonymous: 0,
+      dm_message_id: msg.id
+    });
+  }
+
+  /**
+   * @param {string|Eris.MessageContent} content
+   * @param {*} args
+   * @returns {Promise<void>}
+   */
+  async sendSystemMessageToUser(content, ...args) {
+    const msg = await this._sendDMToUser(content, ...args);
+    await this._addThreadMessageToDB({
+      message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
+      user_id: null,
+      user_name: '',
+      body: typeof content === 'string' ? content : content.content,
       is_anonymous: 0,
       dm_message_id: msg.id
     });
@@ -253,15 +420,15 @@ class Thread {
    * @returns {Promise<void>}
    */
   async postNonLogMessage(...args) {
-    await this.postToThreadChannel(...args);
+    await this._postToThreadChannel(...args);
   }
 
   /**
    * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
-  async saveChatMessage(msg) {
-    return this.addThreadMessageToDB({
+  async saveChatMessageToLogs(msg) {
+    return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
@@ -271,8 +438,8 @@ class Thread {
     });
   }
 
-  async saveCommandMessage(msg) {
-    return this.addThreadMessageToDB({
+  async saveCommandMessageToLogs(msg) {
+    return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.COMMAND,
       user_id: msg.author.id,
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
@@ -286,7 +453,7 @@ class Thread {
    * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
-  async updateChatMessage(msg) {
+  async updateChatMessageInLogs(msg) {
     await knex('thread_messages')
       .where('thread_id', this.id)
       .where('dm_message_id', msg.id)
@@ -299,24 +466,11 @@ class Thread {
    * @param {String} messageId
    * @returns {Promise<void>}
    */
-  async deleteChatMessage(messageId) {
+  async deleteChatMessageFromLogs(messageId) {
     await knex('thread_messages')
       .where('thread_id', this.id)
       .where('dm_message_id', messageId)
       .delete();
-  }
-
-  /**
-   * @param {Object} data
-   * @returns {Promise<void>}
-   */
-  async addThreadMessageToDB(data) {
-    await knex('thread_messages').insert({
-      thread_id: this.id,
-      created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
-      is_anonymous: 0,
-      ...data
-    });
   }
 
   /**
@@ -330,6 +484,19 @@ class Thread {
       .select();
 
     return threadMessages.map(row => new ThreadMessage(row));
+  }
+
+  /**
+   * @param {number} messageNumber
+   * @returns {Promise<ThreadMessage>}
+   */
+  async findThreadMessageByMessageNumber(messageNumber) {
+    const data = await knex('thread_messages')
+      .where('thread_id', this.id)
+      .where('message_number', messageNumber)
+      .select();
+
+    return data ? new ThreadMessage(data) : null;
   }
 
   /**

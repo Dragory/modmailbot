@@ -94,8 +94,7 @@ function initBaseMessageHandlers() {
 
     if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) {
       // Save commands as "command messages"
-      if (msg.content.startsWith(config.snippetPrefix)) return; // Ignore snippets
-      thread.saveCommandMessage(msg);
+      thread.saveCommandMessageToLogs(msg);
     } else if (config.alwaysReply) {
       // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
       if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
@@ -104,7 +103,7 @@ function initBaseMessageHandlers() {
       if (replied) msg.delete();
     } else {
       // Otherwise just save the messages as "chat" in the logs
-      thread.saveChatMessage(msg);
+      thread.saveChatMessageToLogs(msg);
     }
   });
 
@@ -133,7 +132,9 @@ function initBaseMessageHandlers() {
         thread = await threads.createNewThreadForUser(msg.author);
       }
 
-      if (thread) await thread.receiveUserReply(msg);
+      if (thread) {
+        await thread.receiveUserReply(msg);
+      }
     });
   });
 
@@ -151,10 +152,10 @@ function initBaseMessageHandlers() {
     const oldContent = oldMessage && oldMessage.content || '*Unavailable due to bot restart*';
     const newContent = msg.content;
 
-    // Ignore bogus edit events with no changes
+    // Ignore edit events with changes only in embeds etc.
     if (newContent.trim() === oldContent.trim()) return;
 
-    // 1) Edit in DMs
+    // 1) If this edit was in DMs
     if (msg.channel instanceof Eris.PrivateChannel) {
       const thread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! thread) return;
@@ -163,12 +164,12 @@ function initBaseMessageHandlers() {
       thread.postSystemMessage(editMessage);
     }
 
-    // 2) Edit in the thread
+    // 2) If this edit was a chat message in the thread
     else if (utils.messageIsOnInboxServer(msg) && utils.isStaff(msg.member)) {
       const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
       if (! thread) return;
 
-      thread.updateChatMessage(msg);
+      thread.updateChatMessageInLogs(msg);
     }
   });
 
@@ -184,7 +185,7 @@ function initBaseMessageHandlers() {
     const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
     if (! thread) return;
 
-    thread.deleteChatMessage(msg.id);
+    thread.deleteChatMessageFromLogs(msg.id);
   });
 
   /**

@@ -11,7 +11,8 @@ module.exports = {
     FROM_USER: 3,
     TO_USER: 4,
     LEGACY: 5,
-    COMMAND: 6
+    COMMAND: 6,
+    SYSTEM_TO_USER: 7
   },
 
   ACCIDENTAL_THREAD_MESSAGES: [

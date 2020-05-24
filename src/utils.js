@@ -73,12 +73,13 @@ function postError(channel, str, opts = {}) {
 
 /**
  * Returns whether the given member has permission to use modmail commands
- * @param member
+ * @param {Eris.Member} member
  * @returns {boolean}
  */
 function isStaff(member) {
   if (! member) return false;
   if (config.inboxServerPermission.length === 0) return true;
+  if (member.guild.ownerID === member.id) return true;
 
   return config.inboxServerPermission.some(perm => {
     if (isSnowflake(perm)) {

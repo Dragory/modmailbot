@@ -30,15 +30,20 @@ async function serveLogs(res, pathParts) {
 
     let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}] `;
 
-    if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
-      // System messages don't need the username
-      line += message.body;
-    } else if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
-      line += `[FROM USER] ${message.user_name}: ${message.body}`;
+    if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
+      line += `[FROM USER] [${message.user_name}] ${message.body}`;
     } else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-      line += `[TO USER] ${message.user_name}: ${message.body}`;
+      line += `[TO USER] [${message.user_name}] ${message.body}`;
+    } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
+      line += `[SYSTEM] ${message.body}`;
+    } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM_TO_USER) {
+      line += `[SYSTEM TO USER] ${message.body}`;
+    } else if (message.message_type === THREAD_MESSAGE_TYPE.CHAT) {
+      line += `[CHAT] [${message.user_name}] ${message.body}`;
+    } else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
+      line += `[COMMAND] [${message.user_name}] ${message.body}`;
     } else {
-      line += `${message.user_name}: ${message.body}`;
+      line += `[${message.user_name}] ${message.body}`;
     }
 
     return line;

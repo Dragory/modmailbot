@@ -61,7 +61,12 @@ process.on('unhandledRejection', err => {
 
 (async function() {
   // Make sure the database is up to date
-  await knex.migrate.latest();
+  const migrationDelta = await knex.migrate.status();
+  if (migrationDelta !== 0) {
+    console.log('Updating database. This can take a while. Don\'t close the bot!');
+    await knex.migrate.latest();
+    console.log('Done!');
+  }
 
   // Migrate legacy data if we need to
   if (await legacyMigrator.shouldMigrate()) {
