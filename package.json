@@ -25,7 +25,7 @@
     "moment": "^2.24.0",
     "mv": "^2.1.1",
     "public-ip": "^4.0.0",
-    "sqlite3": "^4.1.0",
+    "sqlite3": "^4.2.0",
     "tmp": "^0.1.0",
     "transliteration": "^2.1.7",
     "uuid": "^3.3.3"
