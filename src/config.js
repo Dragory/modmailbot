@@ -279,7 +279,7 @@ for (const [key, value] of Object.entries(finalConfig)) {
 // Make sure all of the required config options are present
 for (const opt of required) {
   if (! finalConfig[opt]) {
-    console.error(`Missing required config.json value: ${opt}`);
+    console.error(`Missing required configuration value: ${opt}`);
     process.exit(1);
   }
 }
