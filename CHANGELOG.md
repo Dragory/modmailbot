@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.31.0-beta.0
+This is a beta release. It is not available on the Releases page and bugs are expected.
+
+* Add support for Node.js 13
+  * Support for Node.js 14 is coming in a future update that will also drop Node.js 10 support.
+    This mirrors the `sqlite3` library's version support.
+* Log formatting is now more consistent and easier to parse with automated tools
+* DM channel and message IDs are now stored
+  * Use `!loglink -v` to view these in logs
+  * Use `!dm_channel_id` in an inbox thread to view the DM channel ID
+  * *DM channel and message IDs are primarily useful for Discord T&S reports*
+* Some code reorganisation related to threads and thread messages.
+  If you have a plugin that interacts with Thread or ThreadMessage objects,
+  test them before running this update in production!
+
 ## v2.30.1
 * Fix crash with `responseMessage` and `closeMessage` introduced in v2.30.0
   ([#369](https://github.com/Dragory/modmailbot/pull/369))
