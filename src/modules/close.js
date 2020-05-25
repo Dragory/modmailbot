@@ -13,7 +13,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     for (const thread of threadsToBeClosed) {
       if (config.closeMessage && ! thread.scheduled_close_silent) {
         const closeMessage = utils.readMultilineConfigValue(config.closeMessage);
-        await thread.postToUser(closeMessage).catch(() => {});
+        await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
       }
 
       await thread.close(false, thread.scheduled_close_silent);
@@ -118,7 +118,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     // Send close message (unless suppressed with a silent close)
     if (hasCloseMessage && ! silentClose) {
       const closeMessage = utils.readMultilineConfigValue(config.closeMessage);
-      await thread.postToUser(closeMessage).catch(() => {});
+      await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
     }
 
     const logUrl = await thread.getLogUrl();
@@ -139,7 +139,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     console.log(`[INFO] Auto-closing thread with ${thread.user_name} because the channel was deleted`);
     if (config.closeMessage) {
       const closeMessage = utils.readMultilineConfigValue(config.closeMessage);
-      await thread.postToUser(closeMessage).catch(() => {});
+      await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
     }
 
     await thread.close(true);
