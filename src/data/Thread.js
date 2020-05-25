@@ -250,9 +250,9 @@ class Thread {
    * @private
    */
   _lastMessageNumberInThreadSQL() {
-    return knex('thread_messages')
-      .select(knex.raw('MAX(message_number)'))
-      .whereRaw(`thread_messages.thread_id = '${this.id}'`)
+    return knex('thread_messages AS tm_msg_num_ref')
+      .select(knex.raw('MAX(tm_msg_num_ref.message_number)'))
+      .whereRaw(`tm_msg_num_ref.thread_id = '${this.id}'`)
       .toSQL()
       .sql;
   }
