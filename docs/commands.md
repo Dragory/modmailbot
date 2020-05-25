@@ -1,31 +1,115 @@
 # 🤖 Commands
 
+## Table of contents
+* [Inside a ModMail thread](#inside-a-modmail-thread)
+* [Anywhere on the inbox server](#anywhere-on-the-inbox-server)
+* [Snippets (canned messages)](#snippets-canned-messages)
+
+## Inside a ModMail thread
+These commands can only be used inside a ModMail thread's channel on the inbox server.
+
+### `!reply <text>` / `!r <text>`
+Send a reply to the user.
+
+**Example:** `!r How can I help you?`
+
+To reply automatically without using `!reply`, [enable `alwaysReply` in bot settings](configuration.md).
+
+### `!anonreply <text>` / `!ar <text>`
+Send an anonymous reply to the user. Anonymous replies only show the moderator's role in the reply.
+
+**Example:** `!ar Please only use ModMail for serious messages`
+
+### `!close`
+Close the ModMail thread.
+
+### `!close <time>`
+Close the ModMail thread after a timer. Sending a message to the user or receiving a message from the user will cancel scheduled closing.
+
+**Example:** `!close 15m`
+
+### `!close cancel`
+Cancel a timed close.
+
+### `!logs`
+List previous ModMail logs with the user.
+
+### `!block`
+Block the user from using ModMail.
+
+### `!block <time>`
+Block the user from using ModMail for a specified time.
+
+**Example:** `!block 7d`
+
+### `!unblock`
+Unblock the user, allowing them to use ModMail again.
+
+### `!move <category>`
+Move the ModMail thread to a different category.
+Requires `allowMove` to be enabled in the bot's settings.
+
+### `!suspend`
+Suspend the thread.
+The thread will act as closed and will not receive any messages until unsuspended via `!unsuspend`.
+
+### `!unsuspend`
+Unsuspend the thread. See `!suspend` above.
+
+### `!alert`
+Pings you when the thread gets a new reply.
+
+### `!alert cancel`
+Cancel the ping set by `!alert`.
+
+### `!loglink`
+Get a link to the open ModMail thread's log.
+
+### `!loglink -s`
+Get a link to the open ModMail thread's log, only showing messages to/from the user (ignores mod chatter within the thread).
+
+### `!loglink -v`
+Get a link to the open ModMail thread's log, showing extra details about channel and message IDs between the bot and the user.
+This is mainly useful when reporting messages to Discord's Trust & Safety team.
+
+### `!id`
+Prints the user's ID.
+
 ## Anywhere on the inbox server
-`!logs <user> <page>` Lists previous modmail logs with the specified user. If there are a lot of logs, they will be paginated. In this case, you can specify the page number to view as the second argument.  
-`!block <user> <time>` Blocks the specified user from using modmail. If a time is specified, the block is temporary.  
-`!unblock <user> <time>` Unblocks the specified user from using modmail. If a time is specified, the user will be scheduled to be unblocked after that time.  
-`!is_blocked <user>` Checks whether the user is blocked and for how long  
-`!s <shortcut> <text>` Adds a snippet (a canned response). Supports {1}, {2}, etc. for arguments. See below for how to use it.  
-`!edit_snippet <shortcut> <text>` Edits an existing snippet (alias `!es`)  
-`!delete_snippet <shortcut>` Deletes the specified snippet (alias `!ds`)  
-`!snippets` Lists all available snippets  
-`!version` Print the version of the bot you're running  
-`!newthread <user>` Opens a new thread with the specified user  
+These commands can be used anywhere on the inbox server, even outside ModMail threads.
 
-## Inside a modmail thread
-`!reply <text>` Sends a reply to the user in the format "(Role) User: text" (alias `!r`)  
-`!anonreply <text>` Sends an anonymous reply to the user in the format "Role: text" (alias `!ar`)  
-`!close <time>` Closes the modmail thread. If a time is specified, the thread is scheduled to be closed later. Scheduled closing is cancelled if a message is sent to or received from the user.  
-`!logs <page>` Lists previous modmail logs with this user. If there are a lot of logs, they will be paginated. In this case, you can specify the page number to view as an argument.  
-`!block <time>` Blocks the user from using modmail. If a time is specified, the block is temporary.  
-`!unblock <time>` Unblocks the user from using modmail. If a time is specified, the user will be scheduled to be unblocked after that time.  
-`!!shortcut` Reply with a snippet. Replace `shortcut` with the snippet's actual shortcut.  
-`!!!shortcut` Reply with a snippet anonymously. Replace `shortcut` with the snippet's actual shortcut.  
-`!move <category>` If `allowMove` is enabled, moves the thread channel to the specified category  
-`!loglink` Shows the link to the current thread's log  
-`!suspend` Suspend a thread. The thread will act as closed and not receive any messages until unsuspended.  
-`!unsuspend` Unsuspend a thread  
-`!id` Prints the user's ID  
-`!alert` Pings you when the thread gets a new reply. Use `!alert cancel` to cancel.  
+### `!newthread <userID>`
+Open a ModMail thread with a user.
 
-To automatically reply without using !reply or !r, [enable `alwaysReply` in the config](configuration.md).
+**Example:** `!newthread 106391128718245888`
+
+### `!logs <userID>`
+List previous ModMail logs with the specified user.
+
+**Example:** `!logs 106391128718245888`
+
+### `!block <userID>`
+Block the specified user from ModMail.
+
+**Example:** `!block 106391128718245888`
+
+### `!block <userID> <time>`
+Block the specified user from ModMail for a specified time.
+
+**Example:** `!block 106391128718245888 7d`
+
+### `!unblock <userID>`
+Unblock the specified user, allowing them to use ModMail again.
+
+**Example:** `!unblock 106391128718245888`
+
+### `!is_blocked <userID>`
+Check if the specified user is blocked.
+
+**Example:** `!is_blocked 106391128718245888`
+
+### `!version`
+Show the ModMail bot's version.
+
+## Snippets (canned messages)
+See the [📋 Snippets](snippets.md) page for more information!

@@ -10,6 +10,7 @@ Inspired by Reddit's modmail system.
 * **[🛠️ Setting up the bot](docs/setup.md)**
 * [📝 Configuration](docs/configuration.md)
 * [🤖 Commands](docs/commands.md)
+* [📋 Snippets](docs/snippets.md)
 * [🧩 Plugins](docs/plugins.md)
 * [🙋 Frequently Asked Questions](docs/faq.md)
 * [Release notes](CHANGELOG.md)
