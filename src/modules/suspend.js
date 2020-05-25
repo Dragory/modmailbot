@@ -61,7 +61,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
     if (! thread) {
-      thread.postSystemMessage(`Not in a thread`);
+      msg.channel.createMessage(`Not in a thread`);
       return;
     }
 
