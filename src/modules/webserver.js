@@ -73,16 +73,7 @@ async function serveLogs(req, res, pathParts, query) {
   });
 
   const openedAt = moment(thread.created_at).format('YYYY-MM-DD HH:mm:ss');
-  let header = `# ModMail thread with ${thread.user_name} (${thread.user_id}) started at ${openedAt}.`;
-  header += `\n# All times are in UTC+0.`;
-
-  if (! query.simple) {
-    header += `\n# Add ?simple=1 to the end of the log link to view only messages from the user and replies.`;
-  }
-
-  if (! query.verbose) {
-    header += `\n# Add ?verbose=1 to the end of the log link to view message IDs.`;
-  }
+  const header = `# ModMail thread with ${thread.user_name} (${thread.user_id}) started at ${openedAt}. All times are in UTC+0.`;
 
   const fullResponse = header + '\n\n' + lines.join('\n');
 
