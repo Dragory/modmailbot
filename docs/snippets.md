@@ -1,5 +1,5 @@
 # 📋 Snippets
-Snippets, sometimes also called "canned messages" or "tags", are commonly used messages you can send in ModMail threads with just 1 command.
+Snippets, sometimes also called "canned messages" or "tags", are commonly used messages you can send in Modmail threads with just 1 command.
 
 ![Snippets example](snippets.gif)
 
@@ -21,7 +21,7 @@ To create a snippet called "hi" with the text "Hello, how can we help you?", use
 
 ## Using snippets
 ### `!!shortcut` / `!!!shortcut`
-Inside a ModMail thread, use `!!shortcut` to send a snippet to the user, replacing `shortcut` with the snippet's name.
+Inside a Modmail thread, use `!!shortcut` to send a snippet to the user, replacing `shortcut` with the snippet's name.
 
 To send a snippet anonymously, use `!!!shortcut`.
 

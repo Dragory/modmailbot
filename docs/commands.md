@@ -1,12 +1,12 @@
 # 🤖 Commands
 
 ## Table of contents
-* [Inside a ModMail thread](#inside-a-modmail-thread)
+* [Inside a Modmail thread](#inside-a-modmail-thread)
 * [Anywhere on the inbox server](#anywhere-on-the-inbox-server)
 * [Snippets (canned messages)](#snippets-canned-messages)
 
-## Inside a ModMail thread
-These commands can only be used inside a ModMail thread's channel on the inbox server.
+## Inside a Modmail thread
+These commands can only be used inside a Modmail thread's channel on the inbox server.
 
 ### `!reply <text>` / `!r <text>`
 Send a reply to the user.
@@ -18,13 +18,13 @@ To reply automatically without using `!reply`, [enable `alwaysReply` in bot sett
 ### `!anonreply <text>` / `!ar <text>`
 Send an anonymous reply to the user. Anonymous replies only show the moderator's role in the reply.
 
-**Example:** `!ar Please only use ModMail for serious messages`
+**Example:** `!ar Please only use Modmail for serious messages`
 
 ### `!close`
-Close the ModMail thread.
+Close the Modmail thread.
 
 ### `!close <time>`
-Close the ModMail thread after a timer. Sending a message to the user or receiving a message from the user will cancel scheduled closing.
+Close the Modmail thread after a timer. Sending a message to the user or receiving a message from the user will cancel scheduled closing.
 
 **Example:** `!close 15m`
 
@@ -32,21 +32,21 @@ Close the ModMail thread after a timer. Sending a message to the user or receivi
 Cancel a timed close.
 
 ### `!logs`
-List previous ModMail logs with the user.
+List previous Modmail logs with the user.
 
 ### `!block`
-Block the user from using ModMail.
+Block the user from using Modmail.
 
 ### `!block <time>`
-Block the user from using ModMail for a specified time.
+Block the user from using Modmail for a specified time.
 
 **Example:** `!block 7d`
 
 ### `!unblock`
-Unblock the user, allowing them to use ModMail again.
+Unblock the user, allowing them to use Modmail again.
 
 ### `!move <category>`
-Move the ModMail thread to a different category.
+Move the Modmail thread to a different category.
 Requires `allowMove` to be enabled in the bot's settings.
 
 ### `!suspend`
@@ -63,43 +63,43 @@ Pings you when the thread gets a new reply.
 Cancel the ping set by `!alert`.
 
 ### `!loglink`
-Get a link to the open ModMail thread's log.
+Get a link to the open Modmail thread's log.
 
 ### `!loglink -s`
-Get a link to the open ModMail thread's log, only showing messages to/from the user (ignores mod chatter within the thread).
+Get a link to the open Modmail thread's log, only showing messages to/from the user (ignores mod chatter within the thread).
 
 ### `!loglink -v`
-Get a link to the open ModMail thread's log, showing extra details about channel and message IDs between the bot and the user.
+Get a link to the open Modmail thread's log, showing extra details about channel and message IDs between the bot and the user.
 This is mainly useful when reporting messages to Discord's Trust & Safety team.
 
 ### `!id`
 Prints the user's ID.
 
 ## Anywhere on the inbox server
-These commands can be used anywhere on the inbox server, even outside ModMail threads.
+These commands can be used anywhere on the inbox server, even outside Modmail threads.
 
 ### `!newthread <userID>`
-Open a ModMail thread with a user.
+Open a Modmail thread with a user.
 
 **Example:** `!newthread 106391128718245888`
 
 ### `!logs <userID>`
-List previous ModMail logs with the specified user.
+List previous Modmail logs with the specified user.
 
 **Example:** `!logs 106391128718245888`
 
 ### `!block <userID>`
-Block the specified user from ModMail.
+Block the specified user from Modmail.
 
 **Example:** `!block 106391128718245888`
 
 ### `!block <userID> <time>`
-Block the specified user from ModMail for a specified time.
+Block the specified user from Modmail for a specified time.
 
 **Example:** `!block 106391128718245888 7d`
 
 ### `!unblock <userID>`
-Unblock the specified user, allowing them to use ModMail again.
+Unblock the specified user, allowing them to use Modmail again.
 
 **Example:** `!unblock 106391128718245888`
 
@@ -109,7 +109,7 @@ Check if the specified user is blocked.
 **Example:** `!is_blocked 106391128718245888`
 
 ### `!version`
-Show the ModMail bot's version.
+Show the Modmail bot's version.
 
 ## Snippets (canned messages)
 See the [📋 Snippets](snippets.md) page for more information!
