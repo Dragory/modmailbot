@@ -121,6 +121,9 @@ const defaultConfig = {
   "knex": null,
 
   "logDir": path.join(__dirname, '..', 'logs'),
+
+  "reactOnSeen": false,
+  "reactOnSeenEmoji": "\uD83D\uDCE8",
 };
 
 // Load config values from environment variables

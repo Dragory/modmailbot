@@ -163,6 +163,11 @@ class Thread {
       dm_message_id: msg.id
     });
 
+    if (config.reactOnSeen)
+    {
+        await msg.addReaction(config.reactOnSeenEmoji)
+    }
+
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
       await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
