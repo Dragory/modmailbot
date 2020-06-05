@@ -3,6 +3,6 @@
         "name": "ModMailBot",
         "cwd": "./",
         "script": "npm",
-        "args": "./src/index.js"
+        "args": "start"
     }]
 }
