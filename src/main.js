@@ -229,6 +229,17 @@ function initBaseMessageHandlers() {
       const botMentionResponse = utils.readMultilineConfigValue(config.botMentionResponse);
       bot.createMessage(msg.channel.id, botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`));
     }
+
+    // If configured, automatically open a new thread with a user who has pinged it
+    if (config.threadOnMention) {
+       if (await blocked.isBlocked(msg.author.id)) return;  // This may not be needed as it is checked above.
+       if (utils.isStaff(msg.member)) return;               // Same.
+       const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
+       if (existingThread) {                                // Already a thread open; nothing to do
+          return;
+       }
+       const createdThread = await threads.createNewThreadForUser(msg.author, true, true);
+    }
   });
 }
 

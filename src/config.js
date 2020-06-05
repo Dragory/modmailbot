@@ -76,6 +76,7 @@ const defaultConfig = {
   "mentionRole": "here",
   "pingOnBotMention": true,
   "botMentionResponse": null,
+  "threadOnMention": false,
 
   "inboxServerPermission": null,
   "alwaysReply": false,

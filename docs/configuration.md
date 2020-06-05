@@ -254,6 +254,10 @@ The bot's "Playing" text
 **Default:** `on`  
 If enabled, channel permissions for the thread are synchronized with the category when using `!move`. Requires `allowMove` to be enabled.
 
+#### threadOnMention
+**Default:** `off`  
+If enabled, the bot will automatically create a new thread for a user who pings it.
+
 #### threadTimestamps
 **Default:** `off`  
 If enabled, modmail threads will show accurate UTC timestamps for each message, in addition to Discord's own timestamps.
