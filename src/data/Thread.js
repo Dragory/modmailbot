@@ -360,7 +360,7 @@ class Thread {
     // Show user reply in the inbox thread
     const inboxContent = this._formatUserReplyThreadMessage(msg.author, msg.content, msg.embeds, threadFormattedAttachments, null);
     const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
-    await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+    if (inboxMessage) await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
 
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
