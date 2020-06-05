@@ -22,7 +22,7 @@ This example adds a command `!mycommand` that replies with `"Reply from my custo
 ```js
 module.exports = function({ bot, knex, config, commands }) {
   commands.addInboxThreadCommand('mycommand', [], (msg, args, thread) => {
-    thread.replyToUser(msg.author, 'Reply from my custom plugin!');
+    thread.replyToUser(msg.member, 'Reply from my custom plugin!');
   });
 }
 ```
