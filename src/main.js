@@ -235,10 +235,9 @@ function initBaseMessageHandlers() {
        if (await blocked.isBlocked(msg.author.id)) return;  // This may not be needed as it is checked above.
        if (utils.isStaff(msg.member)) return;               // Same.
        const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
-       if (existingThread) {                                // Already a thread open; nothing to do
-          return;
+       if (! existingThread) {                                // Only open a thread if we don't already have one.
+          const createdThread = await threads.createNewThreadForUser(msg.author, true, true);
        }
-       const createdThread = await threads.createNewThreadForUser(msg.author, true, true);
     }
   });
 }
