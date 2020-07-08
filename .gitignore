@@ -1,7 +1,0 @@
-/.vscode
-/.idea
-/node_modules
-/config.*
-!/config.example.ini
-/welcome.png
-/update.sh
