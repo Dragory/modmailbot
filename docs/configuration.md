@@ -50,7 +50,7 @@ inboxServerPermission[] = manageMessages
 You can also give these options a single value in the usual way, i.e. `inboxServerPermission = kickMembers`
 
 ### Multiple lines of text
-For some options, such as `greetingMessage` or `mainGuildId`, you might want to add text that spans multiple lines.
+For some options, such as `greetingMessage`, you might want to add text that spans multiple lines.
 To do that, use the same format as with "Accepts multiple values" above:
 
 ```ini
