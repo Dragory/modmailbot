@@ -1,7 +1,7 @@
 // Verify NodeJS version
 const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
-if (nodeMajorVersion < 10) {
-  console.error('Unsupported NodeJS version! Please install NodeJS 10 or newer.');
+if (nodeMajorVersion < 11) {
+  console.error('Unsupported NodeJS version! Please install Node.js 11, 12, 13, or 14.');
   process.exit(1);
 }
 

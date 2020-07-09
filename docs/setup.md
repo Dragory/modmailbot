@@ -14,8 +14,7 @@ To keep it online, you need to keep the bot process running.
 ## Prerequisites
 1. Create a bot account through the [Discord Developer Portal](https://discordapp.com/developers/)
 2. Invite the created bot to your server
-3. Install Node.js 10, 11, or 12
-    - Node.js 13 is currently not supported
+3. Install Node.js 11, 12, 13, or 14
 4. Download the latest bot version from [the releases page](https://github.com/Dragory/modmailbot/releases) and extract it to a folder
 5. In the bot's folder, make a copy of the file `config.example.ini` and rename the copy to `config.ini`
 
