@@ -24,7 +24,7 @@ module.exports = {
     };
   },
 
-  loadPlugin(plugin, api) {
-    plugin(api);
+  async loadPlugin(plugin, api) {
+    await plugin(api);
   }
 };

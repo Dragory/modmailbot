@@ -45,7 +45,10 @@ module.exports = {
       console.log('Initializing...');
       initStatus();
       initBaseMessageHandlers();
-      initPlugins();
+
+      console.log('Loading plugins...');
+      const pluginResult = await initPlugins();
+      console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.builtInCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
 
       console.log('');
       console.log('Done! Now listening to DMs.');
@@ -253,7 +256,7 @@ function initBaseMessageHandlers() {
   });
 }
 
-function initPlugins() {
+async function initPlugins() {
   // Initialize command manager
   const commands = createCommandManager(bot);
 
@@ -265,7 +268,6 @@ function initPlugins() {
   }
 
   // Load plugins
-  console.log('Loading plugins');
   const builtInPlugins = [
     reply,
     close,
@@ -293,11 +295,17 @@ function initPlugins() {
   }
 
   const pluginApi = getPluginAPI({ bot, knex, config, commands });
-  plugins.forEach(pluginFn => loadPlugin(pluginFn, pluginApi));
-
-  console.log(`Loaded ${plugins.length} plugins (${builtInPlugins.length} built-in plugins, ${plugins.length - builtInPlugins.length} external plugins)`);
+  for (const plugin of plugins) {
+    await loadPlugin(plugin, pluginApi);
+  }
 
   if (config.updateNotifications) {
     updates.startVersionRefreshLoop();
   }
+
+  return {
+    loadedCount: plugins.length,
+    builtInCount: builtInPlugins.length,
+    externalCount: plugins.length - builtInPlugins.length,
+  };
 }
