@@ -52,12 +52,17 @@ function getHeaderGuildInfo(member) {
 /**
  * Creates a new modmail thread for the specified user
  * @param {User} user
- * @param {Member} member
- * @param {Boolean} quiet If true, doesn't ping mentionRole or reply with responseMessage
+ * @param {Object} opts
+ * @param {Boolean} opts.quiet If true, doesn't ping mentionRole or reply with responseMessage
+ * @param {Boolean} opts.ignoreRequirements If true, creates a new thread even if the account doesn't meet requiredAccountAge
+ * @param {String} opts.categoryId Override the category ID for the new thread
  * @returns {Promise<Thread|undefined>}
  * @throws {Error}
  */
-async function createNewThreadForUser(user, quiet = false, ignoreRequirements = false) {
+async function createNewThreadForUser(user, opts = {}) {
+  const quiet = opts.quiet != null ? opts.quiet : false;
+  const ignoreRequirements = opts.ignoreRequirements != null ? opts.ignoreRequirements : false;
+
   const existingThread = await findOpenThreadByUserId(user.id);
   if (existingThread) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
@@ -126,9 +131,9 @@ async function createNewThreadForUser(user, quiet = false, ignoreRequirements = 
   console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
   // Figure out which category we should place the thread channel in
-  let newThreadCategoryId;
+  let newThreadCategoryId = opts.categoryId || null;
 
-  if (config.categoryAutomation.newThreadFromGuild) {
+  if (! newThreadCategoryId && config.categoryAutomation.newThreadFromGuild) {
     // Categories for specific source guilds (in case of multiple main guilds)
     for (const [guildId, categoryId] of Object.entries(config.categoryAutomation.newThreadFromGuild)) {
       if (userGuildData.has(guildId)) {
