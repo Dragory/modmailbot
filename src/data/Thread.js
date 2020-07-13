@@ -1,4 +1,5 @@
 const moment = require('moment');
+const Eris = require('eris');
 
 const bot = require('../bot');
 const knex = require('../knex');
@@ -30,46 +31,73 @@ class Thread {
   }
 
   /**
-   * @param {string} text
+   * @param {Eris.MessageContent} text
    * @param {Eris.MessageFile|Eris.MessageFile[]} file
    * @returns {Promise<Eris.Message>}
    * @throws Error
    * @private
    */
-  async _sendDMToUser(text, file = null) {
+  async _sendDMToUser(content, file = null) {
     // Try to open a DM channel with the user
     const dmChannel = await this.getDMChannel();
     if (! dmChannel) {
       throw new Error('Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.');
     }
 
-    // Send the DM
-    const chunks = utils.chunk(text, 2000);
-    const messages = await Promise.all(chunks.map((chunk, i) => {
-      return dmChannel.createMessage(
-        chunk,
-        (i === chunks.length - 1 ? file : undefined)  // Only send the file with the last message
-      );
-    }));
-    return messages[0];
+    let firstMessage;
+
+    if (typeof content === 'string') {
+      // Content is a string, chunk it and send it as individual messages.
+      // Files (attachments) are only sent with the last message.
+      const chunks = utils.chunk(content, 2000);
+      for (const [i, chunk] of chunks.entries()) {
+        let msg;
+        if (i === chunks.length - 1) {
+          // Only send embeds, files, etc. with the last message
+          msg = await dmChannel.createMessage(chunk, file);
+        } else {
+          msg = await dmChannel.createMessage(chunk);
+        }
+
+        firstMessage = firstMessage || msg;
+      }
+    } else {
+      // Content is a full message content object, send it as-is with the files (if any)
+      firstMessage = await dmChannel.createMessage(content, file);
+    }
+
+    return firstMessage;
   }
 
   /**
-   * @returns {Promise<Eris.Message>}
+   * @param {Eris.MessageContent} content
+   * @param {Eris.MessageFile} file
+   * @return {Promise<Eris.Message|null>}
    * @private
    */
-  async _postToThreadChannel(...args) {
+  async _postToThreadChannel(content, file = null) {
     try {
-      if (typeof args[0] === 'string') {
-        const chunks = utils.chunk(args[0], 2000);
-        const messages = await Promise.all(chunks.map((chunk, i) => {
-          const rest = (i === chunks.length - 1 ? args.slice(1) : []); // Only send the rest of the args (files, embeds) with the last message
-          return bot.createMessage(this.channel_id, chunk, ...rest);
-        }));
-        return messages[0];
+      let firstMessage;
+
+      if (typeof content === 'string') {
+        // Content is a string, chunk it and send it as individual messages.
+        // Files (attachments) are only sent with the last message.
+        const chunks = utils.chunk(content, 2000);
+        for (const [i, chunk] of chunks.entries()) {
+          let msg;
+          if (i === chunks.length - 1) {
+            // Only send embeds, files, etc. with the last message
+            msg = await bot.createMessage(this.channel_id, chunk, file);
+          }
+
+          firstMessage = firstMessage || msg;
+        }
       } else {
-        return bot.createMessage(this.channel_id, ...args);
+        // Content is a full message content object, send it as-is with the files (if any)
+        firstMessage = await bot.createMessage(this.channel_id, content, file);
       }
+
+      return firstMessage;
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {

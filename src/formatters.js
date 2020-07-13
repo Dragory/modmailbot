@@ -10,7 +10,7 @@ const config = require('./config');
  * @param {{
  *   isAnonymous: boolean,
  * }} opts={}
- * @return {string} Message content to send as a DM
+ * @return {Eris.MessageContent} Message content to send as a DM
  */
 
 /**
@@ -22,7 +22,7 @@ const config = require('./config');
  * @param {{
  *   isAnonymous: boolean,
  * }} opts={}
- * @return {string} Message content to post in the thread channel
+ * @return {Eris.MessageContent} Message content to post in the thread channel
  */
 
 /**
@@ -45,7 +45,7 @@ const config = require('./config');
  * @param {{
  *   attachmentLinks: string[],
  * }} opts
- * @return {string} Message content to post in the thread channel
+ * @return {Eris.MessageContent} Message content to post in the thread channel
  */
 
 /**
