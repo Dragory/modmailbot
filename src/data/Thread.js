@@ -284,8 +284,8 @@ class Thread {
   }
 
   /**
-   * @param {string|Eris.MessageContent} content
-   * @param {*} args
+   * @param {Eris.MessageContent} content
+   * @param {Eris.MessageFile} file
    * @returns {Promise<void>}
    */
   async postSystemMessage(content, file = null) {
@@ -303,12 +303,12 @@ class Thread {
   }
 
   /**
-   * @param {string|Eris.MessageContent} content
-   * @param {*} args
+   * @param {Eris.MessageContent} content
+   * @param {Eris.MessageFile} file
    * @returns {Promise<void>}
    */
-  async sendSystemMessageToUser(content, ...args) {
-    const msg = await this._sendDMToUser(content, ...args);
+  async sendSystemMessageToUser(content, file = null) {
+    const msg = await this._sendDMToUser(content, file);
     await this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
       user_id: null,
@@ -320,11 +320,12 @@ class Thread {
   }
 
   /**
-   * @param {*} args
-   * @returns {Promise<void>}
+   * @param {Eris.MessageContent} content
+   * @param {Eris.MessageFile} file
+   * @return {Promise<Eris.Message|null>}
    */
-  async postNonLogMessage(...args) {
-    await this._postToThreadChannel(...args);
+  async postNonLogMessage(content, file = null) {
+    return this._postToThreadChannel(content, file);
   }
 
   /**
