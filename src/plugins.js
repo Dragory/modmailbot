@@ -1,5 +1,6 @@
 const attachments = require('./data/attachments');
 const { beforeNewThread } = require('./hooks');
+const formats = require('./formatters');
 
 module.exports = {
   getPluginAPI({ bot, knex, config, commands }) {
@@ -21,6 +22,7 @@ module.exports = {
       hooks: {
         beforeNewThread,
       },
+      formats,
     };
   },
 

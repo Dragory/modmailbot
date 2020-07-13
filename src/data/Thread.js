@@ -5,6 +5,7 @@ const knex = require('../knex');
 const utils = require('../utils');
 const config = require('../config');
 const attachments = require('./attachments');
+const { formatters } = require('../formatters');
 
 const ThreadMessage = require('./ThreadMessage');
 
@@ -26,133 +27,6 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
 class Thread {
   constructor(props) {
     utils.setDataModelProps(this, props);
-  }
-
-  /**
-   * @param {Eris.Member} moderator
-   * @param {string} text
-   * @param {boolean} isAnonymous
-   * @returns {string}
-   * @private
-   */
-  _formatStaffReplyDM(moderator, text, isAnonymous) {
-    const mainRole = utils.getMainRole(moderator);
-    const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
-    const modInfo = isAnonymous
-      ? (mainRole ? mainRole.name : 'Moderator')
-      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
-
-    return `**${modInfo}:** ${text}`;
-  }
-
-  /**
-   * @param {Eris.Member} moderator
-   * @param {string} text
-   * @param {boolean} isAnonymous
-   * @param {number} messageNumber
-   * @param {number} timestamp
-   * @returns {string}
-   * @private
-   */
-  _formatStaffReplyThreadMessage(moderator, text, isAnonymous, messageNumber, timestamp) {
-    const mainRole = utils.getMainRole(moderator);
-    const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
-    const modInfo = isAnonymous
-      ? `(Anonymous) (${modName}) ${mainRole ? mainRole.name : 'Moderator'}`
-      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
-
-    // TODO: Add \`[${messageNumber}]\` here once !edit and !delete exist
-    let result = `**${modInfo}:** ${text}`;
-
-    if (config.threadTimestamps) {
-      const formattedTimestamp = timestamp ? utils.getTimestamp(timestamp, 'x') : utils.getTimestamp();
-      result = `[${formattedTimestamp}] ${result}`;
-    }
-
-    return result;
-  }
-
-  /**
-   * @param {Eris.Member} moderator
-   * @param {string} text
-   * @param {boolean} isAnonymous
-   * @param {string[]} attachmentLinks
-   * @returns {string}
-   * @private
-   */
-  _formatStaffReplyLogMessage(moderator, text, isAnonymous, attachmentLinks = []) {
-    const mainRole = utils.getMainRole(moderator);
-    const modName = moderator.user.username;
-
-    // Mirroring the DM formatting here...
-    const modInfo = isAnonymous
-      ? (mainRole ? mainRole.name : 'Moderator')
-      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
-
-    let result = `**${modInfo}:** ${text}`;
-
-    if (attachmentLinks.length) {
-      result += '\n';
-      for (const link of attachmentLinks) {
-        result += `\n**Attachment:** ${link}`;
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * @param {Eris.User} user
-   * @param {string} body
-   * @param {Eris.EmbedBase[]} embeds
-   * @param {string[]} formattedAttachments
-   * @param {number} timestamp
-   * @return string
-   * @private
-   */
-  _formatUserReplyThreadMessage(user, body, embeds, formattedAttachments = [], timestamp) {
-    const content = (body.trim() === '' && embeds.length)
-      ? '<message contains embeds>'
-      : body;
-
-    let result = `**${user.username}#${user.discriminator}:** ${content}`;
-
-    if (formattedAttachments.length) {
-      for (const formatted of formattedAttachments) {
-        result += `\n\n${formatted}`;
-      }
-    }
-
-    if (config.threadTimestamps) {
-      const formattedTimestamp = timestamp ? utils.getTimestamp(timestamp, 'x') : utils.getTimestamp();
-      result = `[${formattedTimestamp}] ${result}`;
-    }
-
-    return result;
-  }
-
-  /**
-   * @param {Eris.User} user
-   * @param {string} body
-   * @param {Eris.EmbedBase[]} embeds
-   * @param {string[]} formattedAttachments
-   * @return string
-   * @private
-   */
-  _formatUserReplyLogMessage(user, body, embeds, formattedAttachments = []) {
-    const content = (body.trim() === '' && embeds.length)
-      ? '<message contains embeds>'
-      : body;
-
-    let result = content;
-
-    if (formattedAttachments.length) {
-      for (const formatted of formattedAttachments) {
-        result += `\n\n${formatted}`;
-      }
-    }
-
-    return result;
   }
 
   /**
@@ -285,7 +159,7 @@ class Thread {
     }
 
     // Send the reply DM
-    const dmContent = this._formatStaffReplyDM(moderator, text, isAnonymous);
+    const dmContent = formatters.formatStaffReplyDM(moderator, text, { isAnonymous });
     let dmMessage;
     try {
       dmMessage = await this._sendDMToUser(dmContent, files);
@@ -295,7 +169,7 @@ class Thread {
     }
 
     // Save the log entry
-    const logContent = this._formatStaffReplyLogMessage(moderator, text, isAnonymous, attachmentLinks);
+    const logContent = formatters.formatStaffReplyLogMessage(moderator, text, { isAnonymous, attachmentLinks });
     const threadMessage = await this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.TO_USER,
       user_id: moderator.id,
@@ -306,7 +180,7 @@ class Thread {
     });
 
     // Show the reply in the inbox thread
-    const inboxContent = this._formatStaffReplyThreadMessage(moderator, text, isAnonymous, threadMessage.message_number, null);
+    const inboxContent = formatters.formatStaffReplyThreadMessage(moderator, text, threadMessage.message_number, { isAnonymous });
     const inboxMessage = await this._postToThreadChannel(inboxContent, files);
     await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
 
@@ -347,7 +221,7 @@ class Thread {
     }
 
     // Save log entry
-    const logContent = this._formatUserReplyLogMessage(msg.author, msg.content, msg.embeds, logFormattedAttachments);
+    const logContent = formatters.formatUserReplyLogMessage(msg.author, msg, { attachmentLinks: logFormattedAttachments });
     const threadMessage = await this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
@@ -358,7 +232,7 @@ class Thread {
     });
 
     // Show user reply in the inbox thread
-    const inboxContent = this._formatUserReplyThreadMessage(msg.author, msg.content, msg.embeds, threadFormattedAttachments, null);
+    const inboxContent = formatters.formatUserReplyThreadMessage(msg.author, msg, { attachmentLinks: threadFormattedAttachments });
     const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
     if (inboxMessage) await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
 
