@@ -210,7 +210,7 @@ class Thread {
     // Show the reply in the inbox thread
     const inboxContent = formatters.formatStaffReplyThreadMessage(moderator, text, threadMessage.message_number, { isAnonymous });
     const inboxMessage = await this._postToThreadChannel(inboxContent, files);
-    await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+    if (inboxMessage) await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
 
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
@@ -288,16 +288,18 @@ class Thread {
    * @param {*} args
    * @returns {Promise<void>}
    */
-  async postSystemMessage(content, ...args) {
-    const msg = await this._postToThreadChannel(content, ...args);
-    await this._addThreadMessageToDB({
-      message_type: THREAD_MESSAGE_TYPE.SYSTEM,
-      user_id: null,
-      user_name: '',
-      body: typeof content === 'string' ? content : content.content,
-      is_anonymous: 0,
-      dm_message_id: msg.id
-    });
+  async postSystemMessage(content, file = null) {
+    const msg = await this._postToThreadChannel(content, file);
+    if (msg) {
+      await this._addThreadMessageToDB({
+        message_type: THREAD_MESSAGE_TYPE.SYSTEM,
+        user_id: null,
+        user_name: '',
+        body: typeof content === 'string' ? content : content.content,
+        is_anonymous: 0,
+        dm_message_id: msg.id
+      });
+    }
   }
 
   /**
