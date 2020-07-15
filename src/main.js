@@ -8,7 +8,7 @@ const {messageQueue} = require('./queue');
 const utils = require('./utils');
 const { createCommandManager } = require('./commands');
 const { getPluginAPI, loadPlugin } = require('./plugins');
-const { beforeNewThreadHooks } = require('./hooks');
+const { callBeforeNewThreadHooks } = require('./hooks/beforeNewThread');
 
 const blocked = require('./data/blocked');
 const threads = require('./data/threads');
@@ -132,28 +132,9 @@ function initBaseMessageHandlers() {
         // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
         if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
-        let cancelled = false;
-        let categoryId = null;
-
-        /**
-         * @type {BeforeNewThreadHookEvent}
-         */
-        const ev = {
-          cancel() {
-            cancelled = true;
-          },
-
-          setCategoryId(_categoryId) {
-            categoryId = _categoryId;
-          },
-        };
-
-        for (const hook of beforeNewThreadHooks) {
-          await hook(ev, msg);
-          if (cancelled) return;
-        }
-
-        thread = await threads.createNewThreadForUser(msg.author, { categoryId });
+        thread = await threads.createNewThreadForUser(msg.author, {
+          source: 'dm',
+        });
       }
 
       if (thread) {

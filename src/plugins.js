@@ -1,5 +1,5 @@
 const attachments = require('./data/attachments');
-const { beforeNewThread } = require('./hooks');
+const { beforeNewThread } = require('./hooks/beforeNewThread');
 const formats = require('./formatters');
 
 module.exports = {

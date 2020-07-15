@@ -12,6 +12,7 @@ const utils = require('../utils');
 const updates = require('./updates');
 
 const Thread = require('./Thread');
+const {callBeforeNewThreadHooks} = require("../hooks/beforeNewThread");
 const {THREAD_STATUS} = require('./constants');
 
 const MINUTES = 60 * 1000;
@@ -50,12 +51,16 @@ function getHeaderGuildInfo(member) {
 }
 
 /**
+ * @typedef CreateNewThreadForUserOpts
+ * @property {boolean} quiet If true, doesn't ping mentionRole or reply with responseMessage
+ * @property {boolean} ignoreRequirements If true, creates a new thread even if the account doesn't meet requiredAccountAge
+ * @property {string} source A string identifying the source of the new thread
+ */
+
+/**
  * Creates a new modmail thread for the specified user
  * @param {User} user
- * @param {Object} opts
- * @param {Boolean} opts.quiet If true, doesn't ping mentionRole or reply with responseMessage
- * @param {Boolean} opts.ignoreRequirements If true, creates a new thread even if the account doesn't meet requiredAccountAge
- * @param {String} opts.categoryId Override the category ID for the new thread
+ * @param {CreateNewThreadForUserOpts} opts
  * @returns {Promise<Thread|undefined>}
  * @throws {Error}
  */
@@ -67,6 +72,9 @@ async function createNewThreadForUser(user, opts = {}) {
   if (existingThread) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
   }
+
+  const hookResult = await callBeforeNewThreadHooks({ user, opts });
+  if (hookResult.cancelled) return;
 
   // If set in config, check that the user's account is old enough (time since they registered on Discord)
   // If the account is too new, don't start a new thread and optionally reply to them with a message
@@ -131,7 +139,7 @@ async function createNewThreadForUser(user, opts = {}) {
   console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
   // Figure out which category we should place the thread channel in
-  let newThreadCategoryId = opts.categoryId || null;
+  let newThreadCategoryId = hookResult.categoryId || null;
 
   if (! newThreadCategoryId && config.categoryAutomation.newThreadFromGuild) {
     // Categories for specific source guilds (in case of multiple main guilds)
@@ -340,11 +348,16 @@ async function getClosedThreadCountByUserId(userId) {
   return parseInt(row.thread_count, 10);
 }
 
-async function findOrCreateThreadForUser(user) {
+/**
+ * @param {User} user
+ * @param {CreateNewThreadForUserOpts} opts
+ * @returns {Promise<Thread|undefined>}
+ */
+async function findOrCreateThreadForUser(user, opts = {}) {
   const existingThread = await findOpenThreadByUserId(user.id);
   if (existingThread) return existingThread;
 
-  return createNewThreadForUser(user);
+  return createNewThreadForUser(user, opts);
 }
 
 async function getThreadsThatShouldBeClosed() {

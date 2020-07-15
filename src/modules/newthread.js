@@ -15,7 +15,12 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
-    const createdThread = await threads.createNewThreadForUser(user, { quiet: true, ignoreRequirements: true });
+    const createdThread = await threads.createNewThreadForUser(user, {
+      quiet: true,
+      ignoreRequirements: true,
+      source: 'command',
+    });
+
     createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
 
     msg.channel.createMessage(`Thread opened: <#${createdThread.channel_id}>`);
