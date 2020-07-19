@@ -1,7 +1,9 @@
-const { CommandManager, defaultParameterTypes, TypeConversionError } = require('knub-command-manager');
+const { CommandManager, defaultParameterTypes, TypeConversionError, IParameter, ICommandConfig } = require('knub-command-manager');
+const Eris = require('eris');
 const config = require('./cfg');
 const utils = require('./utils');
 const threads = require('./data/threads');
+const Thread = require('./data/Thread');
 
 module.exports = {
   createCommandManager(bot) {
@@ -85,7 +87,18 @@ module.exports = {
     };
 
     /**
+     * @callback InboxThreadCommandHandler
+     * @param {Eris.Message} msg
+     * @param {object} args
+     * @param {Thread} thread
+     */
+
+    /**
      * Add a command that can only be invoked in a thread on the inbox server
+     * @param {string|RegExp} trigger
+     * @param {string|IParameter[]} parameters
+     * @param {InboxThreadCommandHandler} handler
+     * @param {ICommandConfig} commandConfig
      */
     const addInboxThreadCommand = (trigger, parameters, handler, commandConfig = {}) => {
       const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];

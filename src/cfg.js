@@ -89,6 +89,8 @@ const defaultConfig = {
   "typingProxyReverse": false,
   "mentionUserInThreadHeader": false,
   "rolesInThreadHeader": false,
+  "allowStaffEdit": false,
+  "allowStaffDelete": false,
 
   "enableGreeting": false,
   "greetingMessage": null,

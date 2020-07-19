@@ -1,5 +1,7 @@
 const attachments = require("../data/attachments");
 const utils = require('../utils');
+const config = require('../cfg');
+const Thread = require('../data/Thread');
 
 module.exports = ({ bot, knex, config, commands }) => {
   // Mods can reply to modmail threads using !r or !reply
@@ -16,7 +18,6 @@ module.exports = ({ bot, knex, config, commands }) => {
     aliases: ['r']
   });
 
-
   // Anonymous replies only show the role, not the username
   commands.addInboxThreadCommand('anonreply', '[text$]', async (msg, args, thread) => {
     if (! args.text && msg.attachments.length === 0) {
@@ -29,4 +30,42 @@ module.exports = ({ bot, knex, config, commands }) => {
   }, {
     aliases: ['ar']
   });
+
+  if (config.allowStaffEdit) {
+    commands.addInboxThreadCommand('edit', '<messageNumber:number> <text:string$>', async (msg, args, thread) => {
+      const threadMessage = await thread.findThreadMessageByMessageNumber(args.messageNumber);
+      if (! threadMessage) {
+        utils.postError(msg.channel, 'Unknown message number');
+        return;
+      }
+
+      if (threadMessage.user_id !== msg.author.id) {
+        utils.postError(msg.channel, 'You can only edit your own replies');
+        return;
+      }
+
+      await thread.editStaffReply(msg.member, threadMessage, args.text)
+    }, {
+      aliases: ['e']
+    });
+  }
+
+  if (config.allowStaffDelete) {
+    commands.addInboxThreadCommand('delete', '<messageNumber:number>', async (msg, args, thread) => {
+      const threadMessage = await thread.findThreadMessageByMessageNumber(args.messageNumber);
+      if (! threadMessage) {
+        utils.postError(msg.channel, 'Unknown message number');
+        return;
+      }
+
+      if (threadMessage.user_id !== msg.author.id) {
+        utils.postError(msg.channel, 'You can only delete your own replies');
+        return;
+      }
+
+      await thread.deleteStaffReply(msg.member, threadMessage);
+    }, {
+      aliases: ['d']
+    });
+  }
 };
