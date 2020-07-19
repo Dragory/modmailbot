@@ -1,6 +1,7 @@
 const Eris = require('eris');
 const utils = require('./utils');
 const config = require('./cfg');
+const ThreadMessage = require('./data/ThreadMessage');
 
 /**
  * Function to format the DM that is sent to the user when a staff member replies to them via !reply
@@ -49,6 +50,7 @@ const config = require('./cfg');
  */
 
 /**
+ * Function to format a user reply in a log
  * @callback FormatUserReplyLogMessage
  * @param {Eris.User} user
  * @param {Eris.Message} msg
@@ -59,12 +61,50 @@ const config = require('./cfg');
  */
 
 /**
+ * Function to format the inbox channel notification for a staff reply edit
+ * @callback FormatStaffReplyEditNotificationThreadMessage
+ * @param {Eris.Member} moderator
+ * @param {ThreadMessage} threadMessage
+ * @param {string} newText
+ * @return {Eris.MessageContent} Message content to post in the thread channel
+ */
+
+/**
+ * Function to format the log notification for a staff reply edit
+ * @callback FormatStaffReplyEditNotificationLogMessage
+ * @param {Eris.Member} moderator
+ * @param {ThreadMessage} threadMessage
+ * @param {string} newText
+ * @return {string} Text to show in the log
+ */
+
+/**
+ * Function to format the inbox channel notification for a staff reply deletion
+ * @callback FormatStaffReplyDeletionNotificationThreadMessage
+ * @param {Eris.Member} moderator
+ * @param {ThreadMessage} threadMessage
+ * @return {Eris.MessageContent} Message content to post in the thread channel
+ */
+
+/**
+ * Function to format the log notification for a staff reply deletion
+ * @callback FormatStaffReplyDeletionNotificationLogMessage
+ * @param {Eris.Member} moderator
+ * @param {ThreadMessage} threadMessage
+ * @return {string} Text to show in the log
+ */
+
+/**
  * @typedef MessageFormatters
  * @property {FormatStaffReplyDM} formatStaffReplyDM
  * @property {FormatStaffReplyThreadMessage} formatStaffReplyThreadMessage
  * @property {FormatStaffReplyLogMessage} formatStaffReplyLogMessage
  * @property {FormatUserReplyThreadMessage} formatUserReplyThreadMessage
  * @property {FormatUserReplyLogMessage} formatUserReplyLogMessage
+ * @property {FormatStaffReplyEditNotificationThreadMessage} formatStaffReplyEditNotificationThreadMessage
+ * @property {FormatStaffReplyEditNotificationLogMessage} formatStaffReplyEditNotificationLogMessage
+ * @property {FormatStaffReplyDeletionNotificationThreadMessage} formatStaffReplyDeletionNotificationThreadMessage
+ * @property {FormatStaffReplyDeletionNotificationLogMessage} formatStaffReplyDeletionNotificationLogMessage
  */
 
 /**
@@ -156,6 +196,32 @@ const defaultFormatters = {
 
     return result;
   },
+
+  formatStaffReplyEditNotificationThreadMessage(moderator, threadMessage, newText) {
+    let content = `**${moderator.user.username}#${moderator.user.discriminator} (\`${moderator.id}\`) edited reply \`[${threadMessage.message_number}]\`:**`;
+    content += `\n\`B:\` ${threadMessage.body}`;
+    content += `\n\`A:\` ${newText}`;
+    return utils.disableLinkPreviews(content);
+  },
+
+  formatStaffReplyEditNotificationLogMessage(moderator, threadMessage, newText) {
+    let content = `${moderator.user.username}#${moderator.user.discriminator} (${moderator.id}) edited reply [${threadMessage.message_number}]:`;
+    content += `\nB: ${threadMessage.body}`;
+    content += `\nA: ${newText}`;
+    return content;
+  },
+
+  formatStaffReplyDeletionNotificationThreadMessage(moderator, threadMessage) {
+    let content = `**${moderator.user.username}#${moderator.user.discriminator} (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\`:**`;
+    content += `\n\`B:\` ${threadMessage.body}`;
+    return utils.disableLinkPreviews(content);
+  },
+
+  formatStaffReplyDeletionNotificationLogMessage(moderator, threadMessage) {
+    let content = `${moderator.user.username}#${moderator.user.discriminator} (${moderator.id}) deleted reply [${threadMessage.message_number}]:`;
+    content += `\nB: ${threadMessage.body}`;
+    return content;
+  },
 };
 
 /**
@@ -204,5 +270,37 @@ module.exports = {
    */
   setUserReplyLogMessageFormatter(fn) {
     formatters.formatUserReplyLogMessage = fn;
+  },
+
+  /**
+   * @param {FormatStaffReplyEditNotificationThreadMessage} fn
+   * @return {void}
+   */
+  setStaffReplyEditNotificationThreadMessageFormatter(fn) {
+    formatters.formatStaffReplyEditNotificationThreadMessage = fn;
+  },
+
+  /**
+   * @param {FormatStaffReplyEditNotificationLogMessage} fn
+   * @return {void}
+   */
+  setStaffReplyEditNotificationLogMessageFormatter(fn) {
+    formatters.formatStaffReplyEditNotificationLogMessage = fn;
+  },
+
+  /**
+   * @param {FormatStaffReplyDeletionNotificationThreadMessage} fn
+   * @return {void}
+   */
+  setStaffReplyDeletionNotificationThreadMessageFormatter(fn) {
+    formatters.formatStaffReplyDeletionNotificationThreadMessage = fn;
+  },
+
+  /**
+   * @param {FormatStaffReplyDeletionNotificationLogMessage} fn
+   * @return {void}
+   */
+  setStaffReplyDeletionNotificationLogMessageFormatter(fn) {
+    formatters.formatStaffReplyDeletionNotificationLogMessage = fn;
   },
 };

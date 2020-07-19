@@ -286,18 +286,22 @@ class Thread {
   /**
    * @param {Eris.MessageContent} content
    * @param {Eris.MessageFile} file
+   * @param {object} opts
+   * @param {boolean} opts.saveToLog
+   * @param {string} opts.logBody
    * @returns {Promise<void>}
    */
-  async postSystemMessage(content, file = null) {
+  async postSystemMessage(content, file = null, opts = {}) {
     const msg = await this._postToThreadChannel(content, file);
-    if (msg) {
+    if (msg && opts.saveToLog !== false) {
+      const finalLogBody = opts.logBody || msg.content || '<empty message>';
       await this._addThreadMessageToDB({
         message_type: THREAD_MESSAGE_TYPE.SYSTEM,
         user_id: null,
         user_name: '',
-        body: typeof content === 'string' ? content : content.content,
+        body: finalLogBody,
         is_anonymous: 0,
-        dm_message_id: msg.id
+        inbox_message_id: msg.id,
       });
     }
   }
@@ -305,18 +309,24 @@ class Thread {
   /**
    * @param {Eris.MessageContent} content
    * @param {Eris.MessageFile} file
+   * @param {object} opts
+   * @param {boolean} opts.saveToLog
+   * @param {string} opts.logBody
    * @returns {Promise<void>}
    */
-  async sendSystemMessageToUser(content, file = null) {
+  async sendSystemMessageToUser(content, file = null, opts = {}) {
     const msg = await this._sendDMToUser(content, file);
-    await this._addThreadMessageToDB({
-      message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
-      user_id: null,
-      user_name: '',
-      body: typeof content === 'string' ? content : content.content,
-      is_anonymous: 0,
-      dm_message_id: msg.id
-    });
+    if (opts.saveToLog !== false) {
+      const finalLogBody = opts.logBody || msg.content || '<empty message>';
+      await this._addThreadMessageToDB({
+        message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
+        user_id: null,
+        user_name: '',
+        body: finalLogBody,
+        is_anonymous: 0,
+        dm_message_id: msg.id,
+      });
+    }
   }
 
   /**
@@ -527,6 +537,56 @@ class Thread {
       .update({
         alert_id: userId
       });
+  }
+
+  /**
+   * @param {Eris.Member} moderator
+   * @param {ThreadMessage} threadMessage
+   * @param {string} newText
+   * @param {object} opts
+   * @param {boolean} opts.quiet Whether to suppress edit notifications in the thread channel
+   * @returns {Promise<void>}
+   */
+  async editStaffReply(moderator, threadMessage, newText, opts = {}) {
+    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(
+      moderator,
+      newText,
+      threadMessage.message_number,
+      { isAnonymous: threadMessage.is_anonymous }
+    );
+
+    const formattedDM = formatters.formatStaffReplyDM(
+      moderator,
+      newText,
+      { isAnonymous: threadMessage.is_anonymous }
+    );
+
+    await bot.editMessage(threadMessage.dm_channel_id, threadMessage.dm_message_id, formattedDM);
+    await bot.editMessage(this.channel_id, threadMessage.inbox_message_id, formattedThreadMessage);
+
+    if (! opts.quiet) {
+      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(moderator, threadMessage, newText);
+      const logNotification = formatters.formatStaffReplyEditNotificationLogMessage(moderator, threadMessage, newText);
+      await this.postSystemMessage(threadNotification, null, { logBody: logNotification });
+    }
+  }
+
+  /**
+   * @param {Eris.Member} moderator
+   * @param {ThreadMessage} threadMessage
+   * @param {object} opts
+   * @param {boolean} opts.quiet Whether to suppress edit notifications in the thread channel
+   * @returns {Promise<void>}
+   */
+  async deleteStaffReply(moderator, threadMessage, opts = {}) {
+    await bot.deleteMessage(threadMessage.dm_channel_id, threadMessage.dm_message_id);
+    await bot.deleteMessage(this.channel_id, threadMessage.inbox_message_id);
+
+    if (! opts.quiet) {
+      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(moderator, threadMessage);
+      const logNotification = formatters.formatStaffReplyDeletionNotificationLogMessage(moderator, threadMessage);
+      await this.postSystemMessage(threadNotification, null, { logBody: logNotification });
+    }
   }
 
   /**
