@@ -1,6 +1,6 @@
 const moment = require('moment');
 const Eris = require('eris');
-const config = require('../config');
+const config = require('../cfg');
 const utils = require('../utils');
 const threads = require('../data/threads');
 const blocked = require('../data/blocked');

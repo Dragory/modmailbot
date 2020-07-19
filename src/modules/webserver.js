@@ -4,7 +4,7 @@ const url = require('url');
 const fs = require('fs');
 const qs = require('querystring');
 const moment = require('moment');
-const config = require('../config');
+const config = require('../cfg');
 const threads = require('../data/threads');
 const attachments = require('../data/attachments');
 

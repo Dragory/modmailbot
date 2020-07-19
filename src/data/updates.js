@@ -2,7 +2,7 @@ const url = require('url');
 const https = require('https');
 const moment = require('moment');
 const knex = require('../knex');
-const config = require('../config');
+const config = require('../cfg');
 
 const UPDATE_CHECK_FREQUENCY = 12; // In hours
 let updateCheckPromise = null;

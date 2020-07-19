@@ -3,7 +3,7 @@ const fs = require('fs');
 const https = require('https');
 const {promisify} = require('util');
 const tmp = require('tmp');
-const config = require('../config');
+const config = require('../cfg');
 const utils = require('../utils');
 const mv = promisify(require('mv'));
 

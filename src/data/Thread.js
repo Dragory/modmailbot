@@ -4,7 +4,7 @@ const Eris = require('eris');
 const bot = require('../bot');
 const knex = require('../knex');
 const utils = require('../utils');
-const config = require('../config');
+const config = require('../cfg');
 const attachments = require('./attachments');
 const { formatters } = require('../formatters');
 

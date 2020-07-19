@@ -1,7 +1,7 @@
 const moment = require('moment');
 const threads = require("../data/threads");
 const utils = require('../utils');
-const config = require('../config');
+const config = require('../cfg');
 
 const {THREAD_STATUS} = require('../data/constants');
 

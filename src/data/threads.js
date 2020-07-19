@@ -7,7 +7,7 @@ const humanizeDuration = require('humanize-duration');
 
 const bot = require('../bot');
 const knex = require('../knex');
-const config = require('../config');
+const config = require('../cfg');
 const utils = require('../utils');
 const updates = require('./updates');
 

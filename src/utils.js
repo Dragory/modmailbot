@@ -3,7 +3,7 @@ const bot = require('./bot');
 const moment = require('moment');
 const humanizeDuration = require('humanize-duration');
 const publicIp = require('public-ip');
-const config = require('./config');
+const config = require('./cfg');
 
 class BotError extends Error {}
 

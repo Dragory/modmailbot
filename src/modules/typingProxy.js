@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require('../cfg');
 const threads = require("../data/threads");
 const Eris = require("eris");
 

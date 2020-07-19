@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require('../cfg');
 const Eris = require('eris');
 const transliterate = require("transliteration");
 const erisEndpoints = require('eris/lib/rest/Endpoints');

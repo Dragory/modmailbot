@@ -1,2 +1,2 @@
-const config = require('./src/config');
+const config = require('./src/cfg');
 module.exports = config.knex;

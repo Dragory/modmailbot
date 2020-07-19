@@ -1,6 +1,6 @@
 const Eris = require('eris');
 const utils = require('./utils');
-const config = require('./config');
+const config = require('./cfg');
 
 /**
  * Function to format the DM that is sent to the user when a staff member replies to them via !reply

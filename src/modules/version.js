@@ -3,7 +3,7 @@ const fs = require('fs');
 const {promisify} = require('util');
 const utils = require("../utils");
 const updates = require('../data/updates');
-const config = require('../config');
+const config = require('../cfg');
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);

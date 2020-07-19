@@ -5,7 +5,7 @@ const moment = require('moment');
 const Eris = require('eris');
 
 const knex = require('../knex');
-const config = require('../config');
+const config = require('../cfg');
 const jsonDb = require('./jsonDb');
 const threads = require('../data/threads');
 

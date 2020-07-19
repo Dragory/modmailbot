@@ -1,7 +1,7 @@
 const Eris = require('eris');
 const path = require('path');
 
-const config = require('./config');
+const config = require('./cfg');
 const bot = require('./bot');
 const knex = require('./knex');
 const {messageQueue} = require('./queue');

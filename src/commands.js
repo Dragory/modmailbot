@@ -1,5 +1,5 @@
 const { CommandManager, defaultParameterTypes, TypeConversionError } = require('knub-command-manager');
-const config = require('./config');
+const config = require('./cfg');
 const utils = require('./utils');
 const threads = require('./data/threads');
 

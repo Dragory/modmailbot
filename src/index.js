@@ -41,7 +41,7 @@ try {
   process.exit(1);
 }
 
-const config = require('./config');
+const config = require('./cfg');
 const utils = require('./utils');
 const main = require('./main');
 const knex = require('./knex');
