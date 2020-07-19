@@ -136,8 +136,8 @@ class Thread {
   }
 
   /**
-   * @param {string} id
-   * @param {Object} data
+   * @param {number} id
+   * @param {object} data
    * @returns {Promise<void>}
    * @private
    */
@@ -145,6 +145,17 @@ class Thread {
     await knex('thread_messages')
       .where('id', id)
       .update(data);
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _deleteThreadMessage(id) {
+    await knex('thread_messages')
+      .where('id', id)
+      .delete();
   }
 
   /**
@@ -561,6 +572,14 @@ class Thread {
       { isAnonymous: threadMessage.is_anonymous }
     );
 
+    // FIXME: Fix attachment links disappearing by moving them off the main message content in the DB
+    const formattedLog = formatters.formatStaffReplyLogMessage(
+      moderator,
+      newText,
+      threadMessage.message_number,
+      { isAnonymous: threadMessage.is_anonymous }
+    );
+
     await bot.editMessage(threadMessage.dm_channel_id, threadMessage.dm_message_id, formattedDM);
     await bot.editMessage(this.channel_id, threadMessage.inbox_message_id, formattedThreadMessage);
 
@@ -569,6 +588,8 @@ class Thread {
       const logNotification = formatters.formatStaffReplyEditNotificationLogMessage(moderator, threadMessage, newText);
       await this.postSystemMessage(threadNotification, null, { logBody: logNotification });
     }
+
+    await this._updateThreadMessage(threadMessage.id, { body: formattedLog });
   }
 
   /**
@@ -587,6 +608,8 @@ class Thread {
       const logNotification = formatters.formatStaffReplyDeletionNotificationLogMessage(moderator, threadMessage);
       await this.postSystemMessage(threadNotification, null, { logBody: logNotification });
     }
+
+    await this._deleteThreadMessage(threadMessage.id);
   }
 
   /**
