@@ -31,6 +31,7 @@ const ThreadMessage = require('./data/ThreadMessage');
  * @callback FormatStaffReplyLogMessage
  * @param {Eris.Member} moderator
  * @param {string} text
+ * @param {number} messageNumber
  * @param {{
  *   isAnonymous: boolean,
  *   attachmentLinks: string[],
@@ -128,7 +129,6 @@ const defaultFormatters = {
       ? `(Anonymous) (${modName}) ${mainRole ? mainRole.name : 'Moderator'}`
       : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
 
-    // TODO: Add \`[${messageNumber}]\` here once !edit and !delete exist
     let result = `**${modInfo}:** ${text}`;
 
     if (config.threadTimestamps) {
@@ -136,10 +136,12 @@ const defaultFormatters = {
       result = `[${formattedTimestamp}] ${result}`;
     }
 
+    result = `\`[${messageNumber}]\` ${result}`;
+
     return result;
   },
 
-  formatStaffReplyLogMessage(moderator, text, opts = {}) {
+  formatStaffReplyLogMessage(moderator, text, messageNumber, opts = {}) {
     const mainRole = utils.getMainRole(moderator);
     const modName = moderator.user.username;
 
@@ -156,6 +158,8 @@ const defaultFormatters = {
         result += `\n**Attachment:** ${link}`;
       }
     }
+
+    result = `[${messageNumber}] ${result}`;
 
     return result;
   },

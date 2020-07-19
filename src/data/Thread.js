@@ -197,7 +197,7 @@ class Thread {
     }
 
     // Save the log entry
-    const logContent = formatters.formatStaffReplyLogMessage(moderator, text, { isAnonymous, attachmentLinks });
+    const logContent = formatters.formatStaffReplyLogMessage(moderator, text, threadMessage.message_number, { isAnonymous, attachmentLinks });
     const threadMessage = await this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.TO_USER,
       user_id: moderator.id,
