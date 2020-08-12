@@ -1,13 +1,13 @@
-const moment = require('moment');
-const knex = require('../knex');
+const moment = require("moment");
+const knex = require("../knex");
 
 /**
  * @param {String} userId
  * @returns {Promise<{ isBlocked: boolean, expiresAt: string }>}
  */
 async function getBlockStatus(userId) {
-  const row = await knex('blocked_users')
-    .where('user_id', userId)
+  const row = await knex("blocked_users")
+    .where("user_id", userId)
     .first();
 
   return {
@@ -32,15 +32,15 @@ async function isBlocked(userId) {
  * @param {String} blockedBy
  * @returns {Promise}
  */
-async function block(userId, userName = '', blockedBy = null, expiresAt = null) {
+async function block(userId, userName = "", blockedBy = null, expiresAt = null) {
   if (await isBlocked(userId)) return;
 
-  return knex('blocked_users')
+  return knex("blocked_users")
     .insert({
       user_id: userId,
       user_name: userName,
       blocked_by: blockedBy,
-      blocked_at: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+      blocked_at: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
       expires_at: expiresAt
     });
 }
@@ -51,8 +51,8 @@ async function block(userId, userName = '', blockedBy = null, expiresAt = null) 
  * @returns {Promise}
  */
 async function unblock(userId) {
-  return knex('blocked_users')
-    .where('user_id', userId)
+  return knex("blocked_users")
+    .where("user_id", userId)
     .delete();
 }
 
@@ -63,8 +63,8 @@ async function unblock(userId) {
  * @returns {Promise<void>}
  */
 async function updateExpiryTime(userId, expiresAt) {
-  return knex('blocked_users')
-    .where('user_id', userId)
+  return knex("blocked_users")
+    .where("user_id", userId)
     .update({
       expires_at: expiresAt
     });
@@ -74,11 +74,11 @@ async function updateExpiryTime(userId, expiresAt) {
  * @returns {String[]}
  */
 async function getExpiredBlocks() {
-  const now = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+  const now = moment.utc().format("YYYY-MM-DD HH:mm:ss");
 
-  const blocks = await knex('blocked_users')
-    .whereNotNull('expires_at')
-    .where('expires_at', '<=', now)
+  const blocks = await knex("blocked_users")
+    .whereNotNull("expires_at")
+    .where("expires_at", "<=", now)
     .select();
 
   return blocks.map(block => block.user_id);

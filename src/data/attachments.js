@@ -1,13 +1,13 @@
-const Eris = require('eris');
-const fs = require('fs');
-const https = require('https');
-const {promisify} = require('util');
-const tmp = require('tmp');
-const config = require('../cfg');
-const utils = require('../utils');
-const mv = promisify(require('mv'));
+const Eris = require("eris");
+const fs = require("fs");
+const https = require("https");
+const {promisify} = require("util");
+const tmp = require("tmp");
+const config = require("../cfg");
+const utils = require("../utils");
+const mv = promisify(require("mv"));
 
-const getUtils = () => require('../utils');
+const getUtils = () => require("../utils");
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
@@ -20,7 +20,7 @@ const attachmentStorageTypes = {};
 
 function getErrorResult(msg = null) {
   return {
-    url: `Attachment could not be saved${msg ? ': ' + msg : ''}`,
+    url: `Attachment could not be saved${msg ? ": " + msg : ""}`,
     failed: true
   };
 }
@@ -61,8 +61,8 @@ async function saveLocalAttachment(attachment) {
 function downloadAttachment(attachment, tries = 0) {
   return new Promise((resolve, reject) => {
     if (tries > 3) {
-      console.error('Attachment download failed after 3 tries:', attachment);
-      reject('Attachment download failed after 3 tries');
+      console.error("Attachment download failed after 3 tries:", attachment);
+      reject("Attachment download failed after 3 tries");
       return;
     }
 
@@ -71,16 +71,16 @@ function downloadAttachment(attachment, tries = 0) {
 
       https.get(attachment.url, (res) => {
         res.pipe(writeStream);
-        writeStream.on('finish', () => {
+        writeStream.on("finish", () => {
           writeStream.end();
           resolve({
             path: filepath,
             cleanup: cleanupCallback
           });
         });
-      }).on('error', (err) => {
+      }).on("error", (err) => {
         fs.unlink(filepath);
-        console.error('Error downloading attachment, retrying');
+        console.error("Error downloading attachment, retrying");
         resolve(downloadAttachment(attachment, tries++));
       });
     });
@@ -103,7 +103,7 @@ function getLocalAttachmentPath(attachmentId) {
  * @returns {Promise<String>}
  */
 function getLocalAttachmentUrl(attachmentId, desiredName = null) {
-  if (desiredName == null) desiredName = 'file.bin';
+  if (desiredName == null) desiredName = "file.bin";
   return getUtils().getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
 }
 
@@ -113,19 +113,19 @@ function getLocalAttachmentUrl(attachmentId, desiredName = null) {
  */
 async function saveDiscordAttachment(attachment) {
   if (attachment.size > 1024 * 1024 * 8) {
-    return getErrorResult('attachment too large (max 8MB)');
+    return getErrorResult("attachment too large (max 8MB)");
   }
 
   const attachmentChannelId = config.attachmentStorageChannelId;
   const inboxGuild = utils.getInboxGuild();
 
   if (! inboxGuild.channels.has(attachmentChannelId)) {
-    throw new Error('Attachment storage channel not found!');
+    throw new Error("Attachment storage channel not found!");
   }
 
   const attachmentChannel = inboxGuild.channels.get(attachmentChannelId);
   if (! (attachmentChannel instanceof Eris.TextChannel)) {
-    throw new Error('Attachment storage channel must be a text channel!');
+    throw new Error("Attachment storage channel must be a text channel!");
   }
 
   const file = await attachmentToDiscordFileObject(attachment);

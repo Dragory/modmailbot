@@ -1,4 +1,4 @@
-const Eris = require('eris');
+const Eris = require("eris");
 
 /**
  * @callback BeforeNewThreadHook_SetCategoryId

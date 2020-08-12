@@ -1,18 +1,18 @@
-const http = require('http');
-const mime = require('mime');
-const url = require('url');
-const fs = require('fs');
-const qs = require('querystring');
-const moment = require('moment');
-const config = require('../cfg');
-const threads = require('../data/threads');
-const attachments = require('../data/attachments');
+const http = require("http");
+const mime = require("mime");
+const url = require("url");
+const fs = require("fs");
+const qs = require("querystring");
+const moment = require("moment");
+const config = require("../cfg");
+const threads = require("../data/threads");
+const attachments = require("../data/attachments");
 
-const {THREAD_MESSAGE_TYPE} = require('../data/constants');
+const {THREAD_MESSAGE_TYPE} = require("../data/constants");
 
 function notfound(res) {
   res.statusCode = 404;
-  res.end('Page Not Found');
+  res.end("Page Not Found");
 }
 
 async function serveLogs(req, res, pathParts, query) {
@@ -41,7 +41,7 @@ async function serveLogs(req, res, pathParts, query) {
       return message.body;
     }
 
-    let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}]`;
+    let line = `[${moment.utc(message.created_at).format("YYYY-MM-DD HH:mm:ss")}]`;
 
     if (query.verbose) {
       if (message.dm_channel_id) {
@@ -72,12 +72,12 @@ async function serveLogs(req, res, pathParts, query) {
     return line;
   });
 
-  const openedAt = moment(thread.created_at).format('YYYY-MM-DD HH:mm:ss');
+  const openedAt = moment(thread.created_at).format("YYYY-MM-DD HH:mm:ss");
   const header = `# Modmail thread with ${thread.user_name} (${thread.user_id}) started at ${openedAt}. All times are in UTC+0.`;
 
-  const fullResponse = header + '\n\n' + lines.join('\n');
+  const fullResponse = header + "\n\n" + lines.join("\n");
 
-  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
+  res.setHeader("Content-Type", "text/plain; charset=UTF-8");
   res.end(fullResponse);
 }
 
@@ -92,11 +92,11 @@ function serveAttachments(req, res, pathParts) {
   fs.access(attachmentPath, (err) => {
     if (err) return notfound(res);
 
-    const filenameParts = desiredFilename.split('.');
-    const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : 'bin');
+    const filenameParts = desiredFilename.split(".");
+    const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : "bin");
     const fileMime = mime.getType(ext);
 
-    res.setHeader('Content-Type', fileMime);
+    res.setHeader("Content-Type", fileMime);
 
     const read = fs.createReadStream(attachmentPath);
     read.pipe(res);
@@ -106,20 +106,20 @@ function serveAttachments(req, res, pathParts) {
 module.exports = () => {
   const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(`http://${req.url}`);
-    const pathParts = parsedUrl.pathname.split('/').filter(v => v !== '');
+    const pathParts = parsedUrl.pathname.split("/").filter(v => v !== "");
     const query = qs.parse(parsedUrl.query);
 
-    if (parsedUrl.pathname.startsWith('/logs/')) {
+    if (parsedUrl.pathname.startsWith("/logs/")) {
       serveLogs(req, res, pathParts, query);
-    } else if (parsedUrl.pathname.startsWith('/attachments/')) {
+    } else if (parsedUrl.pathname.startsWith("/attachments/")) {
       serveAttachments(req, res, pathParts, query);
     } else {
       notfound(res);
     }
   });
 
-  server.on('error', err => {
-    console.log('[WARN] Web server error:', err.message);
+  server.on("error", err => {
+    console.log("[WARN] Web server error:", err.message);
   });
 
   server.listen(config.port);

@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const config = require('../cfg');
+const fs = require("fs");
+const path = require("path");
+const config = require("../cfg");
 
 const dbDir = config.dbDir;
 
@@ -15,7 +15,7 @@ class JSONDB {
     this.useCloneByDefault = useCloneByDefault;
 
     this.load = new Promise(resolve => {
-      fs.readFile(path, {encoding: 'utf8'}, (err, data) => {
+      fs.readFile(path, {encoding: "utf8"}, (err, data) => {
         if (err) return resolve(def);
 
         let unserialized;
@@ -39,7 +39,7 @@ class JSONDB {
   save(newData) {
     const serialized = JSON.stringify(newData);
     this.load = new Promise((resolve, reject) => {
-      fs.writeFile(this.path, serialized, {encoding: 'utf8'}, () => {
+      fs.writeFile(this.path, serialized, {encoding: "utf8"}, () => {
         resolve(newData);
       });
     });

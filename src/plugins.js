@@ -1,6 +1,6 @@
-const attachments = require('./data/attachments');
-const { beforeNewThread } = require('./hooks/beforeNewThread');
-const formats = require('./formatters');
+const attachments = require("./data/attachments");
+const { beforeNewThread } = require("./hooks/beforeNewThread");
+const formats = require("./formatters");
 
 module.exports = {
   getPluginAPI({ bot, knex, config, commands }) {

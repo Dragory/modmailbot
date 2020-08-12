@@ -1,9 +1,9 @@
-const Eris = require('eris');
-const bot = require('./bot');
-const moment = require('moment');
-const humanizeDuration = require('humanize-duration');
-const publicIp = require('public-ip');
-const config = require('./cfg');
+const Eris = require("eris");
+const bot = require("./bot");
+const moment = require("moment");
+const humanizeDuration = require("humanize-duration");
+const publicIp = require("public-ip");
+const config = require("./cfg");
 
 class BotError extends Error {}
 
@@ -18,7 +18,7 @@ let logChannel = null;
  */
 function getInboxGuild() {
   if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.mailGuildId);
-  if (! inboxGuild) throw new BotError('The bot is not on the modmail (inbox) server!');
+  if (! inboxGuild) throw new BotError("The bot is not on the modmail (inbox) server!");
   return inboxGuild;
 }
 
@@ -32,9 +32,9 @@ function getMainGuilds() {
 
   if (mainGuilds.length !== config.mainGuildId.length) {
     if (config.mainGuildId.length === 1) {
-      console.warn(`[WARN] The bot hasn't joined the main guild!`);
+      console.warn("[WARN] The bot hasn't joined the main guild!");
     } else {
-      console.warn(`[WARN] The bot hasn't joined one or more main guilds!`);
+      console.warn("[WARN] The bot hasn't joined one or more main guilds!");
     }
   }
 
@@ -50,11 +50,11 @@ function getLogChannel() {
   const logChannel = inboxGuild.channels.get(config.logChannelId);
 
   if (! logChannel) {
-    throw new BotError('Log channel (logChannelId) not found!');
+    throw new BotError("Log channel (logChannelId) not found!");
   }
 
   if (! (logChannel instanceof Eris.TextChannel)) {
-    throw new BotError('Make sure the logChannelId option is set to a text channel!');
+    throw new BotError("Make sure the logChannelId option is set to a text channel!");
   }
 
   return logChannel;
@@ -155,7 +155,7 @@ function getUserMention(str) {
  * @returns {String}
  */
 function getTimestamp(...momentArgs) {
-  return moment.utc(...momentArgs).format('HH:mm');
+  return moment.utc(...momentArgs).format("HH:mm");
 }
 
 /**
@@ -164,7 +164,7 @@ function getTimestamp(...momentArgs) {
  * @returns {String}
  */
 function disableLinkPreviews(str) {
-  return str.replace(/(^|[^<])(https?:\/\/\S+)/ig, '$1<$2>');
+  return str.replace(/(^|[^<])(https?:\/\/\S+)/ig, "$1<$2>");
 }
 
 /**
@@ -172,7 +172,7 @@ function disableLinkPreviews(str) {
  * @param {String} path
  * @returns {Promise<String>}
  */
-async function getSelfUrl(path = '') {
+async function getSelfUrl(path = "") {
   if (config.url) {
     return `${config.url}/${path}`;
   } else {
@@ -216,9 +216,9 @@ function chunk(items, chunkSize) {
  */
 function trimAll(str) {
   return str
-    .split('\n')
+    .split("\n")
     .map(str => str.trim())
-    .join('\n');
+    .join("\n");
 }
 
 const delayStringRegex = /^([0-9]+)(?:([dhms])[a-z]*)?/i;
@@ -234,17 +234,17 @@ function convertDelayStringToMS(str) {
 
   str = str.trim();
 
-  while (str !== '' && (match = str.match(delayStringRegex)) !== null) {
-    if (match[2] === 'd') ms += match[1] * 1000 * 60 * 60 * 24;
-    else if (match[2] === 'h') ms += match[1] * 1000 * 60 * 60;
-    else if (match[2] === 's') ms += match[1] * 1000;
-    else if (match[2] === 'm' || ! match[2]) ms += match[1] * 1000 * 60;
+  while (str !== "" && (match = str.match(delayStringRegex)) !== null) {
+    if (match[2] === "d") ms += match[1] * 1000 * 60 * 60 * 24;
+    else if (match[2] === "h") ms += match[1] * 1000 * 60 * 60;
+    else if (match[2] === "s") ms += match[1] * 1000;
+    else if (match[2] === "m" || ! match[2]) ms += match[1] * 1000 * 60;
 
     str = str.slice(match[0].length);
   }
 
   // Invalid delay string
-  if (str !== '') {
+  if (str !== "") {
     return null;
   }
 
@@ -256,11 +256,11 @@ function getInboxMention() {
   const mentions = [];
   for (const role of mentionRoles) {
     if (role == null) continue;
-    else if (role === 'here') mentions.push('@here');
-    else if (role === 'everyone') mentions.push('@everyone');
+    else if (role === "here") mentions.push("@here");
+    else if (role === "everyone") mentions.push("@everyone");
     else mentions.push(`<@&${role}>`);
   }
-  return mentions.join(' ') + ' ';
+  return mentions.join(" ") + " ";
 }
 
 function postSystemMessageWithFallback(channel, thread, text) {
@@ -286,7 +286,7 @@ function setDataModelProps(target, props) {
         target[prop] = null;
       } else {
         // Set the value as a string in the same format it's returned in SQLite
-        target[prop] = moment.utc(props[prop]).format('YYYY-MM-DD HH:mm:ss');
+        target[prop] = moment.utc(props[prop]).format("YYYY-MM-DD HH:mm:ss");
       }
     } else {
       target[prop] = props[prop];
@@ -299,11 +299,11 @@ function isSnowflake(str) {
   return str && snowflakeRegex.test(str);
 }
 
-const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: ' and '}, opts));
+const humanizeDelay = (delay, opts = {}) => humanizeDuration(delay, Object.assign({conjunction: " and "}, opts));
 
 const markdownCharsRegex = /([\\_*|`~])/g;
 function escapeMarkdown(str) {
-  return str.replace(markdownCharsRegex, '\\$1');
+  return str.replace(markdownCharsRegex, "\\$1");
 }
 
 function disableCodeBlocks(str) {
@@ -314,7 +314,7 @@ function disableCodeBlocks(str) {
  *
  */
 function readMultilineConfigValue(str) {
-  return Array.isArray(str) ? str.join('\n') : str;
+  return Array.isArray(str) ? str.join("\n") : str;
 }
 
 module.exports = {

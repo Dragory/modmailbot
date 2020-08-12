@@ -1,29 +1,29 @@
-const fs = require('fs');
-const path = require('path');
-const Ajv = require('ajv');
-const schema = require('./data/cfg.schema.json');
+const fs = require("fs");
+const path = require("path");
+const Ajv = require("ajv");
+const schema = require("./data/cfg.schema.json");
 
 /** @type {ModmailConfig} */
 let config = {};
 
 // Config files to search for, in priority order
 const configFiles = [
-  'config.ini',
-  'config.json',
-  'config.json5',
-  'config.js',
+  "config.ini",
+  "config.json",
+  "config.json5",
+  "config.js",
 
   // Possible config files when file extensions are hidden
-  'config.ini.ini',
-  'config.ini.txt',
-  'config.json.json',
-  'config.json.txt',
+  "config.ini.ini",
+  "config.ini.txt",
+  "config.json.json",
+  "config.json.txt",
 ];
 
 let foundConfigFile;
 for (const configFile of configFiles) {
   try {
-    fs.accessSync(__dirname + '/../' + configFile);
+    fs.accessSync(__dirname + "/../" + configFile);
     foundConfigFile = configFile;
     break;
   } catch (e) {}
@@ -33,14 +33,14 @@ for (const configFile of configFiles) {
 if (foundConfigFile) {
   console.log(`Loading configuration from ${foundConfigFile}...`);
   try {
-    if (foundConfigFile.endsWith('.js')) {
+    if (foundConfigFile.endsWith(".js")) {
       config = require(`../${foundConfigFile}`);
     } else {
-      const raw = fs.readFileSync(__dirname + '/../' + foundConfigFile, {encoding: "utf8"});
-      if (foundConfigFile.endsWith('.ini') || foundConfigFile.endsWith('.ini.txt')) {
-        config = require('ini').decode(raw);
+      const raw = fs.readFileSync(__dirname + "/../" + foundConfigFile, {encoding: "utf8"});
+      if (foundConfigFile.endsWith(".ini") || foundConfigFile.endsWith(".ini.txt")) {
+        config = require("ini").decode(raw);
       } else {
-        config = require('json5').parse(raw);
+        config = require("json5").parse(raw);
       }
     }
   } catch (e) {
@@ -49,11 +49,11 @@ if (foundConfigFile) {
 }
 
 // Set dynamic default values which can't be set in the schema directly
-config.dbDir = path.join(__dirname, '..', 'db');
-config.logDir = path.join(__dirname, '..', 'logs'); // Only used for migrating data from older Modmail versions
+config.dbDir = path.join(__dirname, "..", "db");
+config.logDir = path.join(__dirname, "..", "logs"); // Only used for migrating data from older Modmail versions
 
 // Load config values from environment variables
-const envKeyPrefix = 'MM_';
+const envKeyPrefix = "MM_";
 let loadedEnvValues = 0;
 
 for (const [key, value] of Object.entries(process.env)) {
@@ -64,10 +64,10 @@ for (const [key, value] of Object.entries(process.env)) {
   const configKey = key.slice(envKeyPrefix.length)
     .toLowerCase()
     .replace(/([a-z])_([a-z])/g, (m, m1, m2) => `${m1}${m2.toUpperCase()}`)
-    .replace('__', '.');
+    .replace("__", ".");
 
-  config[configKey] = value.includes('||')
-    ? value.split('||')
+  config[configKey] = value.includes("||")
+    ? value.split("||")
     : value;
 
   loadedEnvValues++;
@@ -80,15 +80,15 @@ if (process.env.PORT && ! process.env.MM_PORT) {
 }
 
 if (loadedEnvValues > 0) {
-  console.log(`Loaded ${loadedEnvValues} ${loadedEnvValues === 1 ? 'value' : 'values'} from environment variables`);
+  console.log(`Loaded ${loadedEnvValues} ${loadedEnvValues === 1 ? "value" : "values"} from environment variables`);
 }
 
 // Convert config keys with periods to objects
 // E.g. commandAliases.mv -> commandAliases: { mv: ... }
 for (const [key, value] of Object.entries(config)) {
-  if (! key.includes('.')) continue;
+  if (! key.includes(".")) continue;
 
-  const keys = key.split('.');
+  const keys = key.split(".");
   let cursor = config;
   for (let i = 0; i < keys.length; i++) {
     if (i === keys.length - 1) {
@@ -102,20 +102,20 @@ for (const [key, value] of Object.entries(config)) {
   delete config[key];
 }
 
-if (! config['knex']) {
+if (! config["knex"]) {
   config.knex = {
-    client: 'sqlite',
+    client: "sqlite",
     connection: {
-      filename: path.join(config.dbDir, 'data.sqlite')
+      filename: path.join(config.dbDir, "data.sqlite")
     },
     useNullAsDefault: true
   };
 }
 
 // Make sure migration settings are always present in knex config
-Object.assign(config['knex'], {
+Object.assign(config["knex"], {
   migrations: {
-    directory: path.join(config.dbDir, 'migrations')
+    directory: path.join(config.dbDir, "migrations")
   }
 });
 
@@ -141,7 +141,7 @@ if (config.newThreadCategoryId) {
 
 // Delete empty string options (i.e. "option=" without a value in config.ini)
 for (const [key, value] of Object.entries(config)) {
-  if (value === '') {
+  if (value === "") {
     delete config[key];
   }
 }
@@ -152,7 +152,7 @@ const ajv = new Ajv({ useDefaults: true, coerceTypes: "array" });
 // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270692820
 const truthyValues = ["1", "true", "on"];
 const falsyValues = ["0", "false", "off"];
-ajv.addKeyword('coerceBoolean', {
+ajv.addKeyword("coerceBoolean", {
   compile(value) {
     return (data, dataPath, parentData, parentKey) => {
       if (! value) {
@@ -183,7 +183,7 @@ ajv.addKeyword('coerceBoolean', {
   },
 });
 
-ajv.addKeyword('multilineString', {
+ajv.addKeyword("multilineString", {
   compile(value) {
     return (data, dataPath, parentData, parentKey) => {
       if (! value) {
@@ -208,12 +208,12 @@ const validate = ajv.compile(schema);
 const configIsValid = validate(config);
 
 if (! configIsValid) {
-  console.error('Issues with configuration options:');
+  console.error("Issues with configuration options:");
   for (const error of validate.errors) {
     console.error(`The "${error.dataPath.slice(1)}" option ${error.message}`);
   }
-  console.error('');
-  console.error('Please restart the bot after fixing the issues mentioned above.');
+  console.error("");
+  console.error("Please restart the bot after fixing the issues mentioned above.");
   process.exit(1);
 }
 

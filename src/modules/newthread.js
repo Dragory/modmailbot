@@ -2,10 +2,10 @@ const utils = require("../utils");
 const threads = require("../data/threads");
 
 module.exports = ({ bot, knex, config, commands }) => {
-  commands.addInboxServerCommand('newthread', '<userId:userId>', async (msg, args, thread) => {
+  commands.addInboxServerCommand("newthread", "<userId:userId>", async (msg, args, thread) => {
     const user = bot.users.get(args.userId);
     if (! user) {
-      utils.postSystemMessageWithFallback(msg.channel, thread, 'User not found!');
+      utils.postSystemMessageWithFallback(msg.channel, thread, "User not found!");
       return;
     }
 
@@ -18,7 +18,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     const createdThread = await threads.createNewThreadForUser(user, {
       quiet: true,
       ignoreRequirements: true,
-      source: 'command',
+      source: "command",
     });
 
     createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);

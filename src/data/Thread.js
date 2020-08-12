@@ -1,16 +1,16 @@
-const moment = require('moment');
-const Eris = require('eris');
+const moment = require("moment");
+const Eris = require("eris");
 
-const bot = require('../bot');
-const knex = require('../knex');
-const utils = require('../utils');
-const config = require('../cfg');
-const attachments = require('./attachments');
-const { formatters } = require('../formatters');
+const bot = require("../bot");
+const knex = require("../knex");
+const utils = require("../utils");
+const config = require("../cfg");
+const attachments = require("./attachments");
+const { formatters } = require("../formatters");
 
-const ThreadMessage = require('./ThreadMessage');
+const ThreadMessage = require("./ThreadMessage");
 
-const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
+const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require("./constants");
 
 /**
  * @property {String} id
@@ -41,12 +41,12 @@ class Thread {
     // Try to open a DM channel with the user
     const dmChannel = await this.getDMChannel();
     if (! dmChannel) {
-      throw new Error('Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.');
+      throw new Error("Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.");
     }
 
     let firstMessage;
 
-    if (typeof content === 'string') {
+    if (typeof content === "string") {
       // Content is a string, chunk it and send it as individual messages.
       // Files (attachments) are only sent with the last message.
       const chunks = utils.chunk(content, 2000);
@@ -79,7 +79,7 @@ class Thread {
     try {
       let firstMessage;
 
-      if (typeof content === 'string') {
+      if (typeof content === "string") {
         // Content is a string, chunk it and send it as individual messages.
         // Files (attachments) are only sent with the last message.
         const chunks = utils.chunk(content, 2000);
@@ -120,16 +120,16 @@ class Thread {
     }
 
     const dmChannel = await this.getDMChannel();
-    const insertedIds = await knex('thread_messages').insert({
+    const insertedIds = await knex("thread_messages").insert({
       thread_id: this.id,
-      created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+      created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
       is_anonymous: 0,
       dm_channel_id: dmChannel.id,
       ...data
     });
 
-    const threadMessage = await knex('thread_messages')
-      .where('id', insertedIds[0])
+    const threadMessage = await knex("thread_messages")
+      .where("id", insertedIds[0])
       .select();
 
     return new ThreadMessage(threadMessage[0]);
@@ -142,8 +142,8 @@ class Thread {
    * @private
    */
   async _updateThreadMessage(id, data) {
-    await knex('thread_messages')
-      .where('id', id)
+    await knex("thread_messages")
+      .where("id", id)
       .update(data);
   }
 
@@ -153,8 +153,8 @@ class Thread {
    * @private
    */
   async _deleteThreadMessage(id) {
-    await knex('thread_messages')
-      .where('id', id)
+    await knex("thread_messages")
+      .where("id", id)
       .delete();
   }
 
@@ -163,8 +163,8 @@ class Thread {
    * @private
    */
   _lastMessageNumberInThreadSQL() {
-    return knex('thread_messages AS tm_msg_num_ref')
-      .select(knex.raw('MAX(tm_msg_num_ref.message_number)'))
+    return knex("thread_messages AS tm_msg_num_ref")
+      .select(knex.raw("MAX(tm_msg_num_ref.message_number)"))
       .whereRaw(`tm_msg_num_ref.thread_id = '${this.id}'`)
       .toSQL()
       .sql;
@@ -212,7 +212,7 @@ class Thread {
       message_type: THREAD_MESSAGE_TYPE.TO_USER,
       user_id: moderator.id,
       user_name: fullModeratorName,
-      body: '',
+      body: "",
       is_anonymous: (isAnonymous ? 1 : 0),
       dm_message_id: dmMessage.id
     });
@@ -227,7 +227,7 @@ class Thread {
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+      await this.postSystemMessage("Cancelling scheduled closing of this thread due to new reply");
     }
 
     return true;
@@ -306,11 +306,11 @@ class Thread {
   async postSystemMessage(content, file = null, opts = {}) {
     const msg = await this._postToThreadChannel(content, file);
     if (msg && opts.saveToLog !== false) {
-      const finalLogBody = opts.logBody || msg.content || '<empty message>';
+      const finalLogBody = opts.logBody || msg.content || "<empty message>";
       await this._addThreadMessageToDB({
         message_type: THREAD_MESSAGE_TYPE.SYSTEM,
         user_id: null,
-        user_name: '',
+        user_name: "",
         body: finalLogBody,
         is_anonymous: 0,
         inbox_message_id: msg.id,
@@ -329,11 +329,11 @@ class Thread {
   async sendSystemMessageToUser(content, file = null, opts = {}) {
     const msg = await this._sendDMToUser(content, file);
     if (opts.saveToLog !== false) {
-      const finalLogBody = opts.logBody || msg.content || '<empty message>';
+      const finalLogBody = opts.logBody || msg.content || "<empty message>";
       await this._addThreadMessageToDB({
         message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
         user_id: null,
-        user_name: '',
+        user_name: "",
         body: finalLogBody,
         is_anonymous: 0,
         dm_message_id: msg.id,
@@ -381,9 +381,9 @@ class Thread {
    * @returns {Promise<void>}
    */
   async updateChatMessageInLogs(msg) {
-    await knex('thread_messages')
-      .where('thread_id', this.id)
-      .where('dm_message_id', msg.id)
+    await knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("dm_message_id", msg.id)
       .update({
         body: msg.content
       });
@@ -394,9 +394,9 @@ class Thread {
    * @returns {Promise<void>}
    */
   async deleteChatMessageFromLogs(messageId) {
-    await knex('thread_messages')
-      .where('thread_id', this.id)
-      .where('dm_message_id', messageId)
+    await knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("dm_message_id", messageId)
       .delete();
   }
 
@@ -404,10 +404,10 @@ class Thread {
    * @returns {Promise<ThreadMessage[]>}
    */
   async getThreadMessages() {
-    const threadMessages = await knex('thread_messages')
-      .where('thread_id', this.id)
-      .orderBy('created_at', 'ASC')
-      .orderBy('id', 'ASC')
+    const threadMessages = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .orderBy("created_at", "ASC")
+      .orderBy("id", "ASC")
       .select();
 
     return threadMessages.map(row => new ThreadMessage(row));
@@ -418,9 +418,9 @@ class Thread {
    * @returns {Promise<ThreadMessage>}
    */
   async findThreadMessageByMessageNumber(messageNumber) {
-    const data = await knex('thread_messages')
-      .where('thread_id', this.id)
-      .where('message_number', messageNumber)
+    const data = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("message_number", messageNumber)
       .select();
 
     return data ? new ThreadMessage(data) : null;
@@ -434,15 +434,15 @@ class Thread {
       console.log(`Closing thread ${this.id}`);
 
       if (silent) {
-        await this.postSystemMessage('Closing thread silently...');
+        await this.postSystemMessage("Closing thread silently...");
       } else {
-        await this.postSystemMessage('Closing thread...');
+        await this.postSystemMessage("Closing thread...");
       }
     }
 
     // Update DB status
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         status: THREAD_STATUS.CLOSED
       });
@@ -451,7 +451,7 @@ class Thread {
     const channel = bot.getChannel(this.channel_id);
     if (channel) {
       console.log(`Deleting channel ${this.channel_id}`);
-      await channel.delete('Thread closed');
+      await channel.delete("Thread closed");
     }
   }
 
@@ -462,8 +462,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async scheduleClose(time, user, silent) {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         scheduled_close_at: time,
         scheduled_close_id: user.id,
@@ -476,8 +476,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async cancelScheduledClose() {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         scheduled_close_at: null,
         scheduled_close_id: null,
@@ -490,8 +490,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async suspend() {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         status: THREAD_STATUS.SUSPENDED,
         scheduled_suspend_at: null,
@@ -504,8 +504,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async unsuspend() {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         status: THREAD_STATUS.OPEN
       });
@@ -517,8 +517,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async scheduleSuspend(time, user) {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         scheduled_suspend_at: time,
         scheduled_suspend_id: user.id,
@@ -530,8 +530,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async cancelScheduledSuspend() {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         scheduled_suspend_at: null,
         scheduled_suspend_id: null,
@@ -544,8 +544,8 @@ class Thread {
    * @returns {Promise<void>}
    */
   async setAlert(userId) {
-    await knex('threads')
-      .where('id', this.id)
+    await knex("threads")
+      .where("id", this.id)
       .update({
         alert_id: userId
       });

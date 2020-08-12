@@ -1,5 +1,5 @@
 const threads = require("../data/threads");
-const moment = require('moment');
+const moment = require("moment");
 const utils = require("../utils");
 
 const LOG_LINES_PER_PAGE = 10;
@@ -30,7 +30,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     const threadLines = await Promise.all(userThreads.map(async thread => {
       const logUrl = await thread.getLogUrl();
-      const formattedDate = moment.utc(thread.created_at).format('MMM Do [at] HH:mm [UTC]');
+      const formattedDate = moment.utc(thread.created_at).format("MMM Do [at] HH:mm [UTC]");
       return `\`${formattedDate}\`: <${logUrl}>`;
     }));
 
@@ -38,26 +38,26 @@ module.exports = ({ bot, knex, config, commands }) => {
       ? `**Log files for <@${userId}>** (page **${page}/${maxPage}**, showing logs **${start + 1}-${end}/${totalUserThreads}**):`
       : `**Log files for <@${userId}>:**`;
 
-    message += `\n${threadLines.join('\n')}`;
+    message += `\n${threadLines.join("\n")}`;
 
     if (isPaginated) {
-      message += `\nTo view more, add a page number to the end of the command`;
+      message += "\nTo view more, add a page number to the end of the command";
     }
 
     // Send the list of logs in chunks of 15 lines per message
-    const lines = message.split('\n');
+    const lines = message.split("\n");
     const chunks = utils.chunk(lines, 15);
 
     let root = Promise.resolve();
     chunks.forEach(lines => {
-      root = root.then(() => msg.channel.createMessage(lines.join('\n')));
+      root = root.then(() => msg.channel.createMessage(lines.join("\n")));
     });
   };
 
-  commands.addInboxServerCommand('logs', '<userId:userId> [page:number]', logsCmd);
-  commands.addInboxServerCommand('logs', '[page:number]', logsCmd);
+  commands.addInboxServerCommand("logs", "<userId:userId> [page:number]", logsCmd);
+  commands.addInboxServerCommand("logs", "[page:number]", logsCmd);
 
-  commands.addInboxServerCommand('loglink', [], async (msg, args, thread) => {
+  commands.addInboxServerCommand("loglink", [], async (msg, args, thread) => {
     if (! thread) {
       thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
       if (! thread) return;
@@ -65,21 +65,21 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     const logUrl = await thread.getLogUrl();
     const query = [];
-    if (args.verbose) query.push('verbose=1');
-    if (args.simple) query.push('simple=1');
-    let qs = query.length ? `?${query.join('&')}` : '';
+    if (args.verbose) query.push("verbose=1");
+    if (args.simple) query.push("simple=1");
+    let qs = query.length ? `?${query.join("&")}` : "";
 
     thread.postSystemMessage(`Log URL: ${logUrl}${qs}`);
   }, {
     options: [
       {
-        name: 'verbose',
-        shortcut: 'v',
+        name: "verbose",
+        shortcut: "v",
         isSwitch: true,
       },
       {
-        name: 'simple',
-        shortcut: 's',
+        name: "simple",
+        shortcut: "s",
         isSwitch: true,
       },
     ],

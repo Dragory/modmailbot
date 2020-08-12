@@ -1,9 +1,9 @@
-const { CommandManager, defaultParameterTypes, TypeConversionError, IParameter, ICommandConfig } = require('knub-command-manager');
-const Eris = require('eris');
-const config = require('./cfg');
-const utils = require('./utils');
-const threads = require('./data/threads');
-const Thread = require('./data/Thread');
+const { CommandManager, defaultParameterTypes, TypeConversionError, IParameter, ICommandConfig } = require("knub-command-manager");
+const Eris = require("eris");
+const config = require("./cfg");
+const utils = require("./utils");
+const threads = require("./data/threads");
+const Thread = require("./data/Thread");
 
 module.exports = {
   createCommandManager(bot) {
@@ -27,7 +27,7 @@ module.exports = {
     const handlers = {};
     const aliasMap = new Map();
 
-    bot.on('messageCreate', async msg => {
+    bot.on("messageCreate", async msg => {
       if (msg.author.bot) return;
       if (msg.author.id === bot.user.id) return;
       if (! msg.content) return;

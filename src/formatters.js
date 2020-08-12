@@ -1,7 +1,7 @@
-const Eris = require('eris');
-const utils = require('./utils');
-const config = require('./cfg');
-const ThreadMessage = require('./data/ThreadMessage');
+const Eris = require("eris");
+const utils = require("./utils");
+const config = require("./cfg");
+const ThreadMessage = require("./data/ThreadMessage");
 
 /**
  * Function to format the DM that is sent to the user when a staff member replies to them via !reply
@@ -116,7 +116,7 @@ const defaultFormatters = {
     const mainRole = utils.getMainRole(moderator);
     const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
     const modInfo = opts.isAnonymous
-      ? (mainRole ? mainRole.name : 'Moderator')
+      ? (mainRole ? mainRole.name : "Moderator")
       : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
 
     return `**${modInfo}:** ${text}`;
@@ -126,7 +126,7 @@ const defaultFormatters = {
     const mainRole = utils.getMainRole(moderator);
     const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
     const modInfo = opts.isAnonymous
-      ? `(Anonymous) (${modName}) ${mainRole ? mainRole.name : 'Moderator'}`
+      ? `(Anonymous) (${modName}) ${mainRole ? mainRole.name : "Moderator"}`
       : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
 
     let result = `**${modInfo}:** ${text}`;
@@ -147,13 +147,13 @@ const defaultFormatters = {
 
     // Mirroring the DM formatting here...
     const modInfo = opts.isAnonymous
-      ? (mainRole ? mainRole.name : 'Moderator')
+      ? (mainRole ? mainRole.name : "Moderator")
       : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
 
     let result = `**${modInfo}:** ${text}`;
 
     if (opts.attachmentLinks && opts.attachmentLinks.length) {
-      result += '\n';
+      result += "\n";
       for (const link of opts.attachmentLinks) {
         result += `\n**Attachment:** ${link}`;
       }
@@ -165,8 +165,8 @@ const defaultFormatters = {
   },
 
   formatUserReplyThreadMessage(user, msg, opts = {}) {
-    const content = (msg.content.trim() === '' && msg.embeds.length)
-      ? '<message contains embeds>'
+    const content = (msg.content.trim() === "" && msg.embeds.length)
+      ? "<message contains embeds>"
       : msg.content;
 
     let result = `**${user.username}#${user.discriminator}:** ${content}`;
@@ -178,7 +178,7 @@ const defaultFormatters = {
     }
 
     if (config.threadTimestamps) {
-      const formattedTimestamp = utils.getTimestamp(msg.timestamp, 'x');
+      const formattedTimestamp = utils.getTimestamp(msg.timestamp, "x");
       result = `[${formattedTimestamp}] ${result}`;
     }
 
@@ -186,8 +186,8 @@ const defaultFormatters = {
   },
 
   formatUserReplyLogMessage(user, msg, opts = {}) {
-    const content = (msg.content.trim() === '' && msg.embeds.length)
-      ? '<message contains embeds>'
+    const content = (msg.content.trim() === "" && msg.embeds.length)
+      ? "<message contains embeds>"
       : msg.content;
 
     let result = content;

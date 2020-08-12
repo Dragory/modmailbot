@@ -1,58 +1,58 @@
-const Eris = require('eris');
-const path = require('path');
+const Eris = require("eris");
+const path = require("path");
 
-const config = require('./cfg');
-const bot = require('./bot');
-const knex = require('./knex');
-const {messageQueue} = require('./queue');
-const utils = require('./utils');
-const { createCommandManager } = require('./commands');
-const { getPluginAPI, loadPlugin } = require('./plugins');
-const { callBeforeNewThreadHooks } = require('./hooks/beforeNewThread');
+const config = require("./cfg");
+const bot = require("./bot");
+const knex = require("./knex");
+const {messageQueue} = require("./queue");
+const utils = require("./utils");
+const { createCommandManager } = require("./commands");
+const { getPluginAPI, loadPlugin } = require("./plugins");
+const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
 
-const blocked = require('./data/blocked');
-const threads = require('./data/threads');
-const updates = require('./data/updates');
+const blocked = require("./data/blocked");
+const threads = require("./data/threads");
+const updates = require("./data/updates");
 
-const reply = require('./modules/reply');
-const close = require('./modules/close');
-const snippets = require('./modules/snippets');
-const logs = require('./modules/logs');
-const move = require('./modules/move');
-const block = require('./modules/block');
-const suspend = require('./modules/suspend');
-const webserver = require('./modules/webserver');
-const greeting = require('./modules/greeting');
-const typingProxy = require('./modules/typingProxy');
-const version = require('./modules/version');
-const newthread = require('./modules/newthread');
-const idModule = require('./modules/id');
-const alert = require('./modules/alert');
+const reply = require("./modules/reply");
+const close = require("./modules/close");
+const snippets = require("./modules/snippets");
+const logs = require("./modules/logs");
+const move = require("./modules/move");
+const block = require("./modules/block");
+const suspend = require("./modules/suspend");
+const webserver = require("./modules/webserver");
+const greeting = require("./modules/greeting");
+const typingProxy = require("./modules/typingProxy");
+const version = require("./modules/version");
+const newthread = require("./modules/newthread");
+const idModule = require("./modules/id");
+const alert = require("./modules/alert");
 
-const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
+const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
 
 module.exports = {
   async start() {
-    console.log('Connecting to Discord...');
+    console.log("Connecting to Discord...");
 
-    bot.once('ready', async () => {
-      console.log('Connected! Waiting for guilds to become available...');
+    bot.once("ready", async () => {
+      console.log("Connected! Waiting for guilds to become available...");
       await Promise.all([
         ...config.mainGuildId.map(id => waitForGuild(id)),
         waitForGuild(config.mailGuildId)
       ]);
 
-      console.log('Initializing...');
+      console.log("Initializing...");
       initStatus();
       initBaseMessageHandlers();
 
-      console.log('Loading plugins...');
+      console.log("Loading plugins...");
       const pluginResult = await initPlugins();
       console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.builtInCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
 
-      console.log('');
-      console.log('Done! Now listening to DMs.');
-      console.log('');
+      console.log("");
+      console.log("Done! Now listening to DMs.");
+      console.log("");
     });
 
     bot.connect();
@@ -65,7 +65,7 @@ function waitForGuild(guildId) {
   }
 
   return new Promise(resolve => {
-    bot.on('guildAvailable', guild => {
+    bot.on("guildAvailable", guild => {
       if (guild.id === guildId) {
         resolve();
       }
@@ -89,7 +89,7 @@ function initBaseMessageHandlers() {
    * 1) If alwaysReply is enabled, reply to the user
    * 2) If alwaysReply is disabled, save that message as a chat message in the thread
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! utils.messageIsOnInboxServer(msg)) return;
     if (msg.author.bot) return;
 
@@ -116,7 +116,7 @@ function initBaseMessageHandlers() {
    * 1) Find the open modmail thread for this user, or create a new one
    * 2) Post the message as a user reply in the thread
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! (msg.channel instanceof Eris.PrivateChannel)) return;
     if (msg.author.bot) return;
     if (msg.type !== 0) return; // Ignore pins etc.
@@ -133,7 +133,7 @@ function initBaseMessageHandlers() {
         if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
         thread = await threads.createNewThreadForUser(msg.author, {
-          source: 'dm',
+          source: "dm",
         });
       }
 
@@ -148,13 +148,13 @@ function initBaseMessageHandlers() {
    * 1) If that message was in DMs, and we have a thread open with that user, post the edit as a system message in the thread
    * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
    */
-  bot.on('messageUpdate', async (msg, oldMessage) => {
+  bot.on("messageUpdate", async (msg, oldMessage) => {
     if (! msg || ! msg.author) return;
     if (msg.author.bot) return;
     if (await blocked.isBlocked(msg.author.id)) return;
 
     // Old message content doesn't persist between bot restarts
-    const oldContent = oldMessage && oldMessage.content || '*Unavailable due to bot restart*';
+    const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
     const newContent = msg.content;
 
     // Ignore edit events with changes only in embeds etc.
@@ -181,7 +181,7 @@ function initBaseMessageHandlers() {
   /**
    * When a staff message is deleted in a modmail thread, delete it from the database as well
    */
-  bot.on('messageDelete', async msg => {
+  bot.on("messageDelete", async msg => {
     if (! msg.author) return;
     if (msg.author.bot) return;
     if (! utils.messageIsOnInboxServer(msg)) return;
@@ -196,7 +196,7 @@ function initBaseMessageHandlers() {
   /**
    * When the bot is mentioned on the main server, ping staff in the log channel about it
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! utils.messageIsOnMainServer(msg)) return;
     if (! msg.mentions.some(user => user.id === bot.user.id)) return;
     if (msg.author.bot) return;
@@ -215,7 +215,7 @@ function initBaseMessageHandlers() {
 
     let content;
     const mainGuilds = utils.getMainGuilds();
-    const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : '');
+    const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : "");
 
     if (mainGuilds.length === 1) {
         content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}(${msg.author.id})**: "${msg.cleanContent}"\n\n<https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/${msg.channel.id}\/${msg.id}>`;

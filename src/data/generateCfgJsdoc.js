@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs');
-const toJsdoc = require('json-schema-to-jsdoc');
-const schema = require('./cfg.schema.json');
-const target = path.join(__dirname, 'cfg.jsdoc.js');
+const path = require("path");
+const fs = require("fs");
+const toJsdoc = require("json-schema-to-jsdoc");
+const schema = require("./cfg.schema.json");
+const target = path.join(__dirname, "cfg.jsdoc.js");
 
 // Fix up some custom types for the JSDoc conversion
 const schemaCopy = JSON.parse(JSON.stringify(schema));
@@ -20,4 +20,4 @@ for (const propertyDef of Object.values(schemaCopy.properties)) {
 }
 
 const result = toJsdoc(schemaCopy);
-fs.writeFileSync(target, result, { encoding: 'utf8' });
+fs.writeFileSync(target, result, { encoding: "utf8" });

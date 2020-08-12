@@ -1,10 +1,10 @@
-const moment = require('moment');
-const Eris = require('eris');
-const config = require('../cfg');
-const utils = require('../utils');
-const threads = require('../data/threads');
-const blocked = require('../data/blocked');
-const {messageQueue} = require('../queue');
+const moment = require("moment");
+const Eris = require("eris");
+const config = require("../cfg");
+const utils = require("../utils");
+const threads = require("../data/threads");
+const blocked = require("../data/blocked");
+const {messageQueue} = require("../queue");
 
 module.exports = ({ bot, knex, config, commands }) => {
   // Check for threads that are scheduled to be closed and close them
@@ -39,7 +39,7 @@ module.exports = ({ bot, knex, config, commands }) => {
   scheduledCloseLoop();
 
   // Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
-  commands.addGlobalCommand('close', '[opts...]', async (msg, args) => {
+  commands.addGlobalCommand("close", "[opts...]", async (msg, args) => {
     let thread, closedBy;
 
     let hasCloseMessage = !! config.closeMessage;
@@ -56,11 +56,11 @@ module.exports = ({ bot, knex, config, commands }) => {
       // We need to add this operation to the message queue so we don't get a race condition
       // between showing the close command in the thread and closing the thread
       await messageQueue.add(async () => {
-        thread.postSystemMessage('Thread closed by user, closing...');
+        thread.postSystemMessage("Thread closed by user, closing...");
         await thread.close(true);
       });
 
-      closedBy = 'the user';
+      closedBy = "the user";
     } else {
       // A staff member is closing the thread
       if (! utils.messageIsOnInboxServer(msg)) return;
@@ -70,18 +70,18 @@ module.exports = ({ bot, knex, config, commands }) => {
       if (! thread) return;
 
       if (args.opts && args.opts.length) {
-        if (args.opts.includes('cancel') || args.opts.includes('c')) {
+        if (args.opts.includes("cancel") || args.opts.includes("c")) {
           // Cancel timed close
           if (thread.scheduled_close_at) {
             await thread.cancelScheduledClose();
-            thread.postSystemMessage(`Cancelled scheduled closing`);
+            thread.postSystemMessage("Cancelled scheduled closing");
           }
 
           return;
         }
 
         // Silent close (= no close message)
-        if (args.opts.includes('silent') || args.opts.includes('s')) {
+        if (args.opts.includes("silent") || args.opts.includes("s")) {
           silentClose = true;
         }
 
@@ -90,12 +90,12 @@ module.exports = ({ bot, knex, config, commands }) => {
         if (delayStringArg) {
           const delay = utils.convertDelayStringToMS(delayStringArg);
           if (delay === 0 || delay === null) {
-            thread.postSystemMessage(`Invalid delay specified. Format: "1h30m"`);
+            thread.postSystemMessage("Invalid delay specified. Format: \"1h30m\"");
             return;
           }
 
-          const closeAt = moment.utc().add(delay, 'ms');
-          await thread.scheduleClose(closeAt.format('YYYY-MM-DD HH:mm:ss'), msg.author, silentClose ? 1 : 0);
+          const closeAt = moment.utc().add(delay, "ms");
+          await thread.scheduleClose(closeAt.format("YYYY-MM-DD HH:mm:ss"), msg.author, silentClose ? 1 : 0);
 
           let response;
           if (silentClose) {
@@ -129,7 +129,7 @@ module.exports = ({ bot, knex, config, commands }) => {
   });
 
   // Auto-close threads if their channel is deleted
-  bot.on('channelDelete', async (channel) => {
+  bot.on("channelDelete", async (channel) => {
     if (! (channel instanceof Eris.TextChannel)) return;
     if (channel.guild.id !== utils.getInboxGuild().id) return;
 
