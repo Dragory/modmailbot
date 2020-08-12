@@ -19,6 +19,7 @@
         "!": true,
         "!!": true
       }
-    }]
+    }],
+    "quotes": ["error", "double"]
   }
 }
