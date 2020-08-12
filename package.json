@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "watch": "nodemon -w src src/index.js",
+    "watch": "supervisor -n exit -w src src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src",
     "lint-fix": "eslint --fix ./src",
@@ -38,7 +38,7 @@
     "eslint": "^6.7.2",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
-    "nodemon": "^2.0.1"
+    "supervisor": "^0.12.0"
   },
   "engines": {
     "node": ">=10.0.0 <14.0.0"
