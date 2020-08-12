@@ -26,8 +26,17 @@ function getErrorResult(msg = null) {
 }
 
 /**
- * Attempts to download and save the given attachement
- * @param {Object} attachment
+ * An attachment storage option that simply forwards the original attachment URL
+ * @param {Eris.Attachment} attachment
+ * @returns {{url: string}}
+ */
+function passthroughOriginalAttachment(attachment) {
+  return { url: attachment.url };
+}
+
+/**
+ * An attachment storage option that downloads each attachment and serves them from a local web server
+ * @param {Eris.Attachment} attachment
  * @param {Number=0} tries
  * @returns {Promise<{ url: string }>}
  */
@@ -54,7 +63,7 @@ async function saveLocalAttachment(attachment) {
 }
 
 /**
- * @param {Object} attachment
+ * @param {Eris.Attachment} attachment
  * @param {Number} tries
  * @returns {Promise<{ path: string, cleanup: function }>}
  */
@@ -108,7 +117,9 @@ function getLocalAttachmentUrl(attachmentId, desiredName = null) {
 }
 
 /**
- * @param {Object} attachment
+ * An attachment storage option that downloads each attachment and re-posts them to a specified Discord channel.
+ * The re-posted attachment is then linked in the actual thread.
+ * @param {Eris.Attachment} attachment
  * @returns {Promise<{ url: string }>}
  */
 async function saveDiscordAttachment(attachment) {
@@ -153,19 +164,19 @@ async function createDiscordAttachmentMessage(channel, file, tries = 0) {
 
 /**
  * Turns the given attachment into a file object that can be sent forward as a new attachment
- * @param {Object} attachment
- * @returns {Promise<{file, name: string}>}
+ * @param {Eris.Attachment} attachment
+ * @returns {Promise<Eris.MessageFile>}
  */
 async function attachmentToDiscordFileObject(attachment) {
   const downloadResult = await downloadAttachment(attachment);
   const data = await readFile(downloadResult.path);
   downloadResult.cleanup();
-  return {file: data, name: attachment.filename};
+  return { file: data, name: attachment.filename };
 }
 
 /**
  * Saves the given attachment based on the configured storage system
- * @param {Object} attachment
+ * @param {Eris.Attachment} attachment
  * @returns {Promise<{ url: string }>}
  */
 function saveAttachment(attachment) {
@@ -190,8 +201,9 @@ function addStorageType(name, handler) {
   attachmentStorageTypes[name] = handler;
 }
 
-attachmentStorageTypes.local = saveLocalAttachment;
-attachmentStorageTypes.discord = saveDiscordAttachment;
+addStorageType("original", passthroughOriginalAttachment);
+addStorageType("local", saveLocalAttachment);
+addStorageType("discord", saveDiscordAttachment);
 
 module.exports = {
   getLocalAttachmentPath,

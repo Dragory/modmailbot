@@ -206,7 +206,7 @@
 
     "attachmentStorage": {
       "type": "string",
-      "default": "local"
+      "default": "original"
     },
     "attachmentStorageChannelId": {
       "type": "string"
