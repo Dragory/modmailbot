@@ -208,15 +208,16 @@ class Thread {
     }
 
     // Save the log entry
-    const logContent = formatters.formatStaffReplyLogMessage(moderator, text, threadMessage.message_number, { isAnonymous, attachmentLinks });
     const threadMessage = await this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.TO_USER,
       user_id: moderator.id,
       user_name: fullModeratorName,
-      body: logContent,
+      body: '',
       is_anonymous: (isAnonymous ? 1 : 0),
       dm_message_id: dmMessage.id
     });
+    const logContent = formatters.formatStaffReplyLogMessage(moderator, text, threadMessage.message_number, { isAnonymous, attachmentLinks });
+    await this._updateThreadMessage(threadMessage.id, { body: logContent });
 
     // Show the reply in the inbox thread
     const inboxContent = formatters.formatStaffReplyThreadMessage(moderator, text, threadMessage.message_number, { isAnonymous });

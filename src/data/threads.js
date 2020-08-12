@@ -13,7 +13,7 @@ const updates = require('./updates');
 
 const Thread = require('./Thread');
 const {callBeforeNewThreadHooks} = require("../hooks/beforeNewThread");
-const {THREAD_STATUS} = require('./constants');
+const {THREAD_STATUS, DISOCRD_CHANNEL_TYPES} = require('./constants');
 
 const MINUTES = 60 * 1000;
 const HOURS = 60 * MINUTES;
@@ -73,9 +73,6 @@ async function createNewThreadForUser(user, opts = {}) {
     throw new Error('Attempted to create a new thread for a user with an existing open thread!');
   }
 
-  const hookResult = await callBeforeNewThreadHooks({ user, opts });
-  if (hookResult.cancelled) return;
-
   // If set in config, check that the user's account is old enough (time since they registered on Discord)
   // If the account is too new, don't start a new thread and optionally reply to them with a message
   if (config.requiredAccountAge && ! ignoreRequirements) {
@@ -128,6 +125,10 @@ async function createNewThreadForUser(user, opts = {}) {
     }
   }
 
+  // Call any registered beforeNewThreadHooks
+  const hookResult = await callBeforeNewThreadHooks({ user, opts });
+  if (hookResult.cancelled) return;
+
   // Use the user's name+discrim for the thread channel's name
   // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
   let cleanName = transliterate.slugify(user.username);
@@ -159,7 +160,10 @@ async function createNewThreadForUser(user, opts = {}) {
   // Attempt to create the inbox channel for this thread
   let createdChannel;
   try {
-    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, 'New Modmail thread', newThreadCategoryId);
+    createdChannel = await utils.getInboxGuild().createChannel(channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
+      reason: 'New Modmail thread',
+      parentID: newThreadCategoryId,
+    });
   } catch (err) {
     console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
     throw err;

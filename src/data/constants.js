@@ -15,6 +15,17 @@ module.exports = {
     SYSTEM_TO_USER: 7
   },
 
+  // https://discord.com/developers/docs/resources/channel#channel-object-channel-types
+  DISOCRD_CHANNEL_TYPES: {
+    GUILD_TEXT: 0,
+    DM: 1,
+    GUILD_VOICE: 2,
+    GROUP_DM: 3,
+    GUILD_CATEGORY: 4,
+    GUILD_NEWS: 5,
+    GUILD_STORE: 6,
+  },
+
   ACCIDENTAL_THREAD_MESSAGES: [
     'ok',
     'okay',
