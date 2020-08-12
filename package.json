@@ -31,7 +31,7 @@
     "public-ip": "^4.0.0",
     "sqlite3": "^5.0.0",
     "tmp": "^0.1.0",
-    "transliteration": "^2.1.7",
+    "transliteration": "^2.1.11",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
