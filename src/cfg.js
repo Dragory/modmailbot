@@ -102,16 +102,6 @@ for (const [key, value] of Object.entries(config)) {
   delete config[key];
 }
 
-// Cast boolean options (on, true, 1) (off, false, 0)
-for (const [key, value] of Object.entries(config)) {
-  if (typeof value !== "string") continue;
-  if (["on", "true", "1"].includes(value)) {
-    config[key] = true;
-  } else if (["off", "false", "0"].includes(value)) {
-    config[key] = false;
-  }
-}
-
 if (! config['knex']) {
   config.knex = {
     client: 'sqlite',
@@ -128,20 +118,6 @@ Object.assign(config['knex'], {
     directory: path.join(config.dbDir, 'migrations')
   }
 });
-
-// Make sure mainGuildId is internally always an array
-if (! Array.isArray(config['mainGuildId'])) {
-  config['mainGuildId'] = [config['mainGuildId']];
-}
-
-// Make sure inboxServerPermission is always an array
-if (! Array.isArray(config['inboxServerPermission'])) {
-  if (config['inboxServerPermission'] == null) {
-    config['inboxServerPermission'] = [];
-  } else {
-    config['inboxServerPermission'] = [config['inboxServerPermission']];
-  }
-}
 
 // Move greetingMessage/greetingAttachment to the guildGreetings object internally
 // Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
@@ -163,15 +139,71 @@ if (config.newThreadCategoryId) {
   delete config.newThreadCategoryId;
 }
 
-// Turn empty string options to null (i.e. "option=" without a value in config.ini)
+// Delete empty string options (i.e. "option=" without a value in config.ini)
 for (const [key, value] of Object.entries(config)) {
   if (value === '') {
-    config[key] = null;
+    delete config[key];
   }
 }
 
 // Validate config and assign defaults (if missing)
 const ajv = new Ajv({ useDefaults: true, coerceTypes: "array" });
+
+// https://github.com/ajv-validator/ajv/issues/141#issuecomment-270692820
+const truthyValues = ["1", "true", "on"];
+const falsyValues = ["0", "false", "off"];
+ajv.addKeyword('coerceBoolean', {
+  compile(value) {
+    return (data, dataPath, parentData, parentKey) => {
+      if (! value) {
+        // Disabled -> no coercion
+        return true;
+      }
+
+      // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270777250
+      // The "data" argument doesn't update within the same set of schemas inside "allOf",
+      // so we're referring to the original property instead.
+      // This also means we can't use { "type": "boolean" }, as it would test the un-updated data value.
+      const realData = parentData[parentKey];
+
+      if (typeof realData === "boolean") {
+        return true;
+      }
+
+      if (truthyValues.includes(realData)) {
+        parentData[parentKey] = true;
+      } else if (falsyValues.includes(realData)) {
+        parentData[parentKey] = false;
+      } else {
+        return false;
+      }
+
+      return true;
+    };
+  },
+});
+
+ajv.addKeyword('multilineString', {
+  compile(value) {
+    return (data, dataPath, parentData, parentKey) => {
+      if (! value) {
+        // Disabled -> no coercion
+        return true;
+      }
+
+      const realData = parentData[parentKey];
+
+      if (typeof realData === "string") {
+        return true;
+      }
+
+      parentData[parentKey] = realData.join("\n");
+
+      return true;
+    };
+  },
+});
+
 const validate = ajv.compile(schema);
 const configIsValid = validate(config);
 
@@ -186,5 +218,6 @@ if (! configIsValid) {
 }
 
 console.log("Configuration ok!");
+process.exit(0);
 
 module.exports = config;

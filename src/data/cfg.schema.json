@@ -10,7 +10,36 @@
       }
     },
     "multilineString": {
-      "$ref": "#/definitions/stringArray"
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "$comment": "See definition of multilineString in cfg.js",
+          "multilineString": true
+        }
+      ]
+    },
+    "customBoolean": {
+      "allOf": [
+        {
+          "type": ["boolean", "string"]
+        },
+        {
+          "$comment": "See definition of coerceBoolean in cfg.js",
+          "coerceBoolean": true
+        }
+      ]
     }
   },
   "properties": {
@@ -51,7 +80,7 @@
       "$ref": "#/definitions/multilineString"
     },
     "allowUserClose": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
 
@@ -63,7 +92,7 @@
       "default": "here"
     },
     "pingOnBotMention": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": true
     },
     "botMentionResponse": {
@@ -74,60 +103,60 @@
       "$ref": "#/definitions/stringArray"
     },
     "alwaysReply": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "alwaysReplyAnon": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "useNicknames": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "ignoreAccidentalThreads": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "threadTimestamps": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "allowMove": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "syncPermissionsOnMove": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": true
     },
     "typingProxy": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "typingProxyReverse": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "mentionUserInThreadHeader": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "rolesInThreadHeader": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "allowStaffEdit": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "allowStaffDelete": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
 
     "enableGreeting": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "greetingMessage": {
@@ -164,7 +193,7 @@
     },
 
     "relaySmallAttachmentsAsAttachments": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": false
     },
     "smallAttachmentLimit": {
@@ -194,7 +223,7 @@
     },
 
     "updateNotifications": {
-      "type": "boolean",
+      "$ref": "#/definitions/customBoolean",
       "default": true
     },
     "plugins": {
