@@ -1,7 +1,7 @@
 const config = require("../cfg");
 const Eris = require("eris");
 const transliterate = require("transliteration");
-const erisEndpoints = require("eris/lib/rest/Endpoints");
+const erisEndpoints = require("../../node_modules/eris/lib/rest/Endpoints");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowMove) return;
