@@ -100,10 +100,11 @@ e.g. `!note This is an internal message`.
 If `alwaysReply` is enabled, this option controls whether the auto-reply is anonymous
 
 #### attachmentStorage
-**Default:** `local`  
+**Default:** `original`  
 Controls how attachments in modmail threads are stored. Possible values:
-* **local** - Files are saved locally on the machine running the bot
-* **discord** - Files are saved as attachments on a special channel on the inbox server. Requires `attachmentStorageChannelId` to be set.
+* `original` - The original attachment is linked directly
+* `local` - Files are saved locally on the machine running the bot and served via a local web server
+* `discord` - Files are saved as attachments on a special channel on the inbox server. Requires `attachmentStorageChannelId` to be set.
 
 #### attachmentStorageChannelId
 **Default:** *None*  
