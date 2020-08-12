@@ -1,0 +1,268 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ModmailConfig",
+  "type": "object",
+  "definitions": {
+    "stringOrArrayOfStrings": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stringOrMultilineString": {
+      "$ref": "#/definitions/stringOrArrayOfStrings"
+    }
+  },
+  "properties": {
+    "token": {
+      "type": "string"
+    },
+    "mainGuildId": {
+      "$ref": "#/definitions/stringOrArrayOfStrings"
+    },
+    "mailGuildId": {
+      "type": "string"
+    },
+    "logChannelId": {
+      "type": "string"
+    },
+
+    "prefix": {
+      "type": "string",
+      "default": "!"
+    },
+    "snippetPrefix": {
+      "type": "string",
+      "default": "!!"
+    },
+    "snippetPrefixAnon": {
+      "type": "string",
+      "default": "!!!"
+    },
+    "status": {
+      "type": "string",
+      "default": "Message me for help!"
+    },
+    "responseMessage": {
+      "$ref": "#/definitions/stringOrMultilineString",
+      "default": "Thank you for your message! Our mod team will reply to you here as soon as possible."
+    },
+    "closeMessage": {
+      "$ref": "#/definitions/stringOrMultilineString"
+    },
+    "allowUserClose": {
+      "type": "boolean",
+      "default": false
+    },
+
+    "newThreadCategoryId": {
+      "type": "string"
+    },
+    "mentionRole": {
+      "type": "string",
+      "default": "here"
+    },
+    "pingOnBotMention": {
+      "type": "boolean",
+      "default": true
+    },
+    "botMentionResponse": {
+      "$ref": "#/definitions/stringOrMultilineString"
+    },
+
+    "inboxServerPermission": {
+      "$ref": "#/definitions/stringOrArrayOfStrings"
+    },
+    "alwaysReply": {
+      "type": "boolean",
+      "default": false
+    },
+    "alwaysReplyAnon": {
+      "type": "boolean",
+      "default": false
+    },
+    "useNicknames": {
+      "type": "boolean",
+      "default": false
+    },
+    "ignoreAccidentalThreads": {
+      "type": "boolean",
+      "default": false
+    },
+    "threadTimestamps": {
+      "type": "boolean",
+      "default": false
+    },
+    "allowMove": {
+      "type": "boolean",
+      "default": false
+    },
+    "syncPermissionsOnMove": {
+      "type": "boolean",
+      "default": true
+    },
+    "typingProxy": {
+      "type": "boolean",
+      "default": false
+    },
+    "typingProxyReverse": {
+      "type": "boolean",
+      "default": false
+    },
+    "mentionUserInThreadHeader": {
+      "type": "boolean",
+      "default": false
+    },
+    "rolesInThreadHeader": {
+      "type": "boolean",
+      "default": false
+    },
+    "allowStaffEdit": {
+      "type": "boolean",
+      "default": false
+    },
+    "allowStaffDelete": {
+      "type": "boolean",
+      "default": false
+    },
+
+    "enableGreeting": {
+      "type": "boolean",
+      "default": false
+    },
+    "greetingMessage": {
+      "$ref": "#/definitions/stringOrMultilineString"
+    },
+    "greetingAttachment": {
+      "type": "string"
+    },
+    "guildGreetings": {
+      "patternProperties": {
+        "^\\d+$": {
+          "$ref": "#/definitions/stringOrMultilineString"
+        }
+      },
+      "default": {}
+    },
+
+    "requiredAccountAge": {
+      "description": "Required account age to message Modmail, in hours",
+      "type": "number"
+    },
+    "accountAgeDeniedMessage": {
+      "$ref": "#/definitions/stringOrMultilineString",
+      "default": "Your Discord account is not old enough to contact modmail."
+    },
+
+    "requiredTimeOnServer": {
+      "description": "Required time on server to message Modmail, in minutes",
+      "type": "number"
+    },
+    "timeOnServerDeniedMessage": {
+      "$ref": "#/definitions/stringOrMultilineString",
+      "default": "You haven't been a member of the server for long enough to contact modmail."
+    },
+
+    "relaySmallAttachmentsAsAttachments": {
+      "type": "boolean",
+      "default": false
+    },
+    "smallAttachmentLimit": {
+      "description": "Max size of attachment to relay directly. Default is 2MB.",
+      "type": "number",
+      "default": 2097152,
+      "maximum": 8388608,
+      "minimum": 0
+    },
+
+    "attachmentStorage": {
+      "type": "string",
+      "default": "local"
+    },
+    "attachmentStorageChannelId": {
+      "type": "string"
+    },
+
+    "categoryAutomation": {
+      "patternProperties": {
+        "^.+$": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      },
+      "default": {}
+    },
+
+    "updateNotifications": {
+      "type": "boolean",
+      "default": true
+    },
+    "plugins": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+
+    "commandAliases": {
+      "patternProperties": {
+        "^.+$": {
+          "type": "string"
+        }
+      }
+    },
+
+    "port": {
+      "type": "number",
+      "maximum": 65535,
+      "minimum": 1,
+      "default": 8890
+    },
+    "url": {
+      "type": "string"
+    },
+
+    "dbDir": {
+      "type": "string"
+    },
+    "knex": {
+      "type": "object"
+    },
+
+    "logDir": {
+      "type": "string",
+      "deprecationMessage": "This option is no longer used"
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "Base required values",
+      "required": ["token", "mainGuildId", "mailGuildId", "logChannelId"]
+    },
+    {
+      "$comment": "Make attachmentStorageChannelId required if attachmentStorage is set to 'discord'",
+      "if": {
+        "properties": {
+          "attachmentStorage": {
+            "const": "discord"
+          }
+        },
+        "required": ["attachmentStorage"]
+      },
+      "then": {
+        "required": ["attachmentStorageChannelId"]
+      }
+    }
+  ]
+}
