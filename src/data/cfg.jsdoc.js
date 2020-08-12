@@ -50,4 +50,5 @@
  * @property {string} [dbDir]
  * @property {object} [knex]
  * @property {string} [logDir]
+ * @property {array} [extraIntents=[]]
  */

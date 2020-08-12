@@ -262,6 +262,11 @@
     "logDir": {
       "type": "string",
       "deprecationMessage": "This option is no longer used"
+    },
+
+    "extraIntents": {
+      "$ref": "#/definitions/stringArray",
+      "default": []
     }
   },
   "allOf": [

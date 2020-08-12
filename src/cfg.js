@@ -220,4 +220,7 @@ if (! configIsValid) {
 console.log("Configuration ok!");
 process.exit(0);
 
+/**
+ * @type {ModmailConfig}
+ */
 module.exports = config;
