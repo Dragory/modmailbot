@@ -171,7 +171,7 @@ for (const [key, value] of Object.entries(config)) {
 }
 
 // Validate config and assign defaults (if missing)
-const ajv = new Ajv({ useDefaults: true });
+const ajv = new Ajv({ useDefaults: true, coerceTypes: "array" });
 const validate = ajv.compile(schema);
 const configIsValid = validate(config);
 

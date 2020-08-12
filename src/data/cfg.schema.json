@@ -3,24 +3,14 @@
   "title": "ModmailConfig",
   "type": "object",
   "definitions": {
-    "stringOrArrayOfStrings": {
-      "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        {
-          "type": "null"
-        }
-      ]
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
-    "stringOrMultilineString": {
-      "$ref": "#/definitions/stringOrArrayOfStrings"
+    "multilineString": {
+      "$ref": "#/definitions/stringArray"
     }
   },
   "properties": {
@@ -28,7 +18,7 @@
       "type": "string"
     },
     "mainGuildId": {
-      "$ref": "#/definitions/stringOrArrayOfStrings"
+      "$ref": "#/definitions/stringArray"
     },
     "mailGuildId": {
       "type": "string"
@@ -54,11 +44,11 @@
       "default": "Message me for help!"
     },
     "responseMessage": {
-      "$ref": "#/definitions/stringOrMultilineString",
+      "$ref": "#/definitions/multilineString",
       "default": "Thank you for your message! Our mod team will reply to you here as soon as possible."
     },
     "closeMessage": {
-      "$ref": "#/definitions/stringOrMultilineString"
+      "$ref": "#/definitions/multilineString"
     },
     "allowUserClose": {
       "type": "boolean",
@@ -77,11 +67,11 @@
       "default": true
     },
     "botMentionResponse": {
-      "$ref": "#/definitions/stringOrMultilineString"
+      "$ref": "#/definitions/multilineString"
     },
 
     "inboxServerPermission": {
-      "$ref": "#/definitions/stringOrArrayOfStrings"
+      "$ref": "#/definitions/stringArray"
     },
     "alwaysReply": {
       "type": "boolean",
@@ -141,7 +131,7 @@
       "default": false
     },
     "greetingMessage": {
-      "$ref": "#/definitions/stringOrMultilineString"
+      "$ref": "#/definitions/multilineString"
     },
     "greetingAttachment": {
       "type": "string"
@@ -149,7 +139,7 @@
     "guildGreetings": {
       "patternProperties": {
         "^\\d+$": {
-          "$ref": "#/definitions/stringOrMultilineString"
+          "$ref": "#/definitions/multilineString"
         }
       },
       "default": {}
@@ -160,7 +150,7 @@
       "type": "number"
     },
     "accountAgeDeniedMessage": {
-      "$ref": "#/definitions/stringOrMultilineString",
+      "$ref": "#/definitions/multilineString",
       "default": "Your Discord account is not old enough to contact modmail."
     },
 
@@ -169,7 +159,7 @@
       "type": "number"
     },
     "timeOnServerDeniedMessage": {
-      "$ref": "#/definitions/stringOrMultilineString",
+      "$ref": "#/definitions/multilineString",
       "default": "You haven't been a member of the server for long enough to contact modmail."
     },
 
