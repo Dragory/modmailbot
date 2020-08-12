@@ -9,6 +9,7 @@
     "watch": "nodemon -w src src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src",
+    "lint-fix": "eslint --fix ./src",
     "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js"
   },
   "repository": {
@@ -35,9 +36,19 @@
   },
   "devDependencies": {
     "eslint": "^6.7.2",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
     "nodemon": "^2.0.1"
   },
   "engines": {
     "node": ">=10.0.0 <14.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix"
   }
 }
