@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src ./db/migrations",
     "lint-fix": "eslint --fix ./src ./db/migrations",
-    "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js"
+    "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js",
+    "create-migration": "knex migrate:make"
   },
   "repository": {
     "type": "git",
