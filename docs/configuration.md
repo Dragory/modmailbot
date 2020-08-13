@@ -89,6 +89,14 @@ If enabled, allows you to move threads between categories using `!move <category
 **Default:** `off`  
 If enabled, users can use the close command to close threads by themselves from their DMs with the bot
 
+#### allowStaffDelete
+**Default:** `on`  
+If enabled, staff members can delete their own replies in modmail threads with `!delete`
+
+#### allowStaffEdit
+**Default:** `on`  
+If enabled, staff members can edit their own replies in modmail threads with `!edit`
+
 #### alwaysReply
 **Default:** `off`  
 If enabled, all messages in modmail threads will be sent to the user without having to use `!r`.  
@@ -279,6 +287,55 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT`.
 #### useNicknames
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
+
+## Advanced options
+
+#### extraIntents
+**Default:** *None*  
+If you're using or developing a plugin that requires extra [Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents),
+you can specify them here.
+
+Example:
+```ini
+extraIntents[] = guildPresences
+extraIntents[] = guildMembers
+```
+
+#### dbType
+**Default:** `sqlite`
+Specifies the type of database to use. Valid options:
+* `sqlite` (see also [sqliteOptions](#sqliteOptions) below)
+* `mysql` (see also [mysqlOptions](#mysqlOptions) below)
+
+Other databases are *not* currently supported.
+
+#### sqliteOptions
+Object with SQLite-specific options
+
+##### sqliteOptions.filename
+**Default:** `db/data.sqlite`
+Can be used to specify the path to the database file
+
+#### mysqlOptions
+Object with MySQL-specific options
+
+##### mysqlOptions.host
+**Default:** `localhost`
+
+##### mysqlOptions.port
+**Default:** `3306`
+
+##### mysqlOptions.username
+**Default:** *None*  
+Required if using `mysql` for `dbType`. MySQL user to connect with.
+
+##### mysqlOptions.password
+**Default:** *None*  
+Required if using `mysql` for `dbType`. Password for the MySQL user specified above.
+
+##### mysqlOptions.database
+**Default:** *None*  
+Required if using `mysql` for `dbType`. Name of the MySQL database to use.
 
 ## config.ini vs config.json
 Earlier versions of the bot instructed you to create a `config.json` instead of a `config.ini`.
