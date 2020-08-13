@@ -313,7 +313,7 @@ Other databases are *not* currently supported.
 Object with SQLite-specific options
 
 ##### sqliteOptions.filename
-**Default:** `db/data.sqlite`
+**Default:** `db/data.sqlite`  
 Can be used to specify the path to the database file
 
 #### mysqlOptions
