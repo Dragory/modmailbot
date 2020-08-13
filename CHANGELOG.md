@@ -1,5 +1,32 @@
 # Changelog
 
+## v2.31.0-beta.1
+This is a beta release. It is not available on the Releases page and bugs are expected.
+
+General changes:
+* Added support for Node.js 14, dropped support for Node.js 10 and 11
+* Added support for editing and deleting staff replies
+  * This can be disabled with the `allowStaffEdit` and `allowStaffDelete` options
+  * Only the staff member who sent the reply can edit/delete it
+* New **default** attachment storage option: `original`
+  * This option simply links the original attachment and does not rehost it in any way
+* Added official support for MySQL databases. Refer to the documentation on `dbType` for more details.
+  * This change also means the following options are **no longer supported:**
+    * `dbDir` (use `sqliteOptions.filename` to specify the database file instead)
+    * `knex` (see `dbType` documentation for more details)
+* Removed the long-deprecated `logDir` option
+
+Plugins:
+* Added support for replacing default message formatting in threads, DMs, and logs
+* Added support for *hooks*. Hooks can be used to run custom plugin code before/after specific moments.
+  * Initially only the `beforeNewThread` hook is available. See plugin documentation for more details.
+* If your plugin requires special gateway intents, use the new `extraIntents` config option
+
+Internal/technical updates:
+* Updated to Eris 0.13.3
+* The client now requests specific gateway intents on connection
+* New config parser that validates each option and their types more strictly to prevent undefined behavior
+
 ## v2.31.0-beta.0
 This is a beta release. It is not available on the Releases page and bugs are expected.
 
