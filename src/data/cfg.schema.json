@@ -227,6 +227,7 @@
       "$ref": "#/definitions/customBoolean",
       "default": true
     },
+
     "plugins": {
       "type": "array",
       "items": {
@@ -249,23 +250,9 @@
       "minimum": 1,
       "default": 8890
     },
+
     "url": {
       "type": "string"
-    },
-
-    "dbDir": {
-      "type": "string",
-      "deprecationMessage": "This option is deprecated. Please use sqliteOptions instead."
-    },
-
-    "knex": {
-      "type": "object",
-      "deprecationMessage": "This option is deprecated. Please use dbType and sqliteOptions/mysqlOptions instead."
-    },
-
-    "logDir": {
-      "type": "string",
-      "deprecationMessage": "This option is deprecated. Logs are no longer stored in individual files."
     },
 
     "extraIntents": {
