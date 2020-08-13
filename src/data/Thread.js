@@ -18,6 +18,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require("./constants");
  * @property {String} user_id
  * @property {String} user_name
  * @property {String} channel_id
+ * @property {Number} next_message_number
  * @property {String} scheduled_close_at
  * @property {String} scheduled_close_id
  * @property {String} scheduled_close_name
@@ -116,7 +117,7 @@ class Thread {
    */
   async _addThreadMessageToDB(data) {
     if (data.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-      data.message_number = knex.raw(`IFNULL((${this._lastMessageNumberInThreadSQL()}), 0) + 1`);
+      data.message_number = await this._getAndIncrementNextMessageNumber();
     }
 
     const dmChannel = await this.getDMChannel();
@@ -159,15 +160,22 @@ class Thread {
   }
 
   /**
-   * @returns {string}
-   * @private
+   * @returns {Promise<Number>}
    */
-  _lastMessageNumberInThreadSQL() {
-    return knex("thread_messages AS tm_msg_num_ref")
-      .select(knex.raw("MAX(tm_msg_num_ref.message_number)"))
-      .whereRaw(`tm_msg_num_ref.thread_id = '${this.id}'`)
-      .toSQL()
-      .sql;
+  async _getAndIncrementNextMessageNumber() {
+    return knex.transaction(async trx => {
+      const nextNumberRow = await trx("threads")
+        .where("id", this.id)
+        .select("next_message_number")
+        .first();
+      const nextNumber = nextNumberRow.next_message_number;
+
+      await trx("threads")
+        .where("id", this.id)
+        .update({ next_message_number: nextNumber + 1 });
+
+      return nextNumber;
+    });
   }
 
   /**
