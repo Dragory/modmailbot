@@ -39,7 +39,6 @@ module.exports = ({ bot, knex, config, commands }) => {
         return;
       }
 
-      console.log(threadMessage.user_id, msg.author.id);
       if (threadMessage.user_id !== msg.author.id) {
         utils.postError(msg.channel, "You can only edit your own replies");
         return;
