@@ -47,11 +47,15 @@
  * @property {*} [commandAliases]
  * @property {number} [port=8890]
  * @property {string} [url]
- * @property {string} [dbDir]
- * @property {object} [knex]
- * @property {string} [logDir]
  * @property {array} [extraIntents=[]]
  * @property {*} [dbType="sqlite"]
- * @property {*} [sqliteOptions]
- * @property {*} [mysqlOptions]
+ * @property {object} [sqliteOptions]
+ * @property {string} sqliteOptions.filename
+ * @property {object} [mysqlOptions]
+ * @property {string} mysqlOptions.host
+ * @property {number} mysqlOptions.port
+ * @property {string} mysqlOptions.user
+ * @property {string} mysqlOptions.password
+ * @property {string} mysqlOptions.database
+ * @property {string} [mysqlOptions.timezone]
  */

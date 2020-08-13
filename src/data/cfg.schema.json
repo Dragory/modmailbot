@@ -282,10 +282,12 @@
       "type": "object",
       "properties": {
         "host": {
-          "type": "string"
+          "type": "string",
+          "default": "localhost"
         },
         "port": {
-          "type": "number"
+          "type": "number",
+          "default": "3306"
         },
         "user": {
           "type": "string"
@@ -300,7 +302,7 @@
           "type": "string"
         }
       },
-      "required": ["user", "password", "database"]
+      "required": ["host", "port", "user", "password", "database"]
     }
   },
   "allOf": [
