@@ -1,11 +1,11 @@
-const Knex = require('knex');
+const Knex = require("knex");
 
 /**
  * @param {Knex} knex
  */
 exports.up = async function(knex) {
-  await knex.schema.table('thread_messages', table => {
-    table.string('dm_channel_id', 20).nullable();
+  await knex.schema.table("thread_messages", table => {
+    table.string("dm_channel_id", 20).nullable();
   });
 };
 
@@ -13,7 +13,7 @@ exports.up = async function(knex) {
  * @param {Knex} knex
  */
 exports.down = async function(knex) {
-  await knex.schema.table('thread_messages', table => {
-    table.dropColumn('dm_channel_id');
+  await knex.schema.table("thread_messages", table => {
+    table.dropColumn("dm_channel_id");
   });
 };
