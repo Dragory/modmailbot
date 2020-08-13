@@ -120,15 +120,15 @@ const defaultFormatters = {
 
   formatStaffReplyEditNotificationThreadMessage(threadMessage, newText, moderator) {
     let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) edited reply \`[${threadMessage.message_number}]\`:`;
-    content += `\n\`B:\` ${threadMessage.body}`;
-    content += `\n\`A:\` ${newText}`;
-    return utils.disableLinkPreviews(content);
+    content += `\n\nBefore:\n\`\`\`${utils.disableCodeBlocks(threadMessage.body)}\`\`\``;
+    content += `\nAfter:\n\`\`\`${utils.disableCodeBlocks(newText)}\`\`\``;
+    return content;
   },
 
   formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator} (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\`:**`;
-    content += `\n\`B:\` ${threadMessage.body}`;
-    return utils.disableLinkPreviews(content);
+    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\`:`;
+    content += "```" + utils.disableCodeBlocks(threadMessage.body) + "```";
+    return content;
   },
 
   formatLog(thread, threadMessages, opts = {}) {
