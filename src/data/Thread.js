@@ -178,7 +178,9 @@ class Thread {
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
-    const fullModeratorName = `${moderator.user.username}#${moderator.user.discriminator}`;
+    const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    const mainRole = utils.getMainRole(moderator);
+    const roleName = mainRole ? mainRole.name : null;
 
     // Prepare attachments, if any
     const files = [];
@@ -197,8 +199,18 @@ class Thread {
       }
     }
 
+    let threadMessage = new ThreadMessage({
+      message_type: THREAD_MESSAGE_TYPE.TO_USER,
+      user_id: moderator.id,
+      user_name: moderatorName,
+      body: text,
+      is_anonymous: (isAnonymous ? 1 : 0),
+      role_name: roleName,
+      attachments: attachmentLinks,
+    });
+
     // Send the reply DM
-    const dmContent = formatters.formatStaffReplyDM(moderator, text, { isAnonymous });
+    const dmContent = formatters.formatStaffReplyDM(threadMessage);
     let dmMessage;
     try {
       dmMessage = await this._sendDMToUser(dmContent, files);
@@ -208,21 +220,17 @@ class Thread {
     }
 
     // Save the log entry
-    const threadMessage = await this._addThreadMessageToDB({
-      message_type: THREAD_MESSAGE_TYPE.TO_USER,
-      user_id: moderator.id,
-      user_name: fullModeratorName,
-      body: "",
-      is_anonymous: (isAnonymous ? 1 : 0),
-      dm_message_id: dmMessage.id
+    threadMessage = await this._addThreadMessageToDB({
+      ...threadMessage.getSQLProps(),
+      dm_message_id: dmMessage.id,
     });
-    const logContent = formatters.formatStaffReplyLogMessage(moderator, text, threadMessage.message_number, { isAnonymous, attachmentLinks });
-    await this._updateThreadMessage(threadMessage.id, { body: logContent });
 
     // Show the reply in the inbox thread
-    const inboxContent = formatters.formatStaffReplyThreadMessage(moderator, text, threadMessage.message_number, { isAnonymous });
+    const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
     const inboxMessage = await this._postToThreadChannel(inboxContent, files);
-    if (inboxMessage) await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+    if (inboxMessage) {
+      await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+    }
 
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
@@ -238,43 +246,46 @@ class Thread {
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg) {
-    // Prepare attachments
-    const attachmentFiles = [];
-    const threadFormattedAttachments = [];
-    const logFormattedAttachments = [];
+    const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
 
-    // TODO: Save attachment info with the message, use that to re-create attachment formatting in
-    // TODO: this._formatUserReplyLogMessage and this._formatUserReplyThreadMessage
+    // Prepare attachments
+    const attachments = [];
+    const smallAttachments = [];
+    const attachmentFiles = [];
+
     for (const attachment of msg.attachments) {
       const savedAttachment = await attachments.saveAttachment(attachment);
-
-      const formatted = await utils.formatAttachment(attachment, savedAttachment.url);
-      logFormattedAttachments.push(formatted);
 
       // Forward small attachments (<2MB) as attachments, link to larger ones
       if (config.relaySmallAttachmentsAsAttachments && attachment.size <= config.smallAttachmentLimit) {
         const file = await attachments.attachmentToDiscordFileObject(attachment);
         attachmentFiles.push(file);
-      } else {
-        threadFormattedAttachments.push(formatted);
+        smallAttachments.push(savedAttachment.url);
       }
+
+      attachments.push(savedAttachment.url);
     }
 
-    // Save log entry
-    const logContent = formatters.formatUserReplyLogMessage(msg.author, msg, { attachmentLinks: logFormattedAttachments });
-    const threadMessage = await this._addThreadMessageToDB({
+    // Save DB entry
+    let threadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
-      user_name: `${msg.author.username}#${msg.author.discriminator}`,
-      body: logContent,
+      user_name: fullUserName,
+      body: msg.content || "",
       is_anonymous: 0,
-      dm_message_id: msg.id
+      dm_message_id: msg.id,
+      attachments,
+      small_attachments: smallAttachments,
     });
 
+    threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
+
     // Show user reply in the inbox thread
-    const inboxContent = formatters.formatUserReplyThreadMessage(msg.author, msg, { attachmentLinks: threadFormattedAttachments });
+    const inboxContent = formatters.formatUserReplyThreadMessage(threadMessage);
     const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
-    if (inboxMessage) await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+    if (inboxMessage) {
+      await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
+    }
 
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
@@ -306,12 +317,11 @@ class Thread {
   async postSystemMessage(content, file = null, opts = {}) {
     const msg = await this._postToThreadChannel(content, file);
     if (msg && opts.saveToLog !== false) {
-      const finalLogBody = opts.logBody || msg.content || "<empty message>";
       await this._addThreadMessageToDB({
         message_type: THREAD_MESSAGE_TYPE.SYSTEM,
         user_id: null,
         user_name: "",
-        body: finalLogBody,
+        body: msg.content || "<empty message>",
         is_anonymous: 0,
         inbox_message_id: msg.id,
       });
@@ -329,12 +339,11 @@ class Thread {
   async sendSystemMessageToUser(content, file = null, opts = {}) {
     const msg = await this._sendDMToUser(content, file);
     if (opts.saveToLog !== false) {
-      const finalLogBody = opts.logBody || msg.content || "<empty message>";
       await this._addThreadMessageToDB({
         message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
         user_id: null,
         user_name: "",
-        body: finalLogBody,
+        body: msg.content || "<empty message>",
         is_anonymous: 0,
         dm_message_id: msg.id,
       });
@@ -355,6 +364,7 @@ class Thread {
    * @returns {Promise<void>}
    */
   async saveChatMessageToLogs(msg) {
+    // TODO: Save attachments?
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
@@ -421,7 +431,7 @@ class Thread {
     const data = await knex("thread_messages")
       .where("thread_id", this.id)
       .where("message_number", messageNumber)
-      .select();
+      .first();
 
     return data ? new ThreadMessage(data) : null;
   }
@@ -560,37 +570,23 @@ class Thread {
    * @returns {Promise<void>}
    */
   async editStaffReply(moderator, threadMessage, newText, opts = {}) {
-    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(
-      moderator,
-      newText,
-      threadMessage.message_number,
-      { isAnonymous: threadMessage.is_anonymous }
-    );
+    const newThreadMessage = new ThreadMessage({
+      ...threadMessage.getSQLProps(),
+      body: newText,
+    });
 
-    const formattedDM = formatters.formatStaffReplyDM(
-      moderator,
-      newText,
-      { isAnonymous: threadMessage.is_anonymous }
-    );
-
-    // FIXME: Fix attachment links disappearing by moving them off the main message content in the DB
-    const formattedLog = formatters.formatStaffReplyLogMessage(
-      moderator,
-      newText,
-      threadMessage.message_number,
-      { isAnonymous: threadMessage.is_anonymous }
-    );
+    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(newThreadMessage);
+    const formattedDM = formatters.formatStaffReplyDM(newThreadMessage);
 
     await bot.editMessage(threadMessage.dm_channel_id, threadMessage.dm_message_id, formattedDM);
     await bot.editMessage(this.channel_id, threadMessage.inbox_message_id, formattedThreadMessage);
 
     if (! opts.quiet) {
-      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(moderator, threadMessage, newText);
-      const logNotification = formatters.formatStaffReplyEditNotificationLogMessage(moderator, threadMessage, newText);
-      await this.postSystemMessage(threadNotification, null, { logBody: logNotification });
+      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(threadMessage, newText, moderator);
+      await this.postSystemMessage(threadNotification);
     }
 
-    await this._updateThreadMessage(threadMessage.id, { body: formattedLog });
+    await this._updateThreadMessage(threadMessage.id, { body: newText });
   }
 
   /**
@@ -605,9 +601,8 @@ class Thread {
     await bot.deleteMessage(this.channel_id, threadMessage.inbox_message_id);
 
     if (! opts.quiet) {
-      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(moderator, threadMessage);
-      const logNotification = formatters.formatStaffReplyDeletionNotificationLogMessage(moderator, threadMessage);
-      await this.postSystemMessage(threadNotification, null, { logBody: logNotification });
+      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator);
+      await this.postSystemMessage(threadNotification);
     }
 
     await this._deleteThreadMessage(threadMessage.id);

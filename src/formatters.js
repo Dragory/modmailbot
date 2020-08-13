@@ -2,229 +2,208 @@ const Eris = require("eris");
 const utils = require("./utils");
 const config = require("./cfg");
 const ThreadMessage = require("./data/ThreadMessage");
+const {THREAD_MESSAGE_TYPE} = require("./data/constants");
+const moment = require("moment");
 
 /**
  * Function to format the DM that is sent to the user when a staff member replies to them via !reply
  * @callback FormatStaffReplyDM
- * @param {Eris.Member} moderator Staff member that is replying
- * @param {string} text Reply text
- * @param {{
- *   isAnonymous: boolean,
- * }} opts={}
+ * @param {ThreadMessage} threadMessage
  * @return {Eris.MessageContent} Message content to send as a DM
  */
 
 /**
  * Function to format a staff reply in a thread channel
  * @callback FormatStaffReplyThreadMessage
- * @param {Eris.Member} moderator
- * @param {string} text
- * @param {number} messageNumber
- * @param {{
- *   isAnonymous: boolean,
- * }} opts={}
+ * @param {ThreadMessage} threadMessage
  * @return {Eris.MessageContent} Message content to post in the thread channel
- */
-
-/**
- * Function to format a staff reply in a log
- * @callback FormatStaffReplyLogMessage
- * @param {Eris.Member} moderator
- * @param {string} text
- * @param {number} messageNumber
- * @param {{
- *   isAnonymous: boolean,
- *   attachmentLinks: string[],
- * }} opts={}
- * @returns {string} Text to show in the log
  */
 
 /**
  * Function to format a user reply in a thread channel
  * @callback FormatUserReplyThreadMessage
- * @param {Eris.User} user Use that sent the reply
- * @param {Eris.Message} msg The message object that the user sent
- * @param {{
- *   attachmentLinks: string[],
- * }} opts
+ * @param {ThreadMessage} threadMessage
  * @return {Eris.MessageContent} Message content to post in the thread channel
- */
-
-/**
- * Function to format a user reply in a log
- * @callback FormatUserReplyLogMessage
- * @param {Eris.User} user
- * @param {Eris.Message} msg
- * @param {{
- *   attachmentLinks: string[],
- * }} opts={}
- * @return {string} Text to show in the log
  */
 
 /**
  * Function to format the inbox channel notification for a staff reply edit
  * @callback FormatStaffReplyEditNotificationThreadMessage
- * @param {Eris.Member} moderator
  * @param {ThreadMessage} threadMessage
  * @param {string} newText
+ * @param {Eris.Member} moderator Moderator that edited the message
  * @return {Eris.MessageContent} Message content to post in the thread channel
- */
-
-/**
- * Function to format the log notification for a staff reply edit
- * @callback FormatStaffReplyEditNotificationLogMessage
- * @param {Eris.Member} moderator
- * @param {ThreadMessage} threadMessage
- * @param {string} newText
- * @return {string} Text to show in the log
  */
 
 /**
  * Function to format the inbox channel notification for a staff reply deletion
  * @callback FormatStaffReplyDeletionNotificationThreadMessage
- * @param {Eris.Member} moderator
  * @param {ThreadMessage} threadMessage
+ * @param {Eris.Member} moderator Moderator that deleted the message
  * @return {Eris.MessageContent} Message content to post in the thread channel
  */
 
 /**
- * Function to format the log notification for a staff reply deletion
- * @callback FormatStaffReplyDeletionNotificationLogMessage
- * @param {Eris.Member} moderator
- * @param {ThreadMessage} threadMessage
- * @return {string} Text to show in the log
+ * @typedef {Object} FormatLogOptions
+ * @property {Boolean?} simple
+ * @property {Boolean?} verbose
+ */
+
+/**
+ * @typedef {Object} FormatLogResult
+ * @property {String} content Contents of the entire log
+ * @property {*?} extra
+ */
+
+/**
+ * Function to format the inbox channel notification for a staff reply deletion
+ * @callback FormatLog
+ * @param {Thread} thread
+ * @param {ThreadMessage[]} threadMessages
+ * @param {FormatLogOptions={}} opts
+ * @return {FormatLogResult}
  */
 
 /**
  * @typedef MessageFormatters
  * @property {FormatStaffReplyDM} formatStaffReplyDM
  * @property {FormatStaffReplyThreadMessage} formatStaffReplyThreadMessage
- * @property {FormatStaffReplyLogMessage} formatStaffReplyLogMessage
  * @property {FormatUserReplyThreadMessage} formatUserReplyThreadMessage
- * @property {FormatUserReplyLogMessage} formatUserReplyLogMessage
  * @property {FormatStaffReplyEditNotificationThreadMessage} formatStaffReplyEditNotificationThreadMessage
- * @property {FormatStaffReplyEditNotificationLogMessage} formatStaffReplyEditNotificationLogMessage
  * @property {FormatStaffReplyDeletionNotificationThreadMessage} formatStaffReplyDeletionNotificationThreadMessage
- * @property {FormatStaffReplyDeletionNotificationLogMessage} formatStaffReplyDeletionNotificationLogMessage
+ * @property {FormatLog} formatLog
  */
 
 /**
  * @type {MessageFormatters}
  */
 const defaultFormatters = {
-  formatStaffReplyDM(moderator, text, opts = {}) {
-    const mainRole = utils.getMainRole(moderator);
-    const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
-    const modInfo = opts.isAnonymous
-      ? (mainRole ? mainRole.name : "Moderator")
-      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
+  formatStaffReplyDM(threadMessage) {
+    const modInfo = threadMessage.is_anonymous
+      ? (threadMessage.role_name ? threadMessage.role_name : "Moderator")
+      : (threadMessage.role_name ? `(${threadMessage.role_name}) ${threadMessage.user_name}` : threadMessage.user_name);
 
-    return `**${modInfo}:** ${text}`;
+    return `**${modInfo}:** ${threadMessage.body}`;
   },
 
-  formatStaffReplyThreadMessage(moderator, text, messageNumber, opts = {}) {
-    const mainRole = utils.getMainRole(moderator);
-    const modName = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
-    const modInfo = opts.isAnonymous
-      ? `(Anonymous) (${modName}) ${mainRole ? mainRole.name : "Moderator"}`
-      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
+  formatStaffReplyThreadMessage(threadMessage) {
+    const modInfo = threadMessage.is_anonymous
+      ? `(Anonymous) (${threadMessage.user_name}) ${threadMessage.role_name || "Moderator"}`
+      : (threadMessage.role_name ? `(${threadMessage.role_name}) ${threadMessage.user_name}` : threadMessage.user_name);
 
-    let result = `**${modInfo}:** ${text}`;
+    let result = `**${modInfo}:** ${threadMessage.body}`;
 
     if (config.threadTimestamps) {
-      const formattedTimestamp = utils.getTimestamp();
+      const formattedTimestamp = utils.getTimestamp(threadMessage.created_at);
       result = `[${formattedTimestamp}] ${result}`;
     }
 
-    result = `\`[${messageNumber}]\` ${result}`;
+    result = `\`[${threadMessage.message_number}]\` ${result}`;
 
     return result;
   },
 
-  formatStaffReplyLogMessage(moderator, text, messageNumber, opts = {}) {
-    const mainRole = utils.getMainRole(moderator);
-    const modName = moderator.user.username;
+  formatUserReplyThreadMessage(threadMessage) {
+    let result = `**${threadMessage.user_name}:** ${threadMessage.body}`;
 
-    // Mirroring the DM formatting here...
-    const modInfo = opts.isAnonymous
-      ? (mainRole ? mainRole.name : "Moderator")
-      : (mainRole ? `(${mainRole.name}) ${modName}` : modName);
-
-    let result = `**${modInfo}:** ${text}`;
-
-    if (opts.attachmentLinks && opts.attachmentLinks.length) {
-      result += "\n";
-      for (const link of opts.attachmentLinks) {
-        result += `\n**Attachment:** ${link}`;
-      }
-    }
-
-    result = `[${messageNumber}] ${result}`;
-
-    return result;
-  },
-
-  formatUserReplyThreadMessage(user, msg, opts = {}) {
-    const content = (msg.content.trim() === "" && msg.embeds.length)
-      ? "<message contains embeds>"
-      : msg.content;
-
-    let result = `**${user.username}#${user.discriminator}:** ${content}`;
-
-    if (opts.attachmentLinks && opts.attachmentLinks.length) {
-      for (const link of opts.attachmentLinks) {
-        result += `\n\n${link}`;
-      }
+    for (const link of threadMessage.attachments) {
+      result += `\n\n${link}`;
     }
 
     if (config.threadTimestamps) {
-      const formattedTimestamp = utils.getTimestamp(msg.timestamp, "x");
+      const formattedTimestamp = utils.getTimestamp(threadMessage.created_at);
       result = `[${formattedTimestamp}] ${result}`;
     }
 
     return result;
   },
 
-  formatUserReplyLogMessage(user, msg, opts = {}) {
-    const content = (msg.content.trim() === "" && msg.embeds.length)
-      ? "<message contains embeds>"
-      : msg.content;
-
-    let result = content;
-
-    if (opts.attachmentLinks && opts.attachmentLinks.length) {
-      for (const link of opts.attachmentLinks) {
-        result += `\n\n${link}`;
-      }
-    }
-
-    return result;
-  },
-
-  formatStaffReplyEditNotificationThreadMessage(moderator, threadMessage, newText) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator} (\`${moderator.id}\`) edited reply \`[${threadMessage.message_number}]\`:**`;
+  formatStaffReplyEditNotificationThreadMessage(threadMessage, newText, moderator) {
+    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) edited reply \`[${threadMessage.message_number}]\`:`;
     content += `\n\`B:\` ${threadMessage.body}`;
     content += `\n\`A:\` ${newText}`;
     return utils.disableLinkPreviews(content);
   },
 
-  formatStaffReplyEditNotificationLogMessage(moderator, threadMessage, newText) {
-    let content = `${moderator.user.username}#${moderator.user.discriminator} (${moderator.id}) edited reply [${threadMessage.message_number}]:`;
-    content += `\nB: ${threadMessage.body}`;
-    content += `\nA: ${newText}`;
-    return content;
-  },
-
-  formatStaffReplyDeletionNotificationThreadMessage(moderator, threadMessage) {
+  formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator) {
     let content = `**${moderator.user.username}#${moderator.user.discriminator} (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\`:**`;
     content += `\n\`B:\` ${threadMessage.body}`;
     return utils.disableLinkPreviews(content);
   },
 
-  formatStaffReplyDeletionNotificationLogMessage(moderator, threadMessage) {
-    let content = `${moderator.user.username}#${moderator.user.discriminator} (${moderator.id}) deleted reply [${threadMessage.message_number}]:`;
-    content += `\nB: ${threadMessage.body}`;
-    return content;
+  formatLog(thread, threadMessages, opts = {}) {
+    if (opts.simple) {
+      threadMessages = threadMessages.filter(message => {
+        return (
+          message.message_type !== THREAD_MESSAGE_TYPE.SYSTEM
+          && message.message_type !== THREAD_MESSAGE_TYPE.SYSTEM_TO_USER
+          && message.message_type !== THREAD_MESSAGE_TYPE.CHAT
+          && message.message_type !== THREAD_MESSAGE_TYPE.COMMAND
+        );
+      });
+    }
+
+    const lines = threadMessages.map(message => {
+      // Legacy messages (from 2018) are the entire log in one message, so just serve them as they are
+      if (message.message_type === THREAD_MESSAGE_TYPE.LEGACY) {
+        return message.body;
+      }
+
+      let line = `[${moment.utc(message.created_at).format("YYYY-MM-DD HH:mm:ss")}]`;
+
+      if (opts.verbose) {
+        if (message.dm_channel_id) {
+          line += ` [DM CHA ${message.dm_channel_id}]`;
+        }
+
+        if (message.dm_message_id) {
+          line += ` [DM MSG ${message.dm_message_id}]`;
+        }
+      }
+
+      if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
+        line += ` [FROM USER] [${message.user_name}] ${message.body}`;
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
+        line += ` [TO USER] [${message.message_number || "0"}] [${message.user_name}]`;
+        if (message.use_legacy_format) {
+          // Legacy format (from pre-2.31.0) includes the role and username in the message body, so serve that as is
+          line += ` ${message.body}`;
+        } else if (message.is_anonymous) {
+          if (message.role_name) {
+            line += ` (Anonymous) ${message.role_name}: ${message.body}`;
+          } else {
+            line += ` (Anonymous) Moderator: ${message.body}`;
+          }
+        } else {
+          if (message.role_name) {
+            line += ` (${message.role_name}) ${message.user_name}: ${message.body}`;
+          } else {
+            line += ` ${message.user_name}: ${message.body}`;
+          }
+        }
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
+        line += ` [SYSTEM] ${message.body}`;
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM_TO_USER) {
+        line += ` [SYSTEM TO USER] ${message.body}`;
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.CHAT) {
+        line += ` [CHAT] [${message.user_name}] ${message.body}`;
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
+        line += ` [COMMAND] [${message.user_name}] ${message.body}`;
+      } else {
+        line += ` [${message.user_name}] ${message.body}`;
+      }
+
+      return line;
+    });
+
+    const openedAt = moment(thread.created_at).format("YYYY-MM-DD HH:mm:ss");
+    const header = `# Modmail thread with ${thread.user_name} (${thread.user_id}) started at ${openedAt}. All times are in UTC+0.`;
+
+    const fullResult = header + "\n\n" + lines.join("\n");
+
+    return {
+      content: fullResult,
+    };
   },
 };
 
@@ -234,7 +213,11 @@ const defaultFormatters = {
 const formatters = { ...defaultFormatters };
 
 module.exports = {
-  formatters,
+  formatters: new Proxy(formatters, {
+    set() {
+      throw new Error("Please use the formatter setter functions instead of modifying the formatters directly");
+    },
+  }),
 
   /**
    * @param {FormatStaffReplyDM} fn
@@ -253,27 +236,11 @@ module.exports = {
   },
 
   /**
-   * @param {FormatStaffReplyLogMessage} fn
-   * @return {void}
-   */
-  setStaffReplyLogMessageFormatter(fn) {
-    formatters.formatStaffReplyLogMessage = fn;
-  },
-
-  /**
    * @param {FormatUserReplyThreadMessage} fn
    * @return {void}
    */
   setUserReplyThreadMessageFormatter(fn) {
     formatters.formatUserReplyThreadMessage = fn;
-  },
-
-  /**
-   * @param {FormatUserReplyLogMessage} fn
-   * @return {void}
-   */
-  setUserReplyLogMessageFormatter(fn) {
-    formatters.formatUserReplyLogMessage = fn;
   },
 
   /**
@@ -285,14 +252,6 @@ module.exports = {
   },
 
   /**
-   * @param {FormatStaffReplyEditNotificationLogMessage} fn
-   * @return {void}
-   */
-  setStaffReplyEditNotificationLogMessageFormatter(fn) {
-    formatters.formatStaffReplyEditNotificationLogMessage = fn;
-  },
-
-  /**
    * @param {FormatStaffReplyDeletionNotificationThreadMessage} fn
    * @return {void}
    */
@@ -301,10 +260,10 @@ module.exports = {
   },
 
   /**
-   * @param {FormatStaffReplyDeletionNotificationLogMessage} fn
+   * @param {FormatLog} fn
    * @return {void}
    */
-  setStaffReplyDeletionNotificationLogMessageFormatter(fn) {
-    formatters.formatStaffReplyDeletionNotificationLogMessage = fn;
+  setLogFormatter(fn) {
+    formatters.formatLog = fn;
   },
 };
