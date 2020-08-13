@@ -15,7 +15,7 @@
  * @property {string} [mentionRole="here"]
  * @property {boolean} [pingOnBotMention=true]
  * @property {string} [botMentionResponse]
- * @property {array} [inboxServerPermission]
+ * @property {array} [inboxServerPermission=[]]
  * @property {boolean} [alwaysReply=false]
  * @property {boolean} [alwaysReplyAnon=false]
  * @property {boolean} [useNicknames=false]
@@ -39,7 +39,7 @@
  * @property {string} [timeOnServerDeniedMessage="You haven't been a member of the server for long enough to contact modmail."]
  * @property {boolean} [relaySmallAttachmentsAsAttachments=false]
  * @property {number} [smallAttachmentLimit=2097152] Max size of attachment to relay directly. Default is 2MB.
- * @property {string} [attachmentStorage="local"]
+ * @property {string} [attachmentStorage="original"]
  * @property {string} [attachmentStorageChannelId]
  * @property {*} [categoryAutomation={}]
  * @property {boolean} [updateNotifications=true]
@@ -51,4 +51,7 @@
  * @property {object} [knex]
  * @property {string} [logDir]
  * @property {array} [extraIntents=[]]
+ * @property {*} [dbType="sqlite"]
+ * @property {*} [sqliteOptions]
+ * @property {*} [mysqlOptions]
  */

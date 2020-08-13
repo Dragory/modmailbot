@@ -102,22 +102,15 @@ for (const [key, value] of Object.entries(config)) {
   delete config[key];
 }
 
-if (! config["knex"]) {
-  config.knex = {
-    client: "sqlite",
-    connection: {
-      filename: path.join(config.dbDir, "data.sqlite")
-    },
-    useNullAsDefault: true
-  };
+if (! config.dbType) {
+  config.dbType = "sqlite";
 }
 
-// Make sure migration settings are always present in knex config
-Object.assign(config["knex"], {
-  migrations: {
-    directory: path.join(config.dbDir, "migrations")
-  }
-});
+if (! config.sqliteOptions) {
+  config.sqliteOptions = {
+    filename: path.resolve(__dirname, "..", "db", "data.sqlite"),
+  };
+}
 
 // Move greetingMessage/greetingAttachment to the guildGreetings object internally
 // Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
@@ -150,8 +143,8 @@ for (const [key, value] of Object.entries(config)) {
 const ajv = new Ajv({ useDefaults: true, coerceTypes: "array" });
 
 // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270692820
-const truthyValues = ["1", "true", "on"];
-const falsyValues = ["0", "false", "off"];
+const truthyValues = ["1", "true", "on", "yes"];
+const falsyValues = ["0", "false", "off", "no"];
 ajv.addKeyword("coerceBoolean", {
   compile(value) {
     return (data, dataPath, parentData, parentKey) => {
@@ -208,12 +201,18 @@ const validate = ajv.compile(schema);
 const configIsValid = validate(config);
 
 if (! configIsValid) {
-  console.error("Issues with configuration options:");
+  console.error("");
+  console.error("NOTE! Issues with configuration:");
   for (const error of validate.errors) {
-    console.error(`The "${error.dataPath.slice(1)}" option ${error.message}`);
+    if (error.params.missingProperty) {
+      console.error(`- Missing required option: "${error.params.missingProperty.slice(1)}"`);
+    } else {
+      console.error(`- The "${error.dataPath.slice(1)}" option ${error.message}`);
+    }
   }
   console.error("");
   console.error("Please restart the bot after fixing the issues mentioned above.");
+  console.error("");
   process.exit(1);
 }
 
