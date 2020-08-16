@@ -5,6 +5,51 @@ const utils = require("./utils");
 const threads = require("./data/threads");
 const Thread = require("./data/Thread");
 
+/**
+ * @callback CommandFn
+ * @param {Eris.Message} msg
+ * @param {object} args
+ */
+
+/**
+ * @callback InboxThreadCommandHandler
+ * @param {Eris.Message} msg
+ * @param {object} args
+ * @param {Thread} thread
+ */
+
+/**
+ * @callback AddGlobalCommandFn
+ * @param {string} trigger
+ * @param {string} parameters
+ * @param {CommandFn} handler
+ * @param {ICommandConfig} commandConfig
+ */
+
+/**
+ * @callback AddInboxServerCommandFn
+ * @param {string} trigger
+ * @param {string} parameters
+ * @param {CommandFn} handler
+ * @param {ICommandConfig} commandConfig
+ */
+
+/**
+ * @callback AddInboxThreadCommandFn
+ * Add a command that can only be invoked in a thread on the inbox server
+ *
+ * @param {string} trigger
+ * @param {string} parameters
+ * @param {InboxThreadCommandHandler} handler
+ * @param {ICommandConfig} commandConfig
+ */
+
+/**
+ * @callback AddAliasFn
+ * @param {string} originalCmd
+ * @param {string} alias
+ */
+
 module.exports = {
   createCommandManager(bot) {
     const manager = new CommandManager({
@@ -52,6 +97,7 @@ module.exports = {
 
     /**
      * Add a command that can be invoked anywhere
+     * @type {AddGlobalCommandFn}
      */
     const addGlobalCommand = (trigger, parameters, handler, commandConfig = {}) => {
       let aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
@@ -63,6 +109,7 @@ module.exports = {
 
     /**
      * Add a command that can only be invoked on the inbox server
+     * @type {AddInboxServerCommandFn}
      */
     const addInboxServerCommand = (trigger, parameters, handler, commandConfig = {}) => {
       const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
@@ -87,18 +134,8 @@ module.exports = {
     };
 
     /**
-     * @callback InboxThreadCommandHandler
-     * @param {Eris.Message} msg
-     * @param {object} args
-     * @param {Thread} thread
-     */
-
-    /**
      * Add a command that can only be invoked in a thread on the inbox server
-     * @param {string|RegExp} trigger
-     * @param {string|IParameter[]} parameters
-     * @param {InboxThreadCommandHandler} handler
-     * @param {ICommandConfig} commandConfig
+     * @type {AddInboxThreadCommandFn}
      */
     const addInboxThreadCommand = (trigger, parameters, handler, commandConfig = {}) => {
       const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
@@ -124,6 +161,9 @@ module.exports = {
       };
     };
 
+    /**
+     * @type {AddAliasFn}
+     */
     const addAlias = (originalCmd, alias) => {
       if (! aliasMap.has(originalCmd)) {
         aliasMap.set(originalCmd, new Set());

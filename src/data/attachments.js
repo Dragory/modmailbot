@@ -26,21 +26,54 @@ function getErrorResult(msg = null) {
 }
 
 /**
- * An attachment storage option that simply forwards the original attachment URL
- * @param {Eris.Attachment} attachment
- * @returns {{url: string}}
+ * @callback AddAttachmentStorageTypeFn
+ * @param {string} name
+ * @param {AttachmentStorageTypeHandler} handler
  */
-function passthroughOriginalAttachment(attachment) {
+
+/**
+ * @callback AttachmentStorageTypeHandler
+ * @param {Eris.Attachment} attachment
+ * @return {AttachmentStorageTypeResult|Promise<AttachmentStorageTypeResult>}
+ */
+
+/**
+ * @typedef {object} AttachmentStorageTypeResult
+ * @property {string} url
+ */
+
+/**
+ * @callback DownloadAttachmentFn
+ * @param {Eris.Attachment} attachment
+ * @param {number?} tries Used internally, don't pass
+ * @return {Promise<DownloadAttachmentResult>}
+  */
+
+/**
+ * @typedef {object} DownloadAttachmentResult
+ * @property {string} path
+ * @property {DownloadAttachmentCleanupFn} cleanup
+ */
+
+/**
+ * @callback DownloadAttachmentCleanupFn
+ * @return {void}
+ */
+
+/**
+ * @type {AttachmentStorageTypeHandler}
+ */
+let passthroughOriginalAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
+passthroughOriginalAttachment = (attachment) => {
   return { url: attachment.url };
-}
+};
 
 /**
  * An attachment storage option that downloads each attachment and serves them from a local web server
- * @param {Eris.Attachment} attachment
- * @param {Number=0} tries
- * @returns {Promise<{ url: string }>}
+ * @type {AttachmentStorageTypeHandler}
  */
-async function saveLocalAttachment(attachment) {
+let saveLocalAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
+saveLocalAttachment = async (attachment) => {
   const targetPath = getLocalAttachmentPath(attachment.id);
 
   try {
@@ -60,14 +93,12 @@ async function saveLocalAttachment(attachment) {
   const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
 
   return { url };
-}
+};
 
 /**
- * @param {Eris.Attachment} attachment
- * @param {Number} tries
- * @returns {Promise<{ path: string, cleanup: function }>}
+ * @type {DownloadAttachmentFn}
  */
-function downloadAttachment(attachment, tries = 0) {
+const downloadAttachment = (attachment, tries = 0) => {
   return new Promise((resolve, reject) => {
     if (tries > 3) {
       console.error("Attachment download failed after 3 tries:", attachment);
@@ -94,7 +125,7 @@ function downloadAttachment(attachment, tries = 0) {
       });
     });
   });
-}
+};
 
 /**
  * Returns the filesystem path for the given attachment id
@@ -119,10 +150,10 @@ function getLocalAttachmentUrl(attachmentId, desiredName = null) {
 /**
  * An attachment storage option that downloads each attachment and re-posts them to a specified Discord channel.
  * The re-posted attachment is then linked in the actual thread.
- * @param {Eris.Attachment} attachment
- * @returns {Promise<{ url: string }>}
+ * @type {AttachmentStorageTypeHandler}
  */
-async function saveDiscordAttachment(attachment) {
+let saveDiscordAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
+saveDiscordAttachment = async (attachment) => {
   if (attachment.size > 1024 * 1024 * 8) {
     return getErrorResult("attachment too large (max 8MB)");
   }
@@ -144,7 +175,7 @@ async function saveDiscordAttachment(attachment) {
   if (! savedAttachment) return getErrorResult();
 
   return { url: savedAttachment.url };
-}
+};
 
 async function createDiscordAttachmentMessage(channel, file, tries = 0) {
   tries++;
@@ -197,9 +228,12 @@ function saveAttachment(attachment) {
   return attachmentSavePromises[attachment.id];
 }
 
-function addStorageType(name, handler) {
+/**
+ * @type AddAttachmentStorageTypeFn
+ */
+const addStorageType = (name, handler) => {
   attachmentStorageTypes[name] = handler;
-}
+};
 
 addStorageType("original", passthroughOriginalAttachment);
 addStorageType("local", saveLocalAttachment);

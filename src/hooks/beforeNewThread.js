@@ -27,16 +27,23 @@ const Eris = require("eris");
  */
 
 /**
+ * @callback AddBeforeNewThreadHookFn
+ * @param {BeforeNewThreadHookData} fn
+ * @return {void}
+ */
+
+/**
  * @type BeforeNewThreadHookData[]
  */
 const beforeNewThreadHooks = [];
 
 /**
- * @param {BeforeNewThreadHookData} fn
+ * @type {AddBeforeNewThreadHookFn}
  */
-function beforeNewThread(fn) {
+let beforeNewThread; // Workaround to inconsistent IDE bug with @type and anonymous functions
+beforeNewThread = (fn) => {
   beforeNewThreadHooks.push(fn);
-}
+};
 
 /**
  * @param {{

@@ -3,6 +3,13 @@ const { beforeNewThread } = require("./hooks/beforeNewThread");
 const formats = require("./formatters");
 
 module.exports = {
+  /**
+   * @param bot
+   * @param knex
+   * @param config
+   * @param commands
+   * @returns {PluginAPI}
+   */
   getPluginAPI({ bot, knex, config, commands }) {
     return {
       bot,

@@ -212,6 +212,20 @@ const defaultFormatters = {
  */
 const formatters = { ...defaultFormatters };
 
+/**
+ * @typedef {object} FormattersExport
+ * @property {MessageFormatters} formatters Read only
+ * @property {function(FormatStaffReplyDM): void} setStaffReplyDMFormatter
+ * @property {function(FormatStaffReplyThreadMessage): void} setStaffReplyThreadMessageFormatter
+ * @property {function(FormatUserReplyThreadMessage): void} setUserReplyThreadMessageFormatter
+ * @property {function(FormatStaffReplyEditNotificationThreadMessage): void} setStaffReplyEditNotificationThreadMessageFormatter
+ * @property {function(FormatStaffReplyDeletionNotificationThreadMessage): void} setStaffReplyDeletionNotificationThreadMessageFormatter
+ * @property {function(FormatLog): void} setLogFormatter
+ */
+
+/**
+ * @type {FormattersExport}
+ */
 module.exports = {
   formatters: new Proxy(formatters, {
     set() {
@@ -219,50 +233,26 @@ module.exports = {
     },
   }),
 
-  /**
-   * @param {FormatStaffReplyDM} fn
-   * @return {void}
-   */
   setStaffReplyDMFormatter(fn) {
     formatters.formatStaffReplyDM = fn;
   },
 
-  /**
-   * @param {FormatStaffReplyThreadMessage} fn
-   * @return {void}
-   */
   setStaffReplyThreadMessageFormatter(fn) {
     formatters.formatStaffReplyThreadMessage = fn;
   },
 
-  /**
-   * @param {FormatUserReplyThreadMessage} fn
-   * @return {void}
-   */
   setUserReplyThreadMessageFormatter(fn) {
     formatters.formatUserReplyThreadMessage = fn;
   },
 
-  /**
-   * @param {FormatStaffReplyEditNotificationThreadMessage} fn
-   * @return {void}
-   */
   setStaffReplyEditNotificationThreadMessageFormatter(fn) {
     formatters.formatStaffReplyEditNotificationThreadMessage = fn;
   },
 
-  /**
-   * @param {FormatStaffReplyDeletionNotificationThreadMessage} fn
-   * @return {void}
-   */
   setStaffReplyDeletionNotificationThreadMessageFormatter(fn) {
     formatters.formatStaffReplyDeletionNotificationThreadMessage = fn;
   },
 
-  /**
-   * @param {FormatLog} fn
-   * @return {void}
-   */
   setLogFormatter(fn) {
     formatters.formatLog = fn;
   },
