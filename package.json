@@ -11,6 +11,7 @@
     "lint": "eslint ./src ./db/migrations",
     "lint-fix": "eslint --fix ./src ./db/migrations",
     "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js",
+    "generate-plugin-api-docs": "jsdoc2md -t docs/plugin-api-template.hbs src/pluginApi.js > docs/plugin-api.md",
     "create-migration": "knex migrate:make"
   },
   "repository": {
@@ -39,6 +40,7 @@
   "devDependencies": {
     "eslint": "^7.7.0",
     "husky": "^4.2.5",
+    "jsdoc-to-markdown": "^6.0.1",
     "lint-staged": "^10.2.11",
     "supervisor": "^0.12.0"
   },

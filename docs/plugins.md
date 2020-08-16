@@ -44,28 +44,12 @@ The first and only argument to the plugin function is an object with the followi
 | `config` | The loaded config |
 | `commands` | An object with functions to add and manage commands |
 | `attachments` | An object with functions to save attachments and manage attachment storage types |
-| — `addStorageType(name, handler)` | Function to add a new attachment storage type |
-| — `downloadAttachment(attachment)` | Function to add a new attachment storage type |
+| `hooks` | An object with functions to add *hooks* that are called at specific times, e.g. before a new thread is created |
+| `formats` | An object with functions that allow you to replace the default functions used for formatting messages and logs |
 
-* `bot` - the [Eris Client object](https://abal.moe/Eris/docs/Client)
-* `knex` - the [Knex database object](https://knexjs.org/#Builder)
-* `config` - the loaded config
-* `commands` - an object with functions to add and manage commands
-* `attachments` - an object with functions to save attachments and manage attachment storage types
-    * `attachments.addStorageType(name, handler)`
+See the auto-generated [Plugin API](plugin-api.md) page for details.
 
-Create a `.js` file that exports a function.
-This function will be called when the plugin is loaded, with 1 argument: an object that has the following properties:
-* `bot` - the [Eris Client object](https://abal.moe/Eris/docs/Client)
-* `knex` - the [Knex database object](https://knexjs.org/#Builder)
-* `config` - the loaded config
-* `commands` - an object with functions to add and manage commands
-* `attachments` - an object with functions to save attachments and manage attachment storage types
-
-See [src/plugins.js#L4](../src/plugins.js#L4) for more details
-
-## Work in progress
-The current plugin API is fairly rudimentary and will be expanded on in the future.
-The API can change in non-major releases during this early stage. Keep an eye on [CHANGELOG.md](../CHANGELOG.md) for any changes.
+## Plugin API stability
+Bot releases may contain changes to the plugin API. Make sure to check the [CHANGELOG](../CHANGELOG.md) before upgrading!
 
 Please send any feature suggestions to the [issue tracker](https://github.com/Dragory/modmailbot/issues)!
