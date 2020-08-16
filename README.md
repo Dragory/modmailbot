@@ -8,11 +8,11 @@ Inspired by Reddit's modmail system.
 
 ## Getting started
 * **[🛠️ Setting up the bot](docs/setup.md)**
+* **[🙋 Frequently Asked Questions](docs/faq.md)**
 * [📝 Configuration](docs/configuration.md)
 * [🤖 Commands](docs/commands.md)
 * [📋 Snippets](docs/snippets.md)
 * [🧩 Plugins](docs/plugins.md)
-* [🙋 Frequently Asked Questions](docs/faq.md)
 * [Release notes](CHANGELOG.md)
 * [**Community Guides & Resources**](https://github.com/Dragory/modmailbot-community-resources)
 
