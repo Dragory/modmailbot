@@ -223,10 +223,18 @@
     },
 
     "categoryAutomation": {
-      "patternProperties": {
-        "^.+$": {
-          "type": "string",
-          "pattern": "^\\d+$"
+      "properties": {
+        "newThread": {
+          "type": "string"
+        },
+        "newThreadFromGuild": {
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            }
+          }
         }
       },
       "default": {}
