@@ -239,7 +239,9 @@ function initBaseMessageHandlers() {
       const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! existingThread) {
         // Only open a thread if we don't already have one
-        await threads.createNewThreadForUser(msg.author, { quiet: true });
+        const createdThread = await threads.createNewThreadForUser(msg.author, { quiet: true });
+        await createdThread.postSystemMessage(`This thread was opened from a bot mention in <#${msg.channel.id}>`);
+        await createdThread.receiveUserReply(msg);
       }
     }
   });
