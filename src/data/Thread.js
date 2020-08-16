@@ -310,6 +310,7 @@ class Thread {
       body: messageContent,
       is_anonymous: 0,
       dm_message_id: msg.id,
+      dm_channel_id: msg.channel.id,
       attachments,
       small_attachments: smallAttachments,
     });
