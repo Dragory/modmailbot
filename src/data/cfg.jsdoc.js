@@ -1,9 +1,11 @@
 /**
  * @typedef {object} ModmailConfig
  * @property {string} [token]
+ * @property {array} [mainServerId]
+ * @property {string} [inboxServerId]
+ * @property {string} [logChannelId]
  * @property {array} [mainGuildId]
  * @property {string} [mailGuildId]
- * @property {string} [logChannelId]
  * @property {string} [prefix="!"]
  * @property {string} [snippetPrefix="!!"]
  * @property {string} [snippetPrefixAnon="!!!"]

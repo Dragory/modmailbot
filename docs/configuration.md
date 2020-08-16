@@ -22,7 +22,7 @@ vice versa.
 
 ## Adding new options
 To add a new option to your `config.ini`, open the file in a text editor such as notepad.
-Each option is put on a new line, and follows the format `option = value`. For example, `mainGuildId = 1234`.
+Each option is put on a new line, and follows the format `option = value`. For example, `mainServerId = 1234`.
 
 **You need to restart the bot for configuration changes to take effect!**
 
@@ -65,12 +65,12 @@ greetingMessage[] = Fourth line! With an empty line in the middle.
 #### token
 The bot user's token from [Discord Developer Portal](https://discordapp.com/developers/).
 
-#### mainGuildId
+#### mainServerId
 **Accepts multiple values** Your server's ID.
 
-#### mailGuildId
-For a two-server setup, the inbox server's ID.  
-For a single-server setup, same as [mainGuildId](#mainguildid).
+#### inboxServerId
+For a single-server setup, same as [mainServerId](#mainServerId).  
+For a two-server setup, the inbox server's ID.
 
 #### logChannelId
 ID of a channel on the inbox server where logs are posted after a modmail thread is closed
@@ -189,6 +189,12 @@ See ["Permissions" on this page](https://abal.moe/Eris/docs/reference) for suppo
 #### timeOnServerDeniedMessage
 **Default:** `You haven't been a member of the server for long enough to contact modmail.`  
 If `requiredTimeOnServer` is set, users that are too new will be sent this message if they try to message modmail.
+
+#### mainGuildId
+Alias for [mainServerId](#mainServerId)
+
+#### mailGuildId
+Alias for [inboxServerId](#inboxServerId)
 
 #### mentionRole
 **Default:** `here`  
@@ -359,7 +365,7 @@ However, there are some differences between `config.ini` and `config.json`.
 *See [the example on the Wikipedia page for JSON](https://en.wikipedia.org/wiki/JSON#Example)
 for a general overview of the JSON format.*
 
-* In `config.json`, all text values and IDs need to be wrapped in quotes, e.g. `"mainGuildId": "94882524378968064"`
+* In `config.json`, all text values and IDs need to be wrapped in quotes, e.g. `"mainServerId": "94882524378968064"`
 * In `config.json`, all numbers (other than IDs) are written without quotes, e.g. `"port": 3000`
 
 ### Toggle options
@@ -400,7 +406,7 @@ being replaced by two underscores and add `MM_` as a prefix. If adding multiple 
 values with two pipe characters: `||`.
 
 Examples:
-* `mainGuildId` -> `MM_MAIN_GUILD_ID`
+* `mainServerId` -> `MM_MAIN_SERVER_ID`
 * `commandAliases.mv` -> `MM_COMMAND_ALIASES__MV`
 * From:  
   ```ini

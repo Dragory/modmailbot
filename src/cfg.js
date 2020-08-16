@@ -102,6 +102,15 @@ for (const [key, value] of Object.entries(config)) {
   delete config[key];
 }
 
+// mainGuildId => mainServerId
+// mailGuildId => inboxServerId
+if (config.mainGuildId && ! config.mainServerId) {
+  config.mainServerId = config.mainGuildId;
+}
+if (config.mailGuildId && ! config.inboxServerId) {
+  config.inboxServerId = config.mailGuildId;
+}
+
 if (! config.dbType) {
   config.dbType = "sqlite";
 }
@@ -117,7 +126,7 @@ if (! config.sqliteOptions) {
 // already have something set up in guildGreetings. This retains backwards compatibility while allowing you to override
 // greetings for specific servers in guildGreetings.
 if (config.greetingMessage || config.greetingAttachment) {
-  for (const guildId of config.mainGuildId) {
+  for (const guildId of config.mainServerId) {
     if (config.guildGreetings[guildId]) continue;
     config.guildGreetings[guildId] = {
       message: config.greetingMessage,

@@ -25,7 +25,7 @@ In this setup, modmail threads are opened on the main server in a special catego
 This is the recommended setup for small and medium sized servers.
 
 1. **Go through the [prerequisites](#prerequisites) above first!**
-2. Open `config.ini` in a text editor and fill in the required values. `mainGuildId` and `mailGuildId` should both be set to your server's id.
+2. Open `config.ini` in a text editor and fill in the required values. `mainServerId` and `inboxServerId` should both be set to your server's id.
 3. Invite the bot to the server
 4. On a new line at the end of `config.ini`, add `categoryAutomation.newThread = CATEGORY_ID_HERE`
     * Replace `CATEGORY_ID_HERE` with the ID of the category where new modmail threads should go
@@ -44,8 +44,8 @@ You might also want this setup for privacy concerns*.
 1. **Go through the [prerequisites](#prerequisites) above first!**
 2. Create an inbox server on Discord
 3. Open `config.ini` in a text editor and fill in the required values
-    * Set `mainGuildId` to the ID of the *main* server where users will message the bot from
-    * Set `mailGuildId` to the ID of the *inbox* server created in step 2
+    * Set `mainServerId` to the ID of the *main* server where users will message the bot from
+    * Set `inboxServerId` to the ID of the *inbox* server created in step 2
 4. Invite the bot to both the main server and the newly-created inbox server
 5. Open `config.ini` in a text editor and fill in the values
 6. Make sure the bot has the `Manage Channels`, `Manage Messages`, and `Attach Files` permissions on the **inbox** server

@@ -17,7 +17,7 @@ let logChannel = null;
  * @returns {Eris~Guild}
  */
 function getInboxGuild() {
-  if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.mailGuildId);
+  if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.inboxServerId);
   if (! inboxGuild) throw new BotError("The bot is not on the modmail (inbox) server!");
   return inboxGuild;
 }
@@ -27,11 +27,11 @@ function getInboxGuild() {
  */
 function getMainGuilds() {
   if (mainGuilds.length === 0) {
-    mainGuilds = bot.guilds.filter(g => config.mainGuildId.includes(g.id));
+    mainGuilds = bot.guilds.filter(g => config.mainServerId.includes(g.id));
   }
 
-  if (mainGuilds.length !== config.mainGuildId.length) {
-    if (config.mainGuildId.length === 1) {
+  if (mainGuilds.length !== config.mainServerId.length) {
+    if (config.mainServerId.length === 1) {
       console.warn("[WARN] The bot hasn't joined the main guild!");
     } else {
       console.warn("[WARN] The bot hasn't joined one or more main guilds!");

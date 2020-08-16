@@ -46,13 +46,22 @@
     "token": {
       "type": "string"
     },
-    "mainGuildId": {
+    "mainServerId": {
       "$ref": "#/definitions/stringArray"
     },
-    "mailGuildId": {
+    "inboxServerId": {
       "type": "string"
     },
     "logChannelId": {
+      "type": "string"
+    },
+
+    "mainGuildId": {
+      "$comment": "Alias for mainServerId",
+      "$ref": "#/definitions/stringArray"
+    },
+    "mailGuildId": {
+      "$comment": "Alias for inboxServerId",
       "type": "string"
     },
 
@@ -323,7 +332,7 @@
   "allOf": [
     {
       "$comment": "Base required values",
-      "required": ["token", "mainGuildId", "mailGuildId", "logChannelId", "dbType"]
+      "required": ["token", "mainServerId", "inboxServerId", "logChannelId", "dbType"]
     },
     {
       "$comment": "Make attachmentStorageChannelId required if attachmentStorage is set to 'discord'",

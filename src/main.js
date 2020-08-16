@@ -38,8 +38,8 @@ module.exports = {
     bot.once("ready", async () => {
       console.log("Connected! Waiting for guilds to become available...");
       await Promise.all([
-        ...config.mainGuildId.map(id => waitForGuild(id)),
-        waitForGuild(config.mailGuildId)
+        ...config.mainServerId.map(id => waitForGuild(id)),
+        waitForGuild(config.inboxServerId),
       ]);
 
       console.log("Initializing...");
