@@ -325,7 +325,7 @@ class Thread {
     }
 
     if (config.reactOnSeen) {
-      await msg.addReaction(config.reactOnSeenEmoji);
+      await msg.addReaction(config.reactOnSeenEmoji).catch(utils.noop);
     }
 
     // Interrupt scheduled closing, if in progress
