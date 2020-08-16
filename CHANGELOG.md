@@ -10,6 +10,11 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 * The bot now requests the necessary [Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents)
   * **This includes the privileged "Server Members Intent"**, which is used for server greetings/welcome messages.
     This means that **you need to enable "Server Members Intent"** on the bot's page on the Discord Developer Portal.
+* Renamed the following options. Old names are still supported as aliases, so old config files won't break.
+  * `mainGuildId` => `mainServerId`
+  * `mailGuildId` => `inboxServerId`
+  * `categoryAutomation.newThreadFromGuild` => `categoryAutomation.newThreadFromServer`
+  * `guildGreetings` => `serverGreetings`
 * Added support for editing and deleting staff replies
   * This is **enabled by default**
   * This can be disabled with the `allowStaffEdit` and `allowStaffDelete` options
