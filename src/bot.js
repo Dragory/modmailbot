@@ -2,6 +2,10 @@ const Eris = require("eris");
 const config = require("./cfg");
 
 const intents = [
+  // PRIVILEGED INTENTS
+  "guildMembers", // For server greetings
+
+  // REGULAR INTENTS
   "directMessages", // For core functionality
   "guildMessages", // For bot commands and mentions
   "guilds", // For core functionality
@@ -9,7 +13,8 @@ const intents = [
   "guildMessageTyping", // For typing indicators
   "directMessageTyping", // For typing indicators
 
-  ...config.extraIntents, // Any extra intents added to the config
+  // EXTRA INTENTS (from the config)
+  ...config.extraIntents,
 ];
 
 const bot = new Eris.Client(config.token, {
