@@ -1,32 +1,42 @@
 # Changelog
 
 ## v2.31.0-beta.1
-This is a beta release. It is not available on the Releases page and bugs are expected.
+This is a beta release. Please report any bugs you encounter!
 
-General changes:
+**General changes:**
 * Added support for Node.js 14, dropped support for Node.js 10 and 11
   * The supported versions are now 12, 13, and 14
 * Added support for editing and deleting staff replies
   * This can be disabled with the `allowStaffEdit` and `allowStaffDelete` options
   * Only the staff member who sent the reply can edit/delete it
+* New option `reactOnSeen` ([#398](https://github.com/Dragory/modmailbot/pull/398) by @Eegras)
+  * When enabled, the bot will react to user DMs with a checkmark when they have been received
+  * The reaction emoji can be customized with the `reactOnSeenEmoji` option
+* New option `createThreadOnMention` ([#397](https://github.com/Dragory/modmailbot/pull/397) by @dopeghoti)
+  * When enabled, a new modmail thread will be created whenever a user mentions/pings the bot on the main server
+  * As with `pingOnBotMention`, staff members are automatically ignored
 * New **default** attachment storage option: `original`
   * This option simply links the original attachment and does not rehost it in any way
+* Multiple people can now sign up for reply alerts (`!alert`) simultaneously ([#373](https://github.com/Dragory/modmailbot/pull/373) by @DarkView)
+* The bot now displays a note if the user sent an application invite, e.g. an invite to listen along on Spotify
+* Messages in modmail threads by other bots are no longer ignored, and are displayed in logs
 * Added official support for MySQL databases. Refer to the documentation on `dbType` for more details.
   * This change also means the following options are **no longer supported:**
     * `dbDir` (use `sqliteOptions.filename` to specify the database file instead)
     * `knex` (see `dbType` documentation for more details)
 * Removed the long-deprecated `logDir` option
 
-Plugins:
+**Plugins:**
 * Added support for replacing default message formatting in threads, DMs, and logs
 * Added support for *hooks*. Hooks can be used to run custom plugin code before/after specific moments.
   * Initially only the `beforeNewThread` hook is available. See plugin documentation for more details.
 * If your plugin requires special gateway intents, use the new `extraIntents` config option
 
-Internal/technical updates:
+**Internal/technical updates:**
 * Updated to Eris 0.13.3
+* Updated several other dependencies
 * The client now requests specific gateway intents on connection
-* New config parser that validates each option and their types more strictly to prevent undefined behavior
+* New JSON Schema based config parser that validates each option and their types more strictly to prevent undefined behavior
 
 ## v2.31.0-beta.0
 This is a beta release. It is not available on the Releases page and bugs are expected.
