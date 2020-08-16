@@ -306,6 +306,10 @@ function escapeMarkdown(str) {
   return str.replace(markdownCharsRegex, "\\$1");
 }
 
+function disableInlineCode(str) {
+  return str.replace(/`/g, "'");
+}
+
 function disableCodeBlocks(str) {
   return str.replace(/`/g, "`\u200b");
 }
@@ -351,6 +355,7 @@ module.exports = {
   humanizeDelay,
 
   escapeMarkdown,
+  disableInlineCode,
   disableCodeBlocks,
 
   readMultilineConfigValue,

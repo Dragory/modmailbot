@@ -119,15 +119,32 @@ const defaultFormatters = {
   },
 
   formatStaffReplyEditNotificationThreadMessage(threadMessage, newText, moderator) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) edited reply \`[${threadMessage.message_number}]\`:`;
-    content += `\n\nBefore:\n\`\`\`${utils.disableCodeBlocks(threadMessage.body)}\`\`\``;
-    content += `\nAfter:\n\`\`\`${utils.disableCodeBlocks(newText)}\`\`\``;
+    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) edited reply \`${threadMessage.message_number}\``;
+
+    if (threadMessage.body.length < 200 && newText.length < 200) {
+      // Show edits of small messages inline
+      content += ` from \`${utils.disableInlineCode(threadMessage.body)}\` to \`${newText}\``;
+    } else {
+      // Show edits of long messages in two code blocks
+      content += ":";
+      content += `\n\nBefore:\n\`\`\`${utils.disableCodeBlocks(threadMessage.body)}\`\`\``;
+      content += `\nAfter:\n\`\`\`${utils.disableCodeBlocks(newText)}\`\`\``;
+    }
+
     return content;
   },
 
   formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\`:`;
-    content += "```" + utils.disableCodeBlocks(threadMessage.body) + "```";
+    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\``;
+
+    if (threadMessage.body.length < 200) {
+      // Show the original content of deleted small messages inline
+      content += ` (message content: \`${utils.disableInlineCode(threadMessage.body)}\`)`;
+    } else {
+      // Show the original content of deleted large messages in a code block
+      content += ":\n```" + utils.disableCodeBlocks(threadMessage.body) + "```";
+    }
+
     return content;
   },
 
