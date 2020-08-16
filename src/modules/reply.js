@@ -44,7 +44,8 @@ module.exports = ({ bot, knex, config, commands }) => {
         return;
       }
 
-      await thread.editStaffReply(msg.member, threadMessage, args.text)
+      await thread.editStaffReply(msg.member, threadMessage, args.text);
+      msg.delete().catch(utils.noop);
     }, {
       aliases: ["e"]
     });
@@ -64,6 +65,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
 
       await thread.deleteStaffReply(msg.member, threadMessage);
+      msg.delete().catch(utils.noop);
     }, {
       aliases: ["d"]
     });
