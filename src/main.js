@@ -36,11 +36,38 @@ module.exports = {
     console.log("Connecting to Discord...");
 
     bot.once("ready", async () => {
-      console.log("Connected! Waiting for guilds to become available...");
-      await Promise.all([
-        ...config.mainServerId.map(id => waitForGuild(id)),
-        waitForGuild(config.inboxServerId),
-      ]);
+      console.log("Connected! Waiting for servers to become available...");
+
+      await (new Promise(resolve => {
+        const waitNoteTimeout = setTimeout(() => {
+          console.log("Servers did not become available after 15 seconds, continuing start-up anyway");
+          console.log("");
+
+          const isSingleServer = config.mainServerId.includes(config.inboxServerId);
+          if (isSingleServer) {
+            console.log("WARNING: The bot will not work before it's invited to the server.");
+          } else {
+            const hasMultipleMainServers = config.mainServerId.length > 1;
+            if (hasMultipleMainServers) {
+              console.log("WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.");
+            } else {
+              console.log("WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.");
+            }
+          }
+
+          console.log("");
+
+          resolve();
+        }, 15 * 1000);
+
+        Promise.all([
+          ...config.mainServerId.map(id => waitForGuild(id)),
+          waitForGuild(config.inboxServerId),
+        ]).then(() => {
+          clearTimeout(waitNoteTimeout);
+          resolve();
+        });
+      }));
 
       console.log("Initializing...");
       initStatus();
