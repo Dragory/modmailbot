@@ -113,7 +113,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     aliases: ["ds"]
   });
 
-  commands.addInboxServerCommand("edit_snippet", "<trigger> [text$]", async (msg, args, thread) => {
+  commands.addInboxServerCommand("edit_snippet", "<trigger> <text$>", async (msg, args, thread) => {
     const snippet = await snippets.get(args.trigger);
     if (! snippet) {
       utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" doesn't exist!`);
