@@ -5,9 +5,9 @@
 Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
 
 **General changes:**
-* Added support for Node.js 14, dropped support for Node.js 10 and 11
+* **BREAKING CHANGE:** Added support for Node.js 14, dropped support for Node.js 10 and 11
   * The supported versions are now 12, 13, and 14
-* The bot now requests the necessary [Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents)
+* **BREAKING CHANGE:** The bot now requests the necessary [Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents)
   * **This includes the privileged "Server Members Intent"**, which is used for server greetings/welcome messages.
     This means that **you need to enable "Server Members Intent"** on the bot's page on the Discord Developer Portal.
 * Renamed the following options. Old names are still supported as aliases, so old config files won't break.
