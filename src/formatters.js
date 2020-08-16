@@ -164,7 +164,12 @@ const defaultFormatters = {
       if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
         line += ` [FROM USER] [${message.user_name}] ${message.body}`;
       } else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-        line += ` [TO USER] [${message.message_number || "0"}] [${message.user_name}]`;
+        if (opts.verbose) {
+          line += ` [TO USER] [${message.message_number || "0"}] [${message.user_name}]`;
+        } else {
+          line += ` [TO USER] [${message.user_name}]`;
+        }
+
         if (message.use_legacy_format) {
           // Legacy format (from pre-2.31.0) includes the role and username in the message body, so serve that as is
           line += ` ${message.body}`;
