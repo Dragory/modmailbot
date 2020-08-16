@@ -32,10 +32,10 @@ You can add comments in the config file by prefixing the line with `#`. Example:
 option = value
 ```
 
-### Toggle options
-Some options like `allowMove` are "**Toggle options**": they control whether certain features are enabled (on) or not (off).
-* To enable a toggle option, set its value to `on`, `true`, or `1`
-* To disable a toggle option, set its value to `off`, `false`, or `0`
+### Toggled options
+Some options like `allowMove` can only be turned on or off.
+* To turn on a toggled option, set its value to `on`, `true`, or `1`
+* To turn off a toggled option, set its value to `off`, `false`, or `0`
 * E.g. `allowMove = on` or `allowMove = off`
 
 ### "Accepts multiple values"

@@ -13,7 +13,7 @@ Send a reply to the user.
 
 **Example:** `!r How can I help you?`
 
-To reply automatically without using `!reply`, [enable `alwaysReply` in bot settings](configuration.md).
+To reply automatically without using `!reply`, [turn on `alwaysReply` in bot settings](configuration.md).
 
 ### `!anonreply <text>` / `!ar <text>`
 Send an anonymous reply to the user. Anonymous replies only show the moderator's role in the reply.
