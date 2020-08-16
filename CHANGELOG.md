@@ -1,7 +1,8 @@
 # Changelog
 
 ## v2.31.0-beta.1
-This is a beta release. Please report any bugs you encounter!
+**This is a beta release, bugs are expected.**
+Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
 
 **General changes:**
 * Added support for Node.js 14, dropped support for Node.js 10 and 11
@@ -33,7 +34,7 @@ This is a beta release. Please report any bugs you encounter!
 * If your plugin requires special gateway intents, use the new `extraIntents` config option
 
 **Internal/technical updates:**
-* Updated to Eris 0.13.3
+* Updated Eris to v0.13.3
 * Updated several other dependencies
 * The client now requests specific gateway intents on connection
 * New JSON Schema based config parser that validates each option and their types more strictly to prevent undefined behavior
