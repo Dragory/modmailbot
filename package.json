@@ -37,7 +37,7 @@
     "uuid": "^8.3.0"
   },
   "devDependencies": {
-    "eslint": "^7.6.0",
+    "eslint": "^7.7.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "supervisor": "^0.12.0"
