@@ -126,14 +126,19 @@ if (config.categoryAutomation && config.categoryAutomation.newThreadFromGuild &&
   config.categoryAutomation.newThreadFromServer = config.categoryAutomation.newThreadFromGuild;
 }
 
-// Move greetingMessage/greetingAttachment to the guildGreetings object internally
+// guildGreetings => serverGreetings
+if (config.guildGreetings && ! config.serverGreetings) {
+  config.serverGreetings = config.guildGreetings;
+}
+
+// Move greetingMessage/greetingAttachment to the serverGreetings object internally
 // Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
-// already have something set up in guildGreetings. This retains backwards compatibility while allowing you to override
-// greetings for specific servers in guildGreetings.
+// already have something set up in serverGreetings. This retains backwards compatibility while allowing you to override
+// greetings for specific servers in serverGreetings.
 if (config.greetingMessage || config.greetingAttachment) {
   for (const guildId of config.mainServerId) {
-    if (config.guildGreetings[guildId]) continue;
-    config.guildGreetings[guildId] = {
+    if (config.serverGreetings[guildId]) continue;
+    config.serverGreetings[guildId] = {
       message: config.greetingMessage,
       attachment: config.greetingAttachment
     };

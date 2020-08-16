@@ -175,13 +175,25 @@
     "greetingAttachment": {
       "type": "string"
     },
-    "guildGreetings": {
+    "serverGreetings": {
       "patternProperties": {
         "^\\d+$": {
-          "$ref": "#/definitions/multilineString"
+          "type": "object",
+          "properties": {
+            "message": {
+              "$ref": "#/definitions/multilineString"
+            },
+            "attachment": {
+              "type": "string"
+            }
+          }
         }
       },
       "default": {}
+    },
+    "guildGreetings": {
+      "$comment": "Alias for serverGreetings",
+      "$ref": "#/properties/serverGreetings"
     },
 
     "requiredAccountAge": {

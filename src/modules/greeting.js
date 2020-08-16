@@ -7,8 +7,8 @@ module.exports = ({ bot }) => {
   if (! config.enableGreeting) return;
 
   bot.on("guildMemberAdd", (guild, member) => {
-    const guildGreeting = config.guildGreetings[guild.id];
-    if (! guildGreeting || (! guildGreeting.message && ! guildGreeting.attachment)) return;
+    const serverGreeting = config.serverGreetings[guild.id];
+    if (! serverGreeting || (! serverGreeting.message && ! serverGreeting.attachment)) return;
 
     function sendGreeting(message, file) {
       bot.getDMChannel(member.id).then(channel => {
@@ -22,11 +22,11 @@ module.exports = ({ bot }) => {
       });
     }
 
-    const greetingMessage = utils.readMultilineConfigValue(guildGreeting.message);
+    const greetingMessage = utils.readMultilineConfigValue(serverGreeting.message);
 
-    if (guildGreeting.attachment) {
-      const filename = path.basename(guildGreeting.attachment);
-      fs.readFile(guildGreeting.attachment, (err, data) => {
+    if (serverGreeting.attachment) {
+      const filename = path.basename(serverGreeting.attachment);
+      fs.readFile(serverGreeting.attachment, (err, data) => {
         const file = {file: data, name: filename};
         sendGreeting(greetingMessage, file);
       });

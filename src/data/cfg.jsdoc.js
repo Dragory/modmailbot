@@ -34,7 +34,8 @@
  * @property {boolean} [enableGreeting=false]
  * @property {string} [greetingMessage]
  * @property {string} [greetingAttachment]
- * @property {*} [guildGreetings={}]
+ * @property {*} [serverGreetings={}]
+ * @property {*} [guildGreetings]
  * @property {number} [requiredAccountAge] Required account age to message Modmail, in hours
  * @property {string} [accountAgeDeniedMessage="Your Discord account is not old enough to contact modmail."]
  * @property {number} [requiredTimeOnServer] Required time on server to message Modmail, in minutes

@@ -170,15 +170,7 @@ greetingMessage[] = Remember to read the rules.
 ```
 
 #### guildGreetings
-**Default:** *None*  
-When running the bot on multiple main servers, this allows you to set different greetings for each server. Example:
-```ini
-guildGreetings.94882524378968064.message = Welcome to server ID 94882524378968064!
-guildGreetings.94882524378968064.attachment = greeting.png
-
-guildGreetings.541484311354933258.message[] = Welcome to server ID 541484311354933258!
-guildGreetings.541484311354933258.message[] = Second line of the greeting.
-```
+Alias for [`serverGreetings`](#serverGreetings)
 
 #### ignoreAccidentalThreads
 **Default:** `off`  
@@ -260,6 +252,17 @@ The bot's response to the user when they message the bot and open a new modmail 
 #### rolesInThreadHeader
 **Default:** `off`  
 If enabled, the user's roles will be shown in the modmail thread header
+
+#### serverGreetings
+**Default:** *None*  
+When running the bot on multiple main servers, this allows you to set different greetings for each server. Example:
+```ini
+serverGreetings.94882524378968064.message = Welcome to server ID 94882524378968064!
+serverGreetings.94882524378968064.attachment = greeting.png
+
+serverGreetings.541484311354933258.message[] = Welcome to server ID 541484311354933258!
+serverGreetings.541484311354933258.message[] = Second line of the greeting.
+```
 
 #### smallAttachmentLimit
 **Default:** `2097152`  
