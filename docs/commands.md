@@ -75,6 +75,13 @@ This is mainly useful when reporting messages to Discord's Trust & Safety team.
 ### `!id`
 Prints the user's ID.
 
+### `!dm_channel_id`
+Prints the ID of the current DM channel with the user
+
+### `!message <number>`
+Shows the DM channel ID, DM message ID, and message link of the specified user reply.
+`<number>` is the message number shown in brackets before the user reply in the thread.
+
 ## Anywhere on the inbox server
 These commands can be used anywhere on the inbox server, even outside Modmail threads.
 
