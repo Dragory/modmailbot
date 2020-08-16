@@ -227,7 +227,7 @@
         "newThread": {
           "type": "string"
         },
-        "newThreadFromGuild": {
+        "newThreadFromServer": {
           "type": "object",
           "patternProperties": {
             "^.+$": {
@@ -235,6 +235,10 @@
               "pattern": "^\\d+$"
             }
           }
+        },
+        "newThreadFromGuild": {
+          "$comment": "Alias for categoryAutomation.newThreadFromServer",
+          "$ref": "#/properties/categoryAutomation/properties/newThreadFromServer"
         }
       },
       "default": {}

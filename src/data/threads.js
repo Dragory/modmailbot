@@ -142,9 +142,9 @@ async function createNewThreadForUser(user, opts = {}) {
   // Figure out which category we should place the thread channel in
   let newThreadCategoryId = hookResult.categoryId || null;
 
-  if (! newThreadCategoryId && config.categoryAutomation.newThreadFromGuild) {
+  if (! newThreadCategoryId && config.categoryAutomation.newThreadFromServer) {
     // Categories for specific source guilds (in case of multiple main guilds)
-    for (const [guildId, categoryId] of Object.entries(config.categoryAutomation.newThreadFromGuild)) {
+    for (const [guildId, categoryId] of Object.entries(config.categoryAutomation.newThreadFromServer)) {
       if (userGuildData.has(guildId)) {
         newThreadCategoryId = categoryId;
         break;

@@ -121,6 +121,11 @@ if (! config.sqliteOptions) {
   };
 }
 
+// categoryAutomation.newThreadFromGuild => categoryAutomation.newThreadFromServer
+if (config.categoryAutomation && config.categoryAutomation.newThreadFromGuild && ! config.categoryAutomation.newThreadFromServer) {
+  config.categoryAutomation.newThreadFromServer = config.categoryAutomation.newThreadFromGuild;
+}
+
 // Move greetingMessage/greetingAttachment to the guildGreetings object internally
 // Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
 // already have something set up in guildGreetings. This retains backwards compatibility while allowing you to override

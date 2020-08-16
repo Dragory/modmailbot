@@ -124,16 +124,19 @@ If set, the bot auto-replies to bot mentions (pings) with this message. Use `{us
 
 #### categoryAutomation.newThread
 **Default:** *None*  
-ID of the category where new threads are opened. Also functions as a fallback for `categoryAutomation.newThreadFromGuild`.
+ID of the category where new threads are opened. Also functions as a fallback for `categoryAutomation.newThreadFromServer`.
 
-#### categoryAutomation.newThreadFromGuild.GUILDID
+#### categoryAutomation.newThreadFromGuild.SERVER_ID
+Alias for [`categoryAutomation.newThreadFromServer`](#categoryAutomationNewThreadFromServerServer_id)
+
+#### categoryAutomation.newThreadFromServer.SERVER_ID
 **Default:** *None*  
-When running the bot on multiple main servers, this allows you to specify new thread categories for users from each guild. Example:
+When running the bot on multiple main servers, this allows you to specify which category to use for modmail threads from each server. Example:
 ```ini
 # When the user is from the server ID 94882524378968064, their modmail thread will be placed in the category ID 360863035130249235
-categoryAutomation.newThreadFromGuild.94882524378968064 = 360863035130249235
+categoryAutomation.newThreadFromServer.94882524378968064 = 360863035130249235
 # When the user is from the server ID 541484311354933258, their modmail thread will be placed in the category ID 542780020972716042
-categoryAutomation.newThreadFromGuild.541484311354933258 = 542780020972716042
+categoryAutomation.newThreadFromServer.541484311354933258 = 542780020972716042
 ```
 
 #### closeMessage
