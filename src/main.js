@@ -223,7 +223,6 @@ function initBaseMessageHandlers() {
         content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}(${msg.author.id})**: "${msg.cleanContent}"\n\n<https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/${msg.channel.id}\/${msg.id}>`;
     }
 
-
     bot.createMessage(utils.getLogChannel().id, {
       content,
       disableEveryone: false,
@@ -233,6 +232,15 @@ function initBaseMessageHandlers() {
     if (config.botMentionResponse) {
       const botMentionResponse = utils.readMultilineConfigValue(config.botMentionResponse);
       bot.createMessage(msg.channel.id, botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`));
+    }
+
+    // If configured, automatically open a new thread with a user who has pinged it
+    if (config.threadOnMention) {
+      const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
+      if (! existingThread) {
+        // Only open a thread if we don't already have one
+        await threads.createNewThreadForUser(msg.author, { quiet: true });
+      }
     }
   });
 }

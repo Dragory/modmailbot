@@ -254,6 +254,11 @@
       "default": "\uD83D\uDCE8"
     },
 
+    "threadOnMention": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
     "port": {
       "type": "number",
       "maximum": 65535,
