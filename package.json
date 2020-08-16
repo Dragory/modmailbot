@@ -18,7 +18,7 @@
     "url": "https://github.com/Dragory/modmailbot"
   },
   "dependencies": {
-    "ajv": "^6.12.3",
+    "ajv": "^6.12.4",
     "eris": "^0.13.3",
     "humanize-duration": "^3.12.1",
     "ini": "^1.3.5",
