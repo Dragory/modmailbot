@@ -42,7 +42,7 @@ async function refreshVersions() {
   https.get(
     {
       hostname: "api.github.com",
-      path: `/repos/${owner}/${repo}/tags`,
+      path: `/repos/${owner}/${repo}/releases`,
       headers: {
         "User-Agent": `Modmail Bot (https://github.com/${owner}/${repo}) (${packageJson.version})`
       }
@@ -62,7 +62,10 @@ async function refreshVersions() {
         const parsed = JSON.parse(data);
         if (! Array.isArray(parsed) || parsed.length === 0) return;
 
-        const latestVersion = parsed[0].name;
+        const latestStableRelease = parsed.find(r => ! r.prerelease && ! r.draft);
+        if (! latestStableRelease) return;
+
+        const latestVersion = latestStableRelease.name;
         await knex("updates").update({
           available_version: latestVersion,
           last_checked: moment.utc().format("YYYY-MM-DD HH:mm:ss")
