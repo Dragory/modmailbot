@@ -64,11 +64,11 @@ Cancel the ping set by `!alert`.
 
 ### `!edit <number> <new text>`
 Edit your own previous reply sent with `!reply`.  
-`<number>` is the message number shown in brackets before the user reply in the thread.
+`<number>` is the message number shown in front of staff replies in the thread channel.
 
 ### `!delete <number>`
 Delete your own previous reply sent with `!reply`.  
-`<number>` is the message number shown in brackets before the user reply in the thread.
+`<number>` is the message number shown in front of staff replies in the thread channel.
 
 ### `!loglink`
 Get a link to the open Modmail thread's log.
@@ -88,7 +88,7 @@ Prints the ID of the current DM channel with the user
 
 ### `!message <number>`
 Shows the DM channel ID, DM message ID, and message link of the specified user reply.
-`<number>` is the message number shown in brackets before the user reply in the thread.
+`<number>` is the message number shown in front of staff replies in the thread channel.
 
 ## Anywhere on the inbox server
 These commands can be used anywhere on the inbox server, even outside Modmail threads.

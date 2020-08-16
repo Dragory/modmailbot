@@ -98,7 +98,7 @@ const defaultFormatters = {
       result = `[${formattedTimestamp}] ${result}`;
     }
 
-    result = `\`[${threadMessage.message_number}]\` ${result}`;
+    result = `\`${threadMessage.message_number}\` ${result}`;
 
     return result;
   },
