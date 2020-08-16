@@ -14,8 +14,11 @@ To keep it online, you need to keep the bot process running.
 ## Prerequisites
 1. Create a bot account through the [Discord Developer Portal](https://discordapp.com/developers/)
 2. Install Node.js 12, 13, or 14
-3. Download the latest bot version from [the releases page](https://github.com/Dragory/modmailbot/releases) and extract it to a folder
-4. In the bot's folder, make a copy of the file `config.example.ini` and rename the copy to `config.ini`
+3. Download the latest bot version from [the releases page](https://github.com/Dragory/modmailbot/releases)
+    * Make sure the release doesn't say "Pre-release" next to it unless you want to run an unstable beta version!
+4. Extract the zip file that you just downloaded
+5. In the bot's folder (that you extracted from the zip file), make a copy of the file `config.example.ini` and rename the copy to `config.ini`
+    * If you're on Windows, the file may be named `config.example` (without `.ini` at the end)
 
 ## Single-server setup
 In this setup, modmail threads are opened on the main server in a special category.
