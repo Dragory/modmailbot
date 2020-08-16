@@ -1,7 +1,7 @@
 # Changelog
 
 ## v2.31.0-beta.1
-**This is a beta release, bugs are expected.**
+**This is a beta release, bugs are expected.**  
 Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
 
 **General changes:**
@@ -26,6 +26,7 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
     * `dbDir` (use `sqliteOptions.filename` to specify the database file instead)
     * `knex` (see `dbType` documentation for more details)
 * Removed the long-deprecated `logDir` option
+* Fixed `!edit_snippet` crashing the bot when leaving the new snippet text empty
 
 **Plugins:**
 * Added support for replacing default message formatting in threads, DMs, and logs
