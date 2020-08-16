@@ -222,6 +222,15 @@ Make sure to do the necessary [port forwarding](https://portforward.com/) and ad
 **Default:** `!`  
 Prefix for bot commands
 
+#### reactOnSeen
+**Default:** `off`  
+If enabled, the bot will react to messages sent to it with the emoji defined in `reactOnSeenEmoji`
+
+#### reactOnSeenEmoji
+**Default:** `📨`  
+The emoji that the bot will react with when it sees a message.  Requires `reactOnSeen` to be enabled.  
+Must be pasted in the config file as the Emoji representation and not as a unicode codepoint.
+
 #### relaySmallAttachmentsAsAttachments
 **Default:** `off`  
 If enabled, small attachments from users are sent as real attachments rather than links in modmail threads.

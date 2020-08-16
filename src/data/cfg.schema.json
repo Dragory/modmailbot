@@ -244,6 +244,16 @@
       }
     },
 
+    "reactOnSeen": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "reactOnSeenEmoji": {
+      "type": "string",
+      "default": "\uD83D\uDCE8"
+    },
+
     "port": {
       "type": "number",
       "maximum": 65535,

@@ -323,6 +323,10 @@ class Thread {
       await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
     }
 
+    if (config.reactOnSeen) {
+      await msg.addReaction(config.reactOnSeenEmoji);
+    }
+
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
