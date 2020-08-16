@@ -10,7 +10,7 @@ const { formatters } = require("../formatters");
 
 const ThreadMessage = require("./ThreadMessage");
 
-const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require("./constants");
+const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
 
 /**
  * @property {String} id
@@ -255,6 +255,7 @@ class Thread {
    */
   async receiveUserReply(msg) {
     const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
+    let messageContent = msg.content || "";
 
     // Prepare attachments
     const attachments = [];
@@ -274,12 +275,39 @@ class Thread {
       attachments.push(savedAttachment.url);
     }
 
+    // Handle special embeds (listening party invites etc.)
+    if (msg.activity) {
+      let applicationName = msg.application && msg.application.name;
+
+      if (! applicationName && msg.activity.party_id.startsWith("spotify:")) {
+        applicationName = "Spotify";
+      }
+
+      if (! applicationName) {
+        applicationName = "Unknown Application";
+      }
+
+      let activityText;
+      if (msg.activity.type === DISCORD_MESSAGE_ACTIVITY_TYPES.JOIN || msg.activity.type === DISCORD_MESSAGE_ACTIVITY_TYPES.JOIN_REQUEST) {
+        activityText = "join a game";
+      } else if (msg.activity.type === DISCORD_MESSAGE_ACTIVITY_TYPES.SPECTATE) {
+        activityText = "spectate";
+      } else if (msg.activity.type === DISCORD_MESSAGE_ACTIVITY_TYPES.LISTEN) {
+        activityText = "listen along";
+      } else {
+        activityText = "do something";
+      }
+
+      messageContent += `\n\n*<This message contains an invite to ${activityText} on ${applicationName}>*`;
+      messageContent = messageContent.trim();
+    }
+
     // Save DB entry
     let threadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
       user_name: fullUserName,
-      body: msg.content || "",
+      body: messageContent,
       is_anonymous: 0,
       dm_message_id: msg.id,
       attachments,

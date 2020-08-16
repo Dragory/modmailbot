@@ -26,6 +26,14 @@ module.exports = {
     GUILD_STORE: 6,
   },
 
+  // https://discord.com/developers/docs/resources/channel#message-object-message-activity-types
+  DISCORD_MESSAGE_ACTIVITY_TYPES: {
+    JOIN: 1,
+    SPECTATE: 2,
+    LISTEN: 3,
+    JOIN_REQUEST: 5,
+  },
+
   ACCIDENTAL_THREAD_MESSAGES: [
     "ok",
     "okay",
