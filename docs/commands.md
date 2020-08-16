@@ -62,6 +62,14 @@ Pings you when the thread gets a new reply.
 ### `!alert cancel`
 Cancel the ping set by `!alert`.
 
+### `!edit <number> <new text>`
+Edit your own previous reply sent with `!reply`.  
+`<number>` is the message number shown in brackets before the user reply in the thread.
+
+### `!delete <number>`
+Delete your own previous reply sent with `!reply`.  
+`<number>` is the message number shown in brackets before the user reply in the thread.
+
 ### `!loglink`
 Get a link to the open Modmail thread's log.
 
