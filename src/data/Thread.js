@@ -335,8 +335,15 @@ class Thread {
     }
 
     if (this.alert_id) {
-      await this.setAlert(null);
-      await this.postSystemMessage(`<@!${this.alert_id}> New message from ${this.user_name}`);
+      const ids = this.alert_id.split(",");
+      let mentions = "";
+
+      ids.forEach(id => {
+        mentions += `<@!${id}> `;
+      });
+
+      await this.deleteAlerts();
+      await this.postSystemMessage(`${mentions}New message from ${this.user_name}`);
     }
   }
 
@@ -594,12 +601,75 @@ class Thread {
    * @param {String} userId
    * @returns {Promise<void>}
    */
-  async setAlert(userId) {
+  async addAlert(userId) {
+    let alerts = await knex("threads")
+      .where("id", this.id)
+      .select("alert_id")
+      .first();
+    alerts = alerts.alert_id;
+
+    if (alerts == null) {
+      alerts = [userId]
+    } else {
+      alerts = alerts.split(",");
+      if (! alerts.includes(userId)) {
+        alerts.push(userId);
+      }
+    }
+
+    alerts = alerts.join(",");
     await knex("threads")
       .where("id", this.id)
       .update({
-        alert_id: userId
+        alert_id: alerts
       });
+  }
+
+  /*
+   * @param {String} userId
+   * @returns {Promise<void>}
+   */
+  async removeAlert(userId) {
+    let alerts = await knex("threads")
+      .where("id", this.id)
+      .select("alert_id")
+      .first();
+    alerts = alerts.alert_id;
+
+    if (alerts != null) {
+      alerts = alerts.split(",");
+
+      for (let i = 0; i < alerts.length; i++) {
+        if (alerts[i] === userId) {
+          alerts.splice(i, 1);
+        }
+      }
+    } else {
+      return;
+    }
+
+    if (alerts.length === 0) {
+      alerts = null;
+    } else {
+      alerts = alerts.join(",");
+    }
+
+    await knex("threads")
+      .where("id", this.id)
+      .update({
+        alert_id: alerts
+      });
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async deleteAlerts() {
+    await knex("threads")
+      .where("id", this.id)
+      .update({
+        alert_id: null
+      })
   }
 
   /**
