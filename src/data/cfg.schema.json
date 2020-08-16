@@ -254,7 +254,7 @@
       "default": "\uD83D\uDCE8"
     },
 
-    "threadOnMention": {
+    "createThreadOnMention": {
       "$ref": "#/definitions/customBoolean",
       "default": false
     },

@@ -235,7 +235,7 @@ function initBaseMessageHandlers() {
     }
 
     // If configured, automatically open a new thread with a user who has pinged it
-    if (config.threadOnMention) {
+    if (config.createThreadOnMention) {
       const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! existingThread) {
         // Only open a thread if we don't already have one

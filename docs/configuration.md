@@ -272,7 +272,7 @@ The bot's "Playing" text
 **Default:** `on`  
 If enabled, channel permissions for the thread are synchronized with the category when using `!move`. Requires `allowMove` to be enabled.
 
-#### threadOnMention
+#### createThreadOnMention
 **Default:** `off`  
 If enabled, the bot will automatically create a new thread for a user who pings it.
 
