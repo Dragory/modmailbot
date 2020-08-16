@@ -158,11 +158,11 @@
     },
     "allowStaffEdit": {
       "$ref": "#/definitions/customBoolean",
-      "default": false
+      "default": true
     },
     "allowStaffDelete": {
       "$ref": "#/definitions/customBoolean",
-      "default": false
+      "default": true
     },
 
     "enableGreeting": {

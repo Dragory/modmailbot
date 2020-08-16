@@ -8,6 +8,7 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 * Added support for Node.js 14, dropped support for Node.js 10 and 11
   * The supported versions are now 12, 13, and 14
 * Added support for editing and deleting staff replies
+  * This is **enabled by default**
   * This can be disabled with the `allowStaffEdit` and `allowStaffDelete` options
   * Only the staff member who sent the reply can edit/delete it
 * New option `reactOnSeen` ([#398](https://github.com/Dragory/modmailbot/pull/398) by @Eegras)
