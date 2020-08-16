@@ -135,7 +135,7 @@ const defaultFormatters = {
   },
 
   formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) deleted reply \`[${threadMessage.message_number}]\``;
+    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) deleted reply \`${threadMessage.message_number}\``;
 
     if (threadMessage.body.length < 200) {
       // Show the original content of deleted small messages inline

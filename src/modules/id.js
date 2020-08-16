@@ -27,7 +27,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       : `https://discord.com/channels/@me/${channelId}/${threadMessage.dm_message_id}`;
 
     const parts = [
-      `Details for message \`[${threadMessage.message_number}]\`:`,
+      `Details for message \`${threadMessage.message_number}\`:`,
       `Channel ID: \`${channelId}\``,
       `Message ID: \`${threadMessage.dm_message_id}\``,
       `Link: <${messageLink}>`,
