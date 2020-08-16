@@ -149,7 +149,11 @@ for (const [key, value] of Object.entries(config)) {
 }
 
 // Validate config and assign defaults (if missing)
-const ajv = new Ajv({ useDefaults: true, coerceTypes: "array" });
+const ajv = new Ajv({
+  useDefaults: true,
+  coerceTypes: "array",
+  extendRefs: true, // Hides an error about ignored keywords when using $ref with $comment
+});
 
 // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270692820
 const truthyValues = ["1", "true", "on", "yes"];
