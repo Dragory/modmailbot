@@ -258,8 +258,8 @@ class Thread {
     let messageContent = msg.content || "";
 
     // Prepare attachments
-    const attachments = [];
-    const smallAttachments = [];
+    const attachmentLinks = [];
+    const smallAttachmentLinks = [];
     const attachmentFiles = [];
 
     for (const attachment of msg.attachments) {
@@ -269,10 +269,10 @@ class Thread {
       if (config.relaySmallAttachmentsAsAttachments && attachment.size <= config.smallAttachmentLimit) {
         const file = await attachments.attachmentToDiscordFileObject(attachment);
         attachmentFiles.push(file);
-        smallAttachments.push(savedAttachment.url);
+        smallAttachmentLinks.push(savedAttachment.url);
       }
 
-      attachments.push(savedAttachment.url);
+      attachmentLinks.push(savedAttachment.url);
     }
 
     // Handle special embeds (listening party invites etc.)
@@ -311,8 +311,8 @@ class Thread {
       is_anonymous: 0,
       dm_message_id: msg.id,
       dm_channel_id: msg.channel.id,
-      attachments,
-      small_attachments: smallAttachments,
+      attachments: attachmentLinks,
+      small_attachments: smallAttachmentLinks,
     });
 
     threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());

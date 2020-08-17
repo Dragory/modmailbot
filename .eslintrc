@@ -20,6 +20,7 @@
         "!!": true
       }
     }],
-    "quotes": ["error", "double"]
+    "quotes": ["error", "double"],
+    "no-shadow": "error"
   }
 }
