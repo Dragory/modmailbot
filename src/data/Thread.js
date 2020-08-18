@@ -23,7 +23,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = req
  * @property {String} scheduled_close_id
  * @property {String} scheduled_close_name
  * @property {Number} scheduled_close_silent
- * @property {String} alert_id
+ * @property {String} alert_ids
  * @property {String} created_at
  */
 class Thread {
@@ -334,8 +334,8 @@ class Thread {
       await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
     }
 
-    if (this.alert_id) {
-      const ids = this.alert_id.split(",");
+    if (this.alert_ids) {
+      const ids = this.alert_ids.split(",");
       let mentions = "";
 
       ids.forEach(id => {
@@ -604,9 +604,9 @@ class Thread {
   async addAlert(userId) {
     let alerts = await knex("threads")
       .where("id", this.id)
-      .select("alert_id")
+      .select("alert_ids")
       .first();
-    alerts = alerts.alert_id;
+    alerts = alerts.alert_ids;
 
     if (alerts == null) {
       alerts = [userId]
@@ -621,7 +621,7 @@ class Thread {
     await knex("threads")
       .where("id", this.id)
       .update({
-        alert_id: alerts
+        alert_ids: alerts
       });
   }
 
@@ -632,9 +632,9 @@ class Thread {
   async removeAlert(userId) {
     let alerts = await knex("threads")
       .where("id", this.id)
-      .select("alert_id")
+      .select("alert_ids")
       .first();
-    alerts = alerts.alert_id;
+    alerts = alerts.alert_ids;
 
     if (alerts != null) {
       alerts = alerts.split(",");
@@ -657,7 +657,7 @@ class Thread {
     await knex("threads")
       .where("id", this.id)
       .update({
-        alert_id: alerts
+        alert_ids: alerts
       });
   }
 
@@ -668,7 +668,7 @@ class Thread {
     await knex("threads")
       .where("id", this.id)
       .update({
-        alert_id: null
+        alert_ids: null
       })
   }
 
