@@ -12,7 +12,8 @@
     "lint-fix": "eslint --fix ./src ./db/migrations",
     "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js",
     "generate-plugin-api-docs": "jsdoc2md -t docs/plugin-api-template.hbs src/pluginApi.js > docs/plugin-api.md",
-    "create-migration": "knex migrate:make"
+    "create-migration": "knex migrate:make",
+    "run-migrations": "knex migrate:latest"
   },
   "repository": {
     "type": "git",
