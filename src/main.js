@@ -243,6 +243,7 @@ function initBaseMessageHandlers() {
     let content;
     const mainGuilds = utils.getMainGuilds();
     const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : "");
+    const allowedMentions = (config.pingOnBotMention ? utils.getInboxMentionAllowedMentions() : undefined);
 
     if (mainGuilds.length === 1) {
         content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}(${msg.author.id})**: "${msg.cleanContent}"\n\n<https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/${msg.channel.id}\/${msg.id}>`;
@@ -252,7 +253,7 @@ function initBaseMessageHandlers() {
 
     bot.createMessage(utils.getLogChannel().id, {
       content,
-      disableEveryone: false,
+      allowedMentions,
     });
 
     // Send an auto-response to the mention, if enabled

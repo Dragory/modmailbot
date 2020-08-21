@@ -186,7 +186,7 @@ async function createNewThreadForUser(user, opts = {}) {
     if (config.mentionRole) {
       await newThread.postNonLogMessage({
         content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
-        disableEveryone: false
+        allowedMentions: utils.getInboxMentionAllowedMentions(),
       });
     }
 
@@ -255,7 +255,10 @@ async function createNewThreadForUser(user, opts = {}) {
 
   infoHeader += "\n────────────────";
 
-  await newThread.postSystemMessage(infoHeader);
+  await newThread.postSystemMessage({
+    content: infoHeader,
+    allowedMentions: config.mentionUserInThreadHeader ? { users: [user.id] } : undefined,
+  });
 
   if (config.updateNotifications) {
     const availableUpdate = await updates.getAvailableUpdate();

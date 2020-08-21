@@ -20,6 +20,11 @@ const intents = [
 const bot = new Eris.Client(config.token, {
   restMode: true,
   intents: Array.from(new Set(intents)),
+  allowedMentions: {
+    everyone: false,
+    roles: false,
+    users: false,
+  },
 });
 
 /**

@@ -331,19 +331,25 @@ class Thread {
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`);
+      await this.postSystemMessage({
+        content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
+        allowedMentions: {
+          users: [this.scheduled_close_id],
+        },
+      });
     }
 
     if (this.alert_ids) {
       const ids = this.alert_ids.split(",");
-      let mentions = "";
-
-      ids.forEach(id => {
-        mentions += `<@!${id}> `;
-      });
+      const mentionsStr = ids.map(id => `<@!${id}> `).join("");
 
       await this.deleteAlerts();
-      await this.postSystemMessage(`${mentions}New message from ${this.user_name}`);
+      await this.postSystemMessage({
+        content: `${mentionsStr}New message from ${this.user_name}`,
+        allowedMentions: {
+          users: ids,
+        },
+      });
     }
   }
 

@@ -9,7 +9,12 @@ module.exports = ({ bot, knex, config, commands }) => {
     const logChannel = utils.getLogChannel();
     for (const userId of expiredBlocks) {
       await blocked.unblock(userId);
-      logChannel.createMessage(`Block of <@!${userId}> (id \`${userId}\`) expired`);
+      logChannel.createMessage({
+        content: `Block of <@!${userId}> (id \`${userId}\`) expired`,
+        allowedMentions: {
+          users: [userId],
+        },
+      });
     }
   }
 
@@ -88,12 +93,21 @@ module.exports = ({ bot, knex, config, commands }) => {
     const blockStatus = await blocked.getBlockStatus(userIdToCheck);
     if (blockStatus.isBlocked) {
       if (blockStatus.expiresAt) {
-        msg.channel.createMessage(`<@!${userIdToCheck}> (id \`${userIdToCheck}\`) is blocked until ${blockStatus.expiresAt} (UTC)`);
+        msg.channel.createMessage({
+          content: `<@!${userIdToCheck}> (id \`${userIdToCheck}\`) is blocked until ${blockStatus.expiresAt} (UTC)`,
+          allowedMentions: { users: [userIdToCheck] },
+        });
       } else {
-        msg.channel.createMessage(`<@!${userIdToCheck}> (id \`${userIdToCheck}\`) is blocked indefinitely`);
+        msg.channel.createMessage({
+          content: `<@!${userIdToCheck}> (id \`${userIdToCheck}\`) is blocked indefinitely`,
+          allowedMentions: { users: [userIdToCheck] },
+        });
       }
     } else {
-      msg.channel.createMessage(`<@!${userIdToCheck}> (id \`${userIdToCheck}\`) is NOT blocked`);
+      msg.channel.createMessage({
+        content: `<@!${userIdToCheck}> (id \`${userIdToCheck}\`) is NOT blocked`,
+        allowedMentions: { users: [userIdToCheck] },
+      });
     }
   });
 };

@@ -46,18 +46,18 @@ function getMainGuilds() {
  * @returns {Eris~TextChannel}
  */
 function getLogChannel() {
-  const inboxGuild = getInboxGuild();
-  const logChannel = inboxGuild.channels.get(config.logChannelId);
+  const _inboxGuild = getInboxGuild();
+  const _logChannel = _inboxGuild.channels.get(config.logChannelId);
 
-  if (! logChannel) {
+  if (! _logChannel) {
     throw new BotError("Log channel (logChannelId) not found!");
   }
 
-  if (! (logChannel instanceof Eris.TextChannel)) {
+  if (! (_logChannel instanceof Eris.TextChannel)) {
     throw new BotError("Make sure the logChannelId option is set to a text channel!");
   }
 
-  return logChannel;
+  return _logChannel;
 }
 
 function postLog(...args) {
@@ -217,7 +217,7 @@ function chunk(items, chunkSize) {
 function trimAll(str) {
   return str
     .split("\n")
-    .map(str => str.trim())
+    .map(_str => _str.trim())
     .join("\n");
 }
 
@@ -261,6 +261,22 @@ function getInboxMention() {
     else mentions.push(`<@&${role}>`);
   }
   return mentions.join(" ") + " ";
+}
+
+function getInboxMentionAllowedMentions() {
+  const mentionRoles = Array.isArray(config.mentionRole) ? config.mentionRole : [config.mentionRole];
+  const allowedMentions = {
+    everyone: false,
+    roles: [],
+  };
+
+  for (const role of mentionRoles) {
+    if (role == null) continue;
+    else if (role === "here" || role === "everyone") allowedMentions.everyone = true;
+    else allowedMentions.roles.push(role);
+  }
+
+  return allowedMentions;
 }
 
 function postSystemMessageWithFallback(channel, thread, text) {
@@ -343,6 +359,7 @@ module.exports = {
   delayStringRegex,
   convertDelayStringToMS,
   getInboxMention,
+  getInboxMentionAllowedMentions,
   postSystemMessageWithFallback,
 
   chunk,
