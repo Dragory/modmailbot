@@ -136,6 +136,7 @@ if (config.guildGreetings && ! config.serverGreetings) {
 // already have something set up in serverGreetings. This retains backwards compatibility while allowing you to override
 // greetings for specific servers in serverGreetings.
 if (config.greetingMessage || config.greetingAttachment) {
+  config.serverGreetings = config.serverGreetings || {};
   for (const guildId of config.mainServerId) {
     if (config.serverGreetings[guildId]) continue;
     config.serverGreetings[guildId] = {
