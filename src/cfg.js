@@ -148,6 +148,7 @@ if (config.greetingMessage || config.greetingAttachment) {
 
 // newThreadCategoryId is syntactic sugar for categoryAutomation.newThread
 if (config.newThreadCategoryId) {
+  config.categoryAutomation = config.categoryAutomation || {};
   config.categoryAutomation.newThread = config.newThreadCategoryId;
   delete config.newThreadCategoryId;
 }
