@@ -313,6 +313,14 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT`.
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
 
+#### notifyOnMainServerLeave
+**Default:** `on`
+If enabled, a system message will be posted into any open threads if the user leaves a main server
+
+#### notifyOnMainServerJoin
+**Default:** `on`
+If enabled, a system message will be posted into any open threads if the user joins a main server
+
 ## Advanced options
 
 #### extraIntents

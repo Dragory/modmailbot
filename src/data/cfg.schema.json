@@ -292,6 +292,16 @@
       "default": false
     },
 
+    "notifyOnMainServerLeave": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "notifyOnMainServerJoin": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "port": {
       "type": "number",
       "maximum": 65535,
