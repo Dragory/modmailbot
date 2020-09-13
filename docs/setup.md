@@ -16,8 +16,9 @@ To keep it online, you need to keep the bot process running.
 2. Invite the created bot to your server
 3. Install Node.js 10, 11, or 12
     - Node.js 13 is currently not supported
-4. Download the latest bot version from [the releases page](https://github.com/Dragory/modmailbot/releases) and extract it to a folder
-5. In the bot's folder, make a copy of the file `config.example.ini` and rename the copy to `config.ini`
+4. [Download the latest bot release here](https://github.com/Dragory/modmailbot/releases/latest) (click on "Source code (zip)")
+5. Extract the downloaded Zip file to a new folder
+6. In the bot's folder, make a copy of the file `config.example.ini` and rename the copy to `config.ini`
 
 ## Single-server setup
 In this setup, modmail threads are opened on the main server in a special category.
