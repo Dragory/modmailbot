@@ -124,6 +124,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": false
     },
+    "anonymizeChannelName": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
     "ignoreAccidentalThreads": {
       "$ref": "#/definitions/customBoolean",
       "default": false
