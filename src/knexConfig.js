@@ -31,7 +31,7 @@ module.exports = {
 
   useNullAsDefault: true,
   migrations: {
-    directory: path.resolve(__dirname, "..", "db", "migrations"),
+    directory: path.resolve(__dirname, "data", "migrations"),
   },
   log: {
     warn(message) {
