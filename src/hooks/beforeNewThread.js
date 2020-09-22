@@ -21,19 +21,19 @@ const Eris = require("eris");
  */
 
 /**
- * @callback BeforeNewThreadHookData
+ * @callback BeforeNewThreadHookFn
  * @param {BeforeNewThreadHookData} data
  * @return {void|Promise<void>}
  */
 
 /**
  * @callback AddBeforeNewThreadHookFn
- * @param {BeforeNewThreadHookData} fn
+ * @param {BeforeNewThreadHookFn} fn
  * @return {void}
  */
 
 /**
- * @type BeforeNewThreadHookData[]
+ * @type BeforeNewThreadHookFn[]
  */
 const beforeNewThreadHooks = [];
 
