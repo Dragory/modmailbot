@@ -327,7 +327,7 @@ extraIntents[] = guildMembers
 ```
 
 #### dbType
-**Default:** `sqlite`
+**Default:** `sqlite`  
 Specifies the type of database to use. Valid options:
 * `sqlite` (see also [sqliteOptions](#sqliteOptions) below)
 * `mysql` (see also [mysqlOptions](#mysqlOptions) below)
