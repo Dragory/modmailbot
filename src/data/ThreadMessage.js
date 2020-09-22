@@ -42,7 +42,7 @@ class ThreadMessage {
   getSQLProps() {
     return Object.entries(this).reduce((obj, [key, value]) => {
       if (typeof value === "function") return obj;
-      if (typeof value === "object") {
+      if (typeof value === "object" && value != null) {
         obj[key] = JSON.stringify(value);
       } else {
         obj[key] = value;
