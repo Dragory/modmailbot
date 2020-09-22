@@ -350,7 +350,7 @@ Object with MySQL-specific options
 ##### mysqlOptions.port
 **Default:** `3306`
 
-##### mysqlOptions.username
+##### mysqlOptions.user
 **Default:** *None*  
 Required if using `mysql` for `dbType`. MySQL user to connect with.
 
