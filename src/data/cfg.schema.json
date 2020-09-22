@@ -265,6 +265,11 @@
       "default": true
     },
 
+    "updateNotificationsForBetaVersions": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
     "plugins": {
       "type": "array",
       "items": {

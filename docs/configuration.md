@@ -317,6 +317,10 @@ If enabled, any time a moderator is typing in a modmail thread, the user will se
 **Default:** `on`  
 If enabled, the bot will automatically check for new bot updates periodically and notify about them at the top of new modmail threads
 
+#### updateNotificationsForBetaVersions
+**Default:** `off`  
+If enabled, update notifications will also be given for new beta versions
+
 #### url
 **Default:** *None*  
 URL to use for attachment and log links. Defaults to `http://IP:PORT`.

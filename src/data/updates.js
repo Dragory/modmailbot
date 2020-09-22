@@ -62,10 +62,10 @@ async function refreshVersions() {
         const parsed = JSON.parse(data);
         if (! Array.isArray(parsed) || parsed.length === 0) return;
 
-        const latestStableRelease = parsed.find(r => ! r.prerelease && ! r.draft);
-        if (! latestStableRelease) return;
+        const latestMatchingRelease = parsed.find(r => ! r.draft && (config.updateNotificationsForBetaVersions || ! r.prerelease));
+        if (! latestMatchingRelease) return;
 
-        const latestVersion = latestStableRelease.name;
+        const latestVersion = latestMatchingRelease.name;
         await knex("updates").update({
           available_version: latestVersion,
           last_checked: moment.utc().format("YYYY-MM-DD HH:mm:ss")
