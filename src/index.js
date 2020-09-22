@@ -45,7 +45,6 @@ const config = require("./cfg");
 const utils = require("./utils");
 const main = require("./main");
 const knex = require("./knex");
-const legacyMigrator = require("./legacy/legacyMigrator");
 
 // Force crash on unhandled rejections (use something like forever/pm2 to restart)
 process.on("unhandledRejection", err => {
@@ -66,31 +65,6 @@ process.on("unhandledRejection", err => {
     console.log("Updating database. This can take a while. Don't close the bot!");
     await knex.migrate.latest();
     console.log("Done!");
-  }
-
-  // Migrate legacy data if we need to
-  if (await legacyMigrator.shouldMigrate()) {
-    console.log("=== MIGRATING LEGACY DATA ===");
-    console.log("Do not close the bot!");
-    console.log("");
-
-    await legacyMigrator.migrate();
-
-    const relativeDbDir = (path.isAbsolute(config.dbDir) ? config.dbDir : path.resolve(process.cwd(), config.dbDir));
-    const relativeLogDir = (path.isAbsolute(config.logDir) ? config.logDir : path.resolve(process.cwd(), config.logDir));
-
-    console.log("");
-    console.log("=== LEGACY DATA MIGRATION FINISHED ===");
-    console.log("");
-    console.log("IMPORTANT: After the bot starts, please verify that all logs, threads, blocked users, and snippets are still working correctly.");
-    console.log("Once you've done that, the following files/directories are no longer needed. I would recommend keeping a backup of them, however.");
-    console.log("");
-    console.log("FILE: " + path.resolve(relativeDbDir, "threads.json"));
-    console.log("FILE: " + path.resolve(relativeDbDir, "blocked.json"));
-    console.log("FILE: " + path.resolve(relativeDbDir, "snippets.json"));
-    console.log("DIRECTORY: " + relativeLogDir);
-    console.log("");
-    console.log("Starting the bot...");
   }
 
   // Start the bot
