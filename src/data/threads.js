@@ -136,13 +136,11 @@ async function createNewThreadForUser(user, opts = {}) {
   if (cleanName === "") cleanName = "unknown";
   cleanName = cleanName.slice(0, 95); // Make sure the discrim fits
 
-  let temporalName = `${cleanName}-${user.discriminator}`;
+  let channelName = `${cleanName}-${user.discriminator}`;
 
   if (config.anonymizeChannelName) {
-    temporalName = crypto.createHash("md5").update(temporalName + new Date()).digest("hex").slice(0, 12);
+    channelName = crypto.createHash("md5").update(channelName + Date.now()).digest("hex").slice(0, 12);
   }
-
-  const channelName = temporalName;
 
   console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
