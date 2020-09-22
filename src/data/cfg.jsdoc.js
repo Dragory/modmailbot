@@ -51,6 +51,8 @@
  * @property {boolean} [reactOnSeen=false]
  * @property {string} [reactOnSeenEmoji="📨"]
  * @property {boolean} [createThreadOnMention=false]
+ * @property {boolean} [notifyOnMainServerLeave=true]
+ * @property {boolean} [notifyOnMainServerJoin=true]
  * @property {number} [port=8890]
  * @property {string} [url]
  * @property {array} [extraIntents=[]]

@@ -313,6 +313,14 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT`.
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
 
+#### notifyOnMainServerLeave
+**Default:** `on`
+If enabled, a system message will be posted into any open threads if the user leaves a main server
+
+#### notifyOnMainServerJoin
+**Default:** `on`
+If enabled, a system message will be posted into any open threads if the user joins a main server
+
 #### anonymizeChannelName
 **Default:** `off`
 If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy
