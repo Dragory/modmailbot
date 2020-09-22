@@ -103,7 +103,16 @@ function waitForGuild(guildId) {
 
 function initStatus() {
   function applyStatus() {
-    bot.editStatus(null, {name: config.status});
+    const type = {
+      "playing": 0,
+      "watching": 3,
+      "listening": 2,
+    }[config.statusType] || 0;
+    bot.editStatus(null, {name: config.status, type});
+  }
+
+  if (config.status == null || config.status === "") {
+    return;
   }
 
   // Set the bot status initially, then reapply it every hour since in some cases it gets unset

@@ -81,6 +81,11 @@
       "type": "string",
       "default": "Message me for help!"
     },
+    "statusType": {
+      "type": "string",
+      "enum": ["playing", "watching", "listening"],
+      "default": "playing"
+    },
     "responseMessage": {
       "$ref": "#/definitions/multilineString",
       "default": "Thank you for your message! Our mod team will reply to you here as soon as possible."

@@ -290,7 +290,11 @@ Prefix to use snippets anonymously
 
 #### status
 **Default:** `Message me for help`  
-The bot's "Playing" text
+The bot's status text. Set to an empty value - `status = ""` - to disable.
+
+#### statusType
+**Default:** `playing`  
+The bot's status type. One of `playing`, `watching`, `listening`.
 
 #### syncPermissionsOnMove
 **Default:** `on`  
