@@ -9,6 +9,11 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
+    if (user.bot) {
+      utils.postSystemMessageWithFallback(msg.channel, thread, "Can't create a thread for a bot");
+      return;
+    }
+
     const existingThread = await threads.findOpenThreadByUserId(user.id);
     if (existingThread) {
       utils.postSystemMessageWithFallback(msg.channel, thread, `Cannot create a new thread; there is another open thread with this user: <#${existingThread.channel_id}>`);
