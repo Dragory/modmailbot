@@ -107,6 +107,10 @@ e.g. `!note This is an internal message`.
 **Default:** `off`  
 If `alwaysReply` is enabled, this option controls whether the auto-reply is anonymous
 
+#### anonymizeChannelName
+**Default:** `off`  
+If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy
+
 #### attachmentStorage
 **Default:** `original`  
 Controls how attachments in modmail threads are stored. Possible values:
@@ -205,6 +209,14 @@ If enabled, mentions the user messaging modmail in the modmail thread's header.
 #### newThreadCategoryId
 **Default:** *None*  
 **Deprecated.** Same as `categoryAutomation.newThread`.
+
+#### notifyOnMainServerJoin
+**Default:** `on`  
+If enabled, a system message will be posted into any open threads if the user joins a main server
+
+#### notifyOnMainServerLeave
+**Default:** `on`  
+If enabled, a system message will be posted into any open threads if the user leaves a main server
 
 #### pingOnBotMention
 **Default:** `on`  
@@ -312,18 +324,6 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT`.
 #### useNicknames
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
-
-#### notifyOnMainServerLeave
-**Default:** `on`
-If enabled, a system message will be posted into any open threads if the user leaves a main server
-
-#### notifyOnMainServerJoin
-**Default:** `on`
-If enabled, a system message will be posted into any open threads if the user joins a main server
-
-#### anonymizeChannelName
-**Default:** `off`
-If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy
 
 ## Advanced options
 
