@@ -321,6 +321,10 @@ If enabled, a system message will be posted into any open threads if the user le
 **Default:** `on`
 If enabled, a system message will be posted into any open threads if the user joins a main server
 
+#### anonymizeChannelName
+**Default:** `off`
+If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy
+
 ## Advanced options
 
 #### extraIntents
@@ -335,7 +339,7 @@ extraIntents[] = guildMembers
 ```
 
 #### dbType
-**Default:** `sqlite`
+**Default:** `sqlite`  
 Specifies the type of database to use. Valid options:
 * `sqlite` (see also [sqliteOptions](#sqliteOptions) below)
 * `mysql` (see also [mysqlOptions](#mysqlOptions) below)
@@ -358,7 +362,7 @@ Object with MySQL-specific options
 ##### mysqlOptions.port
 **Default:** `3306`
 
-##### mysqlOptions.username
+##### mysqlOptions.user
 **Default:** *None*  
 Required if using `mysql` for `dbType`. MySQL user to connect with.
 

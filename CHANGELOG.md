@@ -5,7 +5,7 @@
 Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
 
 **General changes:**
-* **BREAKING CHANGE:** Added support for Node.js 14, dropped support for Node.js 10 and 11
+* **BREAKING CHANGE:** Added support for Node.js 13 and 14, dropped support for Node.js 10 and 11
   * The supported versions are now 12, 13, and 14
 * **BREAKING CHANGE:** The bot now requests the necessary [Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents)
   * **This includes the privileged "Server Members Intent"**, which is used for server greetings/welcome messages.  
@@ -27,8 +27,13 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
   * As with `pingOnBotMention`, staff members are automatically ignored
 * New **default** attachment storage option: `original`
   * This option simply links the original attachment and does not rehost it in any way
+* DM channel and message IDs are now stored
+  * Use `!loglink -v` to view these in logs
+  * Use `!dm_channel_id` in an inbox thread to view the DM channel ID
+  * *DM channel and message IDs are primarily useful for Discord T&S reports*
 * Multiple people can now sign up for reply alerts (`!alert`) simultaneously ([#373](https://github.com/Dragory/modmailbot/pull/373) by @DarkView)
 * The bot now displays a note if the user sent an application invite, e.g. an invite to listen along on Spotify
+* Log formatting is now more consistent and easier to parse with automated tools
 * Messages in modmail threads by other bots are no longer ignored, and are displayed in logs
 * Added official support for MySQL databases. Refer to the documentation on `dbType` for more details.
   * This change also means the following options are **no longer supported:**
@@ -42,26 +47,14 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 * Added support for *hooks*. Hooks can be used to run custom plugin code before/after specific moments.
   * Initially only the `beforeNewThread` hook is available. See plugin documentation for more details.
 * If your plugin requires special gateway intents, use the new `extraIntents` config option
+* Some code reorganisation related to threads and thread messages.
+  If you have a plugin that interacts with Thread or ThreadMessage objects,
+  test them before running this update in production!
 
 **Internal/technical updates:**
 * Updated Eris to v0.13.3
 * Updated several other dependencies
 * New JSON Schema based config parser that validates each option and their types more strictly to prevent undefined behavior
-
-## v2.31.0-beta.0
-This is a beta release. It is not available on the Releases page and bugs are expected.
-
-* Add support for Node.js 13
-  * Support for Node.js 14 is coming in a future update that will also drop Node.js 10 support.
-    This mirrors the `sqlite3` library's version support.
-* Log formatting is now more consistent and easier to parse with automated tools
-* DM channel and message IDs are now stored
-  * Use `!loglink -v` to view these in logs
-  * Use `!dm_channel_id` in an inbox thread to view the DM channel ID
-  * *DM channel and message IDs are primarily useful for Discord T&S reports*
-* Some code reorganisation related to threads and thread messages.
-  If you have a plugin that interacts with Thread or ThreadMessage objects,
-  test them before running this update in production!
 
 ## v2.30.1
 * Fix crash with `responseMessage` and `closeMessage` introduced in v2.30.0

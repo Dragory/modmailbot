@@ -4,6 +4,7 @@ const transliterate = require("transliteration");
 const moment = require("moment");
 const uuid = require("uuid");
 const humanizeDuration = require("humanize-duration");
+const crypto = require("crypto");
 
 const bot = require("../bot");
 const knex = require("../knex");
@@ -135,7 +136,13 @@ async function createNewThreadForUser(user, opts = {}) {
   if (cleanName === "") cleanName = "unknown";
   cleanName = cleanName.slice(0, 95); // Make sure the discrim fits
 
-  const channelName = `${cleanName}-${user.discriminator}`;
+  let temporalName = `${cleanName}-${user.discriminator}`;
+
+  if (config.anonymizeChannelName) {
+    temporalName = crypto.createHash("md5").update(temporalName + new Date()).digest("hex").slice(0, 12);
+  }
+
+  const channelName = temporalName;
 
   console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
