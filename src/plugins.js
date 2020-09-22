@@ -1,5 +1,6 @@
 const attachments = require("./data/attachments");
 const { beforeNewThread } = require("./hooks/beforeNewThread");
+const { afterThreadClose } = require("./hooks/afterThreadClose");
 const formats = require("./formatters");
 
 module.exports = {
@@ -28,6 +29,7 @@ module.exports = {
       },
       hooks: {
         beforeNewThread,
+        afterThreadClose,
       },
       formats,
     };

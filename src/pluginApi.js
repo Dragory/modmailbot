@@ -31,4 +31,5 @@ const Knex = require("knex");
 /**
  * @typedef {object} PluginHooksAPI
  * @property {AddBeforeNewThreadHookFn} beforeNewThread
+ * @property {AddAfterThreadCloseHookFn} afterThreadClose
  */

@@ -7,6 +7,7 @@ const utils = require("../utils");
 const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
+const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 
 const ThreadMessage = require("./ThreadMessage");
 
@@ -517,6 +518,8 @@ class Thread {
       console.log(`Deleting channel ${this.channel_id}`);
       await channel.delete("Thread closed");
     }
+
+    await callAfterThreadCloseHooks({ threadId: this.id });
   }
 
   /**
