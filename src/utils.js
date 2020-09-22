@@ -271,7 +271,7 @@ function getInboxMentionAllowedMentions() {
   };
 
   for (const role of mentionRoles) {
-    if (role == null) continue;
+    if (role == null || role === "none") continue;
     else if (role === "here" || role === "everyone") allowedMentions.everyone = true;
     else allowedMentions.roles.push(role);
   }

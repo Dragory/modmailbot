@@ -198,7 +198,7 @@ Alias for [inboxServerId](#inboxServerId)
 #### mentionRole
 **Default:** `here`  
 **Accepts multiple values.** Role that is mentioned when new threads are created or the bot is mentioned.
-Accepted values are "here", "everyone", or a role id.
+Accepted values are `none`, `here`, `everyone`, or a role id.
 Requires `pingOnBotMention` to be enabled.
 Set to an empty value (`mentionRole=`) to disable these pings entirely.
 
