@@ -56,6 +56,10 @@
  * @property {boolean} [createThreadOnMention=false]
  * @property {boolean} [notifyOnMainServerLeave=true]
  * @property {boolean} [notifyOnMainServerJoin=true]
+ * @property {string} [logStorage="local"]
+ * @property {object} [logOptions]
+ * @property {string} logOptions.attachmentDirectory
+ * @property {*} [logOptions.allowAttachmentUrlFallback=false]
  * @property {number} [port=8890]
  * @property {string} [url]
  * @property {array} [extraIntents=[]]

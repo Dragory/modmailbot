@@ -34,6 +34,25 @@ module.exports = function({ attachments }) {
 ```
 To use this custom attachment storage type, you would set the `attachmentStorage` config option to `"original"`.
 
+### Example of a custom log storage type
+This example adds a custom type for the `logStorage` option called `"pastebin"` that uploads logs to Pastebin.
+The code that handles API calls to Pastebin is left out, as it's not relevant to the example.
+```js
+module.exports = function({ logs, formatters }) {
+  logs.addStorageType('pastebin', {
+    async save(thread, threadMessages) {
+      const formatLogResult = await formatters.formatLog(thread, threadMessages);
+      // formatLogResult.content contains the log text
+      // Some code here that uploads the full text to Pastebin, and stores the Pastebin link in the database
+    },
+
+    getUrl(threadId) {
+      // Find the previously-saved Pastebin link from the database based on the thread id, and return it
+    }
+  });
+};
+```
+
 ### Plugin API
 The first and only argument to the plugin function is an object with the following properties:
 
@@ -44,6 +63,7 @@ The first and only argument to the plugin function is an object with the followi
 | `config` | The loaded config |
 | `commands` | An object with functions to add and manage commands |
 | `attachments` | An object with functions to save attachments and manage attachment storage types |
+| `logs` | An object with functions to get attachment URLs/files and manage log storage types |
 | `hooks` | An object with functions to add *hooks* that are called at specific times, e.g. before a new thread is created |
 | `formats` | An object with functions that allow you to replace the default functions used for formatting messages and logs |
 

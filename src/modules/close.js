@@ -1,12 +1,38 @@
 const moment = require("moment");
 const Eris = require("eris");
-const config = require("../cfg");
 const utils = require("../utils");
 const threads = require("../data/threads");
 const blocked = require("../data/blocked");
-const {messageQueue} = require("../queue");
+const { messageQueue } = require("../queue");
+const { getLogUrl, getLogFile, getLogCustomResponse } = require("../data/logs");
 
 module.exports = ({ bot, knex, config, commands }) => {
+  async function sendCloseNotification(threadId, body) {
+    const logCustomResponse = await getLogCustomResponse(threadId);
+    if (logCustomResponse) {
+      await utils.postLog(body);
+      await utils.postLog(logCustomResponse.content, logCustomResponse.file);
+      return;
+    }
+
+    const logUrl = await getLogUrl(threadId);
+    if (logUrl) {
+      utils.postLog(utils.trimAll(`
+          ${body}
+          Logs: ${logUrl}
+        `));
+      return;
+    }
+
+    const logFile = await getLogFile(threadId);
+    if (logFile) {
+      utils.postLog(body, logFile);
+      return;
+    }
+
+    utils.postLog(body);
+  }
+
   // Check for threads that are scheduled to be closed and close them
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
@@ -18,11 +44,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
       await thread.close(false, thread.scheduled_close_silent);
 
-      const logUrl = await thread.getLogUrl();
-      utils.postLog(utils.trimAll(`
-        Modmail thread with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}
-        Logs: ${logUrl}
-      `));
+      await sendCloseNotification(thread.id, `Modmail thread with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}`);
     }
   }
 
@@ -121,11 +143,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
     }
 
-    const logUrl = await thread.getLogUrl();
-    utils.postLog(utils.trimAll(`
-      Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}
-      Logs: ${logUrl}
-    `));
+    await sendCloseNotification(thread.id, `Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`);
   });
 
   // Auto-close threads if their channel is deleted
@@ -144,10 +162,6 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await thread.close(true);
 
-    const logUrl = await thread.getLogUrl();
-    utils.postLog(utils.trimAll(`
-      Modmail thread with ${thread.user_name} (${thread.user_id}) was closed automatically because the channel was deleted
-      Logs: ${logUrl}
-    `));
+    await sendCloseNotification(thread.id, `Modmail thread with ${thread.user_name} (${thread.user_id}) was closed automatically because the channel was deleted`);
   });
 };

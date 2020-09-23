@@ -9,6 +9,7 @@ const Knex = require("knex");
  * @property {ModmailConfig} config
  * @property {PluginCommandsAPI} commands
  * @property {PluginAttachmentsAPI} attachments
+ * @property {PluginLogsAPI} logs
  * @property {PluginHooksAPI} hooks
  * @property {FormattersExport} formats
  */
@@ -26,6 +27,15 @@ const Knex = require("knex");
  * @typedef {object} PluginAttachmentsAPI
  * @property {AddAttachmentStorageTypeFn} addStorageType
  * @property {DownloadAttachmentFn} downloadAttachment
+ */
+
+/**
+ * @typedef {object} PluginLogsAPI
+ * @property {AddLogStorageTypeFn} addStorageType
+ * @property {SaveLogToStorageFn} saveLogToStorage
+ * @property {GetLogUrlFn} getLogUrl
+ * @property {GetLogFileFn} getLogFile
+ * @property {GetLogCustomResponseFn} getLogCustomResponse
  */
 
 /**

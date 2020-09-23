@@ -1,10 +1,11 @@
 const threads = require("../data/threads");
 const moment = require("moment");
 const utils = require("../utils");
+const { getLogUrl, getLogFile, getLogCustomResponse, saveLogToStorage } = require("../data/logs");
 
 const LOG_LINES_PER_PAGE = 10;
 
-module.exports = ({ bot, knex, config, commands }) => {
+module.exports = ({ bot, knex, config, commands, hooks }) => {
   const logsCmd = async (msg, args, thread) => {
     let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;
@@ -29,9 +30,12 @@ module.exports = ({ bot, knex, config, commands }) => {
     userThreads = userThreads.slice((page - 1) * LOG_LINES_PER_PAGE, page * LOG_LINES_PER_PAGE);
 
     const threadLines = await Promise.all(userThreads.map(async thread => {
-      const logUrl = await thread.getLogUrl();
+      const logUrl = await getLogUrl(thread.id);
+      const formattedLogUrl = logUrl
+        ? `<${logUrl}>`
+        : `View log with \`${config.prefix}log ${thread.id}\``
       const formattedDate = moment.utc(thread.created_at).format("MMM Do [at] HH:mm [UTC]");
-      return `\`${formattedDate}\`: <${logUrl}>`;
+      return `\`${formattedDate}\`: ${formattedLogUrl}`;
     }));
 
     let message = isPaginated
@@ -54,34 +58,39 @@ module.exports = ({ bot, knex, config, commands }) => {
     });
   };
 
+  const logCmd = async (msg, args, thread) => {
+    const threadId = args.threadId || (thread && thread.id);
+    if (! threadId) return;
+
+    const customResponse = await getLogCustomResponse(threadId);
+    if (customResponse && (customResponse.content || customResponse.file)) {
+      msg.channel.createMessage(customResponse.content, customResponse.file);
+    }
+
+    const logUrl = await getLogUrl(threadId);
+    if (logUrl) {
+      msg.channel.createMessage(`Open the following link to view the log:\n<${logUrl}>`);
+      return;
+    }
+
+    const logFile = await getLogFile(threadId);
+    if (logFile) {
+      msg.channel.createMessage("Download the following file to view the log:", logFile);
+      return;
+    }
+
+    msg.channel.createMessage("This thread's logs are not currently available");
+  };
+
   commands.addInboxServerCommand("logs", "<userId:userId> [page:number]", logsCmd);
   commands.addInboxServerCommand("logs", "[page:number]", logsCmd);
 
-  commands.addInboxServerCommand("loglink", [], async (msg, args, thread) => {
-    if (! thread) {
-      thread = await threads.findSuspendedThreadByChannelId(msg.channel.id);
-      if (! thread) return;
-    }
+  commands.addInboxServerCommand("log", "[threadId:string]", logCmd);
+  commands.addInboxServerCommand("loglink", "[threadId:string]", logCmd);
 
-    const logUrl = await thread.getLogUrl();
-    const query = [];
-    if (args.verbose) query.push("verbose=1");
-    if (args.simple) query.push("simple=1");
-    let qs = query.length ? `?${query.join("&")}` : "";
-
-    thread.postSystemMessage(`Log URL: ${logUrl}${qs}`);
-  }, {
-    options: [
-      {
-        name: "verbose",
-        shortcut: "v",
-        isSwitch: true,
-      },
-      {
-        name: "simple",
-        shortcut: "s",
-        isSwitch: true,
-      },
-    ],
+  hooks.afterThreadClose(async ({ threadId }) => {
+    const thread = await threads.findById(threadId);
+    const threadMessages = await thread.getThreadMessages();
+    await saveLogToStorage(thread, threadMessages);
   });
 };

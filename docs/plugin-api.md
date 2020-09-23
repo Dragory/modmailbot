@@ -12,6 +12,8 @@ Scroll down to [PluginAPI](#PluginAPI) for a list of properties available to plu
 <dd></dd>
 <dt><a href="#PluginAttachmentsAPI">PluginAttachmentsAPI</a> : <code>object</code></dt>
 <dd></dd>
+<dt><a href="#PluginLogsAPI">PluginLogsAPI</a> : <code>object</code></dt>
+<dd></dd>
 <dt><a href="#PluginHooksAPI">PluginHooksAPI</a> : <code>object</code></dt>
 <dd></dd>
 </dl>
@@ -29,6 +31,7 @@ Scroll down to [PluginAPI](#PluginAPI) for a list of properties available to plu
 | config | <code>ModmailConfig</code> | 
 | commands | [<code>PluginCommandsAPI</code>](#PluginCommandsAPI) | 
 | attachments | [<code>PluginAttachmentsAPI</code>](#PluginAttachmentsAPI) | 
+| logs | [<code>PluginLogsAPI</code>](#PluginLogsAPI) | 
 | hooks | [<code>PluginHooksAPI</code>](#PluginHooksAPI) | 
 | formats | <code>FormattersExport</code> | 
 
@@ -57,6 +60,20 @@ Scroll down to [PluginAPI](#PluginAPI) for a list of properties available to plu
 | addStorageType | <code>AddAttachmentStorageTypeFn</code> | 
 | downloadAttachment | <code>DownloadAttachmentFn</code> | 
 
+<a name="PluginLogsAPI"></a>
+
+## PluginLogsAPI : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type |
+| --- | --- |
+| addStorageType | <code>AddLogStorageTypeFn</code> | 
+| saveLogToStorage | <code>SaveLogToStorageFn</code> | 
+| getLogUrl | <code>GetLogUrlFn</code> | 
+| getLogFile | <code>GetLogFileFn</code> | 
+| getLogCustomResponse | <code>GetLogCustomResponseFn</code> | 
+
 <a name="PluginHooksAPI"></a>
 
 ## PluginHooksAPI : <code>object</code>
@@ -66,4 +83,5 @@ Scroll down to [PluginAPI](#PluginAPI) for a list of properties available to plu
 | Name | Type |
 | --- | --- |
 | beforeNewThread | <code>AddBeforeNewThreadHookFn</code> | 
+| afterThreadClose | <code>AddAfterThreadCloseHookFn</code> | 
 

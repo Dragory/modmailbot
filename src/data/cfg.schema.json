@@ -316,6 +316,26 @@
       "default": true
     },
 
+    "logStorage": {
+      "type": "string",
+      "default": "local"
+    },
+
+    "logOptions": {
+      "type": "object",
+      "properties": {
+        "attachmentDirectory": {
+          "type": "string",
+          "default": "logs"
+        },
+        "allowAttachmentUrlFallback": {
+          "$ref": "#/definitions/customBoolean",
+          "default": false
+        }
+      },
+      "required": ["attachmentDirectory"]
+    },
+
     "port": {
       "type": "number",
       "maximum": 65535,

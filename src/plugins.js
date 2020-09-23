@@ -1,4 +1,5 @@
 const attachments = require("./data/attachments");
+const logs = require("./data/logs");
 const { beforeNewThread } = require("./hooks/beforeNewThread");
 const { afterThreadClose } = require("./hooks/afterThreadClose");
 const formats = require("./formatters");
@@ -26,6 +27,13 @@ module.exports = {
       attachments: {
         addStorageType: attachments.addStorageType,
         downloadAttachment: attachments.downloadAttachment
+      },
+      logs: {
+        addStorageType: logs.addStorageType,
+        saveLogToStorage: logs.saveLogToStorage,
+        getLogUrl: logs.getLogUrl,
+        getLogFile: logs.getLogFile,
+        getLogCustomResponse: logs.getLogCustomResponse,
       },
       hooks: {
         beforeNewThread,

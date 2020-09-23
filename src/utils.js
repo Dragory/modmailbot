@@ -61,7 +61,7 @@ function getLogChannel() {
 }
 
 function postLog(...args) {
-  getLogChannel().createMessage(...args);
+  return getLogChannel().createMessage(...args);
 }
 
 function postError(channel, str, opts = {}) {

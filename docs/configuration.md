@@ -189,6 +189,25 @@ See ["Permissions" on this page](https://abal.moe/Eris/docs/reference) for suppo
 **Default:** `You haven't been a member of the server for long enough to contact modmail.`  
 If `requiredTimeOnServer` is set, users that are too new will be sent this message if they try to message modmail.
 
+#### logStorage
+**Default:** `local`  
+Controls how logs are stored. Possible values:
+* `local` - Logs are served from a local web server via links
+* `attachment` - Logs are sent as attachments
+* `none` - Logs are not available through the bot
+
+#### logOptions
+Options for logs
+
+##### logOptions.attachmentDirectory
+**Default:** `logs`  
+When using `logStorage = "attachment"`, the directory where the log files are stored
+
+##### logOptions.allowAttachmentUrlFallback
+**Default:** `off`  
+When using `logStorage = "attachment"`, if enabled, threads that don't have a log file will send a log link instead.
+Useful if transitioning from `logStorage = "local"` (the default).
+
 #### mainGuildId
 Alias for [mainServerId](#mainServerId)
 

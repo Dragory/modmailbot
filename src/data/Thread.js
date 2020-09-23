@@ -727,13 +727,6 @@ class Thread {
 
     await this._deleteThreadMessage(threadMessage.id);
   }
-
-  /**
-   * @returns {Promise<String>}
-   */
-  getLogUrl() {
-    return utils.getSelfUrl(`logs/${this.id}`);
-  }
 }
 
 module.exports = Thread;
