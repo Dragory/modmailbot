@@ -1,5 +1,36 @@
 # Changelog
 
+## v2.31.0-beta.2
+**This is a beta release, bugs are expected.**  
+Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
+
+**General changes:**
+* **BREAKING CHANGE:** Logs from Modmail versions prior to Feb 2018 are no longer converted automatically
+  * To update from a Modmail version from before Feb 2018, update to `v2.30.1` and run the bot once first. Then you can update to later versions.
+* New option `logStorage`
+  * Allows changing how logs are stored
+  * Possible values are `local` (default), `attachment`, and `none`
+* New option `statusType`
+  * Allows changing the bot's status type between "Playing", "Watching", "Listening"
+  * Possible values are `playing` (default), `watching`, `listening`
+* New option `anonymizeChannelName` ([#457](https://github.com/Dragory/modmailbot/pull/457) by @funkyhippo)
+  * Off by default. When enabled, instead of using the user's name as the channel name, uses a random channel name instead.
+  * Useful on single-server setups where people with modified clients can see the names of even hidden channels
+* New option `updateNotificationsForBetaVersions`
+  * Off by default. When enabled, also shows update notifications for beta versions.
+  * By default, update notifications are only shown for stable releases
+* `mentionRole` can now be set to `none`
+* The bot now notifies if the user leaves/joins the server ([#437](https://github.com/Dragory/modmailbot/pull/437) by @DarkView)
+* Fix crash when using `!newthread` with the bot's own ID (fixes [#452](https://github.com/Dragory/modmailbot/issues/452))
+
+**Plugins:**
+* New hook: `afterThreadClose`
+  * Called right after a thread is closed with the thread's id
+* You can now add custom log storage types
+
+**Internal/technical updates:**
+* Database migrations are now stored under `src/`
+
 ## v2.31.0-beta.1
 **This is a beta release, bugs are expected.**  
 Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
