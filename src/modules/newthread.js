@@ -3,7 +3,7 @@ const threads = require("../data/threads");
 
 module.exports = ({ bot, knex, config, commands }) => {
   commands.addInboxServerCommand("newthread", "<userId:userId>", async (msg, args, thread) => {
-    const user = bot.users.get(args.userId);
+    const user = bot.users.get(args.userId) || await bot.getRESTUser(args.userId).catch(() => null);
     if (! user) {
       utils.postSystemMessageWithFallback(msg.channel, thread, "User not found!");
       return;
