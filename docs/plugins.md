@@ -66,6 +66,7 @@ The first and only argument to the plugin function is an object with the followi
 | `logs` | An object with functions to get attachment URLs/files and manage log storage types |
 | `hooks` | An object with functions to add *hooks* that are called at specific times, e.g. before a new thread is created |
 | `formats` | An object with functions that allow you to replace the default functions used for formatting messages and logs |
+| `webserver` | An [Express Application object](https://expressjs.com/en/api.html#app) that functions as the bot's web server |
 
 See the auto-generated [Plugin API](plugin-api.md) page for details.
 

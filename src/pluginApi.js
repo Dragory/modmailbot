@@ -1,3 +1,4 @@
+const express = require("express");
 const { CommandManager } = require("knub-command-manager");
 const { Client } = require("eris");
 const Knex = require("knex");
@@ -12,6 +13,7 @@ const Knex = require("knex");
  * @property {PluginLogsAPI} logs
  * @property {PluginHooksAPI} hooks
  * @property {FormattersExport} formats
+ * @property {express.Application} webserver
  */
 
 /**

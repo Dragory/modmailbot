@@ -54,16 +54,19 @@ function serveAttachments(req, res) {
   })
 }
 
-module.exports = () => {
-  const server = express();
-  server.use(helmet());
+const server = express();
+server.use(helmet());
 
-  server.get("/logs/:threadId", serveLogs);
-  server.get("/logs/:attachmentId/:filename", serveAttachments);
+server.get("/logs/:threadId", serveLogs);
+server.get("/logs/:attachmentId/:filename", serveAttachments);
 
-  server.on("error", err => {
-    console.log("[WARN] Web server error:", err.message);
-  });
+server.on("error", err => {
+  console.log("[WARN] Web server error:", err.message);
+});
 
-  server.listen(config.port);
+module.exports = {
+  server,
+  plugin() {
+    server.listen(config.port);
+  },
 };

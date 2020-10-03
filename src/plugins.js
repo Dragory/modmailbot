@@ -3,6 +3,7 @@ const logs = require("./data/logs");
 const { beforeNewThread } = require("./hooks/beforeNewThread");
 const { afterThreadClose } = require("./hooks/afterThreadClose");
 const formats = require("./formatters");
+const { server: webserver } = require("./modules/webserver");
 
 module.exports = {
   /**
@@ -40,6 +41,7 @@ module.exports = {
         afterThreadClose,
       },
       formats,
+      webserver,
     };
   },
 
