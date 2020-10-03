@@ -36,18 +36,18 @@ To use this custom attachment storage type, you would set the `attachmentStorage
 
 ### Example of a custom log storage type
 This example adds a custom type for the `logStorage` option called `"pastebin"` that uploads logs to Pastebin.
-The code that handles API calls to Pastebin is left out, as it's not relevant to the example.
+
 ```js
 module.exports = function({ logs, formatters }) {
   logs.addStorageType('pastebin', {
     async save(thread, threadMessages) {
       const formatLogResult = await formatters.formatLog(thread, threadMessages);
-      // formatLogResult.content contains the log text
-      // Some code here that uploads the full text to Pastebin, and stores the Pastebin link in the database
+      const pastebinUrl = await saveToPastebin(formatLogResult); // saveToPastebin is an example function that returns the pastebin URL for the saved log
+      return { url: pastebinUrl };
     },
 
-    getUrl(threadId) {
-      // Find the previously-saved Pastebin link from the database based on the thread id, and return it
+    getUrl(thread) {
+      return thread.log_storage_data.url;
     }
   });
 };
