@@ -20,7 +20,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
   async function expiredBlockLoop() {
     try {
-      removeExpiredBlocks();
+      await removeExpiredBlocks();
     } catch (e) {
       console.error(e);
     }
