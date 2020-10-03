@@ -1,4 +1,5 @@
-const http = require("http");
+const express = require("express");
+const helmet = require("helmet");
 const mime = require("mime");
 const url = require("url");
 const fs = require("fs");
@@ -10,46 +11,43 @@ const attachments = require("../data/attachments");
 const { formatters } = require("../formatters");
 
 function notfound(res) {
-  res.statusCode = 404;
-  res.end("Page Not Found");
+  res.status(404).send("Page Not Found");
 }
 
-async function serveLogs(req, res, pathParts, query) {
-  const threadId = pathParts[pathParts.length - 1];
-  if (threadId.match(/^[0-9a-f\-]+$/) === null) return notfound(res);
-
-  const thread = await threads.findById(threadId);
+/**
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+async function serveLogs(req, res) {
+  const thread = await threads.findById(req.params.threadId);
   if (! thread) return notfound(res);
 
   let threadMessages = await thread.getThreadMessages();
 
   const formatLogResult = await formatters.formatLog(thread, threadMessages, {
-    simple: Boolean(query.simple),
-    verbose: Boolean(query.verbose),
+    simple: Boolean(req.query.simple),
+    verbose: Boolean(req.query.verbose),
   });
 
   const contentType = formatLogResult.extra && formatLogResult.extra.contentType || "text/plain; charset=UTF-8";
 
-  res.setHeader("Content-Type", contentType);
-  res.end(formatLogResult.content);
+  res.set("Content-Type", contentType);
+  res.send(formatLogResult.content);
 }
 
-function serveAttachments(req, res, pathParts) {
-  const desiredFilename = pathParts[pathParts.length - 1];
-  const id = pathParts[pathParts.length - 2];
+function serveAttachments(req, res) {
+  if (req.params.attachmentId.match(/^[0-9]+$/) === null) return notfound(res);
+  if (req.params.filename.match(/^[0-9a-z._-]+$/i) === null) return notfound(res);
 
-  if (id.match(/^[0-9]+$/) === null) return notfound(res);
-  if (desiredFilename.match(/^[0-9a-z._-]+$/i) === null) return notfound(res);
-
-  const attachmentPath = attachments.getLocalAttachmentPath(id);
+  const attachmentPath = attachments.getLocalAttachmentPath(req.params.attachmentId);
   fs.access(attachmentPath, (err) => {
     if (err) return notfound(res);
 
-    const filenameParts = desiredFilename.split(".");
+    const filenameParts = req.params.filename.split(".");
     const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : "bin");
     const fileMime = mime.getType(ext);
 
-    res.setHeader("Content-Type", fileMime);
+    res.set("Content-Type", fileMime);
 
     const read = fs.createReadStream(attachmentPath);
     read.pipe(res);
@@ -57,19 +55,11 @@ function serveAttachments(req, res, pathParts) {
 }
 
 module.exports = () => {
-  const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(`http://${req.url}`);
-    const pathParts = parsedUrl.pathname.split("/").filter(v => v !== "");
-    const query = qs.parse(parsedUrl.query);
+  const server = express();
+  server.use(helmet());
 
-    if (parsedUrl.pathname.startsWith("/logs/")) {
-      serveLogs(req, res, pathParts, query);
-    } else if (parsedUrl.pathname.startsWith("/attachments/")) {
-      serveAttachments(req, res, pathParts, query);
-    } else {
-      notfound(res);
-    }
-  });
+  server.get("/logs/:threadId", serveLogs);
+  server.get("/logs/:attachmentId/:filename", serveAttachments);
 
   server.on("error", err => {
     console.log("[WARN] Web server error:", err.message);
