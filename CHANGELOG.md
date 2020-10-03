@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.31.0-beta.3 (UNRELEASED)
+**This is a beta release, bugs are expected.**  
+Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
+
+**General changes:**
+* Fix occasional bug with expiring blocks where the bot would send the expiry message multiple times
+
+**Plugins:**
+* Log storage functions `getLogUrl()`, `getLogFile()`, `getLogCustomResponse()` now take the entire thread object as an argument rather than the thread ID
+
 ## v2.31.0-beta.2
 **This is a beta release, bugs are expected.**  
 Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
