@@ -30,7 +30,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     userThreads = userThreads.slice((page - 1) * LOG_LINES_PER_PAGE, page * LOG_LINES_PER_PAGE);
 
     const threadLines = await Promise.all(userThreads.map(async thread => {
-      const logUrl = await getLogUrl(thread.id);
+      const logUrl = await getLogUrl(thread);
       const formattedLogUrl = logUrl
         ? `<${logUrl}>`
         : `View log with \`${config.prefix}log ${thread.id}\``
@@ -58,22 +58,25 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     });
   };
 
-  const logCmd = async (msg, args, thread) => {
-    const threadId = args.threadId || (thread && thread.id);
+  const logCmd = async (msg, args, _thread) => {
+    const threadId = args.threadId || (_thread && _thread.id);
     if (! threadId) return;
 
-    const customResponse = await getLogCustomResponse(threadId);
+    const thread = await threads.findById(threadId);
+    if (! thread) return;
+
+    const customResponse = await getLogCustomResponse(thread);
     if (customResponse && (customResponse.content || customResponse.file)) {
       msg.channel.createMessage(customResponse.content, customResponse.file);
     }
 
-    const logUrl = await getLogUrl(threadId);
+    const logUrl = await getLogUrl(thread);
     if (logUrl) {
       msg.channel.createMessage(`Open the following link to view the log:\n<${logUrl}>`);
       return;
     }
 
-    const logFile = await getLogFile(threadId);
+    const logFile = await getLogFile(thread);
     if (logFile) {
       msg.channel.createMessage("Download the following file to view the log:", logFile);
       return;
@@ -90,7 +93,6 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
 
   hooks.afterThreadClose(async ({ threadId }) => {
     const thread = await threads.findById(threadId);
-    const threadMessages = await thread.getThreadMessages();
-    await saveLogToStorage(thread, threadMessages);
+    await saveLogToStorage(thread);
   });
 };

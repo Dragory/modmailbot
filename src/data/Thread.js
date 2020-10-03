@@ -25,11 +25,31 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = req
  * @property {String} scheduled_close_name
  * @property {Number} scheduled_close_silent
  * @property {String} alert_ids
+ * @property {String} log_storage_type
+ * @property {Object} log_storage_data
  * @property {String} created_at
  */
 class Thread {
   constructor(props) {
     utils.setDataModelProps(this, props);
+
+    if (props.log_storage_data) {
+      if (typeof props.log_storage_data === "string") {
+        this.log_storage_data = JSON.parse(props.log_storage_data);
+      }
+    }
+  }
+
+  getSQLProps() {
+    return Object.entries(this).reduce((obj, [key, value]) => {
+      if (typeof value === "function") return obj;
+      if (typeof value === "object" && value != null) {
+        obj[key] = JSON.stringify(value);
+      } else {
+        obj[key] = value;
+      }
+      return obj;
+    }, {});
   }
 
   /**
@@ -506,6 +526,7 @@ class Thread {
     }
 
     // Update DB status
+    this.status = THREAD_STATUS.CLOSED;
     await knex("threads")
       .where("id", this.id)
       .update({
@@ -726,6 +747,25 @@ class Thread {
     }
 
     await this._deleteThreadMessage(threadMessage.id);
+  }
+
+  /**
+   * @param {String} storageType
+   * @param {Object|null} storageData
+   * @returns {Promise<void>}
+   */
+  async updateLogStorageValues(storageType, storageData) {
+    this.log_storage_type = storageType;
+    this.log_storage_data = storageData;
+
+    const { log_storage_type, log_storage_data } = this.getSQLProps();
+
+    await knex("threads")
+      .where("id", this.id)
+      .update({
+        log_storage_type,
+        log_storage_data,
+      });
   }
 }
 
