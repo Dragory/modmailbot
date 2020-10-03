@@ -9,6 +9,7 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 
 **Plugins:**
 * Log storage functions `getLogUrl()`, `getLogFile()`, `getLogCustomResponse()` now take the entire thread object as an argument rather than the thread ID
+* Log storage function `save()` can now return information about the saved log to be stored with the thread. This can then be accessed in e.g. `getLogUrl()` via `thread.log_storage_data`.
 * Plugins can now access the bot's web server via a new `webserver` property in plugin arguments
 
 **Internal/technical updates:**
