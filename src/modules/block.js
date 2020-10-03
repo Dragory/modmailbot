@@ -28,7 +28,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     setTimeout(expiredBlockLoop, 2000);
   }
 
-  bot.on("ready", expiredBlockLoop);
+  expiredBlockLoop();
 
   const blockCmd = async (msg, args, thread) => {
     const userIdToBlock = args.userId || (thread && thread.user_id);
