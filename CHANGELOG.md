@@ -9,6 +9,10 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 
 **Plugins:**
 * Log storage functions `getLogUrl()`, `getLogFile()`, `getLogCustomResponse()` now take the entire thread object as an argument rather than the thread ID
+* Plugins can now access the bot's web server via a new `webserver` property in plugin arguments
+
+**Internal/technical updates:**
+* Modmail now uses [Express](https://expressjs.com/) as its web server for logs/attachments
 
 ## v2.31.0-beta.2
 **This is a beta release, bugs are expected.**  
