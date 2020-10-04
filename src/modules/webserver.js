@@ -64,9 +64,4 @@ server.on("error", err => {
   console.log("[WARN] Web server error:", err.message);
 });
 
-module.exports = {
-  server,
-  plugin() {
-    server.listen(config.port);
-  },
-};
+module.exports = server;

@@ -7,28 +7,12 @@ const knex = require("./knex");
 const {messageQueue} = require("./queue");
 const utils = require("./utils");
 const { createCommandManager } = require("./commands");
-const { getPluginAPI, loadPlugin } = require("./plugins");
+const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
 const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
 
 const blocked = require("./data/blocked");
 const threads = require("./data/threads");
 const updates = require("./data/updates");
-
-const reply = require("./modules/reply");
-const close = require("./modules/close");
-const snippets = require("./modules/snippets");
-const logs = require("./modules/logs");
-const move = require("./modules/move");
-const block = require("./modules/block");
-const suspend = require("./modules/suspend");
-const { plugin: webserver } = require("./modules/webserver");
-const greeting = require("./modules/greeting");
-const typingProxy = require("./modules/typingProxy");
-const version = require("./modules/version");
-const newthread = require("./modules/newthread");
-const idModule = require("./modules/id");
-const alert = require("./modules/alert");
-const joinLeaveNotification = require("./modules/joinLeaveNotification");
 
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
 
@@ -301,36 +285,29 @@ async function initPlugins() {
 
   // Load plugins
   const builtInPlugins = [
-    reply,
-    close,
-    logs,
-    block,
-    move,
-    snippets,
-    suspend,
-    greeting,
-    webserver,
-    typingProxy,
-    version,
-    newthread,
-    idModule,
-    alert,
-    joinLeaveNotification
+    "file:./src/modules/reply",
+    "file:./src/modules/close",
+    "file:./src/modules/logs",
+    "file:./src/modules/block",
+    "file:./src/modules/move",
+    "file:./src/modules/snippets",
+    "file:./src/modules/suspend",
+    "file:./src/modules/greeting",
+    "file:./src/modules/webserverPlugin",
+    "file:./src/modules/typingProxy",
+    "file:./src/modules/version",
+    "file:./src/modules/newthread",
+    "file:./src/modules/id",
+    "file:./src/modules/alert",
+    "file:./src/modules/joinLeaveNotification",
   ];
 
-  const plugins = [...builtInPlugins];
+  const plugins = [...builtInPlugins, ...config.plugins];
 
-  if (config.plugins && config.plugins.length) {
-    for (const plugin of config.plugins) {
-      const pluginFn = require(`../${plugin}`);
-      plugins.push(pluginFn);
-    }
-  }
+  await installPlugins(plugins);
 
   const pluginApi = getPluginAPI({ bot, knex, config, commands });
-  for (const plugin of plugins) {
-    await loadPlugin(plugin, pluginApi);
-  }
+  await loadPlugins(plugins, pluginApi);
 
   if (config.updateNotifications) {
     updates.startVersionRefreshLoop();
