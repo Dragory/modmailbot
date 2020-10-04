@@ -2,9 +2,15 @@
 The bot supports loading external plugins.
 
 ## Specifying plugins to load
-For each plugin file you'd like to load, add the file path to the [`plugins` option](configuration.md#plugins).
-The path is relative to the bot's folder.
-Plugins are automatically loaded on bot startup.
+Plugins can be loaded either from local files or NPM. Examples:
+```ini
+# Local file
+plugins[] = ./path/to/plugin.js
+# NPM package
+plugins[] = npm:some-plugin-package
+```
+Paths to local files are always relative to the bot's folder.
+NPM plugins are automatically installed on bot start-up.
 
 ## Creating a plugin
 Plugins are simply `.js` files that export a function that gets called when the plugin is loaded.

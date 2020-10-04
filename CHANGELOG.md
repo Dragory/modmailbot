@@ -6,6 +6,8 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 
 **General changes:**
 * Fix occasional bug with expiring blocks where the bot would send the expiry message multiple times
+* Plugins can now also be installed from NPM modules
+  * Example: `plugins[] = npm:some-plugin-package`
 
 **Plugins:**
 * Log storage functions `getLogUrl()`, `getLogFile()`, `getLogCustomResponse()` now take the entire thread object as an argument rather than the thread ID
