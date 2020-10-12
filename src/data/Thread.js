@@ -359,8 +359,7 @@ class Thread {
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage({
-        content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
+      await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`, {
         allowedMentions: {
           users: [this.scheduled_close_id],
         },
@@ -372,8 +371,7 @@ class Thread {
       const mentionsStr = ids.map(id => `<@!${id}> `).join("");
 
       await this.deleteAlerts();
-      await this.postSystemMessage({
-        content: `${mentionsStr}New message from ${this.user_name}`,
+      await this.postSystemMessage(`${mentionsStr}New message from ${this.user_name}`, {
         allowedMentions: {
           users: ids,
         },
@@ -389,47 +387,64 @@ class Thread {
   }
 
   /**
-   * @param {Eris.MessageContent} content
-   * @param {Eris.MessageFile} file
+   * @param {string} text
    * @param {object} opts
-   * @param {boolean} opts.saveToLog
-   * @param {string} opts.logBody
+   * @param {object} [allowedMentions] Allowed mentions for the thread channel message
+   * @param {boolean} [allowedMentions.everyone]
+   * @param {boolean|string[]} [allowedMentions.roles]
+   * @param {boolean|string[]} [allowedMentions.users]
    * @returns {Promise<void>}
    */
-  async postSystemMessage(content, file = null, opts = {}) {
-    const msg = await this._postToThreadChannel(content, file);
-    if (msg && opts.saveToLog !== false) {
-      await this._addThreadMessageToDB({
-        message_type: THREAD_MESSAGE_TYPE.SYSTEM,
-        user_id: null,
-        user_name: "",
-        body: msg.content || "<empty message>",
-        is_anonymous: 0,
-        inbox_message_id: msg.id,
-      });
-    }
+  async postSystemMessage(text, opts = {}) {
+    const threadMessage = new ThreadMessage({
+      message_type: THREAD_MESSAGE_TYPE.SYSTEM,
+      user_id: null,
+      user_name: "",
+      body: text,
+      is_anonymous: 0,
+    });
+
+    const content = await formatters.formatSystemThreadMessage(threadMessage);
+
+    const finalContent = typeof content === "string" ? { content } : content;
+    finalContent.allowedMentions = opts.allowedMentions;
+    const msg = await this._postToThreadChannel(finalContent);
+
+    threadMessage.inbox_message_id = msg.id;
+    await this._addThreadMessageToDB(threadMessage.getSQLProps());
   }
 
   /**
-   * @param {Eris.MessageContent} content
-   * @param {Eris.MessageFile} file
+   * @param {string} text
    * @param {object} opts
-   * @param {boolean} opts.saveToLog
-   * @param {string} opts.logBody
+   * @param {object} [allowedMentions] Allowed mentions for the thread channel message
+   * @param {boolean} [allowedMentions.everyone]
+   * @param {boolean|string[]} [allowedMentions.roles]
+   * @param {boolean|string[]} [allowedMentions.users]
    * @returns {Promise<void>}
    */
-  async sendSystemMessageToUser(content, file = null, opts = {}) {
-    const msg = await this._sendDMToUser(content, file);
-    if (opts.saveToLog !== false) {
-      await this._addThreadMessageToDB({
-        message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
-        user_id: null,
-        user_name: "",
-        body: msg.content || "<empty message>",
-        is_anonymous: 0,
-        dm_message_id: msg.id,
-      });
-    }
+  async sendSystemMessageToUser(text, opts = {}) {
+    const threadMessage = new ThreadMessage({
+      message_type: THREAD_MESSAGE_TYPE.SYSTEM_TO_USER,
+      user_id: null,
+      user_name: "",
+      body: text,
+      is_anonymous: 0,
+    });
+
+    const dmContent = await formatters.formatSystemToUserDM(threadMessage);
+    const dmMsg = await this._sendDMToUser(dmContent);
+
+    const inboxContent = await formatters.formatSystemToUserThreadMessage(threadMessage);
+    const finalInboxContent = typeof inboxContent === "string" ? { content: inboxContent } : inboxContent;
+    finalInboxContent.allowedMentions = opts.allowedMentions;
+    const inboxMsg = await this._postToThreadChannel(inboxContent);
+
+    threadMessage.inbox_message_id = inboxMsg.id;
+    threadMessage.dm_channel_id = dmMsg.channel.id;
+    threadMessage.dm_message_id = dmMsg.id;
+
+    await this._addThreadMessageToDB(threadMessage.getSQLProps());
   }
 
   /**

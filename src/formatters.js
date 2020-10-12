@@ -44,6 +44,27 @@ const moment = require("moment");
  */
 
 /**
+ * Function to format a system message in a thread channel
+ * @callback FormatSystemThreadMessage
+ * @param {ThreadMessage} threadMessage
+ * @return {Eris.MessageContent} Message content to post in the thread channel
+ */
+
+/**
+ * Function to format a system message sent to the user in a thread channel
+ * @callback FormatSystemToUserThreadMessage
+ * @param {ThreadMessage} threadMessage
+ * @return {Eris.MessageContent} Message content to post in the thread channel
+ */
+
+/**
+ * Function to format the DM that is sent to the user when the bot sends a system message to the user
+ * @callback FormatSystemToUserDM
+ * @param {ThreadMessage} threadMessage
+ * @return {Eris.MessageContent} Message content to send as a DM
+ */
+
+/**
  * @typedef {Object} FormatLogOptions
  * @property {Boolean?} simple
  * @property {Boolean?} verbose
@@ -71,6 +92,9 @@ const moment = require("moment");
  * @property {FormatUserReplyThreadMessage} formatUserReplyThreadMessage
  * @property {FormatStaffReplyEditNotificationThreadMessage} formatStaffReplyEditNotificationThreadMessage
  * @property {FormatStaffReplyDeletionNotificationThreadMessage} formatStaffReplyDeletionNotificationThreadMessage
+ * @property {FormatSystemThreadMessage} formatSystemThreadMessage
+ * @property {FormatSystemToUserThreadMessage} formatSystemToUserThreadMessage
+ * @property {FormatSystemToUserDM} formatSystemToUserDM
  * @property {FormatLog} formatLog
  */
 
@@ -146,6 +170,36 @@ const defaultFormatters = {
     }
 
     return content;
+  },
+
+  formatSystemThreadMessage(threadMessage) {
+    let result = threadMessage.body;
+
+    for (const link of threadMessage.attachments) {
+      result += `\n\n${link}`;
+    }
+
+    return result;
+  },
+
+  formatSystemToUserThreadMessage(threadMessage) {
+    let result = `**[BOT TO USER]** ${threadMessage.body}`;
+
+    for (const link of threadMessage.attachments) {
+      result += `\n\n${link}`;
+    }
+
+    return result;
+  },
+
+  formatSystemToUserDM(threadMessage) {
+    let result = threadMessage.body;
+
+    for (const link of threadMessage.attachments) {
+      result += `\n\n${link}`;
+    }
+
+    return result;
   },
 
   formatLog(thread, threadMessages, opts = {}) {
@@ -242,6 +296,9 @@ const formatters = { ...defaultFormatters };
  * @property {function(FormatUserReplyThreadMessage): void} setUserReplyThreadMessageFormatter
  * @property {function(FormatStaffReplyEditNotificationThreadMessage): void} setStaffReplyEditNotificationThreadMessageFormatter
  * @property {function(FormatStaffReplyDeletionNotificationThreadMessage): void} setStaffReplyDeletionNotificationThreadMessageFormatter
+ * @property {function(FormatSystemThreadMessage): void} setSystemThreadMessageFormatter
+ * @property {function(FormatSystemToUserThreadMessage): void} setSystemToUserThreadMessageFormatter
+ * @property {function(FormatSystemToUserDM): void} setSystemToUserDMFormatter
  * @property {function(FormatLog): void} setLogFormatter
  */
 
@@ -273,6 +330,18 @@ module.exports = {
 
   setStaffReplyDeletionNotificationThreadMessageFormatter(fn) {
     formatters.formatStaffReplyDeletionNotificationThreadMessage = fn;
+  },
+
+  setSystemThreadMessageFormatter(fn) {
+    formatters.formatSystemThreadMessage = fn;
+  },
+
+  setSystemToUserThreadMessageFormatter(fn) {
+    formatters.formatSystemToUserThreadMessage = fn;
+  },
+
+  setSystemToUserDMFormatter(fn) {
+    formatters.formatSystemToUserDM = fn;
   },
 
   setLogFormatter(fn) {
