@@ -7,6 +7,7 @@ const { server: webserver } = require("./modules/webserver");
 const childProcess = require("child_process");
 const pacote = require("pacote");
 const path = require("path");
+const threads = require("./data/threads");
 
 const pluginSources = {
   npm: {
@@ -128,6 +129,7 @@ module.exports = {
       },
       formats,
       webserver,
+      threads,
     };
   },
 };

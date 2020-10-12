@@ -2,6 +2,7 @@ const express = require("express");
 const { CommandManager } = require("knub-command-manager");
 const { Client } = require("eris");
 const Knex = require("knex");
+const threads = require("./data/threads");
 
 /**
  * @typedef {object} PluginAPI
@@ -14,6 +15,7 @@ const Knex = require("knex");
  * @property {PluginHooksAPI} hooks
  * @property {FormattersExport} formats
  * @property {express.Application} webserver
+ * @property {threads} threads
  */
 
 /**
