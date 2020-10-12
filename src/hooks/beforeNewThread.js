@@ -9,6 +9,7 @@ const Eris = require("eris");
 /**
  * @typedef BeforeNewThreadHookData
  * @property {Eris.User} user
+ * @property {Eris.Message} [message]
  * @property {CreateNewThreadForUserOpts} opts
  * @property {Function} cancel
  * @property {BeforeNewThreadHook_SetCategoryId} setCategoryId
@@ -48,6 +49,7 @@ beforeNewThread = (fn) => {
 /**
  * @param {{
  *   user: Eris.User,
+ *   message?: Eris.Message,
  *   opts: CreateNewThreadForUserOpts,
  * }} input
  * @return {Promise<BeforeNewThreadHookResult>}

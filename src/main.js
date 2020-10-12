@@ -155,6 +155,7 @@ function initBaseMessageHandlers() {
 
         thread = await threads.createNewThreadForUser(msg.author, {
           source: "dm",
+          message: msg,
         });
       }
 
