@@ -28,6 +28,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = req
  * @property {String} log_storage_type
  * @property {Object} log_storage_data
  * @property {String} created_at
+ * @property {String} metadata
  */
 class Thread {
   constructor(props) {
@@ -36,6 +37,12 @@ class Thread {
     if (props.log_storage_data) {
       if (typeof props.log_storage_data === "string") {
         this.log_storage_data = JSON.parse(props.log_storage_data);
+      }
+    }
+
+    if (props.metadata) {
+      if (typeof props.metadata === "string") {
+        this.metadata = JSON.parse(props.metadata);
       }
     }
   }
@@ -766,6 +773,30 @@ class Thread {
         log_storage_type,
         log_storage_data,
       });
+  }
+
+  /**
+   * @param {string} key
+   * @param {*} value
+   * @return {Promise<void>}
+   */
+  async setMetadataValue(key, value) {
+    this.metadata = this.metadata || {};
+    this.metadata[key] = value;
+
+    await knex("threads")
+      .where("id", this.id)
+      .update({
+        metadata: this.getSQLProps().metadata,
+      });
+  }
+
+  /**
+   * @param {string} key
+   * @returns {*}
+   */
+  getMetadataValue(key) {
+    return this.metadata ? this.metadata[key] : null;
   }
 }
 
