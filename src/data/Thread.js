@@ -745,8 +745,20 @@ class Thread {
     await bot.editMessage(this.channel_id, threadMessage.inbox_message_id, formattedThreadMessage);
 
     if (! opts.quiet) {
-      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(threadMessage, newText, moderator);
-      await this.postSystemMessage(threadNotification);
+      const editThreadMessage = new ThreadMessage({
+        message_type: THREAD_MESSAGE_TYPE.REPLY_EDITED,
+        user_id: null,
+        user_name: "",
+        body: "",
+        is_anonymous: 0,
+      });
+      editThreadMessage.setMetadataValue("originalThreadMessage", threadMessage);
+      editThreadMessage.setMetadataValue("newBody", newText);
+
+      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(editThreadMessage);
+      const inboxMessage = await this._postToThreadChannel(threadNotification);
+      editThreadMessage.inbox_message_id = inboxMessage.id;
+      await this._addThreadMessageToDB(editThreadMessage.getSQLProps());
     }
 
     await this._updateThreadMessage(threadMessage.id, { body: newText });
@@ -764,8 +776,19 @@ class Thread {
     await bot.deleteMessage(this.channel_id, threadMessage.inbox_message_id);
 
     if (! opts.quiet) {
-      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator);
-      await this.postSystemMessage(threadNotification);
+      const deletionThreadMessage = new ThreadMessage({
+        message_type: THREAD_MESSAGE_TYPE.REPLY_DELETED,
+        user_id: null,
+        user_name: "",
+        body: "",
+        is_anonymous: 0,
+      });
+      deletionThreadMessage.setMetadataValue("originalThreadMessage", threadMessage);
+
+      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(deletionThreadMessage);
+      const inboxMessage = await this._postToThreadChannel(threadNotification);
+      deletionThreadMessage.inbox_message_id = inboxMessage.id;
+      await this._addThreadMessageToDB(deletionThreadMessage.getSQLProps());
     }
 
     await this._deleteThreadMessage(threadMessage.id);

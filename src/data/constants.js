@@ -12,7 +12,9 @@ module.exports = {
     TO_USER: 4,
     LEGACY: 5,
     COMMAND: 6,
-    SYSTEM_TO_USER: 7
+    SYSTEM_TO_USER: 7,
+    REPLY_EDITED: 8,
+    REPLY_DELETED: 9,
   },
 
   // https://discord.com/developers/docs/resources/channel#channel-object-channel-types

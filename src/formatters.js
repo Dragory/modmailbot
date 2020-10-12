@@ -30,8 +30,6 @@ const moment = require("moment");
  * Function to format the inbox channel notification for a staff reply edit
  * @callback FormatStaffReplyEditNotificationThreadMessage
  * @param {ThreadMessage} threadMessage
- * @param {string} newText
- * @param {Eris.Member} moderator Moderator that edited the message
  * @return {Eris.MessageContent} Message content to post in the thread channel
  */
 
@@ -39,7 +37,6 @@ const moment = require("moment");
  * Function to format the inbox channel notification for a staff reply deletion
  * @callback FormatStaffReplyDeletionNotificationThreadMessage
  * @param {ThreadMessage} threadMessage
- * @param {Eris.Member} moderator Moderator that deleted the message
  * @return {Eris.MessageContent} Message content to post in the thread channel
  */
 
@@ -142,31 +139,35 @@ const defaultFormatters = {
     return result;
   },
 
-  formatStaffReplyEditNotificationThreadMessage(threadMessage, newText, moderator) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) edited reply \`${threadMessage.message_number}\``;
+ formatStaffReplyEditNotificationThreadMessage(threadMessage) {
+    const originalThreadMessage = threadMessage.getMetadataValue("originalThreadMessage");
+    const newBody = threadMessage.getMetadataValue("newBody");
 
-    if (threadMessage.body.length < 200 && newText.length < 200) {
+    let content = `**${originalThreadMessage.user_name}** (\`${originalThreadMessage.user_id}\`) edited reply \`${originalThreadMessage.message_number}\``;
+
+    if (originalThreadMessage.body.length < 200 && newBody.length < 200) {
       // Show edits of small messages inline
-      content += ` from \`${utils.disableInlineCode(threadMessage.body)}\` to \`${newText}\``;
+      content += ` from \`${utils.disableInlineCode(originalThreadMessage.body)}\` to \`${newBody}\``;
     } else {
       // Show edits of long messages in two code blocks
       content += ":";
-      content += `\n\nBefore:\n\`\`\`${utils.disableCodeBlocks(threadMessage.body)}\`\`\``;
-      content += `\nAfter:\n\`\`\`${utils.disableCodeBlocks(newText)}\`\`\``;
+      content += `\n\nBefore:\n\`\`\`${utils.disableCodeBlocks(originalThreadMessage.body)}\`\`\``;
+      content += `\nAfter:\n\`\`\`${utils.disableCodeBlocks(newBody)}\`\`\``;
     }
 
     return content;
   },
 
-  formatStaffReplyDeletionNotificationThreadMessage(threadMessage, moderator) {
-    let content = `**${moderator.user.username}#${moderator.user.discriminator}** (\`${moderator.id}\`) deleted reply \`${threadMessage.message_number}\``;
+  formatStaffReplyDeletionNotificationThreadMessage(threadMessage) {
+    const originalThreadMessage = threadMessage.getMetadataValue("originalThreadMessage");
+    let content = `**${originalThreadMessage.user_name}** (\`${originalThreadMessage.user_id}\`) deleted reply \`${originalThreadMessage.message_number}\``;
 
-    if (threadMessage.body.length < 200) {
+    if (originalThreadMessage.body.length < 200) {
       // Show the original content of deleted small messages inline
-      content += ` (message content: \`${utils.disableInlineCode(threadMessage.body)}\`)`;
+      content += ` (message content: \`${utils.disableInlineCode(originalThreadMessage.body)}\`)`;
     } else {
       // Show the original content of deleted large messages in a code block
-      content += ":\n```" + utils.disableCodeBlocks(threadMessage.body) + "```";
+      content += ":\n```" + utils.disableCodeBlocks(originalThreadMessage.body) + "```";
     }
 
     return content;
@@ -183,7 +184,7 @@ const defaultFormatters = {
   },
 
   formatSystemToUserThreadMessage(threadMessage) {
-    let result = `**[BOT TO USER]** ${threadMessage.body}`;
+    let result = `**[SYSTEM TO USER]** ${threadMessage.body}`;
 
     for (const link of threadMessage.attachments) {
       result += `\n\n${link}`;
@@ -265,6 +266,15 @@ const defaultFormatters = {
         line += ` [CHAT] [${message.user_name}] ${message.body}`;
       } else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
         line += ` [COMMAND] [${message.user_name}] ${message.body}`;
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.REPLY_EDITED) {
+        const originalThreadMessage = message.getMetadataValue("originalThreadMessage");
+        line += ` [REPLY EDITED] ${originalThreadMessage.user_name} edited reply ${originalThreadMessage.message_number}:`;
+        line += `\n\nBefore:\n${originalThreadMessage.body}`;
+        line += `\n\nAfter:\n${message.getMetadataValue("newBody")}`;
+      } else if (message.message_type === THREAD_MESSAGE_TYPE.REPLY_DELETED) {
+        const originalThreadMessage = message.getMetadataValue("originalThreadMessage");
+        line += ` [REPLY DELETED] ${originalThreadMessage.user_name} deleted reply ${originalThreadMessage.message_number}:`;
+        line += `\n\n${originalThreadMessage.body}`;
       } else {
         line += ` [${message.user_name}] ${message.body}`;
       }
