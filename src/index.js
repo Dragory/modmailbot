@@ -17,7 +17,7 @@ try {
 }
 
 // Error handling
-process.on("uncaughtException", err => {
+function errorHandler(err) {
   // Unknown message types (nitro boosting messages at the time) should be safe to ignore
   if (err && err.message && err.message.startsWith("Unhandled MESSAGE_CREATE type")) {
     return;
@@ -26,7 +26,9 @@ process.on("uncaughtException", err => {
   // For everything else, crash with the error
   console.error(err);
   process.exit(1);
-});
+}
+process.on("uncaughtException", errorHandler);
+process.on("unhandledRejection", errorHandler);
 
 let testedPackage = "";
 try {
