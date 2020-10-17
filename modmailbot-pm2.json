@@ -2,7 +2,6 @@
     "apps": [{
         "name": "ModMailBot",
         "cwd": "./",
-        "script": "npm",
-        "args": "start"
+        "script": "src/index.js"
     }]
 }
