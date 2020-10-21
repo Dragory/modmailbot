@@ -56,6 +56,9 @@
  * @property {boolean} [createThreadOnMention=false]
  * @property {boolean} [notifyOnMainServerLeave=true]
  * @property {boolean} [notifyOnMainServerJoin=true]
+ * @property {boolean} [allowInlineSnippets=true]
+ * @property {string} [inlineSnippetStart="{{"]
+ * @property {string} [inlineSnippetEnd="}}"]
  * @property {string} [logStorage="local"]
  * @property {object} [logOptions]
  * @property {string} logOptions.attachmentDirectory

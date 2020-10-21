@@ -7,6 +7,10 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 **General changes:**
 * Replies are now limited in length to the Discord message limit (including the moderator name and role in the DM sent to the user)
   * This was to fix issues with `!edit` and `!delete` when a reply spanned multiple messages
+* Snippets can now be included *within* messages by wrapping the snippet name in curly braces
+  * E.g. `!r Hello! {{rules}}`
+  * The symbols used can be changed with the `inlineSnippetStart` and `inlineSnippetEnd` options
+  * This feature can be disabled by setting `allowInlineSnippets = off` in your config
 * Plugins can now also be installed from NPM modules
   * Example: `plugins[] = npm:some-plugin-package`
 * Fix occasional bug with expiring blocks where the bot would send the expiry message multiple times

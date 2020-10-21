@@ -316,6 +316,21 @@
       "default": true
     },
 
+    "allowInlineSnippets": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "inlineSnippetStart": {
+      "type": "string",
+      "default": "{{"
+    },
+
+    "inlineSnippetEnd": {
+      "type": "string",
+      "default": "}}"
+    },
+
     "logStorage": {
       "type": "string",
       "default": "local"

@@ -97,6 +97,13 @@ If enabled, staff members can delete their own replies in modmail threads with `
 **Default:** `on`  
 If enabled, staff members can edit their own replies in modmail threads with `!edit`
 
+#### allowInlineSnippets
+**Default:** `on`  
+If enabled, snippets can be included *within* replies by wrapping the snippet's name in {{ and }}.  
+E.g. `!r Hello! {{rules}}`
+
+See [inlineSnippetStart](#inlineSnippetStart) and [inlineSnippetEnd](#inlineSnippetEnd) to customize the symbols used.
+
 #### alwaysReply
 **Default:** `off`  
 If enabled, all messages in modmail threads will be sent to the user without having to use `!r`.  
@@ -184,6 +191,14 @@ If enabled, the bot attempts to ignore common "accidental" messages that would s
 **Default:** *None*  
 **Accepts multiple values.** Permission name, user id, or role id required to use bot commands on the inbox server.
 See ["Permissions" on this page](https://abal.moe/Eris/docs/reference) for supported permission names (e.g. `kickMembers`).
+
+#### inlineSnippetStart
+**Default:** `{{`  
+Symbol(s) to use at the beginning of an inline snippet. See [allowInlineSnippets](#allowInlineSnippets) for more details.
+
+#### inlineSnippetEnd
+**Default:** `}}`  
+Symbol(s) to use at the end of an inline snippet. See [allowInlineSnippets](#allowInlineSnippets) for more details.
 
 #### timeOnServerDeniedMessage
 **Default:** `You haven't been a member of the server for long enough to contact modmail.`  

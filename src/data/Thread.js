@@ -8,6 +8,7 @@ const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
+const snippets = require("./snippets");
 
 const ThreadMessage = require("./ThreadMessage");
 
@@ -194,6 +195,25 @@ class Thread {
     const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
     const mainRole = utils.getMainRole(moderator);
     const roleName = mainRole ? mainRole.name : null;
+
+    if (config.allowInlineSnippets) {
+      // Replace {{snippet}} with the corresponding snippet
+      // The beginning and end of the variable - {{ and }} - can be changed with the config options
+      // config.inlineSnippetStart and config.inlineSnippetEnd
+      const allSnippets = await snippets.all();
+      const snippetMap = allSnippets.reduce((_map, snippet) => {
+        _map[snippet.trigger.toLowerCase()] = snippet;
+        return _map;
+      }, {});
+
+      text = text.replace(
+        new RegExp(`${config.inlineSnippetStart}(.+)${config.inlineSnippetEnd}`, "i"),
+        (orig, trigger) => {
+          const snippet = snippetMap[trigger.toLowerCase()];
+          return snippet != null ? snippet.body : orig;
+        }
+      );
+    }
 
     // Prepare attachments, if any
     const files = [];
