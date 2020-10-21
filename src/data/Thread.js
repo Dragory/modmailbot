@@ -89,13 +89,12 @@ class Thread {
       if (typeof content === "string") {
         // Content is a string, chunk it and send it as individual messages.
         // Files (attachments) are only sent with the last message.
-        const chunks = utils.chunk(content, 2000);
+        const chunks = utils.chunkMessageLines(content);
         for (const [i, chunk] of chunks.entries()) {
-          let msg;
-          if (i === chunks.length - 1) {
-            // Only send embeds, files, etc. with the last message
-            msg = await bot.createMessage(this.channel_id, chunk, file);
-          }
+          // Only send embeds, files, etc. with the last message
+          const msg = (i === chunks.length - 1)
+            ? await bot.createMessage(this.channel_id, chunk, file)
+            : await bot.createMessage(this.channel_id, chunk);
 
           firstMessage = firstMessage || msg;
         }
