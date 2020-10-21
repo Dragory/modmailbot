@@ -5,17 +5,28 @@
 Please report any bugs you encounter by [creating a GitHub issue](https://github.com/Dragory/modmailbot/issues/new)!
 
 **General changes:**
-* Fix occasional bug with expiring blocks where the bot would send the expiry message multiple times
+* Replies are now limited in length to the Discord message limit (including the moderator name and role in the DM sent to the user)
+  * This was to fix issues with `!edit` and `!delete` when a reply spanned multiple messages
 * Plugins can now also be installed from NPM modules
   * Example: `plugins[] = npm:some-plugin-package`
+* Fix occasional bug with expiring blocks where the bot would send the expiry message multiple times
+* Fix bug with long messages being cut off and only the last part being shown in the thread (most evident in long DMs and e.g. !edit notifications of long messages)
+* "Connection reset by peer" error (code 1006) is now handled gracefully in the background and no longer crashes the bot
+* Fix messages containing *only* a large number (e.g. an ID) rounding the number
 
 **Plugins:**
 * Log storage functions `getLogUrl()`, `getLogFile()`, `getLogCustomResponse()` now take the entire thread object as an argument rather than the thread ID
 * Log storage function `save()` can now return information about the saved log to be stored with the thread. This can then be accessed in e.g. `getLogUrl()` via `thread.log_storage_data`.
 * Plugins can now access the bot's web server via a new `webserver` property in plugin arguments
+* Plugins can now store *metadata* in threads and thread messages via new `setMetadataValue` and `getMetadataValue` functions on `Thread` and `ThreadMessage` objects
+* Edit/delete notifications now have their own message type and formatter. The original message content is now included in the thread message's metadata (see above).
+* System messages now have a formatter
+* The `beforeNewThread` hook's parameters now also include the original DM message object
+* Plugins can now access the `threads` module (via `pluginApi.threads`) to create and fetch threads
 
 **Internal/technical updates:**
 * Modmail now uses [Express](https://expressjs.com/) as its web server for logs/attachments
+* Unhandled rejections are now handled the same as uncaught exceptions, and *will* crash the bot
 
 ## v2.31.0-beta.2
 **This is a beta release, bugs are expected.**  
