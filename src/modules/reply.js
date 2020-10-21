@@ -44,8 +44,8 @@ module.exports = ({ bot, knex, config, commands }) => {
         return;
       }
 
-      await thread.editStaffReply(msg.member, threadMessage, args.text);
-      msg.delete().catch(utils.noop);
+      const edited = await thread.editStaffReply(msg.member, threadMessage, args.text);
+      if (edited) msg.delete().catch(utils.noop);
     }, {
       aliases: ["e"]
     });

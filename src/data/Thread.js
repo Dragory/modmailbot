@@ -755,6 +755,7 @@ class Thread {
     }
 
     await this._updateThreadMessage(threadMessage.id, { body: newText });
+    return true;
   }
 
   /**
