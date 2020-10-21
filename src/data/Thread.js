@@ -213,7 +213,7 @@ class Thread {
       }
     }
 
-    let threadMessage = new ThreadMessage({
+    const rawThreadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.TO_USER,
       user_id: moderator.id,
       user_name: moderatorName,
@@ -222,12 +222,14 @@ class Thread {
       role_name: roleName,
       attachments: attachmentLinks,
     });
+    const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
     const dmContent = formatters.formatStaffReplyDM(threadMessage);
     const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
 
     // Because moderator replies have to be editable, we enforce them to fit within 1 message
     if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
+      await this._deleteThreadMessage(rawThreadMessage);
       await this.postSystemMessage("Reply is too long! Make sure your reply is under 2000 characters total, moderator name in the reply included.");
       return false;
     }
@@ -237,19 +239,18 @@ class Thread {
     try {
       dmMessage = await this._sendDMToUser(dmContent, files);
     } catch (e) {
+      await this._deleteThreadMessage(rawThreadMessage);
       await this.postSystemMessage(`Error while replying to user: ${e.message}`);
       return false;
     }
 
-    // Save the log entry
-    threadMessage = await this._addThreadMessageToDB({
-      ...threadMessage.getSQLProps(),
-      dm_message_id: dmMessage.id,
-    });
+    threadMessage.dm_message_id = dmMessage.id;
+    await this._updateThreadMessage(threadMessage.id, { dm_message_id: dmMessage.id });
 
     // Show the reply in the inbox thread
     const inboxMessage = await this._postToThreadChannel(inboxContent, files);
     if (inboxMessage) {
+      threadMessage.inbox_message_id = inboxMessage.id;
       await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
     }
 
