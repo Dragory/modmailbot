@@ -206,14 +206,24 @@ class Thread {
         return _map;
       }, {});
 
+      let unknownSnippets = new Set();
       text = text.replace(
         new RegExp(`${config.inlineSnippetStart}(\\s*\\S+?\\s*)${config.inlineSnippetEnd}`, "i"),
         (orig, trigger) => {
           trigger = trigger.trim();
           const snippet = snippetMap[trigger.toLowerCase()];
+          if (snippet == null) {
+            unknownSnippets.add(trigger);
+          }
+
           return snippet != null ? snippet.body : orig;
         }
       );
+
+      if (config.errorOnUnknownInlineSnippet && unknownSnippets.size > 0) {
+        this.postSystemMessage(`The following snippets used in the reply do not exist:\n${Array.from(unknownSnippets).join(", ")}`);
+        return false;
+      }
     }
 
     // Prepare attachments, if any

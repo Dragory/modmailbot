@@ -59,6 +59,7 @@
  * @property {boolean} [allowInlineSnippets=true]
  * @property {string} [inlineSnippetStart="{{"]
  * @property {string} [inlineSnippetEnd="}}"]
+ * @property {boolean} [errorOnUnknownInlineSnippet=true]
  * @property {string} [logStorage="local"]
  * @property {object} [logOptions]
  * @property {string} logOptions.attachmentDirectory
