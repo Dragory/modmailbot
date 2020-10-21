@@ -73,29 +73,7 @@ class Thread {
       throw new Error("Could not open DMs with the user. They may have blocked the bot or set their privacy settings higher.");
     }
 
-    let firstMessage;
-
-    if (typeof content === "string") {
-      // Content is a string, chunk it and send it as individual messages.
-      // Files (attachments) are only sent with the last message.
-      const chunks = utils.chunk(content, 2000);
-      for (const [i, chunk] of chunks.entries()) {
-        let msg;
-        if (i === chunks.length - 1) {
-          // Only send embeds, files, etc. with the last message
-          msg = await dmChannel.createMessage(chunk, file);
-        } else {
-          msg = await dmChannel.createMessage(chunk);
-        }
-
-        firstMessage = firstMessage || msg;
-      }
-    } else {
-      // Content is a full message content object, send it as-is with the files (if any)
-      firstMessage = await dmChannel.createMessage(content, file);
-    }
-
-    return firstMessage;
+    return dmChannel.createMessage(content, file);
   }
 
   /**
