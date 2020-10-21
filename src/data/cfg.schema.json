@@ -336,7 +336,7 @@
       "default": true
     },
 
-    "allowChangingDisplayedRole": {
+    "allowChangingDisplayRole": {
       "$ref": "#/definitions/customBoolean",
       "default": true
     },

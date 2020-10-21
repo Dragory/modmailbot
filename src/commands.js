@@ -12,6 +12,13 @@ const Thread = require("./data/Thread");
  */
 
 /**
+ * @callback InboxServerCommandHandler
+ * @param {Eris.Message} msg
+ * @param {object} args
+ * @param {Thread} [thread]
+ */
+
+/**
  * @callback InboxThreadCommandHandler
  * @param {Eris.Message} msg
  * @param {object} args
@@ -30,7 +37,7 @@ const Thread = require("./data/Thread");
  * @callback AddInboxServerCommandFn
  * @param {string} trigger
  * @param {string} parameters
- * @param {CommandFn} handler
+ * @param {InboxServerCommandHandler} handler
  * @param {ICommandConfig} commandConfig
  */
 

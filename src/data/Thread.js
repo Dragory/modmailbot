@@ -9,12 +9,11 @@ const attachments = require("./attachments");
 const { formatters } = require("../formatters");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
+const { getModeratorThreadDisplayRoleName } = require("./moderatorRoleOverrides");
 
 const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
-
-const ROLE_OVERRIDES_METADATA_KEY = "moderatorRoleOverrides";
 
 /**
  * @property {String} id
@@ -195,7 +194,7 @@ class Thread {
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
     const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
-    const roleName = this.getModeratorDisplayRoleName(moderator);
+    const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
 
     if (config.allowInlineSnippets) {
       // Replace {{snippet}} with the corresponding snippet
@@ -836,43 +835,6 @@ class Thread {
         log_storage_type,
         log_storage_data,
       });
-  }
-
-  setModeratorRoleOverride(moderatorId, roleId) {
-    const moderatorRoleOverrides = this.getMetadataValue(ROLE_OVERRIDES_METADATA_KEY) || {};
-    moderatorRoleOverrides[moderatorId] = roleId;
-    return this.setMetadataValue(ROLE_OVERRIDES_METADATA_KEY, moderatorRoleOverrides);
-  }
-
-  resetModeratorRoleOverride(moderatorId) {
-    const moderatorRoleOverrides = this.getMetadataValue(ROLE_OVERRIDES_METADATA_KEY) || {};
-    delete moderatorRoleOverrides[moderatorId];
-    return this.setMetadataValue(ROLE_OVERRIDES_METADATA_KEY, moderatorRoleOverrides)
-  }
-
-  /**
-   * Get the role that is shown in the replies of the specified moderator,
-   * taking role overrides into account.
-   * @param {Eris.Member} moderator
-   * @return {Eris.Role|undefined}
-   */
-  getModeratorDisplayRole(moderator) {
-    const moderatorRoleOverrides = this.getMetadataValue(ROLE_OVERRIDES_METADATA_KEY) || {};
-    const overrideRoleId = moderatorRoleOverrides[moderator.id];
-    const overrideRole = overrideRoleId && moderator.roles.includes(overrideRoleId) && utils.getInboxGuild().roles.get(overrideRoleId);
-    const finalRole = overrideRole || utils.getMainRole(moderator);
-    return finalRole;
-  }
-
-  /**
-   * Get the role NAME that is shown in the replies of the specified moderator,
-   * taking role overrides into account.
-   * @param {Eris.Member} moderator
-   * @return {Eris.Role|undefined}
-   */
-  getModeratorDisplayRoleName(moderator) {
-    const displayRole = this.getModeratorDisplayRole(moderator);
-    return displayRole ? displayRole.name : null;
   }
 
   /**

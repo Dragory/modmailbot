@@ -60,7 +60,7 @@
  * @property {string} [inlineSnippetStart="{{"]
  * @property {string} [inlineSnippetEnd="}}"]
  * @property {boolean} [errorOnUnknownInlineSnippet=true]
- * @property {boolean} [allowChangingDisplayedRole=true]
+ * @property {boolean} [allowChangingDisplayRole=true]
  * @property {string} [fallbackRoleName=null]
  * @property {string} [logStorage="local"]
  * @property {object} [logOptions]
