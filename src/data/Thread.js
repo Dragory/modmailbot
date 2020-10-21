@@ -346,6 +346,16 @@ class Thread {
       messageContent = messageContent.trim();
     }
 
+    if (msg.stickers && msg.stickers.length) {
+      const stickerLines = msg.stickers.map(sticker => {
+        return `*<Message contains sticker "${sticker.name}">*`;
+      });
+
+      messageContent += "\n\n" + stickerLines.join("\n");
+    }
+
+    messageContent = messageContent.trim();
+
     // Save DB entry
     let threadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
