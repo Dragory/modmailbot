@@ -12,6 +12,11 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
   * The symbols used can be changed with the `inlineSnippetStart` and `inlineSnippetEnd` options
   * This feature can be disabled by setting `allowInlineSnippets = off` in your config
   * By default, the bot will refuse to send a reply with an unknown inline snippet. To disable this behavior, set `errorOnUnknownInlineSnippet = off`.
+* Moderators can now set the role they'd like to be displayed with their replies on a per-thread basis by using `!role`
+  * Moderators can only choose roles they currently have
+  * You can view your currently displayed role by using `!role`
+  * You can set the displayed role by using `!role <role name>`, e.g. `!role Interviewer`
+  * This feature can be disabled by setting `allowChangingDisplayedRole = off`
 * New option: `fallbackRoleName`
   * Sets the role name to display in moderator replies if the moderator doesn't have a hoisted role
 * Unless `fallbackRoleName` is set, anonymous replies without a role will no longer display "Moderator:" at the beginning of the message
