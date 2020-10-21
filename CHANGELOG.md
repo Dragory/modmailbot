@@ -8,7 +8,7 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 * Replies are now limited in length to the Discord message limit (including the moderator name and role in the DM sent to the user)
   * This was to fix issues with `!edit` and `!delete` when a reply spanned multiple messages
 * Snippets can now be included *within* messages by wrapping the snippet name in curly braces
-  * E.g. `!r Hello! {{rules}}`
+  * E.g. `!r Hello! {{rules}}` to include the snippet `rules` in the place of `{{rules}}`
   * The symbols used can be changed with the `inlineSnippetStart` and `inlineSnippetEnd` options
   * This feature can be disabled by setting `allowInlineSnippets = off` in your config
   * By default, the bot will refuse to send a reply with an unknown inline snippet. To disable this behavior, set `errorOnUnknownInlineSnippet = off`.
