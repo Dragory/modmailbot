@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "ajv": "^6.12.4",
-    "eris": "^0.13.3",
+    "eris": "github:dragory/eris#stickers",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
     "humanize-duration": "^3.23.1",
