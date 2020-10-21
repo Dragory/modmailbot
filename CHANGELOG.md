@@ -12,6 +12,9 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
   * The symbols used can be changed with the `inlineSnippetStart` and `inlineSnippetEnd` options
   * This feature can be disabled by setting `allowInlineSnippets = off` in your config
   * By default, the bot will refuse to send a reply with an unknown inline snippet. To disable this behavior, set `errorOnUnknownInlineSnippet = off`.
+* New option: `fallbackRoleName`
+  * Sets the role name to display in moderator replies if the moderator doesn't have a hoisted role
+* Unless `fallbackRoleName` is set, anonymous replies without a role will no longer display "Moderator:" at the beginning of the message
 * Plugins can now also be installed from NPM modules
   * Example: `plugins[] = npm:some-plugin-package`
 * Fix occasional bug with expiring blocks where the bot would send the expiry message multiple times

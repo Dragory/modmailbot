@@ -341,6 +341,11 @@
       "default": true
     },
 
+    "fallbackRoleName": {
+      "type": "string",
+      "default": null
+    },
+
     "logStorage": {
       "type": "string",
       "default": "local"

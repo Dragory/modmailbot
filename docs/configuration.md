@@ -177,6 +177,10 @@ When enabled, the bot will send a greeting DM to users that join the main server
 When enabled, the bot will refuse to send any reply with an unknown inline snippet.  
 See [allowInlineSnippets](#allowInlineSnippets) for more details.
 
+#### fallbackRoleName
+**Default:** *None*  
+Role name to display in moderator replies if the moderator doesn't have a hoisted role
+
 #### greetingAttachment
 **Default:** *None*  
 Path to an image or other attachment to send as a greeting. Requires `enableGreeting` to be enabled.

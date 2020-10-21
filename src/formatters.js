@@ -100,19 +100,25 @@ const moment = require("moment");
  */
 const defaultFormatters = {
   formatStaffReplyDM(threadMessage) {
+    const roleName = threadMessage.role_name || config.fallbackRoleName;
     const modInfo = threadMessage.is_anonymous
-      ? (threadMessage.role_name ? threadMessage.role_name : "Moderator")
-      : (threadMessage.role_name ? `(${threadMessage.role_name}) ${threadMessage.user_name}` : threadMessage.user_name);
+      ? roleName
+      : (roleName ? `(${roleName}) ${threadMessage.user_name}` : threadMessage.user_name);
 
-    return `**${modInfo}:** ${threadMessage.body}`;
+    return modInfo
+      ? `**${modInfo}:** ${threadMessage.body}`
+      : threadMessage.body;
   },
 
   formatStaffReplyThreadMessage(threadMessage) {
+    const roleName = threadMessage.role_name || config.fallbackRoleName;
     const modInfo = threadMessage.is_anonymous
-      ? `(Anonymous) (${threadMessage.user_name}) ${threadMessage.role_name || "Moderator"}`
-      : (threadMessage.role_name ? `(${threadMessage.role_name}) ${threadMessage.user_name}` : threadMessage.user_name);
+      ? (roleName ? `(Anonymous) (${threadMessage.user_name}) ${roleName}` : `(Anonymous) (${threadMessage.user_name})`)
+      : (roleName ? `(${roleName}) ${threadMessage.user_name}` : threadMessage.user_name);
 
-    let result = `**${modInfo}:** ${threadMessage.body}`;
+    let result = modInfo
+      ? `**${modInfo}:** ${threadMessage.body}`
+      : threadMessage.body;
 
     if (config.threadTimestamps) {
       const formattedTimestamp = utils.getTimestamp(threadMessage.created_at);
