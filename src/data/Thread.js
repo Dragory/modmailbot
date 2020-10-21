@@ -223,8 +223,16 @@ class Thread {
       attachments: attachmentLinks,
     });
 
-    // Send the reply DM
     const dmContent = formatters.formatStaffReplyDM(threadMessage);
+    const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
+
+    // Because moderator replies have to be editable, we enforce them to fit within 1 message
+    if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
+      await this.postSystemMessage("Reply is too long! Make sure your reply is under 2000 characters total, moderator name in the reply included.");
+      return false;
+    }
+
+    // Send the reply DM
     let dmMessage;
     try {
       dmMessage = await this._sendDMToUser(dmContent, files);
@@ -240,7 +248,6 @@ class Thread {
     });
 
     // Show the reply in the inbox thread
-    const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
     const inboxMessage = await this._postToThreadChannel(inboxContent, files);
     if (inboxMessage) {
       await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
@@ -718,6 +725,13 @@ class Thread {
 
     const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(newThreadMessage);
     const formattedDM = formatters.formatStaffReplyDM(newThreadMessage);
+
+    // Same restriction as in replies. Because edits could theoretically change the number of messages a reply takes, we enforce replies
+    // to fit within 1 message to avoid the headache and issues caused by that.
+    if (! utils.messageContentIsWithinMaxLength(formattedDM) || ! utils.messageContentIsWithinMaxLength(formattedThreadMessage)) {
+      await this.postSystemMessage("Edited reply is too long! Make sure the edit is under 2000 characters total, moderator name in the reply included.");
+      return false;
+    }
 
     await bot.editMessage(threadMessage.dm_channel_id, threadMessage.dm_message_id, formattedDM);
     await bot.editMessage(this.channel_id, threadMessage.inbox_message_id, formattedThreadMessage);

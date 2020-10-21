@@ -336,6 +336,56 @@ function readMultilineConfigValue(str) {
 
 function noop() {}
 
+// https://discord.com/developers/docs/resources/channel#create-message-params
+const MAX_MESSAGE_CONTENT_LENGTH = 2000;
+
+// https://discord.com/developers/docs/resources/channel#embed-limits
+const MAX_EMBED_CONTENT_LENGTH = 6000;
+
+/**
+ * Checks if the given message content is within Discord's message length limits.
+ *
+ * Based on testing, Discord appears to enforce length limits (at least in the client)
+ * the same way JavaScript does, using the UTF-16 byte count as the number of characters.
+ *
+ * @param {string|Eris.MessageContent} content
+ */
+function messageContentIsWithinMaxLength(content) {
+  if (typeof content === "string") {
+    content = { content };
+  }
+
+  if (content.content && content.content.length > MAX_MESSAGE_CONTENT_LENGTH) {
+    return false;
+  }
+
+  if (content.embed) {
+    let embedContentLength = 0;
+
+    if (content.embed.title) embedContentLength += content.embed.title.length;
+    if (content.embed.description) embedContentLength += content.embed.description.length;
+    if (content.embed.footer && content.embed.footer.text) {
+      embedContentLength += content.embed.footer.text.length;
+    }
+    if (content.embed.author && content.embed.author.name) {
+      embedContentLength += content.embed.author.name.length;
+    }
+
+    if (content.embed.fields) {
+      for (const field of content.embed.fields) {
+        if (field.title) embedContentLength += field.name.length;
+        if (field.description) embedContentLength += field.value.length;
+      }
+    }
+
+    if (embedContentLength > MAX_EMBED_CONTENT_LENGTH) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 module.exports = {
   BotError,
 
@@ -376,6 +426,8 @@ module.exports = {
   disableCodeBlocks,
 
   readMultilineConfigValue,
+
+  messageContentIsWithinMaxLength,
 
   noop,
 };
