@@ -133,5 +133,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     triggers.sort();
 
     utils.postSystemMessageWithFallback(msg.channel, thread, `Available snippets (prefix ${config.snippetPrefix}):\n${triggers.join(", ")}`);
+  }, {
+    aliases: ["s"]
   });
 };
