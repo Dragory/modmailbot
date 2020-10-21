@@ -102,6 +102,10 @@ If enabled, staff members can edit their own replies in modmail threads with `!e
 If enabled, snippets can be included *within* replies by wrapping the snippet's name in {{ and }}.  
 E.g. `!r Hello! {{rules}}`
 
+#### allowChangingDisplayedRole
+**Default:** `on`  
+If enabled, moderators can change the role that's shown with their replies to any role they currently have using the `!role` command.
+
 See [inlineSnippetStart](#inlineSnippetStart) and [inlineSnippetEnd](#inlineSnippetEnd) to customize the symbols used.
 
 #### alwaysReply

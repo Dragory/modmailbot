@@ -70,6 +70,12 @@ Edit your own previous reply sent with `!reply`.
 Delete your own previous reply sent with `!reply`.  
 `<number>` is the message number shown in front of staff replies in the thread channel.
 
+### `!role`
+View the role that is sent with your replies
+
+### `!role <role name>`
+Change the role that is sent with your replies to any role you currently have
+
 ### `!loglink`
 Get a link to the open Modmail thread's log.
 

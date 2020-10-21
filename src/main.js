@@ -301,6 +301,7 @@ async function initPlugins() {
     "file:./src/modules/id",
     "file:./src/modules/alert",
     "file:./src/modules/joinLeaveNotification",
+    "file:./src/modules/roles",
   ];
 
   const plugins = [...builtInPlugins, ...config.plugins];

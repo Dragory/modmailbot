@@ -336,6 +336,11 @@
       "default": true
     },
 
+    "allowChangingDisplayedRole": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "logStorage": {
       "type": "string",
       "default": "local"
