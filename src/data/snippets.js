@@ -8,7 +8,7 @@ const Snippet = require("./Snippet");
  */
 async function getSnippet(trigger) {
   const snippet = await knex("snippets")
-    .where("trigger", trigger)
+    .where(knex.raw("LOWER(trigger)"), trigger.toLowerCase())
     .first();
 
   return (snippet ? new Snippet(snippet) : null);
@@ -36,7 +36,7 @@ async function addSnippet(trigger, body, createdBy = 0) {
  */
 async function deleteSnippet(trigger) {
   return knex("snippets")
-    .where("trigger", trigger)
+    .where(knex.raw("LOWER(trigger)"), trigger.toLowerCase())
     .delete();
 }
 
