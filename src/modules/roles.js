@@ -10,8 +10,6 @@ const {
   getModeratorDefaultDisplayRoleName,
 } = require("../data/displayRoles");
 
-const ROLE_OVERRIDES_METADATA_KEY = "moderatorRoleOverrides";
-
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowChangingDisplayRole) {
     return;
