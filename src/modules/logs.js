@@ -6,6 +6,19 @@ const { getLogUrl, getLogFile, getLogCustomResponse, saveLogToStorage } = requir
 const LOG_LINES_PER_PAGE = 10;
 
 module.exports = ({ bot, knex, config, commands, hooks }) => {
+  const addOptQueryStringToUrl = (url, args) => {
+    const params = [];
+    if (args.verbose) params.push("verbose=1");
+    if (args.simple) params.push("simple=1");
+
+    if (params.length === 0) {
+      return url;
+    }
+
+    const hasQueryString = url.indexOf("?") > -1;
+    return url + (hasQueryString ? "&" : "?") + params.join("&");
+  };
+
   const logsCmd = async (msg, args, thread) => {
     let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;
@@ -32,7 +45,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const threadLines = await Promise.all(userThreads.map(async thread => {
       const logUrl = await getLogUrl(thread);
       const formattedLogUrl = logUrl
-        ? `<${logUrl}>`
+        ? `<${addOptQueryStringToUrl(logUrl, args)}>`
         : `View log with \`${config.prefix}log ${thread.id}\``
       const formattedDate = moment.utc(thread.created_at).format("MMM Do [at] HH:mm [UTC]");
       return `\`${formattedDate}\`: ${formattedLogUrl}`;
@@ -72,7 +85,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
 
     const logUrl = await getLogUrl(thread);
     if (logUrl) {
-      msg.channel.createMessage(`Open the following link to view the log:\n<${logUrl}>`);
+      msg.channel.createMessage(`Open the following link to view the log:\n<${addOptQueryStringToUrl(logUrl, args)}>`);
       return;
     }
 
@@ -85,11 +98,16 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     msg.channel.createMessage("This thread's logs are not currently available");
   };
 
-  commands.addInboxServerCommand("logs", "<userId:userId> [page:number]", logsCmd);
-  commands.addInboxServerCommand("logs", "[page:number]", logsCmd);
+  const logCmdOptions = [
+    { name: "verbose", shortcut: "v", isSwitch: true },
+    { name: "simple", shortcut: "s", isSwitch: true },
+  ];
 
-  commands.addInboxServerCommand("log", "[threadId:string]", logCmd);
-  commands.addInboxServerCommand("loglink", "[threadId:string]", logCmd);
+  commands.addInboxServerCommand("logs", "<userId:userId> [page:number]", logsCmd, { options: logCmdOptions });
+  commands.addInboxServerCommand("logs", "[page:number]", logsCmd, { options: logCmdOptions });
+
+  commands.addInboxServerCommand("log", "[threadId:string]", logCmd, { options: logCmdOptions });
+  commands.addInboxServerCommand("loglink", "[threadId:string]", logCmd, { options: logCmdOptions });
 
   hooks.afterThreadClose(async ({ threadId }) => {
     const thread = await threads.findById(threadId);
