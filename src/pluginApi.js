@@ -3,6 +3,7 @@ const { CommandManager } = require("knub-command-manager");
 const { Client } = require("eris");
 const Knex = require("knex");
 const threads = require("./data/threads");
+const displayRoles = require("./data/displayRoles");
 
 /**
  * @typedef {object} PluginAPI
@@ -16,6 +17,7 @@ const threads = require("./data/threads");
  * @property {FormattersExport} formats
  * @property {express.Application} webserver
  * @property {threads} threads
+ * @property {displayRoles} displayRoles
  */
 
 /**

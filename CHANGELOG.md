@@ -43,6 +43,8 @@ Please report any bugs you encounter by [creating a GitHub issue](https://github
 * System messages now have a formatter
 * The `beforeNewThread` hook's parameters now also include the original DM message object
 * Plugins can now access the `threads` module (via `pluginApi.threads`) to create and fetch threads
+* Plugins can now access the `displayRoles` module (via `pluginApi.displayRoles`) to get, set, and reset display role overrides for moderators,
+  and to get the final role that will be displayed in moderator replies (by default or per-thread)
 
 **Internal/technical updates:**
 * Modmail now uses [Express](https://expressjs.com/) as its web server for logs/attachments

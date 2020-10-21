@@ -9,7 +9,7 @@ const attachments = require("./attachments");
 const { formatters } = require("../formatters");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
-const { getModeratorThreadDisplayRoleName } = require("./moderatorRoleOverrides");
+const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 
 const ThreadMessage = require("./ThreadMessage");
 

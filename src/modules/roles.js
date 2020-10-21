@@ -8,7 +8,7 @@ const {
 
   getModeratorThreadDisplayRoleName,
   getModeratorDefaultDisplayRoleName,
-} = require("../data/moderatorRoleOverrides");
+} = require("../data/displayRoles");
 
 const ROLE_OVERRIDES_METADATA_KEY = "moderatorRoleOverrides";
 

@@ -8,6 +8,7 @@ const childProcess = require("child_process");
 const pacote = require("pacote");
 const path = require("path");
 const threads = require("./data/threads");
+const displayRoles = require("./data/displayRoles");
 
 const pluginSources = {
   npm: {
@@ -130,6 +131,7 @@ module.exports = {
       formats,
       webserver,
       threads,
+      displayRoles,
     };
   },
 };
