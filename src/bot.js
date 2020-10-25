@@ -28,9 +28,10 @@ const bot = new Eris.Client(config.token, {
 });
 
 bot.on("error", err => {
-  if (err.code === 1006) {
+  if (err.code === 1006 || err.code === "ECONNRESET") {
     // 1006 = "Connection reset by peer"
-    // Eris allegedly handles this internally, so we can ignore it
+    // ECONNRESET is similar
+    // Eris allegedly handles these internally, so we can ignore them
     return;
   }
 
