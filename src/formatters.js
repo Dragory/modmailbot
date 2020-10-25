@@ -266,9 +266,9 @@ const defaultFormatters = {
           }
         }
       } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
-        line += ` [SYSTEM] ${message.body}`;
+        line += ` [BOT] ${message.body}`;
       } else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM_TO_USER) {
-        line += ` [SYSTEM TO USER] ${message.body}`;
+        line += ` [BOT TO USER] ${message.body}`;
       } else if (message.message_type === THREAD_MESSAGE_TYPE.CHAT) {
         line += ` [CHAT] [${message.user_name}] ${message.body}`;
       } else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
