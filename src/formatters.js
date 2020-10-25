@@ -4,6 +4,7 @@ const config = require("./cfg");
 const ThreadMessage = require("./data/ThreadMessage");
 const {THREAD_MESSAGE_TYPE} = require("./data/constants");
 const moment = require("moment");
+const bot = require("./bot");
 
 /**
  * Function to format the DM that is sent to the user when a staff member replies to them via !reply
@@ -190,7 +191,7 @@ const defaultFormatters = {
   },
 
   formatSystemToUserThreadMessage(threadMessage) {
-    let result = `**[SYSTEM TO USER]** ${threadMessage.body}`;
+    let result = `**(Bot) ${bot.user.username}:** ${threadMessage.body}`;
 
     for (const link of threadMessage.attachments) {
       result += `\n\n${link}`;
