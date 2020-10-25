@@ -253,8 +253,7 @@ async function createNewThreadForUser(user, opts = {}) {
 
   infoHeader += "\n────────────────";
 
-  await newThread.postSystemMessage({
-    content: infoHeader,
+  await newThread.postSystemMessage(infoHeader, {
     allowedMentions: config.mentionUserInThreadHeader ? { users: [user.id] } : undefined,
   });
 
