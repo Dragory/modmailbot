@@ -147,9 +147,10 @@ function initBaseMessageHandlers() {
     // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
     messageQueue.add(async () => {
       let thread = await threads.findOpenThreadByUserId(msg.author.id);
+      const createNewThread = (thread == null);
 
       // New thread
-      if (! thread) {
+      if (createNewThread) {
         // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
         if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
@@ -161,6 +162,19 @@ function initBaseMessageHandlers() {
 
       if (thread) {
         await thread.receiveUserReply(msg);
+
+        if (createNewThread) {
+          // Send auto-reply to the user
+          if (config.responseMessage) {
+            const responseMessage = utils.readMultilineConfigValue(config.responseMessage);
+
+            try {
+              await thread.sendSystemMessageToUser(responseMessage);
+            } catch (err) {
+              await thread.postSystemMessage(`**NOTE:** Could not send auto-response to the user. The error given was: \`${err.message}\``);
+            }
+          }
+        }
       }
     });
   });

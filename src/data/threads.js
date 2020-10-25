@@ -198,17 +198,6 @@ async function createNewThreadForUser(user, opts = {}) {
         allowedMentions: utils.getInboxMentionAllowedMentions(),
       });
     }
-
-    // Send auto-reply to the user
-    if (config.responseMessage) {
-      const responseMessage = utils.readMultilineConfigValue(config.responseMessage);
-
-      try {
-        await newThread.sendSystemMessageToUser(responseMessage);
-      } catch (err) {
-        responseMessageError = err;
-      }
-    }
   }
 
   // Post some info to the beginning of the new thread
@@ -274,11 +263,6 @@ async function createNewThreadForUser(user, opts = {}) {
     if (availableUpdate) {
       await newThread.postNonLogMessage(`📣 New bot version available (${availableUpdate})`);
     }
-  }
-
-  // If there were errors sending a response to the user, note that
-  if (responseMessageError) {
-    await newThread.postSystemMessage(`**NOTE:** Could not send auto-response to the user. The error given was: \`${responseMessageError.message}\``);
   }
 
   // Return the thread
