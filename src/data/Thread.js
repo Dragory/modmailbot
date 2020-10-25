@@ -259,7 +259,7 @@ class Thread {
 
     // Because moderator replies have to be editable, we enforce them to fit within 1 message
     if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
-      await this._deleteThreadMessage(rawThreadMessage);
+      await this._deleteThreadMessage(threadMessage.id);
       await this.postSystemMessage("Reply is too long! Make sure your reply is under 2000 characters total, moderator name in the reply included.");
       return false;
     }
@@ -269,7 +269,7 @@ class Thread {
     try {
       dmMessage = await this._sendDMToUser(dmContent, files);
     } catch (e) {
-      await this._deleteThreadMessage(rawThreadMessage);
+      await this._deleteThreadMessage(threadMessage.id);
       await this.postSystemMessage(`Error while replying to user: ${e.message}`);
       return false;
     }
