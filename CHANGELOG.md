@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.3
+* Fix inline snippets only working once per reply
+
 ## v3.0.2
 * Fix `npm ci` and `start.bat` failing when Git is not installed
 
