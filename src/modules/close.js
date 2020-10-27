@@ -66,6 +66,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     let hasCloseMessage = !! config.closeMessage;
     let silentClose = false;
+    let suppressSystemMessages = false;
 
     if (msg.channel instanceof Eris.PrivateChannel) {
       // User is closing the thread by themselves (if enabled)
@@ -79,7 +80,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       // between showing the close command in the thread and closing the thread
       await messageQueue.add(async () => {
         thread.postSystemMessage("Thread closed by user, closing...");
-        await thread.close(true);
+        suppressSystemMessages = true;
       });
 
       closedBy = "the user";
@@ -133,7 +134,6 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
 
       // Regular close
-      await thread.close(false, silentClose);
       closedBy = msg.author.username;
     }
 
@@ -142,6 +142,8 @@ module.exports = ({ bot, knex, config, commands }) => {
       const closeMessage = utils.readMultilineConfigValue(config.closeMessage);
       await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
     }
+
+    await thread.close(suppressSystemMessages, silentClose);
 
     await sendCloseNotification(thread, `Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`);
   });
