@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.2
+* Fix `npm ci` and `start.bat` failing when Git is not installed
+
 ## v3.0.1
 * Fix local attachments not being accessible through the bot's links
 
