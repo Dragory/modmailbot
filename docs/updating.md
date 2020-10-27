@@ -2,7 +2,10 @@
 
 **Before updating the bot, always take a backup of your `db/data.sqlite` file.**
 
-To update the bot, follow these steps:
+**⚠ Note on updating to v3.0.0:** If you're currently using a *very* old version of the bot, from before February 2018, you'll first need to update to v2.30.1 and run the bot once before updating to v3.0.0.
+
+## To update the bot, follow these steps:
+
 1. Shut down the bot
 2. Take a backup of your `db/data.sqlite` file
     * If you're using a different supported database, take database backups from there
