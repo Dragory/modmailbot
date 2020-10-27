@@ -208,7 +208,7 @@ class Thread {
 
       let unknownSnippets = new Set();
       text = text.replace(
-        new RegExp(`${config.inlineSnippetStart}(\\s*\\S+?\\s*)${config.inlineSnippetEnd}`, "i"),
+        new RegExp(`${config.inlineSnippetStart}(\\s*\\S+?\\s*)${config.inlineSnippetEnd}`, "ig"),
         (orig, trigger) => {
           trigger = trigger.trim();
           const snippet = snippetMap[trigger.toLowerCase()];
