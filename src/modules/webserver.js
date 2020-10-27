@@ -58,7 +58,7 @@ const server = express();
 server.use(helmet());
 
 server.get("/logs/:threadId", serveLogs);
-server.get("/logs/:attachmentId/:filename", serveAttachments);
+server.get("/attachments/:attachmentId/:filename", serveAttachments);
 
 server.on("error", err => {
   console.log("[WARN] Web server error:", err.message);
