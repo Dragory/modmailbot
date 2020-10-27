@@ -191,7 +191,7 @@ const defaultFormatters = {
   },
 
   formatSystemToUserThreadMessage(threadMessage) {
-    let result = `**(Bot) ${bot.user.username}:** ${threadMessage.body}`;
+    let result = `**⚙️ ${bot.user.username}:** ${threadMessage.body}`;
 
     for (const link of threadMessage.attachments) {
       result += `\n\n${link}`;
