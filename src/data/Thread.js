@@ -274,8 +274,13 @@ class Thread {
       return false;
     }
 
+    // Special case: "original" attachments
+    if (config.attachmentStorage === "original") {
+      threadMessage.attachments = dmMessage.attachments.map(att => att.url);
+    }
+
     threadMessage.dm_message_id = dmMessage.id;
-    await this._updateThreadMessage(threadMessage.id, { dm_message_id: dmMessage.id });
+    await this._updateThreadMessage(threadMessage.id, threadMessage.getSQLProps());
 
     // Show the reply in the inbox thread
     const inboxMessage = await this._postToThreadChannel(inboxContent, files);
