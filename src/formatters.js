@@ -286,6 +286,11 @@ const defaultFormatters = {
         line += ` [${message.user_name}] ${message.body}`;
       }
 
+      if (message.attachments.length) {
+        line += "\n\n";
+        line += message.attachments.join("\n");
+      }
+
       return line;
     });
 
