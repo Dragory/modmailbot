@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.1
+* Fix local attachments not being accessible through the bot's links
+
 ## v3.0.0
 *This changelog also includes changes from v2.31.0-beta.1 and v2.31.0-beta.2*
 
