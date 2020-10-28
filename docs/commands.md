@@ -73,7 +73,7 @@ Delete your own previous reply sent with `!reply`.
 ### `!role`
 View your display role for the thread - the role that is shown in front of your name in your replies
 
-### `!role`
+### `!role default`
 Reset your display role for the thread to the default
 
 ### `!role <role name>`
@@ -135,7 +135,7 @@ Check if the specified user is blocked.
 ### `!role`
 (Outside a modmail thread) View your default display role - the role that is shown in front of your name in your replies
 
-### `!role`
+### `!role default`
 (Outside a modmail thread) Reset your default display role
 
 ### `!role <role name>`
