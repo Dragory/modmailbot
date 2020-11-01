@@ -135,7 +135,7 @@ When using attachmentStorage is set to "discord", the id of the channel on the i
 
 #### autoAlert
 **Default:** `off`  
-When enabled, the last moderator to reply to a modmail thread will be automatically alerted when the thread gets a new reply.  
+If enabled, the last moderator to reply to a modmail thread will be automatically alerted when the thread gets a new reply.  
 This alert kicks in after a delay, set by the `autoAlertDelay` option below.
 
 #### autoAlertDelay
@@ -179,11 +179,11 @@ commandAliases.x = close
 
 #### enableGreeting
 **Default:** `off`  
-When enabled, the bot will send a greeting DM to users that join the main server.
+If enabled, the bot will send a greeting DM to users that join the main server
 
 #### errorOnUnknownInlineSnippet
 **Default:** `on`  
-When enabled, the bot will refuse to send any reply with an unknown inline snippet.  
+If enabled, the bot will refuse to send any reply with an unknown inline snippet.  
 See [allowInlineSnippets](#allowInlineSnippets) for more details.
 
 #### fallbackRoleName
@@ -280,7 +280,7 @@ If enabled, the bot will mention staff (see `mentionRole` option) on the inbox s
 
 #### pinThreadHeader
 **Default:** `off`  
-If enabled, the bot will pin the "thread header" message in each thread that contains the user's details
+If enabled, the bot will automatically pin the "thread header" message that contains the user's details
 
 #### plugins
 **Default:** *None*  
