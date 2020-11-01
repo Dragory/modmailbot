@@ -83,6 +83,7 @@ function getHeaderGuildInfo(member) {
  * @property {Message} [message] Original DM message that is trying to start the thread, if there is one
  * @property {string} [categoryId] Category where to open the thread
  * @property {string} [source] A string identifying the source of the new thread
+ * @property {string} [mentionRole] Override the mentionRole option for this thread
  */
 
 /**
@@ -217,11 +218,18 @@ async function createNewThreadForUser(user, opts = {}) {
 
     if (! quiet) {
       // Ping moderators of the new thread
-      const staffMention = utils.getInboxMention();
+      const staffMention = opts.mentionRole
+        ? utils.mentionRolesToMention(utils.getValidMentionRoles(opts.mentionRole))
+        : utils.getInboxMention();
+
       if (staffMention.trim() !== "") {
+        const allowedMentions = opts.mentionRole
+          ? utils.mentionRolesToAllowedMentions(utils.getValidMentionRoles(opts.mentionRole))
+          : utils.getInboxMentionAllowedMentions();
+
         await newThread.postNonLogMessage({
           content: `${staffMention}New modmail thread (${newThread.user_name})`,
-          allowedMentions: utils.getInboxMentionAllowedMentions(),
+          allowedMentions,
         });
       }
     }

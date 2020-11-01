@@ -251,15 +251,25 @@ function convertDelayStringToMS(str) {
   return ms;
 }
 
-function getValidMentionRoles() {
-  const mentionRoles = Array.isArray(config.mentionRole) ? config.mentionRole : [config.mentionRole];
+/**
+ * @param {string|string[]} mentionRoles
+ * @returns {string[]}
+ */
+function getValidMentionRoles(mentionRoles) {
+  if (! Array.isArray(mentionRoles)) {
+    mentionRoles = [mentionRoles];
+  }
+
   return mentionRoles.filter(roleStr => {
     return (roleStr !== null && roleStr !== "none" && roleStr !== "off" && roleStr !== "");
   });
 }
 
-function getInboxMention() {
-  const mentionRoles = getValidMentionRoles();
+/**
+ * @param {string[]} mentionRoles
+ * @returns {string}
+ */
+function mentionRolesToMention(mentionRoles) {
   const mentions = [];
   for (const role of mentionRoles) {
     if (role === "here") mentions.push("@here");
@@ -269,8 +279,19 @@ function getInboxMention() {
   return mentions.join(" ") + " ";
 }
 
-function getInboxMentionAllowedMentions() {
-  const mentionRoles = getValidMentionRoles();
+/**
+ * @returns {string}
+ */
+function getInboxMention() {
+  const mentionRoles = getValidMentionRoles(config.mentionRole);
+  return mentionRolesToMention(mentionRoles);
+}
+
+/**
+ * @param {string[]} mentionRoles
+ * @returns {object}
+ */
+function mentionRolesToAllowedMentions(mentionRoles) {
   const allowedMentions = {
     everyone: false,
     roles: [],
@@ -282,6 +303,14 @@ function getInboxMentionAllowedMentions() {
   }
 
   return allowedMentions;
+}
+
+/**
+ * @returns {object}
+ */
+function getInboxMentionAllowedMentions() {
+  const mentionRoles = getValidMentionRoles(config.mentionRole);
+  return mentionRolesToAllowedMentions(mentionRoles);
 }
 
 function postSystemMessageWithFallback(channel, thread, text) {
@@ -484,8 +513,13 @@ module.exports = {
   getMainRole,
   delayStringRegex,
   convertDelayStringToMS,
+
+  getValidMentionRoles,
+  mentionRolesToMention,
   getInboxMention,
+  mentionRolesToAllowedMentions,
   getInboxMentionAllowedMentions,
+
   postSystemMessageWithFallback,
 
   chunk,
