@@ -251,12 +251,18 @@ function convertDelayStringToMS(str) {
   return ms;
 }
 
-function getInboxMention() {
+function getValidMentionRoles() {
   const mentionRoles = Array.isArray(config.mentionRole) ? config.mentionRole : [config.mentionRole];
+  return mentionRoles.filter(roleStr => {
+    return (roleStr !== null && roleStr !== "none" && roleStr !== "off" && roleStr !== "");
+  });
+}
+
+function getInboxMention() {
+  const mentionRoles = getValidMentionRoles();
   const mentions = [];
   for (const role of mentionRoles) {
-    if (role == null || role === "none" || role === "off" || role === "") continue;
-    else if (role === "here") mentions.push("@here");
+    if (role === "here") mentions.push("@here");
     else if (role === "everyone") mentions.push("@everyone");
     else mentions.push(`<@&${role}>`);
   }
@@ -264,15 +270,14 @@ function getInboxMention() {
 }
 
 function getInboxMentionAllowedMentions() {
-  const mentionRoles = Array.isArray(config.mentionRole) ? config.mentionRole : [config.mentionRole];
+  const mentionRoles = getValidMentionRoles();
   const allowedMentions = {
     everyone: false,
     roles: [],
   };
 
   for (const role of mentionRoles) {
-    if (role == null || role === "none" || role === "") continue;
-    else if (role === "here" || role === "everyone") allowedMentions.everyone = true;
+    if (role === "here" || role === "everyone") allowedMentions.everyone = true;
     else allowedMentions.roles.push(role);
   }
 
