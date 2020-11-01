@@ -278,6 +278,10 @@ If enabled, a system message will be posted into any open threads if the user le
 **Default:** `on`  
 If enabled, the bot will mention staff (see `mentionRole` option) on the inbox server when the bot is mentioned on the main server.
 
+#### pinThreadHeader
+**Default:** `off`  
+If enabled, the bot will pin the "thread header" message in each thread that contains the user's details
+
 #### plugins
 **Default:** *None*  
 **Accepts multiple values.** External plugins to load on startup. See [Plugins](plugins.md) for more information.

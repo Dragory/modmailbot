@@ -287,9 +287,13 @@ async function createNewThreadForUser(user, opts = {}) {
 
     infoHeader += "\n────────────────";
 
-    await newThread.postSystemMessage(infoHeader, {
+    const { message: threadHeaderMessage } = await newThread.postSystemMessage(infoHeader, {
       allowedMentions: config.mentionUserInThreadHeader ? { users: [user.id] } : undefined,
     });
+
+    if (config.pinThreadHeader) {
+      await threadHeaderMessage.pin();
+    }
 
     if (config.updateNotifications) {
       const availableUpdate = await updates.getAvailableUpdate();

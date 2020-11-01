@@ -464,7 +464,12 @@ class Thread {
     const msg = await this._postToThreadChannel(finalContent);
 
     threadMessage.inbox_message_id = msg.id;
-    await this._addThreadMessageToDB(threadMessage.getSQLProps());
+    const finalThreadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
+
+    return {
+      message: msg,
+      threadMessage: finalThreadMessage,
+    };
   }
 
   /**

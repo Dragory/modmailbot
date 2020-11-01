@@ -357,6 +357,11 @@
       "description": "Delay before auto-alert kicks in. Uses the same format as timed close; for example 1m30s for 1 minute and 30 seconds."
     },
 
+    "pinThreadHeader": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
     "logStorage": {
       "type": "string",
       "default": "local"
