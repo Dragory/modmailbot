@@ -14,10 +14,10 @@ const displayRoles = require("./data/displayRoles");
  * @property {PluginAttachmentsAPI} attachments
  * @property {PluginLogsAPI} logs
  * @property {PluginHooksAPI} hooks
- * @property {FormattersExport} formats
- * @property {express.Application} webserver
- * @property {threads} threads
- * @property {displayRoles} displayRoles
+ * @property {PluginFormattersAPI} formats
+ * @property {PluginWebServerAPI} webserver
+ * @property {PluginThreadsAPI} threads
+ * @property {PluginDisplayRolesAPI} displayRoles
  */
 
 /**
@@ -48,4 +48,24 @@ const displayRoles = require("./data/displayRoles");
  * @typedef {object} PluginHooksAPI
  * @property {AddBeforeNewThreadHookFn} beforeNewThread
  * @property {AddAfterThreadCloseHookFn} afterThreadClose
+ */
+
+/**
+ * @typedef {displayRoles} PluginDisplayRolesAPI
+ * @see https://github.com/Dragory/modmailbot/blob/master/src/data/displayRoles.js
+ */
+
+/**
+ * @typedef {threads} PluginThreadsAPI
+ * @see https://github.com/Dragory/modmailbot/blob/master/src/data/threads.js
+ */
+
+/**
+ * @typedef {express.Application} PluginWebServerAPI
+ * @see https://expressjs.com/en/api.html#app
+ */
+
+/**
+ * @typedef {FormattersExport} PluginFormattersAPI
+ * @see https://github.com/Dragory/modmailbot/blob/master/src/formatters.js
  */
