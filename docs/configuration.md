@@ -133,6 +133,15 @@ Controls how attachments in modmail threads are stored. Possible values:
 **Default:** *None*  
 When using attachmentStorage is set to "discord", the id of the channel on the inbox server where attachments are saved
 
+#### autoAlert
+**Default:** `off`  
+When enabled, the last moderator to reply to a modmail thread will be automatically alerted when the thread gets a new reply.  
+This alert kicks in after a delay, set by the `autoAlertDelay` option below.
+
+#### autoAlertDelay
+**Default:** `2m`  
+The delay after which `autoAlert` kicks in. Uses the same format as timed close; for example `1m30s` for 1 minute and 30 seconds.
+
 #### botMentionResponse
 **Default:** *None*  
 If set, the bot auto-replies to bot mentions (pings) with this message. Use `{userMention}` in the text to ping the user back.

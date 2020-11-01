@@ -169,6 +169,7 @@ class Thread {
 
   /**
    * @returns {Promise<Number>}
+   * @private
    */
   async _getAndIncrementNextMessageNumber() {
     return knex.transaction(async trx => {
@@ -184,6 +185,21 @@ class Thread {
 
       return nextNumber;
     });
+  }
+
+  /**
+   * Adds the specified moderator to the thread's alert list after config.autoAlertDelay
+   * @param {string} modId
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _startAutoAlertTimer(modId) {
+    clearTimeout(this._autoAlertTimeout);
+    const autoAlertDelay = utils.convertDelayStringToMS(config.autoAlertDelay);
+    this._autoAlertTimeout = setTimeout(() => {
+      if (this.status !== THREAD_STATUS.OPEN) return;
+      this.addAlert(modId);
+    }, autoAlertDelay);
   }
 
   /**
@@ -294,6 +310,11 @@ class Thread {
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
       await this.postSystemMessage("Cancelling scheduled closing of this thread due to new reply");
+    }
+
+    // If enabled, set up a reply alert for the moderator after a slight delay
+    if (config.autoAlert) {
+      this._startAutoAlertTimer(moderator.id);
     }
 
     return true;
