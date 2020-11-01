@@ -2,6 +2,7 @@ const threads = require("../data/threads");
 const moment = require("moment");
 const utils = require("../utils");
 const { getLogUrl, getLogFile, getLogCustomResponse, saveLogToStorage } = require("../data/logs");
+const { THREAD_STATUS } = require("../data/constants");
 
 const LOG_LINES_PER_PAGE = 10;
 
@@ -92,6 +93,11 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const logFile = await getLogFile(thread);
     if (logFile) {
       msg.channel.createMessage(`Download the following file to view the log for thread #${thread.thread_number}:`, logFile);
+      return;
+    }
+
+    if (thread.status === THREAD_STATUS.OPEN) {
+      msg.channel.createMessage(`This thread's logs are not currently available, but it's open at <#${thread.channel_id}>`);
       return;
     }
 
