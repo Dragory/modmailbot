@@ -83,7 +83,7 @@ module.exports = ({ bot, knex, config, commands }) => {
         utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" already exists! You can edit or delete it with ${config.prefix}edit_snippet and ${config.prefix}delete_snippet respectively.`);
       } else {
         // If the snippet exists and we're NOT trying to create a new one, show info about the existing snippet
-        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${args.trigger}\` replies with: \`\`\`${utils.disableCodeBlocks(snippet.body)}\`\`\``);
+        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${args.trigger}\` replies with: \`\`\`\n${utils.disableCodeBlocks(snippet.body)}\`\`\``);
       }
     } else {
       if (args.text) {
