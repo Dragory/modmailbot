@@ -17,6 +17,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = req
 
 /**
  * @property {String} id
+ * @property {Number} thread_number
  * @property {Number} status
  * @property {String} user_id
  * @property {String} user_name
