@@ -255,7 +255,7 @@ function getInboxMention() {
   const mentionRoles = Array.isArray(config.mentionRole) ? config.mentionRole : [config.mentionRole];
   const mentions = [];
   for (const role of mentionRoles) {
-    if (role == null) continue;
+    if (role == null || role === "none" || role === "off" || role === "") continue;
     else if (role === "here") mentions.push("@here");
     else if (role === "everyone") mentions.push("@everyone");
     else mentions.push(`<@&${role}>`);
