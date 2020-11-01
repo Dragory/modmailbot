@@ -106,7 +106,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
   commands.addInboxServerCommand("logs", "<userId:userId> [page:number]", logsCmd, { options: logCmdOptions });
   commands.addInboxServerCommand("logs", "[page:number]", logsCmd, { options: logCmdOptions });
 
-  commands.addInboxServerCommand("log", "[threadId:string]", logCmd, { options: logCmdOptions });
+  commands.addInboxServerCommand("log", "[threadId:string]", logCmd, { options: logCmdOptions, aliases: ["thread"] });
   commands.addInboxServerCommand("loglink", "[threadId:string]", logCmd, { options: logCmdOptions });
 
   hooks.afterThreadClose(async ({ threadId }) => {
