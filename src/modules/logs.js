@@ -46,7 +46,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
       const logUrl = await getLogUrl(thread);
       const formattedLogUrl = logUrl
         ? `<${addOptQueryStringToUrl(logUrl, args)}>`
-        : `View log with \`${config.prefix}log ${thread.id}\``
+        : `View log with \`${config.prefix}log ${thread.thread_number}\``
       const formattedDate = moment.utc(thread.created_at).format("MMM Do [at] HH:mm [UTC]");
       return `\`#${thread.thread_number}\` \`${formattedDate}\`: ${formattedLogUrl}`;
     }));
@@ -75,7 +75,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const threadId = args.threadId || (_thread && _thread.id);
     if (! threadId) return;
 
-    const thread = await threads.findById(threadId);
+    const thread = (await threads.findById(threadId)) || (await threads.findByThreadNumber(threadId));
     if (! thread) return;
 
     const customResponse = await getLogCustomResponse(thread);
@@ -85,13 +85,13 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
 
     const logUrl = await getLogUrl(thread);
     if (logUrl) {
-      msg.channel.createMessage(`Open the following link to view the log:\n<${addOptQueryStringToUrl(logUrl, args)}>`);
+      msg.channel.createMessage(`Open the following link to view the log for thread #${thread.thread_number}:\n<${addOptQueryStringToUrl(logUrl, args)}>`);
       return;
     }
 
     const logFile = await getLogFile(thread);
     if (logFile) {
-      msg.channel.createMessage("Download the following file to view the log:", logFile);
+      msg.channel.createMessage(`Download the following file to view the log for thread #${thread.thread_number}:`, logFile);
       return;
     }
 

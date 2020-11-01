@@ -44,6 +44,18 @@ async function findById(id) {
 }
 
 /**
+ * @param {number} threadNumber
+ * @returns {Promise<Thread>}
+ */
+async function findByThreadNumber(threadNumber) {
+  const thread = await knex("threads")
+    .where("thread_number", threadNumber)
+    .first();
+
+  return (thread ? new Thread(thread) : null);
+}
+
+/**
  * @param {String} userId
  * @returns {Promise<Thread>}
  */
@@ -408,6 +420,7 @@ async function getThreadsThatShouldBeSuspended() {
 
 module.exports = {
   findById,
+  findByThreadNumber,
   findOpenThreadByUserId,
   findByChannelId,
   findOpenThreadByChannelId,
