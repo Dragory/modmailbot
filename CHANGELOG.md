@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.1.0
+* Each thread is now assigned a number, increasing by 1 each thread. This can be used in commands like `!log` in place of the full thread ID.
+* New option: `autoAlert`
+  * When enabled, the last moderator to reply to a modmail thread will be automatically alerted when the thread gets a new reply
+  * Auto-alert kicks in after a small delay after the reply to prevent alerts in the middle of an ongoing conversation. This delay is set by the option `autoAlertDelay`.
+* New option: `pinThreadHeader`
+  * When enabled, the bot will automatically pin the "thread header" message that contains the user's details
+* `!thread` is now an alias for `!log`/`!loglink`
+* Fix some bugs with the `mentionRole` option
+* `mentionRole = off` now behaves the same as `mentionRole = none`
+* Fixed snippet previews (via `!snippet snippet_name_here`) sometimes cutting off the first word ([#491](https://github.com/Dragory/modmailbot/pull/491) by @Gugu7264)
+* When calling `threads.createNewThreadForUser()`, plugins can now specify `mentionRole` as one of the options to override the default mentionRole config option value for the new thread
+
 ## v3.0.3
 * Fix inline snippets only working once per reply
 
