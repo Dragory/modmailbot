@@ -192,9 +192,10 @@ async function createNewThreadForUser(user, opts = {}) {
 
   if (! quiet) {
     // Ping moderators of the new thread
-    if (config.mentionRole) {
+    const staffMention = utils.getInboxMention();
+    if (staffMention.trim() !== "") {
       await newThread.postNonLogMessage({
-        content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
+        content: `${staffMention}New modmail thread (${newThread.user_name})`,
         allowedMentions: utils.getInboxMentionAllowedMentions(),
       });
     }
