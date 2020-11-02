@@ -77,7 +77,7 @@ function getHeaderGuildInfo(member) {
 
 /**
  * @typedef CreateNewThreadForUserOpts
- * @property {boolean} [quiet] If true, doesn't ping mentionRole or reply with responseMessage
+ * @property {boolean} [quiet] If true, doesn't ping mentionRole
  * @property {boolean} [ignoreRequirements] If true, creates a new thread even if the account doesn't meet requiredAccountAge
  * @property {boolean} [ignoreHooks] If true, doesn't call beforeNewThread hooks
  * @property {Message} [message] Original DM message that is trying to start the thread, if there is one
