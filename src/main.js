@@ -188,6 +188,7 @@ function initBaseMessageHandlers() {
     if (! msg || ! msg.author) return;
     if (msg.author.id === bot.user.id) return;
     if (await blocked.isBlocked(msg.author.id)) return;
+    if (! msg.content) return;
 
     // Old message content doesn't persist between bot restarts
     const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
