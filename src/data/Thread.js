@@ -89,10 +89,11 @@ class Thread {
     try {
       let firstMessage;
 
-      if (typeof content === "string") {
-        // Content is a string, chunk it and send it as individual messages.
+      const textContent = typeof content === "string" ? content : content.content;
+      if (textContent) {
+        // Text content is included, chunk it and send it as individual messages.
         // Files (attachments) are only sent with the last message.
-        const chunks = utils.chunkMessageLines(content);
+        const chunks = utils.chunkMessageLines(textContent);
         for (const [i, chunk] of chunks.entries()) {
           // Only send embeds, files, etc. with the last message
           const msg = (i === chunks.length - 1)
@@ -102,7 +103,7 @@ class Thread {
           firstMessage = firstMessage || msg;
         }
       } else {
-        // Content is a full message content object, send it as-is with the files (if any)
+        // No text content, send as one message
         firstMessage = await bot.createMessage(this.channel_id, content, file);
       }
 
