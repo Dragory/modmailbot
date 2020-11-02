@@ -33,6 +33,7 @@ const displayRoles = require("./data/displayRoles");
  * @typedef {object} PluginAttachmentsAPI
  * @property {AddAttachmentStorageTypeFn} addStorageType
  * @property {DownloadAttachmentFn} downloadAttachment
+ * @property {SaveAttachmentFn} saveAttachment
  */
 
 /**

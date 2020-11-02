@@ -70,6 +70,7 @@ Scroll down to [PluginAPI](#PluginAPI) for a list of properties available to plu
 | --- | --- |
 | addStorageType | <code>AddAttachmentStorageTypeFn</code> | 
 | downloadAttachment | <code>DownloadAttachmentFn</code> | 
+| saveAttachment | <code>SaveAttachmentFn</code> | 
 
 <a name="PluginLogsAPI"></a>
 

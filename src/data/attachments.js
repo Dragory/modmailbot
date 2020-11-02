@@ -61,6 +61,13 @@ function getErrorResult(msg = null) {
  */
 
 /**
+ * Saves the given attachment based on the configured storage system
+ * @callback SaveAttachmentFn
+ * @param {Eris.Attachment} attachment
+ * @returns {Promise<{ url: string }>}
+ */
+
+/**
  * @type {AttachmentStorageTypeHandler}
  */
 let passthroughOriginalAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
@@ -206,11 +213,9 @@ async function attachmentToDiscordFileObject(attachment) {
 }
 
 /**
- * Saves the given attachment based on the configured storage system
- * @param {Eris.Attachment} attachment
- * @returns {Promise<{ url: string }>}
+ * @type {SaveAttachmentFn}
  */
-function saveAttachment(attachment) {
+const saveAttachment = (attachment) => {
   if (attachmentSavePromises[attachment.id]) {
     return attachmentSavePromises[attachment.id];
   }
@@ -226,7 +231,7 @@ function saveAttachment(attachment) {
   });
 
   return attachmentSavePromises[attachment.id];
-}
+};
 
 /**
  * @type AddAttachmentStorageTypeFn

@@ -115,7 +115,8 @@ module.exports = {
       },
       attachments: {
         addStorageType: attachments.addStorageType,
-        downloadAttachment: attachments.downloadAttachment
+        downloadAttachment: attachments.downloadAttachment,
+        saveAttachment: attachments.saveAttachment,
       },
       logs: {
         addStorageType: logs.addStorageType,
