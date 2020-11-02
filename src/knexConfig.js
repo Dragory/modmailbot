@@ -44,7 +44,7 @@ module.exports = {
         return;
       }
 
-      console.warn(message);
+      console.warn(`[DATABASE WARNING] ${message}`);
     },
   },
 };
