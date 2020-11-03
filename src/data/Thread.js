@@ -99,7 +99,7 @@ class Thread {
           // Only send embeds, files, etc. with the last message
           const msg = (i === chunks.length - 1)
             ? await bot.createMessage(this.channel_id, { ...contentObj, content: chunk }, file)
-            : await bot.createMessage(this.channel_id, { ...contentObj, content: chunk });
+            : await bot.createMessage(this.channel_id, { ...contentObj, content: chunk, embed: null });
 
           firstMessage = firstMessage || msg;
         }
