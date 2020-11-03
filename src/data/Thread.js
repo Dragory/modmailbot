@@ -97,8 +97,8 @@ class Thread {
         for (const [i, chunk] of chunks.entries()) {
           // Only send embeds, files, etc. with the last message
           const msg = (i === chunks.length - 1)
-            ? await bot.createMessage(this.channel_id, chunk, file)
-            : await bot.createMessage(this.channel_id, chunk);
+            ? await bot.createMessage(this.channel_id, { content: chunk, ...content }, file)
+            : await bot.createMessage(this.channel_id, { content: chunk, ...content });
 
           firstMessage = firstMessage || msg;
         }
