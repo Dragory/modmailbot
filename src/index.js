@@ -33,6 +33,17 @@ function errorHandler(err) {
     } else if (err instanceof utils.BotError) {
       // Leave out stack traces for BotErrors (the message has enough info)
       console.error(`Error: ${err.message}`);
+    } else if (err.message === "Disallowed intents specified") {
+      let fullMessage = "Error: Disallowed intents specified";
+      fullMessage += "\n\n";
+      fullMessage += "To run the bot, you must enable 'Server Members Intent' on your bot's page in the Discord Developer Portal:";
+      fullMessage += "\n\n";
+      fullMessage += "1. Go to https://discord.com/developers/applications"
+      fullMessage += "2. Click on your bot"
+      fullMessage += "3. Click 'Bot' on the sidebar"
+      fullMessage += "4. Turn on 'Server Members Intent'"
+
+      console.error(fullMessage);
     } else {
       // Truncate long stack traces for other errors
       const stack = err.stack || "";
