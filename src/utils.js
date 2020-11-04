@@ -18,7 +18,7 @@ let logChannel = null;
  */
 function getInboxGuild() {
   if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.inboxServerId);
-  if (! inboxGuild) throw new BotError("The bot is not on the modmail (inbox) server!");
+  if (! inboxGuild) throw new BotError("The bot is not on the inbox server!");
   return inboxGuild;
 }
 
