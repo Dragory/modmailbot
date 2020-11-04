@@ -17,7 +17,12 @@ const pluginSources = {
         console.log(`Installing ${plugins.length} plugins from NPM...`);
 
         let stderr = "";
-        const npmProcess = childProcess.spawn("npm", ["install", "--verbose", "--no-save", ...plugins], { cwd: process.cwd() });
+        const npmProcessName = /^win/.test(process.platform) ? "npm.cmd" : "npm";
+        const npmProcess = childProcess.spawn(
+          npmProcessName,
+          ["install", "--verbose", "--no-save", ...plugins],
+          { cwd: process.cwd() }
+        );
         npmProcess.stderr.on("data", data => { stderr += String(data) });
         npmProcess.on("close", code => {
           if (code !== 0) {
