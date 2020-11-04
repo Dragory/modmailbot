@@ -156,9 +156,16 @@ async function createNewThreadForUser(user, opts = {}) {
       }
     }
 
-    // Call any registered beforeNewThreadHooks
-    const hookResult = await callBeforeNewThreadHooks({ user, opts, message: opts.message });
-    if (hookResult.cancelled) return;
+    let hookResult;
+    if (! ignoreHooks) {
+      // Call any registered beforeNewThreadHooks
+      hookResult = await callBeforeNewThreadHooks({
+        user,
+        opts,
+        message: opts.message
+      });
+      if (hookResult.cancelled) return;
+    }
 
     // Use the user's name+discrim for the thread channel's name
     // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
@@ -175,7 +182,7 @@ async function createNewThreadForUser(user, opts = {}) {
     console.log(`[NOTE] Creating new thread channel ${channelName}`);
 
     // Figure out which category we should place the thread channel in
-    let newThreadCategoryId = hookResult.categoryId || opts.categoryId || null;
+    let newThreadCategoryId = (hookResult && hookResult.categoryId) || opts.categoryId || null;
 
     if (! newThreadCategoryId && config.categoryAutomation.newThreadFromServer) {
       // Categories for specific source guilds (in case of multiple main guilds)
