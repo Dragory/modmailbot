@@ -16,6 +16,8 @@ try {
   process.exit(1);
 }
 
+const utils = require("./utils");
+
 // Error handling
 // Force crash on unhandled rejections and uncaught exceptions.
 // Use something like forever/pm2 to restart.
@@ -84,7 +86,6 @@ try {
 }
 
 const config = require("./cfg");
-const utils = require("./utils");
 const main = require("./main");
 const knex = require("./knex");
 
