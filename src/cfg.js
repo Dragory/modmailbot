@@ -18,7 +18,20 @@ const configFiles = [
   "config.ini.txt",
   "config.json.json",
   "config.json.txt",
+  "config.json.ini",
 ];
+
+
+function moduleAvailable(name) {
+    try {
+        require.resolve(name);
+        return true;
+    } catch(e){}
+    return false;
+}
+if (moduleAvailable('dotenv')) {
+    require('dotenv').config();
+}
 
 let foundConfigFile;
 for (const configFile of configFiles) {
