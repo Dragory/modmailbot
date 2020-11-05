@@ -215,7 +215,7 @@ class Thread {
     const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
 
-    if (config.allowInlineSnippets) {
+    if (config.allowSnippets && config.allowInlineSnippets) {
       // Replace {{snippet}} with the corresponding snippet
       // The beginning and end of the variable - {{ and }} - can be changed with the config options
       // config.inlineSnippetStart and config.inlineSnippetEnd

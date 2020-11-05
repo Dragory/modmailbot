@@ -6,6 +6,7 @@ const config = require("../cfg");
 const {THREAD_STATUS} = require("../data/constants");
 
 module.exports = ({ bot, knex, config, commands }) => {
+  if (! config.allowSuspend) return;
   // Check for threads that are scheduled to be suspended and suspend them
   async function applyScheduledSuspensions() {
     const threadsToBeSuspended = await threads.getThreadsThatShouldBeSuspended();
