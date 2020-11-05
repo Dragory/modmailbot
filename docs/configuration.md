@@ -98,15 +98,15 @@ If enabled, staff members can delete their own replies in modmail threads with `
 If enabled, staff members can edit their own replies in modmail threads with `!edit`
 
 #### allowBlock
-**Default:** `on`
+**Default:** `on`  
 If enabled, staff members can block a user from using modmail with `!block`
 
 #### allowSuspend
-**Default:** `on`
+**Default:** `on`  
 If enabled, staff members can suspend a user from using modmail with `!suspend`
 
 #### allowSnippets
-**Default:** `on`
+**Default:** `on`  
 If enabled, staff members can use [Snippets](snippets.md)
 
 #### allowInlineSnippets
