@@ -4,6 +4,7 @@ const blocked = require("../data/blocked");
 const utils = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
+  if (! config.allowBlock) return;
   async function removeExpiredBlocks() {
     const expiredBlocks = await blocked.getExpiredBlocks();
     const logChannel = utils.getLogChannel();

@@ -97,16 +97,28 @@ If enabled, staff members can delete their own replies in modmail threads with `
 **Default:** `on`  
 If enabled, staff members can edit their own replies in modmail threads with `!edit`
 
+#### allowBlock
+**Default:** `on`  
+If enabled, staff members can block a user from using modmail with `!block`
+
+#### allowSuspend
+**Default:** `on`  
+If enabled, staff members can suspend a user from using modmail with `!suspend`
+
+#### allowSnippets
+**Default:** `on`  
+If enabled, staff members can use [Snippets](snippets.md)
+
 #### allowInlineSnippets
 **Default:** `on`  
-If enabled, snippets can be included *within* replies by wrapping the snippet's name in {{ and }}.  
+If `allowSnippets` is enabled, this option controls whether the snippets can be included *within* replies by wrapping the snippet's name in {{ and }}.  
 E.g. `!r Hello! {{rules}}`
+
+See [inlineSnippetStart](#inlineSnippetStart) and [inlineSnippetEnd](#inlineSnippetEnd) to customize the symbols used.
 
 #### allowChangingDisplayRole
 **Default:** `on`  
 If enabled, moderators can change the role that's shown with their replies to any role they currently have using the `!role` command.
-
-See [inlineSnippetStart](#inlineSnippetStart) and [inlineSnippetEnd](#inlineSnippetEnd) to customize the symbols used.
 
 #### alwaysReply
 **Default:** `off`  
