@@ -23,6 +23,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     const createdThread = await threads.createNewThreadForUser(user, {
       quiet: true,
       ignoreRequirements: true,
+      ignoreHooks: true,
       source: "command",
     });
 
