@@ -1,5 +1,25 @@
 # Changelog
 
+## v3.2.0
+
+**General changes:**
+* Updated to Eris 0.14.0, which changes the API url used to `discord.com` instead of `discordapp.com`
+  * API calls to `discordapp.com` are being phased out on Nov 7, 2020
+  * This means that bot versions prior to v3.2.0 *might stop working* on Nov 7, 2020
+* New options: `allowBlock`, `allowSuspend`, `allowSnippets` ([#498](https://github.com/Dragory/modmailbot/pull/498) by [@lirolake](https://github.com/lirolake))
+  * These all default to `on`
+* Improved error messages and error handling
+  * Removes at least one instance of ECONNRESET errors
+* Fixed issue where NPM plugins would not install on Windows
+* Fixed issue where mentions by the bot were not working in certain situations ([#496] by [@DarkView](https://github.com/DarkView))
+* Fixed issue where long system messages (primarily from plugins) would not get chunked properly and would throw an error instead
+
+**Plugins:**
+* Make sure to check the [Eris 0.14.0 changelog](https://github.com/abalabahaha/eris/releases/tag/0.14.0) for any changes that might affect your plugins
+* The `attachments` object now includes a new `saveAttachment()` function to save arbitrary attachments using the bot's `attachmentStorage`
+* Fixed the `ignoreHooks` option for `threads.createNewThreadForUser()` not working
+* Fixed `!newthread` throwing an error if a plugin cancels thread creation in the `beforeNewThread` hook
+
 ## v3.1.0
 * Each thread is now assigned a number, increasing by 1 each thread. This can be used in commands like `!log` in place of the full thread ID.
 * New option: `autoAlert`
