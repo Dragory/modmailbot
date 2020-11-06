@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "ajv": "^6.12.4",
-    "eris": "https://github.com/Dragory/eris/archive/9c1935b31a1c2972861464b54bb382a165674b93.tar.gz",
+    "eris": "https://github.com/Dragory/eris/archive/stickers-0.14.0.tar.gz",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
     "humanize-duration": "^3.23.1",
