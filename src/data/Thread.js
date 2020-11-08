@@ -481,6 +481,7 @@ class Thread {
    * @param {boolean} [allowedMentions.everyone]
    * @param {boolean|string[]} [allowedMentions.roles]
    * @param {boolean|string[]} [allowedMentions.users]
+   * @param {boolean} [allowedMentions.postToThreadChannel]
    * @returns {Promise<void>}
    */
   async sendSystemMessageToUser(text, opts = {}) {
@@ -495,12 +496,14 @@ class Thread {
     const dmContent = await formatters.formatSystemToUserDM(threadMessage);
     const dmMsg = await this._sendDMToUser(dmContent);
 
-    const inboxContent = await formatters.formatSystemToUserThreadMessage(threadMessage);
-    const finalInboxContent = typeof inboxContent === "string" ? { content: inboxContent } : inboxContent;
-    finalInboxContent.allowedMentions = opts.allowedMentions;
-    const inboxMsg = await this._postToThreadChannel(inboxContent);
+    if (opts.postToThreadChannel !== false) {
+      const inboxContent = await formatters.formatSystemToUserThreadMessage(threadMessage);
+      const finalInboxContent = typeof inboxContent === "string" ? {content: inboxContent} : inboxContent;
+      finalInboxContent.allowedMentions = opts.allowedMentions;
+      const inboxMsg = await this._postToThreadChannel(inboxContent);
+      threadMessage.inbox_message_id = inboxMsg.id;
+    }
 
-    threadMessage.inbox_message_id = inboxMsg.id;
     threadMessage.dm_channel_id = dmMsg.channel.id;
     threadMessage.dm_message_id = dmMsg.id;
 

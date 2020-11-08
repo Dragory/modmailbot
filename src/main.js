@@ -169,7 +169,8 @@ function initBaseMessageHandlers() {
             const responseMessage = utils.readMultilineConfigValue(config.responseMessage);
 
             try {
-              await thread.sendSystemMessageToUser(responseMessage);
+              const postToThreadChannel = config.showResponseMessageInThreadChannel;
+              await thread.sendSystemMessageToUser(responseMessage, { postToThreadChannel });
             } catch (err) {
               await thread.postSystemMessage(`**NOTE:** Could not send auto-response to the user. The error given was: \`${err.message}\``);
             }

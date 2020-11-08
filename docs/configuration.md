@@ -331,7 +331,8 @@ Required amount of time (in minutes) the user must be a member of the server bef
 
 #### responseMessage
 **Default:** `Thank you for your message! Our mod team will reply to you here as soon as possible.`  
-The bot's response to the user when they message the bot and open a new modmail thread
+The bot's response to the user when they message the bot and open a new modmail thread.  
+If you have a multi-line or otherwise long `responseMessage`, you might want to turn off [showResponseMessageInThreadChannel](#showResponseMessageInThreadChannel) to reduce clutter in the thread channel on the inbox server.
 
 #### rolesInThreadHeader
 **Default:** `off`  
@@ -347,6 +348,11 @@ serverGreetings.94882524378968064.attachment = greeting.png
 serverGreetings.541484311354933258.message[] = Welcome to server ID 541484311354933258!
 serverGreetings.541484311354933258.message[] = Second line of the greeting.
 ```
+
+#### showResponseMessageInThreadChannel
+**Default:** `on`  
+Whether to show the [responseMessage](#responseMessage) sent to the user in the thread channel on the inbox server as well.  
+If you have a multi-line or otherwise long `responseMessage`, it might be a good idea to turn this off to reduce clutter.
 
 #### smallAttachmentLimit
 **Default:** `2097152`  

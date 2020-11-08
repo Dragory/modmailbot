@@ -373,6 +373,11 @@
       "default": false
     },
 
+    "showResponseMessageInThreadChannel": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "logStorage": {
       "type": "string",
       "default": "local"

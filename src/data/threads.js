@@ -221,7 +221,6 @@ async function createNewThreadForUser(user, opts = {}) {
     });
 
     const newThread = await findById(newThreadId);
-    let responseMessageError = null;
 
     if (! quiet) {
       // Ping moderators of the new thread
