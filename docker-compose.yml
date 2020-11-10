@@ -13,7 +13,7 @@ services:
     env_file:
       - ./.env
     ports:
-      - "8890:8890"
+      - ${PORT:-8890}:${PORT:-8890}
 
 volumes:
   db-data:
