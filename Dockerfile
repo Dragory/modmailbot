@@ -7,6 +7,7 @@ WORKDIR /usr/modmailbot
 COPY package.json package-lock.json ./
 RUN npm i --production
 
-COPY src knexfile.js ./
+COPY src .
+COPY knexfile.js ./
 
 CMD ["npm", "start"]
