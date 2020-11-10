@@ -5,7 +5,7 @@ LABEL version "3.2.0"
 WORKDIR /usr/modmailbot
 
 COPY package.json package-lock.json ./
-RUN npm i --production
+RUN npm ci --production
 
 COPY src .
 COPY knexfile.js ./
