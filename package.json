@@ -26,7 +26,6 @@
     "helmet": "^4.1.1",
     "humanize-duration": "^3.23.1",
     "ini": "^1.3.5",
-    "json-schema-to-jsdoc": "^1.0.0",
     "json5": "^2.1.3",
     "knex": "^0.21.5",
     "knub-command-manager": "^6.1.0",
@@ -44,6 +43,7 @@
   "devDependencies": {
     "eslint": "^7.7.0",
     "jsdoc-to-markdown": "^6.0.1",
+    "json-schema-to-jsdoc": "^1.1.0",
     "supervisor": "https://github.com/petruisfan/node-supervisor/archive/fb89a695779770d3cd63b624ef4b1ab2908c105d.tar.gz"
   },
   "engines": {
