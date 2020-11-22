@@ -31,7 +31,7 @@ function getPrettyVersion() {
   const headCommitHash = getHeadCommitHash();
 
   return headCommitHash
-    ? `v${packageVersion} (${headCommitHash.slice(0, 8)})`
+    ? `v${packageVersion} (${headCommitHash.slice(0, 7)})`
     : packageVersion;
 }
 
