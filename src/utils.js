@@ -4,8 +4,7 @@ const moment = require("moment");
 const humanizeDuration = require("humanize-duration");
 const publicIp = require("public-ip");
 const config = require("./cfg");
-
-class BotError extends Error {}
+const { BotError } = require("./BotError");
 
 const userMentionRegex = /^<@!?([0-9]+?)>$/;
 
@@ -492,8 +491,6 @@ function chunkMessageLines(str, maxChunkLength = 1990) {
 }
 
 module.exports = {
-  BotError,
-
   getInboxGuild,
   getMainGuilds,
   getLogChannel,

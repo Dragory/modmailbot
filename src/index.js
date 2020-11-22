@@ -16,7 +16,7 @@ try {
   process.exit(1);
 }
 
-const utils = require("./utils");
+const { BotError } = require("./BotError");
 
 // Error handling
 // Force crash on unhandled rejections and uncaught exceptions.
@@ -32,7 +32,7 @@ function errorHandler(err) {
   if (err) {
     if (typeof err === "string") {
       console.error(`Error: ${err}`);
-    } else if (err instanceof utils.BotError) {
+    } else if (err instanceof BotError) {
       // Leave out stack traces for BotErrors (the message has enough info)
       console.error(`Error: ${err.message}`);
     } else if (err.message === "Disallowed intents specified") {
@@ -72,6 +72,9 @@ function errorHandler(err) {
 process.on("uncaughtException", errorHandler);
 process.on("unhandledRejection", errorHandler);
 
+const { getPrettyVersion } = require("./botVersion");
+console.log(`Starting Modmail ${getPrettyVersion()}`);
+
 let testedPackage = "";
 try {
   const packageJson = require("../package.json");
@@ -85,11 +88,11 @@ try {
   process.exit(1);
 }
 
-const config = require("./cfg");
-const main = require("./main");
-const knex = require("./knex");
-
 (async function() {
+  require("./cfg");
+  const main = require("./main");
+  const knex = require("./knex");
+
   // Make sure the database is up to date
   const [completed, newMigrations] = await knex.migrate.list();
   if (newMigrations.length > 0) {
