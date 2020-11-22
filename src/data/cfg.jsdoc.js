@@ -18,7 +18,7 @@
  * @property {string} [mentionRole="here"]
  * @property {boolean} [pingOnBotMention=true]
  * @property {string} [botMentionResponse]
- * @property {array} [inboxServerPermission=[]]
+ * @property {array} [inboxServerPermission=["manageMessages"]]
  * @property {boolean} [alwaysReply=false]
  * @property {boolean} [alwaysReplyAnon=false]
  * @property {boolean} [useNicknames=false]
