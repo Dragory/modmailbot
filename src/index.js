@@ -5,6 +5,10 @@ if (nodeMajorVersion < 12) {
   process.exit(1);
 }
 
+// Print out bot and Node.js version
+const { getPrettyVersion } = require("./botVersion");
+console.log(`Starting Modmail ${getPrettyVersion()} on Node.js ${process.versions.node}`);
+
 // Verify node modules have been installed
 const fs = require("fs");
 const path = require("path");
@@ -75,9 +79,6 @@ function errorHandler(err) {
 
 process.on("uncaughtException", errorHandler);
 process.on("unhandledRejection", errorHandler);
-
-const { getPrettyVersion } = require("./botVersion");
-console.log(`Starting Modmail ${getPrettyVersion()} on Node.js ${process.versions.node}`);
 
 let testedPackage = "";
 try {
