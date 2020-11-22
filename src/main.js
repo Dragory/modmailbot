@@ -18,6 +18,9 @@ const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
 
 module.exports = {
   async start() {
+    console.log("Preparing plugins...");
+    await installAllPlugins();
+
     console.log("Connecting to Discord...");
 
     bot.once("ready", async () => {
@@ -57,10 +60,11 @@ module.exports = {
       console.log("Initializing...");
       initStatus();
       initBaseMessageHandlers();
+      initUpdateNotifications();
 
       console.log("Loading plugins...");
-      const pluginResult = await initPlugins();
-      console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.builtInCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
+      const pluginResult = await loadAllPlugins();
+      console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
 
       console.log("");
       console.log("Done! Now listening to DMs.");
@@ -289,19 +293,14 @@ function initBaseMessageHandlers() {
   });
 }
 
-async function initPlugins() {
-  // Initialize command manager
-  const commands = createCommandManager(bot);
-
-  // Register command aliases
-  if (config.commandAliases) {
-    for (const alias in config.commandAliases) {
-      commands.addAlias(config.commandAliases[alias], alias);
-    }
+function initUpdateNotifications() {
+  if (config.updateNotifications) {
+    updates.startVersionRefreshLoop();
   }
+}
 
-  // Load plugins
-  const builtInPlugins = [
+function getBasePlugins() {
+  return [
     "file:./src/modules/reply",
     "file:./src/modules/close",
     "file:./src/modules/logs",
@@ -319,21 +318,43 @@ async function initPlugins() {
     "file:./src/modules/joinLeaveNotification",
     "file:./src/modules/roles",
   ];
+}
 
-  const plugins = [...builtInPlugins, ...config.plugins];
+function getExternalPlugins() {
+  return config.plugins;
+}
 
+function getAllPlugins() {
+  return [...getBasePlugins(), ...getExternalPlugins()];
+}
+
+async function installAllPlugins() {
+  const plugins = getAllPlugins();
   await installPlugins(plugins);
+}
+
+async function loadAllPlugins() {
+  // Initialize command manager
+  const commands = createCommandManager(bot);
+
+  // Register command aliases
+  if (config.commandAliases) {
+    for (const alias in config.commandAliases) {
+      commands.addAlias(config.commandAliases[alias], alias);
+    }
+  }
+
+  // Load plugins
+  const basePlugins = getBasePlugins();
+  const externalPlugins = getExternalPlugins();
+  const plugins = getAllPlugins();
 
   const pluginApi = getPluginAPI({ bot, knex, config, commands });
-  await loadPlugins(plugins, pluginApi);
-
-  if (config.updateNotifications) {
-    updates.startVersionRefreshLoop();
-  }
+  await loadPlugins([...basePlugins, ...externalPlugins], pluginApi);
 
   return {
     loadedCount: plugins.length,
-    builtInCount: builtInPlugins.length,
-    externalCount: plugins.length - builtInPlugins.length,
+    baseCount: basePlugins.length,
+    externalCount: externalPlugins.length,
   };
 }
