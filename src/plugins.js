@@ -9,6 +9,7 @@ const pacote = require("pacote");
 const path = require("path");
 const threads = require("./data/threads");
 const displayRoles = require("./data/displayRoles");
+const { PluginInstallationError } = require("./PluginInstallationError");
 
 const pluginSources = {
   npm: {
@@ -40,7 +41,7 @@ const pluginSources = {
         npmProcess.stderr.on("data", data => { stderr += String(data) });
         npmProcess.on("close", code => {
           if (code !== 0) {
-            return reject(new Error(stderr));
+            return reject(new PluginInstallationError(stderr));
           }
 
           return resolve();
@@ -53,7 +54,7 @@ const pluginSources = {
       const packageName = manifest.name;
       const pluginFn = require(packageName);
       if (typeof pluginFn !== "function") {
-        throw new Error(`Plugin '${plugin}' is not a valid plugin`);
+        throw new PluginInstallationError(`Plugin '${plugin}' is not a valid plugin`);
       }
 
       return pluginFn(pluginApi);
@@ -66,7 +67,7 @@ const pluginSources = {
       const requirePath = path.join(__dirname, "..", plugin);
       const pluginFn = require(requirePath);
       if (typeof pluginFn !== "function") {
-        throw new Error(`Plugin '${plugin}' is not a valid plugin`);
+        throw new PluginInstallationError(`Plugin '${plugin}' is not a valid plugin`);
       }
       return pluginFn(pluginApi);
     },

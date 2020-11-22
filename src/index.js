@@ -17,6 +17,7 @@ try {
 }
 
 const { BotError } = require("./BotError");
+const { PluginInstallationError } = require("./PluginInstallationError");
 
 // Error handling
 // Force crash on unhandled rejections and uncaught exceptions.
@@ -46,6 +47,9 @@ function errorHandler(err) {
       fullMessage += "4. Turn on 'Server Members Intent'"
 
       console.error(fullMessage);
+    } else if (err instanceof PluginInstallationError) {
+      // Don't truncate PluginInstallationErrors as they can get lengthy
+      console.error(err);
     } else {
       // Truncate long stack traces for other errors
       const stack = err.stack || "";
