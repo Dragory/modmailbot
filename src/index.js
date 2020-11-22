@@ -7,7 +7,7 @@ if (nodeMajorVersion < 12) {
 
 // Print out bot and Node.js version
 const { getPrettyVersion } = require("./botVersion");
-console.log(`Starting Modmail ${getPrettyVersion()} on Node.js ${process.versions.node}`);
+console.log(`Starting Modmail ${getPrettyVersion()} on Node.js ${process.versions.node} (${process.arch})`);
 
 // Verify node modules have been installed
 const fs = require("fs");
