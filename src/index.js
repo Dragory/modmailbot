@@ -77,7 +77,7 @@ process.on("uncaughtException", errorHandler);
 process.on("unhandledRejection", errorHandler);
 
 const { getPrettyVersion } = require("./botVersion");
-console.log(`Starting Modmail ${getPrettyVersion()}`);
+console.log(`Starting Modmail ${getPrettyVersion()} on Node.js ${process.versions.node}`);
 
 let testedPackage = "";
 try {
