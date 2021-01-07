@@ -1,7 +1,6 @@
 # Changelog
 
-## DEVELOPMENT VERSION
-*This version is not released yet.*
+## v3.3.0
 
 **Breaking changes:**
 * The default value for [`inboxServerPermission`](docs/configuration.md#inboxServerPermission) is now `manageMessages`
