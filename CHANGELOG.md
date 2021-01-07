@@ -1,5 +1,23 @@
 # Changelog
 
+## DEVELOPMENT VERSION
+*This version is not released yet.*
+
+**General changes:**
+* **BREAKING CHANGE:** The default value for [`inboxServerPermission`](docs/configuration.md#inboxserverpermission) is now `manageMessages`
+  * This means that after updating, if you haven't set `inboxServerPermission` in your `config.ini`,
+    only those members with the "Manage Messages" permission on the inbox server will be able to use the bot's commands
+* New option: `showResponseMessageInThreadChannel`
+  * Controls whether the bot's response message is shown in the thread channel
+* Bot and Node.js version is now shown on bot start-up
+* `config.example.ini` now contains several common options by default
+* When starting the bot via command line, you can now specify which config file to load with the `--config`/`-c` CLI option
+
+**Plugins:**
+* Plugins are now installed before connecting to the Discord Gateway
+* Fix GitHub-based NPM plugins requiring Git to be installed to work
+* Plugin installation errors are no longer truncated
+
 ## v3.2.0
 
 **General changes:**
