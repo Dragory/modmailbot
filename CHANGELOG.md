@@ -14,8 +14,11 @@
 * New option: `showResponseMessageInThreadChannel`
   * Controls whether the bot's response message is shown in the thread channel
 * Bot and Node.js version is now shown on bot start-up
+* `!close silent` can now also be used with `!close -silent` and `!close -s` ([#528](https://github.com/Dragory/modmailbot/pull/528) by [@SnowyLuma](https://github.com/SnowyLuma))
+* `!close cancel` can now also be used with `!close -cancel` and `!close -c`
 * `config.example.ini` now contains several common options by default
 * When starting the bot via command line, you can now specify which config file to load with the `--config`/`-c` CLI option
+* Updated bot dependencies
 
 **Plugins:**
 * Plugins are now installed before connecting to the Discord Gateway
