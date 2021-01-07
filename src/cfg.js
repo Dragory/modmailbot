@@ -19,6 +19,7 @@ const configFilesToSearch = [
   "config.ini.txt",
   "config.json.json",
   "config.json.txt",
+  "config.json.ini",
 ];
 
 let configFileToLoad;
