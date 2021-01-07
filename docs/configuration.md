@@ -222,7 +222,7 @@ Alias for [`serverGreetings`](#serverGreetings)
 If enabled, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.
 
 #### inboxServerPermission
-**Default:** *None*  
+**Default:** `manageMessages`  
 **Accepts multiple values.** Permission name, user id, or role id required to use bot commands on the inbox server.
 See ["Permissions" on this page](https://abal.moe/Eris/docs/reference) for supported permission names (e.g. `kickMembers`).
 
