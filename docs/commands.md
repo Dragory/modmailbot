@@ -28,6 +28,9 @@ Close the Modmail thread after a timer. Sending a message to the user or receivi
 
 **Example:** `!close 15m`
 
+### `!close -s` / `!close -s <time>`
+Close the Modmail thread without notifying the user that it was closed.
+
 ### `!close cancel`
 Cancel a timed close.
 

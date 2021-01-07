@@ -104,7 +104,7 @@ module.exports = ({ bot, knex, config, commands }) => {
         }
 
         // Silent close (= no close message)
-        if (args.opts.includes("silent") || args.opts.includes("s")) {
+        if (args.opts.includes("silent") || args.opts.includes("s") || args.opts.includes("-s")) {
           silentClose = true;
         }
 
