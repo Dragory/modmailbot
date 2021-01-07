@@ -15,7 +15,7 @@
  * @property {string} [closeMessage]
  * @property {boolean} [allowUserClose=false]
  * @property {string} [newThreadCategoryId]
- * @property {string} [mentionRole="here"]
+ * @property {string} [mentionRole="none"]
  * @property {boolean} [pingOnBotMention=true]
  * @property {string} [botMentionResponse]
  * @property {array} [inboxServerPermission=["manageMessages"]]

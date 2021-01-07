@@ -264,10 +264,9 @@ Alias for [mainServerId](#mainServerId)
 Alias for [inboxServerId](#inboxServerId)
 
 #### mentionRole
-**Default:** `here`  
+**Default:** `none`  
 **Accepts multiple values.** Role that is mentioned when new threads are created or the bot is mentioned.
 Accepted values are `none`, `here`, `everyone`, or a role id.
-Requires `pingOnBotMention` to be enabled.
 Set to `none` to disable these pings entirely.
 
 #### mentionUserInThreadHeader

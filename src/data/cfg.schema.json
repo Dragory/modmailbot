@@ -103,7 +103,7 @@
     },
     "mentionRole": {
       "type": "string",
-      "default": "here"
+      "default": "none"
     },
     "pingOnBotMention": {
       "$ref": "#/definitions/customBoolean",
