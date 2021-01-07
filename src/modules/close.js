@@ -92,45 +92,45 @@ module.exports = ({ bot, knex, config, commands }) => {
       thread = await threads.findOpenThreadByChannelId(msg.channel.id);
       if (! thread) return;
 
-      if (args.opts && args.opts.length) {
-        if (args.opts.includes("cancel") || args.opts.includes("c")) {
-          // Cancel timed close
-          if (thread.scheduled_close_at) {
-            await thread.cancelScheduledClose();
-            thread.postSystemMessage("Cancelled scheduled closing");
-          }
+      const opts = args.opts || [];
 
+      if (args.cancel || opts.includes("cancel") || opts.includes("c")) {
+        // Cancel timed close
+        if (thread.scheduled_close_at) {
+          await thread.cancelScheduledClose();
+          thread.postSystemMessage("Cancelled scheduled closing");
+        }
+
+        return;
+      }
+
+      // Silent close (= no close message)
+      if (args.silent || opts.includes("silent") || opts.includes("s")) {
+        silentClose = true;
+      }
+
+      // Timed close
+      const delayStringArg = opts.find(arg => utils.delayStringRegex.test(arg));
+      if (delayStringArg) {
+        const delay = utils.convertDelayStringToMS(delayStringArg);
+        if (delay === 0 || delay === null) {
+          thread.postSystemMessage("Invalid delay specified. Format: \"1h30m\"");
           return;
         }
 
-        // Silent close (= no close message)
-        if (args.opts.includes("silent") || args.opts.includes("s") || args.opts.includes("-s")) {
-          silentClose = true;
+        const closeAt = moment.utc().add(delay, "ms");
+        await thread.scheduleClose(closeAt.format("YYYY-MM-DD HH:mm:ss"), msg.author, silentClose ? 1 : 0);
+
+        let response;
+        if (silentClose) {
+          response = `Thread is now scheduled to be closed silently in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
+        } else {
+          response = `Thread is now scheduled to be closed in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
         }
 
-        // Timed close
-        const delayStringArg = args.opts.find(arg => utils.delayStringRegex.test(arg));
-        if (delayStringArg) {
-          const delay = utils.convertDelayStringToMS(delayStringArg);
-          if (delay === 0 || delay === null) {
-            thread.postSystemMessage("Invalid delay specified. Format: \"1h30m\"");
-            return;
-          }
+        thread.postSystemMessage(response);
 
-          const closeAt = moment.utc().add(delay, "ms");
-          await thread.scheduleClose(closeAt.format("YYYY-MM-DD HH:mm:ss"), msg.author, silentClose ? 1 : 0);
-
-          let response;
-          if (silentClose) {
-            response = `Thread is now scheduled to be closed silently in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
-          } else {
-            response = `Thread is now scheduled to be closed in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
-          }
-
-          thread.postSystemMessage(response);
-
-          return;
-        }
+        return;
       }
 
       // Regular close
@@ -146,6 +146,11 @@ module.exports = ({ bot, knex, config, commands }) => {
     await thread.close(suppressSystemMessages, silentClose);
 
     await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`);
+  }, {
+    options: [
+      { name: "silent", shortcut: "s", isSwitch: true },
+      { name: "cancel", shortcut: "c", isSwitch: true },
+    ],
   });
 
   // Auto-close threads if their channel is deleted
