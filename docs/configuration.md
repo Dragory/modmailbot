@@ -410,6 +410,11 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT`.
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
 
+#### useGitForGitHubPlugins
+**Default:** `off`  
+If enabled, GitHub plugins will be installed with `git` rather than by downloading the archive's tarball.  
+This is useful if you are installing plugins from private repositories that require ssh keys for authentication.
+
 ## Advanced options
 
 #### extraIntents

@@ -75,6 +75,7 @@
  * @property {*} [logOptions.allowAttachmentUrlFallback=false]
  * @property {number} [port=8890]
  * @property {string} [url]
+ * @property {boolean} [useGitForGitHubPlugins=false]
  * @property {array} [extraIntents=[]]
  * @property {*} [dbType="sqlite"]
  * @property {object} [sqliteOptions]

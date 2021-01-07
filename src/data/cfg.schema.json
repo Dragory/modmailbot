@@ -409,6 +409,11 @@
       "type": "string"
     },
 
+    "useGitForGitHubPlugins": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
     "extraIntents": {
       "$ref": "#/definitions/stringArray",
       "default": []
