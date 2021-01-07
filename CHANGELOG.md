@@ -37,7 +37,7 @@
 * Improved error messages and error handling
   * Removes at least one instance of ECONNRESET errors
 * Fixed issue where NPM plugins would not install on Windows
-* Fixed issue where mentions by the bot were not working in certain situations ([#496] by [@DarkView](https://github.com/DarkView))
+* Fixed issue where mentions by the bot were not working in certain situations ([#496](https://github.com/Dragory/modmailbot/pull/496) by [@DarkView](https://github.com/DarkView))
 * Fixed issue where long system messages (primarily from plugins) would not get chunked properly and would throw an error instead
 
 **Plugins:**
