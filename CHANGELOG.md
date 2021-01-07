@@ -1,4 +1,5 @@
 # Changelog
+For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
 ## v3.3.0
 
