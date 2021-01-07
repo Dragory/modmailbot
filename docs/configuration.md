@@ -412,7 +412,7 @@ If enabled, mod replies will use their nicknames (on the inbox server) instead o
 
 #### useGitForGitHubPlugins
 **Default:** `off`  
-If enabled, GitHub plugins will be installed with `git` rather than by downloading the archive's tarball.  
+If enabled, GitHub plugins will be installed with Git rather than by downloading the archive's tarball.  
 This is useful if you are installing plugins from private repositories that require ssh keys for authentication.
 
 ## Advanced options
