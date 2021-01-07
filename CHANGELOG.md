@@ -23,6 +23,7 @@
 **Plugins:**
 * Plugins are now installed before connecting to the Discord Gateway
 * Fix GitHub-based NPM plugins requiring Git to be installed to work
+  * If you need to install GitHub-based plugins with Git after this change, set `useGitForGitHubPlugins = on` in your config
 * Plugin installation errors are no longer truncated
 
 ## v3.2.0
