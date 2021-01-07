@@ -99,7 +99,7 @@ function initStatus() {
     bot.editStatus(null, {name: config.status, type});
   }
 
-  if (config.status == null || config.status === "") {
+  if (config.status == null || config.status === "" || config.status === "none" || config.status === "off") {
     return;
   }
 
