@@ -18,6 +18,7 @@ For instructions on how to update the bot, see **[✨ Updating the bot](docs/upd
 * `!close cancel` can now also be used with `!close -cancel` and `!close -c`
 * `config.example.ini` now contains several common options by default
 * When starting the bot via command line, you can now specify which config file to load with the `--config`/`-c` CLI option
+  * E.g. `npm start -- -c my-other-config.ini` (note the `--` between `npm start` and the option)
 * Updated bot dependencies
 
 **Plugins:**
