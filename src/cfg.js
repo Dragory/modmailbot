@@ -2,12 +2,13 @@ const fs = require("fs");
 const path = require("path");
 const Ajv = require("ajv");
 const schema = require("./data/cfg.schema.json");
+const cliOpts = require("./cliOpts");
 
 /** @type {ModmailConfig} */
 let config = {};
 
-// Config files to search for, in priority order
-const configFiles = [
+// Auto-detected config files, in priority order
+const configFilesToSearch = [
   "config.ini",
   "config.json",
   "config.json5",
@@ -20,24 +21,46 @@ const configFiles = [
   "config.json.txt",
 ];
 
-let foundConfigFile;
-for (const configFile of configFiles) {
+let configFileToLoad;
+
+const requestedConfigFile = cliOpts.config || cliOpts.c; // CLI option --config/-c
+if (requestedConfigFile) {
   try {
-    fs.accessSync(__dirname + "/../" + configFile);
-    foundConfigFile = configFile;
-    break;
-  } catch (e) {}
+    // Config files specified with --config/-c are loaded from cwd
+    fs.accessSync(requestedConfigFile);
+    configFileToLoad = requestedConfigFile;
+  } catch (e) {
+    if (e.code === "ENOENT") {
+      console.error(`Specified config file was not found: ${requestedConfigFile}`);
+    } else {
+      console.error(`Error reading specified config file ${requestedConfigFile}: ${e.message}`);
+    }
+
+    process.exit(1);
+  }
+} else {
+  for (const configFile of configFilesToSearch) {
+    try {
+      // Auto-detected config files are always loaded from the bot's folder, even if the cwd differs
+      const relativePath = path.relative(process.cwd(), path.resolve(__dirname, "..", configFile));
+      fs.accessSync(relativePath);
+      configFileToLoad = relativePath;
+      break;
+    } catch (e) {}
+  }
 }
 
 // Load config values from a config file (if any)
-if (foundConfigFile) {
-  console.log(`Loading configuration from ${foundConfigFile}...`);
+if (configFileToLoad) {
+  const srcRelativePath = path.resolve(__dirname, process.cwd(), configFileToLoad);
+  console.log(`Loading configuration from ${configFileToLoad}...`);
+
   try {
-    if (foundConfigFile.endsWith(".js")) {
-      config = require(`../${foundConfigFile}`);
+    if (configFileToLoad.endsWith(".js")) {
+      config = require(srcRelativePath);
     } else {
-      const raw = fs.readFileSync(__dirname + "/../" + foundConfigFile, {encoding: "utf8"});
-      if (foundConfigFile.endsWith(".ini") || foundConfigFile.endsWith(".ini.txt")) {
+      const raw = fs.readFileSync(configFileToLoad, {encoding: "utf8"});
+      if (configFileToLoad.endsWith(".ini") || configFileToLoad.endsWith(".ini.txt")) {
         config = require("ini").decode(raw);
       } else {
         config = require("json5").parse(raw);
