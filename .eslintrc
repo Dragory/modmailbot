@@ -19,6 +19,8 @@
         "!": true,
         "!!": true
       }
-    }]
+    }],
+    "quotes": ["error", "double"],
+    "no-shadow": "error"
   }
 }

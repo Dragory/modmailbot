@@ -1,4 +1,4 @@
-const config = require('../config');
+const config = require("../cfg");
 const threads = require("../data/threads");
 const Eris = require("eris");
 
@@ -6,6 +6,11 @@ module.exports = ({ bot }) => {
   // Typing proxy: forwarding typing events between the DM and the modmail thread
   if(config.typingProxy || config.typingProxyReverse) {
     bot.on("typingStart", async (channel, user) => {
+      if (! user) {
+        // If the user doesn't exist in the bot's cache, it will be undefined here
+        return;
+      }
+
       // config.typingProxy: forward user typing in a DM to the modmail thread
       if (config.typingProxy && (channel instanceof Eris.PrivateChannel)) {
         const thread = await threads.findOpenThreadByUserId(user.id);

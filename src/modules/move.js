@@ -1,12 +1,12 @@
-const config = require('../config');
-const Eris = require('eris');
+const config = require("../cfg");
+const Eris = require("eris");
 const transliterate = require("transliteration");
-const erisEndpoints = require('eris/lib/rest/Endpoints');
+const erisEndpoints = require("../../node_modules/eris/lib/rest/Endpoints");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowMove) return;
 
-  commands.addInboxThreadCommand('move', '<category:string$>', async (msg, args, thread) => {
+  commands.addInboxThreadCommand("move", "<category:string$>", async (msg, args, thread) => {
     const searchStr = args.category;
     const normalizedSearchStr = transliterate.slugify(searchStr);
 
@@ -41,7 +41,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     });
 
     if (containsRankings[0][1] === 0) {
-      thread.postSystemMessage('No matching category');
+      thread.postSystemMessage("No matching category");
       return;
     }
 

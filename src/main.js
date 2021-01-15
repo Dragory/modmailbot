@@ -1,54 +1,74 @@
-const Eris = require('eris');
-const path = require('path');
+const Eris = require("eris");
+const path = require("path");
 
-const config = require('./config');
-const bot = require('./bot');
-const knex = require('./knex');
-const {messageQueue} = require('./queue');
-const utils = require('./utils');
-const { createCommandManager } = require('./commands');
-const { getPluginAPI, loadPlugin } = require('./plugins');
+const config = require("./cfg");
+const bot = require("./bot");
+const knex = require("./knex");
+const {messageQueue} = require("./queue");
+const utils = require("./utils");
+const { createCommandManager } = require("./commands");
+const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
+const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
 
-const blocked = require('./data/blocked');
-const threads = require('./data/threads');
-const updates = require('./data/updates');
+const blocked = require("./data/blocked");
+const threads = require("./data/threads");
+const updates = require("./data/updates");
 
-const reply = require('./modules/reply');
-const close = require('./modules/close');
-const snippets = require('./modules/snippets');
-const logs = require('./modules/logs');
-const move = require('./modules/move');
-const block = require('./modules/block');
-const suspend = require('./modules/suspend');
-const webserver = require('./modules/webserver');
-const greeting = require('./modules/greeting');
-const typingProxy = require('./modules/typingProxy');
-const version = require('./modules/version');
-const newthread = require('./modules/newthread');
-const idModule = require('./modules/id');
-const alert = require('./modules/alert');
-
-const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
+const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
 
 module.exports = {
   async start() {
-    console.log('Connecting to Discord...');
+    console.log("Preparing plugins...");
+    await installAllPlugins();
 
-    bot.once('ready', async () => {
-      console.log('Connected! Waiting for guilds to become available...');
-      await Promise.all([
-        ...config.mainGuildId.map(id => waitForGuild(id)),
-        waitForGuild(config.mailGuildId)
-      ]);
+    console.log("Connecting to Discord...");
 
-      console.log('Initializing...');
+    bot.once("ready", async () => {
+      console.log("Connected! Waiting for servers to become available...");
+
+      await (new Promise(resolve => {
+        const waitNoteTimeout = setTimeout(() => {
+          console.log("Servers did not become available after 15 seconds, continuing start-up anyway");
+          console.log("");
+
+          const isSingleServer = config.mainServerId.includes(config.inboxServerId);
+          if (isSingleServer) {
+            console.log("WARNING: The bot will not work before it's invited to the server.");
+          } else {
+            const hasMultipleMainServers = config.mainServerId.length > 1;
+            if (hasMultipleMainServers) {
+              console.log("WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.");
+            } else {
+              console.log("WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.");
+            }
+          }
+
+          console.log("");
+
+          resolve();
+        }, 15 * 1000);
+
+        Promise.all([
+          ...config.mainServerId.map(id => waitForGuild(id)),
+          waitForGuild(config.inboxServerId),
+        ]).then(() => {
+          clearTimeout(waitNoteTimeout);
+          resolve();
+        });
+      }));
+
+      console.log("Initializing...");
       initStatus();
       initBaseMessageHandlers();
-      initPlugins();
+      initUpdateNotifications();
 
-      console.log('');
-      console.log('Done! Now listening to DMs.');
-      console.log('');
+      console.log("Loading plugins...");
+      const pluginResult = await loadAllPlugins();
+      console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
+
+      console.log("");
+      console.log("Done! Now listening to DMs.");
+      console.log("");
     });
 
     bot.connect();
@@ -61,7 +81,7 @@ function waitForGuild(guildId) {
   }
 
   return new Promise(resolve => {
-    bot.on('guildAvailable', guild => {
+    bot.on("guildAvailable", guild => {
       if (guild.id === guildId) {
         resolve();
       }
@@ -71,7 +91,16 @@ function waitForGuild(guildId) {
 
 function initStatus() {
   function applyStatus() {
-    bot.editStatus(null, {name: config.status});
+    const type = {
+      "playing": 0,
+      "watching": 3,
+      "listening": 2,
+    }[config.statusType] || 0;
+    bot.editStatus(null, {name: config.status, type});
+  }
+
+  if (config.status == null || config.status === "" || config.status === "none" || config.status === "off") {
+    return;
   }
 
   // Set the bot status initially, then reapply it every hour since in some cases it gets unset
@@ -85,18 +114,17 @@ function initBaseMessageHandlers() {
    * 1) If alwaysReply is enabled, reply to the user
    * 2) If alwaysReply is disabled, save that message as a chat message in the thread
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! utils.messageIsOnInboxServer(msg)) return;
-    if (msg.author.bot) return;
+    if (msg.author.id === bot.user.id) return;
 
     const thread = await threads.findByChannelId(msg.channel.id);
     if (! thread) return;
 
-    if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) {
+    if (! msg.author.bot && (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix))) {
       // Save commands as "command messages"
-      if (msg.content.startsWith(config.snippetPrefix)) return; // Ignore snippets
-      thread.saveCommandMessage(msg);
-    } else if (config.alwaysReply) {
+      thread.saveCommandMessageToLogs(msg);
+    } else if (! msg.author.bot && config.alwaysReply) {
       // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
       if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
 
@@ -104,7 +132,7 @@ function initBaseMessageHandlers() {
       if (replied) msg.delete();
     } else {
       // Otherwise just save the messages as "chat" in the logs
-      thread.saveChatMessage(msg);
+      thread.saveChatMessageToLogs(msg);
     }
   });
 
@@ -113,7 +141,7 @@ function initBaseMessageHandlers() {
    * 1) Find the open modmail thread for this user, or create a new one
    * 2) Post the message as a user reply in the thread
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! (msg.channel instanceof Eris.PrivateChannel)) return;
     if (msg.author.bot) return;
     if (msg.type !== 0) return; // Ignore pins etc.
@@ -123,17 +151,36 @@ function initBaseMessageHandlers() {
     // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
     messageQueue.add(async () => {
       let thread = await threads.findOpenThreadByUserId(msg.author.id);
-
+      const createNewThread = (thread == null);
 
       // New thread
-      if (! thread) {
+      if (createNewThread) {
         // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
         if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
-        thread = await threads.createNewThreadForUser(msg.author);
+        thread = await threads.createNewThreadForUser(msg.author, {
+          source: "dm",
+          message: msg,
+        });
       }
 
-      if (thread) await thread.receiveUserReply(msg);
+      if (thread) {
+        await thread.receiveUserReply(msg);
+
+        if (createNewThread) {
+          // Send auto-reply to the user
+          if (config.responseMessage) {
+            const responseMessage = utils.readMultilineConfigValue(config.responseMessage);
+
+            try {
+              const postToThreadChannel = config.showResponseMessageInThreadChannel;
+              await thread.sendSystemMessageToUser(responseMessage, { postToThreadChannel });
+            } catch (err) {
+              await thread.postSystemMessage(`**NOTE:** Could not send auto-response to the user. The error given was: \`${err.message}\``);
+            }
+          }
+        }
+      }
     });
   });
 
@@ -142,20 +189,21 @@ function initBaseMessageHandlers() {
    * 1) If that message was in DMs, and we have a thread open with that user, post the edit as a system message in the thread
    * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
    */
-  bot.on('messageUpdate', async (msg, oldMessage) => {
+  bot.on("messageUpdate", async (msg, oldMessage) => {
     if (! msg || ! msg.author) return;
-    if (msg.author.bot) return;
+    if (msg.author.id === bot.user.id) return;
     if (await blocked.isBlocked(msg.author.id)) return;
+    if (! msg.content) return;
 
     // Old message content doesn't persist between bot restarts
-    const oldContent = oldMessage && oldMessage.content || '*Unavailable due to bot restart*';
+    const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
     const newContent = msg.content;
 
-    // Ignore bogus edit events with no changes
+    // Ignore edit events with changes only in embeds etc.
     if (newContent.trim() === oldContent.trim()) return;
 
-    // 1) Edit in DMs
-    if (msg.channel instanceof Eris.PrivateChannel) {
+    // 1) If this edit was in DMs
+    if (! msg.author.bot && msg.channel instanceof Eris.PrivateChannel) {
       const thread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! thread) return;
 
@@ -163,34 +211,34 @@ function initBaseMessageHandlers() {
       thread.postSystemMessage(editMessage);
     }
 
-    // 2) Edit in the thread
-    else if (utils.messageIsOnInboxServer(msg) && utils.isStaff(msg.member)) {
+    // 2) If this edit was a chat message in the thread
+    else if (utils.messageIsOnInboxServer(msg) && (msg.author.bot || utils.isStaff(msg.member))) {
       const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
       if (! thread) return;
 
-      thread.updateChatMessage(msg);
+      thread.updateChatMessageInLogs(msg);
     }
   });
 
   /**
    * When a staff message is deleted in a modmail thread, delete it from the database as well
    */
-  bot.on('messageDelete', async msg => {
+  bot.on("messageDelete", async msg => {
     if (! msg.author) return;
-    if (msg.author.bot) return;
+    if (msg.author.id === bot.user.id) return;
     if (! utils.messageIsOnInboxServer(msg)) return;
-    if (! utils.isStaff(msg.member)) return;
+    if (! msg.author.bot && ! utils.isStaff(msg.member)) return;
 
     const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
     if (! thread) return;
 
-    thread.deleteChatMessage(msg.id);
+    thread.deleteChatMessageFromLogs(msg.id);
   });
 
   /**
    * When the bot is mentioned on the main server, ping staff in the log channel about it
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! utils.messageIsOnMainServer(msg)) return;
     if (! msg.mentions.some(user => user.id === bot.user.id)) return;
     if (msg.author.bot) return;
@@ -209,18 +257,21 @@ function initBaseMessageHandlers() {
 
     let content;
     const mainGuilds = utils.getMainGuilds();
-    const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : '');
+    const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : "");
+    const allowedMentions = (config.pingOnBotMention ? utils.getInboxMentionAllowedMentions() : undefined);
+
+    const userMentionStr = `**${msg.author.username}#${msg.author.discriminator}** (\`${msg.author.id}\`)`;
+    const messageLink = `https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/${msg.channel.id}\/${msg.id}`;
 
     if (mainGuilds.length === 1) {
-        content = `${staffMention}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}(${msg.author.id})**: "${msg.cleanContent}"\n\n<https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/${msg.channel.id}\/${msg.id}>`;
+        content = `${staffMention}Bot mentioned in ${msg.channel.mention} by ${userMentionStr}: "${msg.cleanContent}"\n\n<${messageLink}>`;
     } else {
-        content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by **${msg.author.username}#${msg.author.discriminator}(${msg.author.id})**: "${msg.cleanContent}"\n\n<https:\/\/discordapp.com\/channels\/${msg.channel.guild.id}\/${msg.channel.id}\/${msg.id}>`;
+        content = `${staffMention}Bot mentioned in ${msg.channel.mention} (${msg.channel.guild.name}) by ${userMentionStr}: "${msg.cleanContent}"\n\n<${messageLink}>`;
     }
-
 
     bot.createMessage(utils.getLogChannel().id, {
       content,
-      disableEveryone: false,
+      allowedMentions,
     });
 
     // Send an auto-response to the mention, if enabled
@@ -228,10 +279,61 @@ function initBaseMessageHandlers() {
       const botMentionResponse = utils.readMultilineConfigValue(config.botMentionResponse);
       bot.createMessage(msg.channel.id, botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`));
     }
+
+    // If configured, automatically open a new thread with a user who has pinged it
+    if (config.createThreadOnMention) {
+      const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
+      if (! existingThread) {
+        // Only open a thread if we don't already have one
+        const createdThread = await threads.createNewThreadForUser(msg.author, { quiet: true });
+        await createdThread.postSystemMessage(`This thread was opened from a bot mention in <#${msg.channel.id}>`);
+        await createdThread.receiveUserReply(msg);
+      }
+    }
   });
 }
 
-function initPlugins() {
+function initUpdateNotifications() {
+  if (config.updateNotifications) {
+    updates.startVersionRefreshLoop();
+  }
+}
+
+function getBasePlugins() {
+  return [
+    "file:./src/modules/reply",
+    "file:./src/modules/close",
+    "file:./src/modules/logs",
+    "file:./src/modules/block",
+    "file:./src/modules/move",
+    "file:./src/modules/snippets",
+    "file:./src/modules/suspend",
+    "file:./src/modules/greeting",
+    "file:./src/modules/webserverPlugin",
+    "file:./src/modules/typingProxy",
+    "file:./src/modules/version",
+    "file:./src/modules/newthread",
+    "file:./src/modules/id",
+    "file:./src/modules/alert",
+    "file:./src/modules/joinLeaveNotification",
+    "file:./src/modules/roles",
+  ];
+}
+
+function getExternalPlugins() {
+  return config.plugins;
+}
+
+function getAllPlugins() {
+  return [...getBasePlugins(), ...getExternalPlugins()];
+}
+
+async function installAllPlugins() {
+  const plugins = getAllPlugins();
+  await installPlugins(plugins);
+}
+
+async function loadAllPlugins() {
   // Initialize command manager
   const commands = createCommandManager(bot);
 
@@ -243,39 +345,16 @@ function initPlugins() {
   }
 
   // Load plugins
-  console.log('Loading plugins');
-  const builtInPlugins = [
-    reply,
-    close,
-    logs,
-    block,
-    move,
-    snippets,
-    suspend,
-    greeting,
-    webserver,
-    typingProxy,
-    version,
-    newthread,
-    idModule,
-    alert
-  ];
-
-  const plugins = [...builtInPlugins];
-
-  if (config.plugins && config.plugins.length) {
-    for (const plugin of config.plugins) {
-      const pluginFn = require(`../${plugin}`);
-      plugins.push(pluginFn);
-    }
-  }
+  const basePlugins = getBasePlugins();
+  const externalPlugins = getExternalPlugins();
+  const plugins = getAllPlugins();
 
   const pluginApi = getPluginAPI({ bot, knex, config, commands });
-  plugins.forEach(pluginFn => loadPlugin(pluginFn, pluginApi));
+  await loadPlugins([...basePlugins, ...externalPlugins], pluginApi);
 
-  console.log(`Loaded ${plugins.length} plugins (${builtInPlugins.length} built-in plugins, ${plugins.length - builtInPlugins.length} external plugins)`);
-
-  if (config.updateNotifications) {
-    updates.startVersionRefreshLoop();
-  }
+  return {
+    loadedCount: plugins.length,
+    baseCount: basePlugins.length,
+    externalCount: externalPlugins.length,
+  };
 }

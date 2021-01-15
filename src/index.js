@@ -1,91 +1,109 @@
 // Verify NodeJS version
-const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
-if (nodeMajorVersion < 10) {
-  console.error('Unsupported NodeJS version! Please install NodeJS 10 or newer.');
+const nodeMajorVersion = parseInt(process.versions.node.split(".")[0], 10);
+if (nodeMajorVersion < 12) {
+  console.error("Unsupported NodeJS version! Please install Node.js 12, 13, or 14.");
   process.exit(1);
 }
+
+// Print out bot and Node.js version
+const { getPrettyVersion } = require("./botVersion");
+console.log(`Starting Modmail ${getPrettyVersion()} on Node.js ${process.versions.node} (${process.arch})`);
 
 // Verify node modules have been installed
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 try {
-  fs.accessSync(path.join(__dirname, '..', 'node_modules'));
+  fs.accessSync(path.join(__dirname, "..", "node_modules"));
 } catch (e) {
-  console.error('Please run "npm install" before starting the bot');
+  console.error("Please run \"npm ci\" before starting the bot");
   process.exit(1);
 }
 
+const { BotError } = require("./BotError");
+const { PluginInstallationError } = require("./PluginInstallationError");
+
 // Error handling
-process.on('uncaughtException', err => {
+// Force crash on unhandled rejections and uncaught exceptions.
+// Use something like forever/pm2 to restart.
+const MAX_STACK_TRACE_LINES = 8;
+
+function errorHandler(err) {
   // Unknown message types (nitro boosting messages at the time) should be safe to ignore
-  if (err && err.message && err.message.startsWith('Unhandled MESSAGE_CREATE type')) {
+  if (err && err.message && err.message.startsWith("Unhandled MESSAGE_CREATE type")) {
     return;
   }
 
-  // For everything else, crash with the error
-  console.error(err);
-  process.exit(1);
-});
+  if (err) {
+    if (typeof err === "string") {
+      console.error(`Error: ${err}`);
+    } else if (err instanceof BotError) {
+      // Leave out stack traces for BotErrors (the message has enough info)
+      console.error(`Error: ${err.message}`);
+    } else if (err.message === "Disallowed intents specified") {
+      let fullMessage = "Error: Disallowed intents specified";
+      fullMessage += "\n\n";
+      fullMessage += "To run the bot, you must enable 'Server Members Intent' on your bot's page in the Discord Developer Portal:";
+      fullMessage += "\n\n";
+      fullMessage += "1. Go to https://discord.com/developers/applications"
+      fullMessage += "2. Click on your bot"
+      fullMessage += "3. Click 'Bot' on the sidebar"
+      fullMessage += "4. Turn on 'Server Members Intent'"
 
-let testedPackage = '';
-try {
-  const packageJson = require('../package.json');
-  const modules = Object.keys(packageJson.dependencies);
-  modules.forEach(mod => {
-    testedPackage = mod;
-    fs.accessSync(path.join(__dirname, '..', 'node_modules', mod))
-  });
-} catch (e) {
-  console.error(`Please run "npm install" again! Package "${testedPackage}" is missing.`);
-  process.exit(1);
-}
+      console.error(fullMessage);
+    } else if (err instanceof PluginInstallationError) {
+      // Don't truncate PluginInstallationErrors as they can get lengthy
+      console.error(err);
+    } else {
+      // Truncate long stack traces for other errors
+      const stack = err.stack || "";
+      let stackLines = stack.split("\n");
+      if (stackLines.length > (MAX_STACK_TRACE_LINES + 2)) {
+        stackLines = stackLines.slice(0, MAX_STACK_TRACE_LINES);
+        stackLines.push(`    ...stack trace truncated to ${MAX_STACK_TRACE_LINES} lines`);
+      }
+      const finalStack = stackLines.join("\n");
 
-const config = require('./config');
-const utils = require('./utils');
-const main = require('./main');
-const knex = require('./knex');
-const legacyMigrator = require('./legacy/legacyMigrator');
-
-// Force crash on unhandled rejections (use something like forever/pm2 to restart)
-process.on('unhandledRejection', err => {
-  if (err instanceof utils.BotError || (err && err.code)) {
-    // We ignore stack traces for BotErrors (the message has enough info) and network errors from Eris (their stack traces are unreadably long)
-    console.error(`Error: ${err.message}`);
+      if (err.code) {
+        console.error(`Error ${err.code}: ${finalStack}`);
+      } else {
+        console.error(`Error: ${finalStack}`);
+      }
+    }
   } else {
-    console.error(err);
+    console.error("Unknown error occurred");
   }
 
   process.exit(1);
-});
+}
+
+process.on("uncaughtException", errorHandler);
+process.on("unhandledRejection", errorHandler);
+
+let testedPackage = "";
+try {
+  const packageJson = require("../package.json");
+  const modules = Object.keys(packageJson.dependencies);
+  modules.forEach(mod => {
+    testedPackage = mod;
+    fs.accessSync(path.join(__dirname, "..", "node_modules", mod))
+  });
+} catch (e) {
+  console.error(`Please run "npm ci" again! Package "${testedPackage}" is missing.`);
+  process.exit(1);
+}
 
 (async function() {
+  require("./cfg");
+  const main = require("./main");
+  const knex = require("./knex");
+
   // Make sure the database is up to date
-  await knex.migrate.latest();
-
-  // Migrate legacy data if we need to
-  if (await legacyMigrator.shouldMigrate()) {
-    console.log('=== MIGRATING LEGACY DATA ===');
-    console.log('Do not close the bot!');
-    console.log('');
-
-    await legacyMigrator.migrate();
-
-    const relativeDbDir = (path.isAbsolute(config.dbDir) ? config.dbDir : path.resolve(process.cwd(), config.dbDir));
-    const relativeLogDir = (path.isAbsolute(config.logDir) ? config.logDir : path.resolve(process.cwd(), config.logDir));
-
-    console.log('');
-    console.log('=== LEGACY DATA MIGRATION FINISHED ===');
-    console.log('');
-    console.log('IMPORTANT: After the bot starts, please verify that all logs, threads, blocked users, and snippets are still working correctly.');
-    console.log('Once you\'ve done that, the following files/directories are no longer needed. I would recommend keeping a backup of them, however.');
-    console.log('');
-    console.log('FILE: ' + path.resolve(relativeDbDir, 'threads.json'));
-    console.log('FILE: ' + path.resolve(relativeDbDir, 'blocked.json'));
-    console.log('FILE: ' + path.resolve(relativeDbDir, 'snippets.json'));
-    console.log('DIRECTORY: ' + relativeLogDir);
-    console.log('');
-    console.log('Starting the bot...');
+  const [completed, newMigrations] = await knex.migrate.list();
+  if (newMigrations.length > 0) {
+    console.log("Updating database. This can take a while. Don't close the bot!");
+    await knex.migrate.latest();
+    console.log("Done!");
   }
 
   // Start the bot

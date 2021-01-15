@@ -1,92 +1,67 @@
-const http = require('http');
-const mime = require('mime');
-const url = require('url');
-const fs = require('fs');
-const moment = require('moment');
-const config = require('../config');
-const threads = require('../data/threads');
-const attachments = require('../data/attachments');
-
-const {THREAD_MESSAGE_TYPE} = require('../data/constants');
+const express = require("express");
+const helmet = require("helmet");
+const mime = require("mime");
+const url = require("url");
+const fs = require("fs");
+const qs = require("querystring");
+const moment = require("moment");
+const config = require("../cfg");
+const threads = require("../data/threads");
+const attachments = require("../data/attachments");
+const { formatters } = require("../formatters");
 
 function notfound(res) {
-  res.statusCode = 404;
-  res.end('Page Not Found');
+  res.status(404).send("Page Not Found");
 }
 
-async function serveLogs(res, pathParts) {
-  const threadId = pathParts[pathParts.length - 1];
-  if (threadId.match(/^[0-9a-f\-]+$/) === null) return notfound(res);
-
-  const thread = await threads.findById(threadId);
+/**
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
+async function serveLogs(req, res) {
+  const thread = await threads.findById(req.params.threadId);
   if (! thread) return notfound(res);
 
-  const threadMessages = await thread.getThreadMessages();
-  const lines = threadMessages.map(message => {
-    // Legacy messages are the entire log in one message, so just serve them as they are
-    if (message.message_type === THREAD_MESSAGE_TYPE.LEGACY) {
-      return message.body;
-    }
+  let threadMessages = await thread.getThreadMessages();
 
-    let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}] `;
-
-    if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
-      // System messages don't need the username
-      line += message.body;
-    } else if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
-      line += `[FROM USER] ${message.user_name}: ${message.body}`;
-    } else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-      line += `[TO USER] ${message.user_name}: ${message.body}`;
-    } else {
-      line += `${message.user_name}: ${message.body}`;
-    }
-
-    return line;
+  const formatLogResult = await formatters.formatLog(thread, threadMessages, {
+    simple: Boolean(req.query.simple),
+    verbose: Boolean(req.query.verbose),
   });
 
-  res.setHeader('Content-Type', 'text/plain; charset=UTF-8');
-  res.end(lines.join('\n'));
+  const contentType = formatLogResult.extra && formatLogResult.extra.contentType || "text/plain; charset=UTF-8";
+
+  res.set("Content-Type", contentType);
+  res.send(formatLogResult.content);
 }
 
-function serveAttachments(res, pathParts) {
-  const desiredFilename = pathParts[pathParts.length - 1];
-  const id = pathParts[pathParts.length - 2];
+function serveAttachments(req, res) {
+  if (req.params.attachmentId.match(/^[0-9]+$/) === null) return notfound(res);
+  if (req.params.filename.match(/^[0-9a-z._-]+$/i) === null) return notfound(res);
 
-  if (id.match(/^[0-9]+$/) === null) return notfound(res);
-  if (desiredFilename.match(/^[0-9a-z._-]+$/i) === null) return notfound(res);
-
-  const attachmentPath = attachments.getLocalAttachmentPath(id);
+  const attachmentPath = attachments.getLocalAttachmentPath(req.params.attachmentId);
   fs.access(attachmentPath, (err) => {
     if (err) return notfound(res);
 
-    const filenameParts = desiredFilename.split('.');
-    const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : 'bin');
+    const filenameParts = req.params.filename.split(".");
+    const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : "bin");
     const fileMime = mime.getType(ext);
 
-    res.setHeader('Content-Type', fileMime);
+    res.set("Content-Type", fileMime);
 
     const read = fs.createReadStream(attachmentPath);
     read.pipe(res);
   })
 }
 
-module.exports = () => {
-  const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(`http://${req.url}`);
-    const pathParts = parsedUrl.path.split('/').filter(v => v !== '');
+const server = express();
+server.use(helmet());
 
-    if (parsedUrl.path.startsWith('/logs/')) {
-      serveLogs(res, pathParts);
-    } else if (parsedUrl.path.startsWith('/attachments/')) {
-      serveAttachments(res, pathParts);
-    } else {
-      notfound(res);
-    }
-  });
+server.get("/logs/:threadId", serveLogs);
+server.get("/attachments/:attachmentId/:filename", serveAttachments);
 
-  server.on('error', err => {
-    console.log('[WARN] Web server error:', err.message);
-  });
+server.on("error", err => {
+  console.log("[WARN] Web server error:", err.message);
+});
 
-  server.listen(config.port);
-};
+module.exports = server;

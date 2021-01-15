@@ -1,0 +1,513 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ModmailConfig",
+  "type": "object",
+  "definitions": {
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "multilineString": {
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        {
+          "$comment": "See definition of multilineString in cfg.js",
+          "multilineString": true
+        }
+      ]
+    },
+    "customBoolean": {
+      "allOf": [
+        {
+          "type": ["boolean", "string"]
+        },
+        {
+          "$comment": "See definition of coerceBoolean in cfg.js",
+          "coerceBoolean": true
+        }
+      ]
+    }
+  },
+  "properties": {
+    "token": {
+      "type": "string"
+    },
+    "mainServerId": {
+      "$ref": "#/definitions/stringArray"
+    },
+    "inboxServerId": {
+      "type": "string"
+    },
+    "logChannelId": {
+      "type": "string"
+    },
+
+    "mainGuildId": {
+      "$comment": "Alias for mainServerId",
+      "$ref": "#/definitions/stringArray"
+    },
+    "mailGuildId": {
+      "$comment": "Alias for inboxServerId",
+      "type": "string"
+    },
+
+    "prefix": {
+      "type": "string",
+      "default": "!"
+    },
+    "snippetPrefix": {
+      "type": "string",
+      "default": "!!"
+    },
+    "snippetPrefixAnon": {
+      "type": "string",
+      "default": "!!!"
+    },
+    "status": {
+      "type": "string",
+      "default": "Message me for help!"
+    },
+    "statusType": {
+      "type": "string",
+      "enum": ["playing", "watching", "listening"],
+      "default": "playing"
+    },
+    "responseMessage": {
+      "$ref": "#/definitions/multilineString",
+      "default": "Thank you for your message! Our mod team will reply to you here as soon as possible."
+    },
+    "closeMessage": {
+      "$ref": "#/definitions/multilineString"
+    },
+    "allowUserClose": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "newThreadCategoryId": {
+      "type": "string"
+    },
+    "mentionRole": {
+      "type": "string",
+      "default": "none"
+    },
+    "pingOnBotMention": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "botMentionResponse": {
+      "$ref": "#/definitions/multilineString"
+    },
+
+    "inboxServerPermission": {
+      "$ref": "#/definitions/stringArray",
+      "default": ["manageMessages"]
+    },
+    "alwaysReply": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "alwaysReplyAnon": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "useNicknames": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "anonymizeChannelName": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "ignoreAccidentalThreads": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "threadTimestamps": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "allowMove": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "syncPermissionsOnMove": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "typingProxy": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "typingProxyReverse": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "mentionUserInThreadHeader": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "rolesInThreadHeader": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "allowStaffEdit": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "allowStaffDelete": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "allowBlock": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "allowSuspend": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "allowSnippets": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+    "enableGreeting": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "greetingMessage": {
+      "$ref": "#/definitions/multilineString"
+    },
+    "greetingAttachment": {
+      "type": "string"
+    },
+    "serverGreetings": {
+      "patternProperties": {
+        "^\\d+$": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "$ref": "#/definitions/multilineString"
+            },
+            "attachment": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "default": {}
+    },
+    "guildGreetings": {
+      "$comment": "Alias for serverGreetings",
+      "$ref": "#/properties/serverGreetings"
+    },
+
+    "requiredAccountAge": {
+      "description": "Required account age to message Modmail, in hours",
+      "type": "number"
+    },
+    "accountAgeDeniedMessage": {
+      "$ref": "#/definitions/multilineString",
+      "default": "Your Discord account is not old enough to contact modmail."
+    },
+
+    "requiredTimeOnServer": {
+      "description": "Required time on server to message Modmail, in minutes",
+      "type": "number"
+    },
+    "timeOnServerDeniedMessage": {
+      "$ref": "#/definitions/multilineString",
+      "default": "You haven't been a member of the server for long enough to contact modmail."
+    },
+
+    "relaySmallAttachmentsAsAttachments": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+    "smallAttachmentLimit": {
+      "description": "Max size of attachment to relay directly. Default is 2MB.",
+      "type": "number",
+      "default": 2097152,
+      "maximum": 8388608,
+      "minimum": 0
+    },
+
+    "attachmentStorage": {
+      "type": "string",
+      "default": "original"
+    },
+    "attachmentStorageChannelId": {
+      "type": "string"
+    },
+
+    "categoryAutomation": {
+      "properties": {
+        "newThread": {
+          "type": "string"
+        },
+        "newThreadFromServer": {
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "type": "string",
+              "pattern": "^\\d+$"
+            }
+          }
+        },
+        "newThreadFromGuild": {
+          "$comment": "Alias for categoryAutomation.newThreadFromServer",
+          "$ref": "#/properties/categoryAutomation/properties/newThreadFromServer"
+        }
+      },
+      "default": {}
+    },
+
+    "updateNotifications": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "updateNotificationsForBetaVersions": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "plugins": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+
+    "commandAliases": {
+      "patternProperties": {
+        "^.+$": {
+          "type": "string"
+        }
+      }
+    },
+
+    "reactOnSeen": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "reactOnSeenEmoji": {
+      "type": "string",
+      "default": "\uD83D\uDCE8"
+    },
+
+    "createThreadOnMention": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "notifyOnMainServerLeave": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "notifyOnMainServerJoin": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "allowInlineSnippets": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "inlineSnippetStart": {
+      "type": "string",
+      "default": "{{"
+    },
+
+    "inlineSnippetEnd": {
+      "type": "string",
+      "default": "}}"
+    },
+
+    "errorOnUnknownInlineSnippet": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "allowChangingDisplayRole": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "fallbackRoleName": {
+      "type": "string",
+      "default": null
+    },
+
+    "autoAlert": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "autoAlertDelay": {
+      "type": "string",
+      "default": "2m",
+      "description": "Delay before auto-alert kicks in. Uses the same format as timed close; for example 1m30s for 1 minute and 30 seconds."
+    },
+
+    "pinThreadHeader": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "showResponseMessageInThreadChannel": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "logStorage": {
+      "type": "string",
+      "default": "local"
+    },
+
+    "logOptions": {
+      "type": "object",
+      "properties": {
+        "attachmentDirectory": {
+          "type": "string",
+          "default": "logs"
+        },
+        "allowAttachmentUrlFallback": {
+          "$ref": "#/definitions/customBoolean",
+          "default": false
+        }
+      },
+      "required": ["attachmentDirectory"]
+    },
+
+    "port": {
+      "type": "number",
+      "maximum": 65535,
+      "minimum": 1,
+      "default": 8890
+    },
+
+    "url": {
+      "type": "string"
+    },
+
+    "useGitForGitHubPlugins": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "extraIntents": {
+      "$ref": "#/definitions/stringArray",
+      "default": []
+    },
+
+    "dbType": {
+      "anyOf": [
+        { "const": "sqlite" },
+        { "const": "mysql" }
+      ],
+      "default": "sqlite"
+    },
+
+    "sqliteOptions": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": ["filename"]
+    },
+
+    "mysqlOptions": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "default": "localhost"
+        },
+        "port": {
+          "type": "number",
+          "default": "3306"
+        },
+        "user": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "database": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      },
+      "required": ["host", "port", "user", "password", "database"]
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "Base required values",
+      "required": ["token", "mainServerId", "inboxServerId", "logChannelId", "dbType"]
+    },
+    {
+      "$comment": "Make attachmentStorageChannelId required if attachmentStorage is set to 'discord'",
+      "if": {
+        "properties": {
+          "attachmentStorage": {
+            "const": "discord"
+          }
+        },
+        "required": ["attachmentStorage"]
+      },
+      "then": {
+        "required": ["attachmentStorageChannelId"]
+      }
+    },
+    {
+      "$comment": "Make sqliteOptions required if dbType is set to 'sqlite'",
+      "if": {
+        "properties": {
+          "dbType": {
+            "const": "sqlite"
+          }
+        }
+      },
+      "then": {
+        "required": ["sqliteOptions"]
+      }
+    },
+    {
+      "$comment": "Make mysqlOptions required if dbType is set to 'mysql'",
+      "if": {
+        "properties": {
+          "dbType": {
+            "const": "mysql"
+          }
+        }
+      },
+      "then": {
+        "required": ["mysqlOptions"]
+      }
+    }
+  ]
+}

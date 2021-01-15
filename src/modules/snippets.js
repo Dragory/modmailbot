@@ -1,13 +1,13 @@
-const threads = require('../data/threads');
-const snippets = require('../data/snippets');
-const config = require('../config');
-const utils = require('../utils');
-const { parseArguments } = require('knub-command-manager');
+const threads = require("../data/threads");
+const snippets = require("../data/snippets");
+const utils = require("../utils");
+const { parseArguments } = require("knub-command-manager");
 
 const whitespaceRegex = /\s/;
-const quoteChars = ["'", '"'];
+const quoteChars = ["'", "\""];
 
 module.exports = ({ bot, knex, config, commands }) => {
+  if (! config.allowSnippets) return;
   /**
    * "Renders" a snippet by replacing all argument placeholders e.g. {1} {2} with their corresponding arguments.
    * The number in the placeholder is the argument's order in the argument list, i.e. {1} is the first argument (= index 0)
@@ -21,13 +21,13 @@ module.exports = ({ bot, knex, config, commands }) => {
         const index = parseInt(match.slice(1, -1), 10) - 1;
         return (args[index] != null ? args[index] : match);
       })
-      .replace(/\\{/g, '{');
+      .replace(/\\{/g, "{");
   }
 
   /**
    * When a staff member uses a snippet (snippet prefix + trigger word), find the snippet and post it as a reply in the thread
    */
-  bot.on('messageCreate', async msg => {
+  bot.on("messageCreate", async msg => {
     if (! utils.messageIsOnInboxServer(msg)) return;
     if (! utils.isStaff(msg.member)) return;
 
@@ -75,7 +75,7 @@ module.exports = ({ bot, knex, config, commands }) => {
   });
 
   // Show or add a snippet
-  commands.addInboxServerCommand('snippet', '<trigger> [text$]', async (msg, args, thread) => {
+  commands.addInboxServerCommand("snippet", "<trigger> [text$]", async (msg, args, thread) => {
     const snippet = await snippets.get(args.trigger);
 
     if (snippet) {
@@ -84,7 +84,7 @@ module.exports = ({ bot, knex, config, commands }) => {
         utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" already exists! You can edit or delete it with ${config.prefix}edit_snippet and ${config.prefix}delete_snippet respectively.`);
       } else {
         // If the snippet exists and we're NOT trying to create a new one, show info about the existing snippet
-        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${args.trigger}\` replies with: \`\`\`${utils.disableCodeBlocks(snippet.body)}\`\`\``);
+        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${args.trigger}\` replies with: \`\`\`\n${utils.disableCodeBlocks(snippet.body)}\`\`\``);
       }
     } else {
       if (args.text) {
@@ -97,10 +97,10 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
     }
   }, {
-    aliases: ['s']
+    aliases: ["s"]
   });
 
-  commands.addInboxServerCommand('delete_snippet', '<trigger>', async (msg, args, thread) => {
+  commands.addInboxServerCommand("delete_snippet", "<trigger>", async (msg, args, thread) => {
     const snippet = await snippets.get(args.trigger);
     if (! snippet) {
       utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" doesn't exist!`);
@@ -110,10 +110,10 @@ module.exports = ({ bot, knex, config, commands }) => {
     await snippets.del(args.trigger);
     utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" deleted!`);
   }, {
-    aliases: ['ds']
+    aliases: ["ds"]
   });
 
-  commands.addInboxServerCommand('edit_snippet', '<trigger> [text$]', async (msg, args, thread) => {
+  commands.addInboxServerCommand("edit_snippet", "<trigger> <text$>", async (msg, args, thread) => {
     const snippet = await snippets.get(args.trigger);
     if (! snippet) {
       utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" doesn't exist!`);
@@ -125,14 +125,16 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${args.trigger}" edited!`);
   }, {
-    aliases: ['es']
+    aliases: ["es"]
   });
 
-  commands.addInboxServerCommand('snippets', [], async (msg, args, thread) => {
+  commands.addInboxServerCommand("snippets", [], async (msg, args, thread) => {
     const allSnippets = await snippets.all();
     const triggers = allSnippets.map(s => s.trigger);
     triggers.sort();
 
-    utils.postSystemMessageWithFallback(msg.channel, thread, `Available snippets (prefix ${config.snippetPrefix}):\n${triggers.join(', ')}`);
+    utils.postSystemMessageWithFallback(msg.channel, thread, `Available snippets (prefix ${config.snippetPrefix}):\n${triggers.join(", ")}`);
+  }, {
+    aliases: ["s"]
   });
 };
