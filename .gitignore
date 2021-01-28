@@ -5,3 +5,4 @@
 !/config.example.ini
 /welcome.png
 /update.sh
+/.env
