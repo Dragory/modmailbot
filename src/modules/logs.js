@@ -62,6 +62,8 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
       message += "\nTo view more, add a page number to the end of the command";
     }
 
+    if (threadLines.length === 0) message = `**There are no log files for <@${userId}>**`;
+    
     // Send the list of logs in chunks of 15 lines per message
     const lines = message.split("\n");
     const chunks = utils.chunk(lines, 15);
