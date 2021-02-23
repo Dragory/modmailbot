@@ -71,6 +71,7 @@ In that file, add the following:
     ProxyPassReverse / http://localhost:8890/
 </VirtualHost>
 ```
+Now, just type `apachectl restart` to restart Apache.
 The quickest thing to enable https is using [Cloudflare](https://cloudflare.com). Let's do this.
 ## Using Cloudflare for SSL
 First, just add your domain to Cloudflare. You can follow [that guide](https://community.cloudflare.com/t/step-1-adding-your-domain-to-cloudflare/64309). Then go to `SSL/TLS` at top. Enable at least "Flexible" option, to get SSL Certificate. Then go on `Edge Certificates` then finally enable `Always Use HTTPS`.
