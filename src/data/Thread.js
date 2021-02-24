@@ -15,7 +15,7 @@ const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
 
-const escapeFormattingRegex = new RegExp("[_`~*]", "g");
+const escapeFormattingRegex = new RegExp("[_`~*|]", "g");
 
 /**
  * @property {String} id
