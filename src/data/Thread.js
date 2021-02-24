@@ -15,6 +15,8 @@ const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
 
+const escapeFormattingRegex = new RegExp("[_`~*]", "g");
+
 /**
  * @property {String} id
  * @property {Number} thread_number
@@ -212,7 +214,10 @@ class Thread {
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
-    const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    if (config.breakFormattingForNames) {
+      moderatorName = moderatorName.replace(escapeFormattingRegex, "\\$&");
+    }
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
 
     if (config.allowSnippets && config.allowInlineSnippets) {
