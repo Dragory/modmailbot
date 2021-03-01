@@ -20,7 +20,7 @@
     "url": "https://github.com/Dragory/modmailbot"
   },
   "dependencies": {
-    "ajv": "^6.12.4",
+    "ajv": "^7.1.1",
     "eris": "https://github.com/Dragory/eris/archive/stickers-0.14.0.tar.gz",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
