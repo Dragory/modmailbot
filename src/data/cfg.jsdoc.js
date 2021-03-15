@@ -33,6 +33,7 @@
  * @property {boolean} [rolesInThreadHeader=false]
  * @property {boolean} [allowStaffEdit=true]
  * @property {boolean} [allowStaffDelete=true]
+ * @property {boolean} [updateMessagesLive=false]
  * @property {boolean} [allowBlock=true]
  * @property {boolean} [allowSuspend=true]
  * @property {boolean} [allowSnippets=true]

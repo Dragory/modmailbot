@@ -173,6 +173,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": true
     },
+    "updateMessagesLive": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
     "allowBlock": {
       "$ref": "#/definitions/customBoolean",
       "default": true
