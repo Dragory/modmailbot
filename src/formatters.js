@@ -134,7 +134,10 @@ const defaultFormatters = {
   formatUserReplyThreadMessage(threadMessage) {
     let result = `**${threadMessage.user_name}:** ${threadMessage.body}`;
 
-    for (const link of threadMessage.attachments) {
+    const attachments = typeof threadMessage.attachments === "string"
+      ? JSON.parse(threadMessage.attachments)
+      : threadMessage.attachments
+    for (const link of attachments) {
       result += `\n\n${link}`;
     }
 
