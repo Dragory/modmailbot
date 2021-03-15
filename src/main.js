@@ -4,18 +4,18 @@ const path = require("path");
 const config = require("./cfg");
 const bot = require("./bot");
 const knex = require("./knex");
-const {messageQueue} = require("./queue");
+const { messageQueue } = require("./queue");
 const utils = require("./utils");
 const { formatters } = require("./formatters")
 const { createCommandManager } = require("./commands");
 const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
-const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
+const ThreadMessage = require("./data/ThreadMessage");
 
 const blocked = require("./data/blocked");
 const threads = require("./data/threads");
 const updates = require("./data/updates");
 
-const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
+const { ACCIDENTAL_THREAD_MESSAGES } = require("./data/constants");
 
 module.exports = {
   async start() {
@@ -210,13 +210,14 @@ function initBaseMessageHandlers() {
 
       if (config.updateMessagesLive) {
         await thread.updateChatMessageInLogs(msg);
-        const threadMessage = await knex("thread_messages")
+        const threadMessageProps = await knex("thread_messages")
           .where("dm_message_id", msg.id)
           .select();
-        if (! threadMessage) return;
+        if (! threadMessageProps) return;
+        const threadMessage = new ThreadMessage(threadMessageProps[0]);
 
-        const formatted = formatters.formatUserReplyThreadMessage(threadMessage[0]);
-        bot.editMessage(thread.channel_id, threadMessage[0].inbox_message_id, formatted)
+        const formatted = formatters.formatUserReplyThreadMessage(threadMessage);
+        bot.editMessage(thread.channel_id, threadMessage.inbox_message_id, formatted)
           .catch(console.log);
       } else {
         const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
