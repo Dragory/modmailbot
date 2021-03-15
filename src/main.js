@@ -6,6 +6,7 @@ const bot = require("./bot");
 const knex = require("./knex");
 const {messageQueue} = require("./queue");
 const utils = require("./utils");
+const { formatters } = require("./formatters")
 const { createCommandManager } = require("./commands");
 const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
 const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
@@ -186,7 +187,7 @@ function initBaseMessageHandlers() {
 
   /**
    * When a message is edited...
-   * 1) If that message was in DMs, and we have a thread open with that user, post the edit as a system message in the thread
+   * 1) If that message was in DMs, and we have a thread open with that user, post the edit as a system message in the thread, or edit the thread message
    * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
    */
   bot.on("messageUpdate", async (msg, oldMessage) => {
@@ -207,8 +208,20 @@ function initBaseMessageHandlers() {
       const thread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! thread) return;
 
-      const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
-      thread.postSystemMessage(editMessage);
+      if (config.updateMessagesLive) {
+        await thread.updateChatMessageInLogs(msg);
+        const threadMessage = await knex("thread_messages")
+          .where("dm_message_id", msg.id)
+          .select();
+        if (! threadMessage) return;
+
+        const formatted = formatters.formatUserReplyThreadMessage(threadMessage[0]);
+        bot.editMessage(thread.channel_id, threadMessage[0].inbox_message_id, formatted)
+          .catch(console.log);
+      } else {
+        const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
+        thread.postSystemMessage(editMessage);
+      }
     }
 
     // 2) If this edit was a chat message in the thread
