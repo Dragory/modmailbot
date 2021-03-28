@@ -126,17 +126,15 @@ function initBaseMessageHandlers() {
     const command = args.shift().toLowerCase();
     if (command === "setnote") {
       //BYCOP
+      if (!args[0]) return (thread.postSystemMessage("Usage : " + config.prefix + "setnote + <User Note>"));
       let notes = JSON.parse(fs.readFileSync("./logs/notes/notes.json", "utf8"));
-      if (!notes[thread.user_id]) {
-        notes[thread.user_id] = {
-          note: "undefined"
-        };
-      }
-      notes[thread.user_id]["note"] = args.join(" ")
+      notes[thread.user_id] = {
+        note: args.join(" ")
+      };
       fs.writeFile("./logs/notes/notes.json", JSON.stringify(notes, null, 4), (err) => {
         if (err) console.log(err);
       })
-      console.log(notes[thread.user_id].note)
+      thread.postSystemMessage("Note for <@" + thread.user_id + "> is now : `" + args.join(" ") + "`")
     }
 
     if (!msg.author.bot && (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix))) {

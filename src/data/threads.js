@@ -298,7 +298,6 @@ async function createNewThreadForUser(user, opts = {}) {
     let notes = JSON.parse(fs.readFileSync("./logs/notes/notes.json", "utf8"));
     let found = -1;
     if (notes[user.id]) {
-      console.log("b")
       found = 1;
     }
     if (found !== -1 && notes[user.id].note !== "undefined") {
