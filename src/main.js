@@ -122,21 +122,6 @@ function initBaseMessageHandlers() {
     const thread = await threads.findByChannelId(msg.channel.id);
     if (!thread) return;
 
-    const args = msg.content.slice(config.prefix.length).trim().split(' ');
-    const command = args.shift().toLowerCase();
-    if (command === "setnote") {
-      //BYCOP
-      if (!args[0]) return (thread.postSystemMessage("Usage : " + config.prefix + "setnote + <User Note>"));
-      let notes = JSON.parse(fs.readFileSync("./logs/notes/notes.json", "utf8"));
-      notes[thread.user_id] = {
-        note: args.join(" ")
-      };
-      fs.writeFile("./logs/notes/notes.json", JSON.stringify(notes, null, 4), (err) => {
-        if (err) console.log(err);
-      })
-      thread.postSystemMessage("Note for <@" + thread.user_id + "> is now : `" + args.join(" ") + "`")
-    }
-
     if (!msg.author.bot && (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix))) {
       // Save commands as "command messages"
       thread.saveCommandMessageToLogs(msg);
@@ -333,6 +318,8 @@ function getBasePlugins() {
     "file:./src/modules/alert",
     "file:./src/modules/joinLeaveNotification",
     "file:./src/modules/roles",
+    "file:./src/modules/shownote",
+    "file:./src/modules/setnote",
   ];
 }
 
