@@ -89,10 +89,10 @@ module.exports = {
 
       const args = msg.content.slice(config.prefix.length).trim().split(' ');
       const command = args.shift().toLowerCase();
-      if (command === "note") {
+      if (command === "shownote") {
         //BYCOP
         if (utils.messageIsOnInboxServer(msg)) {
-          if (!args[0]) return (utils.postError(msg.channel, "Usage : " + config.prefix + "note + UserID"));
+          if (!args[0]) return (utils.postError(msg.channel, "Usage : " + config.prefix + "shownote + UserID"));
           let notes = JSON.parse(fs.readFileSync("./logs/notes/notes.json", "utf8"));
           let found = -1;
           if (notes[args[0]]) {
