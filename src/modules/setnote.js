@@ -12,7 +12,6 @@ const GIT_DIR = path.join(__dirname, "..", "..", ".git");
 
 module.exports = ({ bot, knex, config, commands }) => {
 	commands.addInboxThreadCommand("setnote", "<text:string$>", async (msg, args, thread) => {
-		console.log(args.text)
 		let notes = JSON.parse(fs.readFileSync("./logs/notes/notes.json", "utf8"));
 		notes[thread.user_id] = {
 		  note: args.text

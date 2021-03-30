@@ -4,7 +4,6 @@ const config = require("./cfg");
 const utils = require("./utils");
 const threads = require("./data/threads");
 const Thread = require("./data/Thread");
-const fs = require('fs')
 
 /**
  * @callback CommandFn
@@ -65,7 +64,7 @@ module.exports = {
       types: Object.assign({}, defaultParameterTypes, {
         userId(value) {
           const userId = utils.getUserMention(value);
-          if (!userId) throw new TypeConversionError();
+          if (! userId) throw new TypeConversionError();
           return userId;
         },
 
@@ -83,12 +82,9 @@ module.exports = {
     bot.on("messageCreate", async msg => {
       if (msg.author.bot) return;
       if (msg.author.id === bot.user.id) return;
-      if (!msg.content) return;
+      if (! msg.content) return;
 
       const matchedCommand = await manager.findMatchingCommand(msg.content, { msg });
-
-      const args = msg.content.slice(config.prefix.length).trim().split(' ');
-      const command = args.shift().toLowerCase();
       if (matchedCommand === null) return;
       if (matchedCommand.error !== undefined) {
         utils.postError(msg.channel, matchedCommand.error);
@@ -131,8 +127,8 @@ module.exports = {
         aliases,
         preFilters: [
           (_, context) => {
-            if (!utils.messageIsOnInboxServer(context.msg)) return false;
-            if (!utils.isStaff(context.msg.member)) return false;
+            if (! utils.messageIsOnInboxServer(context.msg)) return false;
+            if (! utils.isStaff(context.msg.member)) return false;
             return true;
           }
         ]
@@ -158,10 +154,10 @@ module.exports = {
         aliases,
         preFilters: [
           async (_, context) => {
-            if (!utils.messageIsOnInboxServer(context.msg)) return false;
-            if (!utils.isStaff(context.msg.member)) return false;
+            if (! utils.messageIsOnInboxServer(context.msg)) return false;
+            if (! utils.isStaff(context.msg.member)) return false;
             thread = await threads.findOpenThreadByChannelId(context.msg.channel.id);
-            if (!thread) return false;
+            if (! thread) return false;
             return true;
           }
         ]
@@ -176,7 +172,7 @@ module.exports = {
      * @type {AddAliasFn}
      */
     const addAlias = (originalCmd, alias) => {
-      if (!aliasMap.has(originalCmd)) {
+      if (! aliasMap.has(originalCmd)) {
         aliasMap.set(originalCmd, new Set());
       }
 
