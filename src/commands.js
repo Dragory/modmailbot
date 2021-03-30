@@ -89,23 +89,6 @@ module.exports = {
 
       const args = msg.content.slice(config.prefix.length).trim().split(' ');
       const command = args.shift().toLowerCase();
-      if (command === "shownote") {
-        //BYCOP
-        if (utils.messageIsOnInboxServer(msg)) {
-          if (!args[0]) return (utils.postError(msg.channel, "Usage : " + config.prefix + "shownote + UserID"));
-          let notes = JSON.parse(fs.readFileSync("./logs/notes/notes.json", "utf8"));
-          let found = -1;
-          if (notes[args[0]]) {
-            found = 1;
-          }
-          if (found !== -1 && notes[args[0]].note !== "undefined") {
-            utils.postError(msg.channel, "Note for <@" + args[0] + "> : `" + notes[args[0]].note + "`")
-          }
-          else {
-            utils.postError(msg.channel, "No note for this user.")
-          }
-        }
-      }
       if (matchedCommand === null) return;
       if (matchedCommand.error !== undefined) {
         utils.postError(msg.channel, matchedCommand.error);
