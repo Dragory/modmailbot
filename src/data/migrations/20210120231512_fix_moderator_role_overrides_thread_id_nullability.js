@@ -13,7 +13,9 @@ exports.up = async function(knex) {
   const rows = await knex.table("old_moderator_role_overrides")
     .select();
 
-  await knex.table("moderator_role_overrides").insert(rows);
+  if (rows.length) {
+    await knex.table("moderator_role_overrides").insert(rows);
+  }
 
   await knex.schema.dropTable("old_moderator_role_overrides");
 };
@@ -32,10 +34,12 @@ exports.down = async function(knex) {
   const rows = await knex.table("new_moderator_role_overrides")
     .select();
 
-  await knex.table("moderator_role_overrides").insert(rows.map(r => {
-    delete r.id;
-    return r;
-  }));
+  if (rows.length) {
+    await knex.table("moderator_role_overrides").insert(rows.map(r => {
+      delete r.id;
+      return r;
+    }));
+  }
 
   await knex.schema.dropTable("new_moderator_role_overrides");
 };
