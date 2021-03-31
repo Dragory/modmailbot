@@ -20,7 +20,7 @@
     "url": "https://github.com/Dragory/modmailbot"
   },
   "dependencies": {
-    "ajv": "^6.12.4",
+    "ajv": "^8.0.2",
     "eris": "https://github.com/Dragory/eris/archive/0.14.0-stage-hotfix.tar.gz",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
