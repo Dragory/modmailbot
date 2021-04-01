@@ -5,7 +5,6 @@ const moment = require("moment");
 const uuid = require("uuid");
 const humanizeDuration = require("humanize-duration");
 const crypto = require("crypto");
-const fs = require('fs')
 
 const bot = require("../bot");
 const knex = require("../knex");
@@ -297,7 +296,7 @@ async function createNewThreadForUser(user, opts = {}) {
     .where("user_id", user.id)
     .first();
     if (row !== undefined && row.note !== "undefined") {
-      infoHeader += `\n\nNote :  **${row.note}**.`;
+      infoHeader += `\n\nNote : **${row.note}**.`;
     }
 
     infoHeader += "\n────────────────";
