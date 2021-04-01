@@ -5,6 +5,7 @@ const moment = require("moment");
 const uuid = require("uuid");
 const humanizeDuration = require("humanize-duration");
 const crypto = require("crypto");
+const fs = require('fs')
 
 const bot = require("../bot");
 const knex = require("../knex");
@@ -289,6 +290,14 @@ async function createNewThreadForUser(user, opts = {}) {
     const userLogCount = await getClosedThreadCountByUserId(user.id);
     if (userLogCount > 0) {
       infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
+    }
+
+    //BYCOP
+    const row = await knex("notes")
+    .where("user_id", user.id)
+    .first();
+    if (row !== undefined && row.note !== "undefined") {
+      infoHeader += `\n\nNote :  **${row.note}**.`;
     }
 
     infoHeader += "\n────────────────";
