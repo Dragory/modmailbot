@@ -1,7 +1,11 @@
 const utils = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
-	commands.addInboxServerCommand("setnote", [{ name: "userId", type: "userId", required: true }, {name: "text", type: "string", required: true}], async (msg, args, thread) => {
+	commands.addInboxServerCommand("setnote","<userId:userId> [text$]", async (msg, args, thread) => {
+		console.log(args.text)
+		if (args.text == undefined) {
+			return utils.postError(msg.channel, "Missing required argument: text");
+		}
 		const row = await knex("notes")
 			.where("user_id", args.userId)
 			.first();
