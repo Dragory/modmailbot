@@ -19,7 +19,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 				note: args.text
 			})
 		}
-		msg.channel.createMessage("Note for <@" + args.userId + "> is now : `" + args.text + "`")
+		msg.channel.createMessage("Note for <@" + args.userId + "> is now: `" + args.text + "`")
 	})
 	commands.addInboxThreadCommand("setnote", "<text:string$>", async (msg, args, thread) => {
 		let user;
@@ -50,7 +50,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 				note: args.text
 			})
 		}
-		thread.postSystemMessage("Note for <@" + thread.user_id + "> is now : `" + args.text + "`")
+		thread.postSystemMessage("Note for <@" + thread.user_id + "> is now: `" + args.text + "`")
 
 	})
 	commands.addInboxServerCommand("shownote", "<userId:userId>", async (msg, args, thread) => {
@@ -63,7 +63,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 			.where("user_id", user.id)
 			.first();
 		if (row !== undefined && row.note !== "undefined") {
-			msg.channel.createMessage("Note for <@" + user.id + "> : `" + row.note + "`")
+			msg.channel.createMessage("Note for <@" + user.id + ">: `" + row.note + "`")
 		}
 		else {
 			msg.channel.createMessage("No note for this user.")
@@ -88,7 +88,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 			.where("user_id", user)
 			.first();
 		if (row !== undefined && row.note !== "undefined") {
-			msg.channel.createMessage("Note for <@" + user + "> : `" + row.note + "`")
+			msg.channel.createMessage("Note for <@" + user + ">: `" + row.note + "`")
 		}
 		else {
 			msg.channel.createMessage("No note for this user.")
