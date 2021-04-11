@@ -313,7 +313,7 @@ If enabled, the bot will react to messages sent to it with the emoji defined in 
 #### reactOnSeenEmoji
 **Default:** `📨`  
 The emoji that the bot will react with when it sees a message.  Requires `reactOnSeen` to be enabled.  
-Must be pasted in the config file as the Emoji representation and not as a unicode codepoint.
+Must be pasted in the config file as the Emoji representation and not as a unicode codepoint. Use `emojiName:emojiID` for custom emoji.
 
 #### relaySmallAttachmentsAsAttachments
 **Default:** `off`  
