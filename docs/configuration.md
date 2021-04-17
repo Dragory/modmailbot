@@ -381,6 +381,19 @@ If enabled, channel permissions for the thread are synchronized with the categor
 **Default:** `off`  
 If enabled, the bot will automatically create a new thread for a user who pings it.
 
+#### newBlockMessage
+**Default** *None*
+If set to text, will send this to a user when they get blocked indefinitely.
+
+#### newBlockMessageDuration
+**Default** *None*
+If set to text, will send this to a user when they get blocked for a specific duration.  
+The first `{duration}` in the text will be replaced with the humanized duration (e.g. `4 weeks, 2 days`).
+
+#### blockedMessage
+**Default** *None*
+If set to text, will send this to a user when they try to message the bot while blocked.
+
 #### threadTimestamps
 **Default:** `off`  
 If enabled, modmail threads will show accurate UTC timestamps for each message, in addition to Discord's own timestamps.

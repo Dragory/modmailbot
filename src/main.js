@@ -146,7 +146,12 @@ function initBaseMessageHandlers() {
     if (msg.author.bot) return;
     if (msg.type !== 0) return; // Ignore pins etc.
 
-    if (await blocked.isBlocked(msg.author.id)) return;
+    if (await blocked.isBlocked(msg.author.id)) {
+      if (config.blockedMessage != null) {
+        msg.channel.createMessage(config.blockedMessage).catch(utils.noop); //ignore silently
+      }
+      return;
+    }
 
     // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
     messageQueue.add(async () => {
