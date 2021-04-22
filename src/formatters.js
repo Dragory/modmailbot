@@ -104,7 +104,7 @@ const defaultFormatters = {
     const roleName = threadMessage.role_name || config.fallbackRoleName;
     const modInfo = threadMessage.is_anonymous
       ? roleName
-      : (roleName ? `(${roleName}) ${threadMessage.user_name}` : threadMessage.user_name);
+      : (roleName ? `(${roleName}) ${threadMessage.prefix}${threadMessage.user_name}` : `${threadMessage.prefix}${threadMessage.user_name}`);
 
     return modInfo
       ? `**${modInfo}:** ${threadMessage.body}`
@@ -115,7 +115,7 @@ const defaultFormatters = {
     const roleName = threadMessage.role_name || config.fallbackRoleName;
     const modInfo = threadMessage.is_anonymous
       ? (roleName ? `(Anonymous) (${threadMessage.user_name}) ${roleName}` : `(Anonymous) (${threadMessage.user_name})`)
-      : (roleName ? `(${roleName}) ${threadMessage.user_name}` : threadMessage.user_name);
+      : (roleName ? `(${roleName}) ${threadMessage.prefix}${threadMessage.user_name}` : `${threadMessage.prefix}${threadMessage.user_name}`);
 
     let result = modInfo
       ? `**${modInfo}:** ${threadMessage.body}`

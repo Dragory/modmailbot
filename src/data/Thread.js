@@ -6,6 +6,7 @@ const knex = require("../knex");
 const utils = require("../utils");
 const config = require("../cfg");
 const attachments = require("./attachments");
+const prefixes = require("./prefixes");
 const { formatters } = require("../formatters");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
@@ -273,8 +274,9 @@ class Thread {
     });
     const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
-    const dmContent = formatters.formatStaffReplyDM(threadMessage);
-    const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
+    const prefix = await prefixes.getPrefix(moderator.id);
+    const dmContent = formatters.formatStaffReplyDM({ ...threadMessage, prefix });
+    const inboxContent = formatters.formatStaffReplyThreadMessage({ ...threadMessage, prefix });
 
     // Because moderator replies have to be editable, we enforce them to fit within 1 message
     if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
@@ -801,8 +803,9 @@ class Thread {
       body: newText,
     });
 
-    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(newThreadMessage);
-    const formattedDM = formatters.formatStaffReplyDM(newThreadMessage);
+    const prefix = await prefixes.getPrefix(moderator.id);
+    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage({ ...newThreadMessage, prefix });
+    const formattedDM = await formatters.formatStaffReplyDM({ ...newThreadMessage, prefix });
 
     // Same restriction as in replies. Because edits could theoretically change the number of messages a reply takes, we enforce replies
     // to fit within 1 message to avoid the headache and issues caused by that.

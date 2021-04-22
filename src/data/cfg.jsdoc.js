@@ -55,6 +55,7 @@
  * @property {array} [plugins=[]]
  * @property {*} [commandAliases]
  * @property {boolean} [reactOnSeen=false]
+ * @property {boolean} [allowPrefix=true]
  * @property {string} [reactOnSeenEmoji="📨"]
  * @property {boolean} [createThreadOnMention=false]
  * @property {boolean} [notifyOnMainServerLeave=true]

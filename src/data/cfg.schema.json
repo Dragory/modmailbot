@@ -307,6 +307,11 @@
       "default": false
     },
 
+    "allowPrefix": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "reactOnSeenEmoji": {
       "type": "string",
       "default": "\uD83D\uDCE8"
