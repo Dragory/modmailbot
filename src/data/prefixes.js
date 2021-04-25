@@ -11,7 +11,7 @@ const config = require("../cfg");
     .where("user_id", userId)
     .first();
 
-  return prefixRow ? prefixRow.prefix : "";
+  return prefixRow?.prefix ?? "";
 }
 
 /**
