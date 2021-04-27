@@ -448,6 +448,8 @@ class Thread {
    * @param {boolean} [allowedMentions.everyone]
    * @param {boolean|string[]} [allowedMentions.roles]
    * @param {boolean|string[]} [allowedMentions.users]
+   * @param {boolean} [allowedMentions.repliedUser] True to ping user replied to
+   * @param {string} [replyId]
    * @returns {Promise<void>}
    */
   async postSystemMessage(text, opts = {}) {
@@ -463,6 +465,7 @@ class Thread {
 
     const finalContent = typeof content === "string" ? { content } : content;
     finalContent.allowedMentions = opts.allowedMentions;
+    finalContent.messageReferenceID = opts.replyId;
     const msg = await this._postToThreadChannel(finalContent);
 
     threadMessage.inbox_message_id = msg.id;
