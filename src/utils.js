@@ -490,6 +490,34 @@ function chunkMessageLines(str, maxChunkLength = 1990) {
   });
 }
 
+/**
+ * Requests messages sent after last correspondence from Discord API to recover messages lost to downtime
+ * @param {*} recoverThreads An array of all threads to recover messages in
+ */
+async function recoverDowntimeMessages(recoverThreads) {
+  for (const thread of recoverThreads) {
+    let dmChannel = null;
+    try {
+      dmChannel = await bot.getDMChannel(thread.user_id);
+    } catch(e) {
+      console.error(`Something went wrong recovering messages for ${thread.user_id}: ${e}`);
+      continue;
+    }
+    if (! dmChannel) continue;
+
+    const lastMessageId = (await thread.getLatestThreadMessage()).dm_message_id;
+    // We reverse the array to send the messages in the proper order - Discord returns them newest to oldest
+    const messages = (await dmChannel.getMessages(50, null, lastMessageId, null)).reverse();
+
+    if (messages.length >= 1) {
+      thread.postSystemMessage(`📥 Recovering ${messages.length} message(s) sent by user during bot downtime!`);
+      for (const msg of messages) {
+        thread.receiveUserReply(msg);
+      }
+    }
+  }
+}
+
 module.exports = {
   getInboxGuild,
   getMainGuilds,
@@ -536,6 +564,8 @@ module.exports = {
 
   messageContentIsWithinMaxLength,
   chunkMessageLines,
+
+  recoverDowntimeMessages,
 
   noop,
 };

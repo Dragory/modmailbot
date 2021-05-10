@@ -436,6 +436,14 @@ async function getThreadsThatShouldBeSuspended() {
   return threads.map(thread => new Thread(thread));
 }
 
+async function getAllOpenThreads() {
+  const threads = await knex("threads")
+  .where("status", THREAD_STATUS.OPEN)
+  .select();
+  
+  return threads.map(thread => new Thread(thread));
+}
+
 module.exports = {
   findById,
   findByThreadNumber,
@@ -448,5 +456,6 @@ module.exports = {
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
   getThreadsThatShouldBeSuspended,
-  createThreadInDB
+  createThreadInDB,
+  getAllOpenThreads,
 };

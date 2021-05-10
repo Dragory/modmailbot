@@ -584,6 +584,24 @@ class Thread {
   }
 
   /**
+   * @returns {Promise<ThreadMessage>}
+   */
+  async getLatestThreadMessage() {
+    const threadMessage = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .andWhere(function() {
+        this.where("message_type", THREAD_MESSAGE_TYPE.FROM_USER)
+          .orWhere("message_type", THREAD_MESSAGE_TYPE.TO_USER)
+          .orWhere("message_type", THREAD_MESSAGE_TYPE.SYSTEM_TO_USER)
+      })
+      .orderBy("created_at", "DESC")
+      .orderBy("id", "DESC")
+      .first();
+
+      return threadMessage;
+  }
+
+  /**
    * @param {number} messageNumber
    * @returns {Promise<ThreadMessage>}
    */
