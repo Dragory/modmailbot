@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2017 Miikka Virtanen
+Copyright (c) 2017–2021 Miikka (Dragory)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
