@@ -211,9 +211,16 @@ class Thread {
    * @param {boolean} isAnonymous
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
-  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
+  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, messageReference = null) {
     const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
+    let userMessageReference = { messageID: "", failIfNotExists: false };
+
+    // Handle replies
+    if (config.relayInlineReplies && messageReference) {
+      const repliedTo = await this.getThreadMessageForMessageId(messageReference.messageID);
+      if (repliedTo) userMessageReference.messageID = repliedTo.dm_message_id;
+    }
 
     if (config.allowSnippets && config.allowInlineSnippets) {
       // Replace {{snippet}} with the corresponding snippet
@@ -273,8 +280,10 @@ class Thread {
     });
     const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
-    const dmContent = formatters.formatStaffReplyDM(threadMessage);
-    const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
+    const dmContent = { content: formatters.formatStaffReplyDM(threadMessage) };
+    dmContent.messageReferenceID = userMessageReference.messageID;
+    const inboxContent = { content: formatters.formatStaffReplyThreadMessage(threadMessage) };
+    inboxContent.messageReferenceID = messageReference.messageID;
 
     // Because moderator replies have to be editable, we enforce them to fit within 1 message
     if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
@@ -348,6 +357,13 @@ class Thread {
       attachmentLinks.push(savedAttachment.url);
     }
 
+    // Handle inline replies (We use an object to futureproof for eris 0.15.1)
+    let messageReference = { messageID: "", failIfNotExists: false };
+    if (config.relayInlineReplies && msg.referencedMessage) {
+      const repliedTo = await this.getThreadMessageForMessageId(msg.referencedMessage.id);
+      if (repliedTo) messageReference.messageID = repliedTo.inbox_message_id;
+    }
+
     // Handle special embeds (listening party invites etc.)
     if (msg.activity) {
       let applicationName = msg.application && msg.application.name;
@@ -401,7 +417,8 @@ class Thread {
     threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
 
     // Show user reply in the inbox thread
-    const inboxContent = formatters.formatUserReplyThreadMessage(threadMessage);
+    const inboxContent = { content: formatters.formatUserReplyThreadMessage(threadMessage) };
+    inboxContent.messageReferenceID = messageReference.messageID; // Once we use eris 0.15.1, just pass the whole object to .messageReference
     const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
     if (inboxMessage) {
       await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
@@ -581,6 +598,18 @@ class Thread {
       .select();
 
     return threadMessages.map(row => new ThreadMessage(row));
+  }
+
+  async getThreadMessageForMessageId(messageId) {
+    const msg = await knex("thread_messages")
+      .where(function() {
+        this.where("dm_message_id", messageId)
+          this.orWhere("inbox_message_id", messageId)
+      })
+      .andWhere("thread_id", this.id)
+      .first();
+
+    return msg;
   }
 
   /**
