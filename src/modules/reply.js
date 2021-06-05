@@ -11,7 +11,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
-    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, false);
+    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, false, msg.messageReference);
     if (replied) msg.delete();
   }, {
     aliases: ["r"]
@@ -24,7 +24,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
-    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, true);
+    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, true, msg.messageReference);
     if (replied) msg.delete();
   }, {
     aliases: ["ar"]
