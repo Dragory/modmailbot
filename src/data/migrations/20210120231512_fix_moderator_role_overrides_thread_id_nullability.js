@@ -14,7 +14,7 @@ exports.up = async function(knex) {
     .select();
 
   if (rows.length) {
-    await knex.table("moderator_role_overrides").insert(rows);
+    await knex.batchInsert('moderator_role_overrides', rows, 50);
   }
 
   await knex.schema.dropTable("old_moderator_role_overrides");
