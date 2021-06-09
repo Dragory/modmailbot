@@ -95,8 +95,9 @@ function initStatus() {
       "playing": 0,
       "watching": 3,
       "listening": 2,
+      "streaming": 1,
     }[config.statusType] || 0;
-    bot.editStatus(null, {name: config.status, type});
+    type == 1 ? bot.editStatus(null, {name: config.status, type, url: config.statusUrl}) : bot.editStatus(null, {name: config.status, type});
   }
 
   if (config.status == null || config.status === "" || config.status === "none" || config.status === "off") {

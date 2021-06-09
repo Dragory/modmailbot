@@ -371,7 +371,11 @@ The bot's status text. Set to `none` to disable.
 
 #### statusType
 **Default:** `playing`  
-The bot's status type. One of `playing`, `watching`, `listening`.
+The bot's status type. One of `playing`, `watching`, `listening`, `streaming`.
+
+#### statusUrl
+**Default:** [nothing]  
+The bot's Twitch url used for streaming status type. Must look like `https://twitch.tv/yourname`.
 
 #### syncPermissionsOnMove
 **Default:** `on`  
