@@ -63,7 +63,7 @@ greetingMessage[] = Fourth line! With an empty line in the middle.
 ## Required options
 
 #### token
-The bot user's token from [Discord Developer Portal](https://discordapp.com/developers/).
+The bot user's token from [Discord Developer Portal](https://discord.com/developers/).
 
 #### mainServerId
 **Accepts multiple values** Your server's ID.
