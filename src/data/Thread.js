@@ -326,7 +326,7 @@ class Thread {
    * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
-  async receiveUserReply(msg) {
+  async receiveUserReply(msg, skipAlert = false) {
     const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 
@@ -421,7 +421,7 @@ class Thread {
       });
     }
 
-    if (this.alert_ids) {
+    if (this.alert_ids && ! skipAlert) {
       const ids = this.alert_ids.split(",");
       const mentionsStr = ids.map(id => `<@!${id}> `).join("");
 

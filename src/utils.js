@@ -511,8 +511,9 @@ async function recoverDowntimeMessages(recoverThreads) {
 
     if (messages.length >= 1) {
       thread.postSystemMessage(`📥 Recovering ${messages.length} message(s) sent by user during bot downtime!`);
-      for (const msg of messages) {
-        thread.receiveUserReply(msg);
+      for (let i = 0; i < messages.length; i++) {
+        const msg = messages[i];
+        thread.receiveUserReply(msg, i === 0 ? false : true);
       }
     }
   }
