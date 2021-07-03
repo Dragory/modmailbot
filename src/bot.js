@@ -12,6 +12,7 @@ const intents = [
   "guildVoiceStates", // For member information in the thread header
   "guildMessageTyping", // For typing indicators
   "directMessageTyping", // For typing indicators
+  "guildBans", // For join/leave notification Ban message
 
   // EXTRA INTENTS (from the config)
   ...config.extraIntents,
