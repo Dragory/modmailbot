@@ -1,6 +1,13 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.3.2
+* Fix database warning when updating to v3.3.1 or higher
+
+## v3.3.1
+* Fix crash when a user joins or leaves a [stage channel](https://blog.discord.com/captivate-your-community-with-stage-channels-46bbb756e89b)
+* Fix global moderator display role overrides (i.e. `!role` used outside of a thread) not working
+
 ## v3.3.0
 
 **Breaking changes:**

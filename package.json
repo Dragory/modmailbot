@@ -1,6 +1,6 @@
 {
   "name": "modmailbot",
-  "version": "3.3.0",
+  "version": "3.3.2",
   "description": "",
   "license": "MIT",
   "main": "src/index.js",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "ajv": "^6.12.4",
-    "eris": "https://github.com/Dragory/eris/archive/stickers-0.14.0.tar.gz",
+    "eris": "https://github.com/Dragory/eris/archive/0.14.0-stage-hotfix.tar.gz",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
     "humanize-duration": "^3.23.1",
