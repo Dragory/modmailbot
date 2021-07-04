@@ -326,7 +326,7 @@ class Thread {
    * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
-  async receiveUserReply(msg) {
+  async receiveUserReply(msg, skipAlert = false) {
     const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 
@@ -421,7 +421,7 @@ class Thread {
       });
     }
 
-    if (this.alert_ids) {
+    if (this.alert_ids && ! skipAlert) {
       const ids = this.alert_ids.split(",");
       const mentionsStr = ids.map(id => `<@!${id}> `).join("");
 
@@ -581,6 +581,24 @@ class Thread {
       .select();
 
     return threadMessages.map(row => new ThreadMessage(row));
+  }
+
+  /**
+   * @returns {Promise<ThreadMessage>}
+   */
+  async getLatestThreadMessage() {
+    const threadMessage = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .andWhere(function() {
+        this.where("message_type", THREAD_MESSAGE_TYPE.FROM_USER)
+          .orWhere("message_type", THREAD_MESSAGE_TYPE.TO_USER)
+          .orWhere("message_type", THREAD_MESSAGE_TYPE.SYSTEM_TO_USER)
+      })
+      .orderBy("created_at", "DESC")
+      .orderBy("id", "DESC")
+      .first();
+
+      return threadMessage;
   }
 
   /**

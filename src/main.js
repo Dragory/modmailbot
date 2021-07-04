@@ -8,7 +8,6 @@ const {messageQueue} = require("./queue");
 const utils = require("./utils");
 const { createCommandManager } = require("./commands");
 const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
-const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
 
 const blocked = require("./data/blocked");
 const threads = require("./data/threads");
@@ -69,6 +68,7 @@ module.exports = {
       console.log("");
       console.log("Done! Now listening to DMs.");
       console.log("");
+      utils.recoverDowntimeMessages(await threads.getAllOpenThreads()); // We call threads.getAllOpenThreads here to prevent a circular dependency (threads, utils)
     });
 
     bot.connect();
