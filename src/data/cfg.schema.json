@@ -357,6 +357,11 @@
       "default": null
     },
 
+    "breakFormattingForNames": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "autoAlert": {
       "$ref": "#/definitions/customBoolean",
       "default": false
