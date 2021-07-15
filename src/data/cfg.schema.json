@@ -317,6 +317,21 @@
       "default": false
     },
 
+    "newBlockMessage": {
+      "type": "string",
+      "default": null
+    },
+
+    "newBlockMessageDuration": {
+      "type": "string",
+      "default": null
+    },
+
+    "blockedMessage": {
+      "type": "string",
+      "default": null
+    },
+
     "notifyOnMainServerLeave": {
       "$ref": "#/definitions/customBoolean",
       "default": true
