@@ -41,6 +41,10 @@ module.exports = ({ bot, knex, config, commands }) => {
   });
 
   commands.addInboxThreadCommand("suspend", "[delay:delay]", async (msg, args, thread) => {
+    if (thread.status === THREAD_STATUS.SUSPENDED) {
+      thread.postSystemMessage("Thread is already suspended.");
+      return;
+    }
     if (args.delay) {
       const suspendAt = moment.utc().add(args.delay, "ms");
       await thread.scheduleSuspend(suspendAt.format("YYYY-MM-DD HH:mm:ss"), msg.author);
@@ -52,7 +56,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await thread.suspend();
     thread.postSystemMessage("**Thread suspended!** This thread will act as closed until unsuspended with `!unsuspend`");
-  });
+  }, { allowSuspended: true });
 
   commands.addInboxServerCommand("unsuspend", [], async (msg, args, thread) => {
     if (thread) {
