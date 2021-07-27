@@ -1,0 +1,28 @@
+
+name: Lint PRs
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  run-checks:
+    name: Run eslint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run eslint
+        uses: wearerequired/lint-action@v1.10.0
+        with:
+          eslint: true
