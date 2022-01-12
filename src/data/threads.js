@@ -156,17 +156,6 @@ async function createNewThreadForUser(user, opts = {}) {
       }
     }
 
-    let hookResult;
-    if (! ignoreHooks) {
-      // Call any registered beforeNewThreadHooks
-      hookResult = await callBeforeNewThreadHooks({
-        user,
-        opts,
-        message: opts.message
-      });
-      if (hookResult.cancelled) return;
-    }
-
     // Use the user's name+discrim for the thread channel's name
     // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
     let cleanName = transliterate.slugify(user.username);
@@ -179,7 +168,20 @@ async function createNewThreadForUser(user, opts = {}) {
       channelName = crypto.createHash("md5").update(channelName + Date.now()).digest("hex").slice(0, 12);
     }
 
-    console.log(`[NOTE] Creating new thread channel ${channelName}`);
+    opts.channelName = channelName;
+
+    let hookResult;
+    if (! ignoreHooks) {
+      // Call any registered beforeNewThreadHooks
+      hookResult = await callBeforeNewThreadHooks({
+        user,
+        opts,
+        message: opts.message
+      });
+      if (hookResult.cancelled) return;
+    }
+
+    console.log(`[NOTE] Creating new thread channel ${opts.channelName}`);
 
     // Figure out which category we should place the thread channel in
     let newThreadCategoryId = (hookResult && hookResult.categoryId) || opts.categoryId || null;
@@ -202,7 +204,7 @@ async function createNewThreadForUser(user, opts = {}) {
     // Attempt to create the inbox channel for this thread
     let createdChannel;
     try {
-      createdChannel = await utils.getInboxGuild().createChannel(channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
+      createdChannel = await utils.getInboxGuild().createChannel(opts.channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
         reason: "New Modmail thread",
         parentID: newThreadCategoryId,
       });
