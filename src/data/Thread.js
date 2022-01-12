@@ -7,6 +7,7 @@ const utils = require("../utils");
 const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
+const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
 const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
@@ -327,6 +328,21 @@ class Thread {
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg) {
+    const user = msg.author;
+    const opts = {
+      source: "dm",
+      message: msg,
+    };
+    let hookResult;
+
+    // Call any registered beforeNewMessageReceivedHooks
+    hookResult = await callBeforeNewMessageReceivedHooks({
+      user,
+      opts,
+      message: opts.message
+    });
+    if (hookResult.cancelled) return;
+
     const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 
