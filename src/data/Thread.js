@@ -330,7 +330,7 @@ class Thread {
   async receiveUserReply(msg) {
     const user = msg.author;
     const opts = {
-      source: "dm",
+      thread: this,
       message: msg,
     };
     let hookResult;
