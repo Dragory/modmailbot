@@ -8,6 +8,7 @@ const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
 const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
+const { callAfterNewMessageReceivedHooks } = require("../hooks/afterNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
 const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
@@ -426,6 +427,13 @@ class Thread {
     if (config.reactOnSeen) {
       await msg.addReaction(config.reactOnSeenEmoji).catch(utils.noop);
     }
+
+    // Call any registered afterNewMessageReceivedHooks
+    await callAfterNewMessageReceivedHooks({
+      user,
+      opts,
+      message: opts.message
+    });
 
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
