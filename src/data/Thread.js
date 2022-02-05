@@ -10,6 +10,8 @@ const { formatters } = require("../formatters");
 const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
 const { callAfterNewMessageReceivedHooks } = require("../hooks/afterNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
+const { callAfterThreadCloseScheduledHooks } = require("../hooks/afterThreadCloseScheduled");
+const { callAfterThreadCloseScheduleCanceledHooks } = require("../hooks/afterThreadCloseScheduleCanceled");
 const snippets = require("./snippets");
 const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 
@@ -667,6 +669,8 @@ class Thread {
         scheduled_close_name: user.username,
         scheduled_close_silent: silent
       });
+
+    await callAfterThreadCloseScheduledHooks({ thread: this });
   }
 
   /**
@@ -681,6 +685,8 @@ class Thread {
         scheduled_close_name: null,
         scheduled_close_silent: null
       });
+
+    await callAfterThreadCloseScheduleCanceledHooks({ thread: this });
   }
 
   /**
