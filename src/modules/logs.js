@@ -3,6 +3,7 @@ const moment = require("moment");
 const utils = require("../utils");
 const { getLogUrl, getLogFile, getLogCustomResponse, saveLogToStorage } = require("../data/logs");
 const { THREAD_STATUS } = require("../data/constants");
+const {getOrFetchChannel} = require("../utils");
 
 const LOG_LINES_PER_PAGE = 10;
 
@@ -24,6 +25,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;
 
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
     let userThreads = await threads.getClosedThreadsByUserId(userId);
 
     // Descending by date
@@ -68,7 +70,7 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
 
     let root = Promise.resolve();
     chunks.forEach(lines => {
-      root = root.then(() => msg.channel.createMessage(lines.join("\n")));
+      root = root.then(() => channel.createMessage(lines.join("\n")));
     });
   };
 
@@ -79,29 +81,31 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const thread = (await threads.findById(threadId)) || (await threads.findByThreadNumber(threadId));
     if (! thread) return;
 
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
+
     const customResponse = await getLogCustomResponse(thread);
     if (customResponse && (customResponse.content || customResponse.file)) {
-      msg.channel.createMessage(customResponse.content, customResponse.file);
+      channel.createMessage(customResponse.content, customResponse.file);
     }
 
     const logUrl = await getLogUrl(thread);
     if (logUrl) {
-      msg.channel.createMessage(`Open the following link to view the log for thread #${thread.thread_number}:\n<${addOptQueryStringToUrl(logUrl, args)}>`);
+      channel.createMessage(`Open the following link to view the log for thread #${thread.thread_number}:\n<${addOptQueryStringToUrl(logUrl, args)}>`);
       return;
     }
 
     const logFile = await getLogFile(thread);
     if (logFile) {
-      msg.channel.createMessage(`Download the following file to view the log for thread #${thread.thread_number}:`, logFile);
+      channel.createMessage(`Download the following file to view the log for thread #${thread.thread_number}:`, logFile);
       return;
     }
 
     if (thread.status === THREAD_STATUS.OPEN) {
-      msg.channel.createMessage(`This thread's logs are not currently available, but it's open at <#${thread.channel_id}>`);
+      channel.createMessage(`This thread's logs are not currently available, but it's open at <#${thread.channel_id}>`);
       return;
     }
 
-    msg.channel.createMessage("This thread's logs are not currently available");
+    channel.createMessage("This thread's logs are not currently available");
   };
 
   const logCmdOptions = [

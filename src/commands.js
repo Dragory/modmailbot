@@ -126,8 +126,8 @@ module.exports = {
         ...commandConfig,
         aliases,
         preFilters: [
-          (_, context) => {
-            if (! utils.messageIsOnInboxServer(context.msg)) return false;
+          async (_, context) => {
+            if (! await utils.messageIsOnInboxServer(bot, context.msg)) return false;
             if (! utils.isStaff(context.msg.member)) return false;
             return true;
           }
@@ -154,7 +154,7 @@ module.exports = {
         aliases,
         preFilters: [
           async (_, context) => {
-            if (! utils.messageIsOnInboxServer(context.msg)) return false;
+            if (! await utils.messageIsOnInboxServer(bot, context.msg)) return false;
             if (! utils.isStaff(context.msg.member)) return false;
             thread = await threads.findOpenThreadByChannelId(context.msg.channel.id);
             if (! thread) return false;

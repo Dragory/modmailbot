@@ -2,6 +2,7 @@ const config = require("../cfg");
 const Eris = require("eris");
 const transliterate = require("transliteration");
 const erisEndpoints = require("../../node_modules/eris/lib/rest/Endpoints");
+const {getOrFetchChannel} = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowMove) return;
@@ -10,9 +11,10 @@ module.exports = ({ bot, knex, config, commands }) => {
     const searchStr = args.category;
     const normalizedSearchStr = transliterate.slugify(searchStr);
 
-    const categories = msg.channel.guild.channels.filter(c => {
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
+    const categories = channel.guild.channels.filter(c => {
       // Filter to categories that are not the thread's current parent category
-      return (c instanceof Eris.CategoryChannel) && (c.id !== msg.channel.parentID);
+      return (c instanceof Eris.CategoryChannel) && (c.id !== channel.parentID);
     });
 
     if (categories.length === 0) return;

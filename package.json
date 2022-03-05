@@ -6,7 +6,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "watch": "supervisor -n exit -w src --inspect=0.0.0.0:9229 src/index.js",
+    "start-dev": "NODE_ENV=development node src/index.js",
+    "watch": "NODE_ENV=development supervisor -n exit -w src --inspect=0.0.0.0:9229 src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ./src ./db/migrations",
     "lint-fix": "eslint --fix ./src ./db/migrations",
@@ -21,7 +22,7 @@
   },
   "dependencies": {
     "ajv": "^6.12.4",
-    "eris": "https://github.com/Dragory/eris/archive/0.14.0-stage-hotfix.tar.gz",
+    "eris": "^0.16.1",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
     "humanize-duration": "^3.23.1",
