@@ -208,6 +208,21 @@ async function createNewThreadForUser(user, opts = {}) {
       });
     } catch (err) {
       console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
+      // Fix for Discovery Servers
+      if (err.includes('Contains words not allowed for servers in Server Discovery')) {
+        let channelName = `BadName-${user.discriminator}`;
+        try {
+          createdChannel = await utils.getInboxGuild().createChannel(channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
+            reason: "New Modmail thread",
+            parentID: newThreadCategoryId,
+          });
+        } catch (err) {
+          console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
+          }
+          throw err;
+        }
+        // Discovery Fix end
+      }
       throw err;
     }
 
