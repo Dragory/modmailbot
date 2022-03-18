@@ -218,11 +218,10 @@ async function createNewThreadForUser(user, opts = {}) {
           });
         } catch (err) {
           console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
-          }
           throw err;
         }
-        // Discovery Fix end
       }
+        // Discovery Fix end
       throw err;
     }
 
