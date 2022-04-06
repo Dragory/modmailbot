@@ -210,7 +210,7 @@ async function createNewThreadForUser(user, opts = {}) {
       // Fix for Discovery Servers censored channel names
       console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}! Trying to workaround the Discovery Server limitations.`);
       if (err.message.indexOf('Contains words not allowed for servers in Server Discovery') !== -1) {
-        let channelName = `badname-${user.discriminator}`;
+        let channelName = `badname-0000`;
         try {
           createdChannel = await utils.getInboxGuild().createChannel(channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
             reason: "New Modmail thread",
