@@ -45,13 +45,13 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const end = page * LOG_LINES_PER_PAGE;
     userThreads = userThreads.slice((page - 1) * LOG_LINES_PER_PAGE, page * LOG_LINES_PER_PAGE);
 
-    const threadLines = await Promise.all(userThreads.map(async thread => {
-      const logUrl = await getLogUrl(thread);
+    const threadLines = await Promise.all(userThreads.map(async userThread => {
+      const logUrl = await getLogUrl(userThread);
       const formattedLogUrl = logUrl
         ? `<${addOptQueryStringToUrl(logUrl, args)}>`
-        : `View log with \`${config.prefix}log ${thread.thread_number}\``
-      const formattedDate = moment.utc(thread.created_at).format("MMM Do [at] HH:mm [UTC]");
-      return `\`#${thread.thread_number}\` \`${formattedDate}\`: ${formattedLogUrl}`;
+        : `View log with \`${config.prefix}log ${userThread.thread_number}\``
+      const formattedDate = moment.utc(userThread.created_at).format("MMM Do [at] HH:mm [UTC]");
+      return `\`#${userThread.thread_number}\` \`${formattedDate}\`: ${formattedLogUrl}`;
     }));
 
     let message = isPaginated
@@ -69,8 +69,8 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const chunks = utils.chunk(lines, 15);
 
     let root = Promise.resolve();
-    chunks.forEach(lines => {
-      root = root.then(() => channel.createMessage(lines.join("\n")));
+    chunks.forEach(chunkLines => {
+      root = root.then(() => channel.createMessage(chunkLines.join("\n")));
     });
   };
 

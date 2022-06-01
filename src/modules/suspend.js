@@ -1,7 +1,6 @@
 const moment = require("moment");
 const threads = require("../data/threads");
 const utils = require("../utils");
-const config = require("../cfg");
 
 const {THREAD_STATUS} = require("../data/constants");
 const {getOrFetchChannel} = require("../utils");

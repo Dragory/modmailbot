@@ -119,13 +119,9 @@ module.exports = {
   },
 
   /**
-   * @param bot
-   * @param knex
-   * @param config
-   * @param commands
    * @returns {PluginAPI}
    */
-  getPluginAPI({ bot, knex, config, commands }) {
+  getPluginAPI({ bot, knex, commands }) {
     return {
       bot,
       knex,
