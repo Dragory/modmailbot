@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "eslint": "^8.16.0",
-    "jsdoc-to-markdown": "^6.0.1",
+    "jsdoc-to-markdown": "^7.1.1",
     "json-schema-to-jsdoc": "^1.1.0",
     "nodemon": "^2.0.16"
   },
