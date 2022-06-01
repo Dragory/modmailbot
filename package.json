@@ -35,7 +35,7 @@
     "mv": "^2.1.1",
     "mysql2": "^2.1.0",
     "pacote": "^13.6.0",
-    "public-ip": "^4.0.2",
+    "public-ip": "^5.0.0",
     "sqlite3": "^5.0.8",
     "tmp": "^0.2.1",
     "transliteration": "^2.1.11",
