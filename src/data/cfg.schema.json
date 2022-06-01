@@ -196,6 +196,7 @@
       "type": "string"
     },
     "serverGreetings": {
+      "type": "object",
       "patternProperties": {
         "^\\d+$": {
           "type": "object",
@@ -208,8 +209,7 @@
             }
           }
         }
-      },
-      "default": {}
+      }
     },
     "guildGreetings": {
       "$comment": "Alias for serverGreetings",
@@ -255,6 +255,7 @@
     },
 
     "categoryAutomation": {
+      "type": "object",
       "properties": {
         "newThread": {
           "type": "string"
@@ -272,8 +273,7 @@
           "$comment": "Alias for categoryAutomation.newThreadFromServer",
           "$ref": "#/properties/categoryAutomation/properties/newThreadFromServer"
         }
-      },
-      "default": {}
+      }
     },
 
     "updateNotifications": {
@@ -295,6 +295,7 @@
     },
 
     "commandAliases": {
+      "type": "object",
       "patternProperties": {
         "^.+$": {
           "type": "string"

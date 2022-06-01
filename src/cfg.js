@@ -163,8 +163,8 @@ if (config.guildGreetings && ! config.serverGreetings) {
 // Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
 // already have something set up in serverGreetings. This retains backwards compatibility while allowing you to override
 // greetings for specific servers in serverGreetings.
+config.serverGreetings = config.serverGreetings || {};
 if (config.greetingMessage || config.greetingAttachment) {
-  config.serverGreetings = config.serverGreetings || {};
   for (const guildId of config.mainServerId) {
     if (config.serverGreetings[guildId]) continue;
     config.serverGreetings[guildId] = {
@@ -192,34 +192,35 @@ for (const [key, value] of Object.entries(config)) {
 const ajv = new Ajv({
   useDefaults: true,
   coerceTypes: "array",
-  extendRefs: true, // Hides an error about ignored keywords when using $ref with $comment
+  allowUnionTypes: true,
 });
 
 // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270692820
 const truthyValues = ["1", "true", "on", "yes"];
 const falsyValues = ["0", "false", "off", "no"];
-ajv.addKeyword("coerceBoolean", {
-  compile(value) {
-    return (data, dataPath, parentData, parentKey) => {
+ajv.addKeyword({
+  keyword: "coerceBoolean",
+  compile() {
+    return (value, ctx) => {
       if (! value) {
         // Disabled -> no coercion
         return true;
       }
 
       // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270777250
-      // The "data" argument doesn't update within the same set of schemas inside "allOf",
+      // The "value" argument doesn't update within the same set of schemas inside "allOf",
       // so we're referring to the original property instead.
       // This also means we can't use { "type": "boolean" }, as it would test the un-updated data value.
-      const realData = parentData[parentKey];
+      const realValue = ctx.parentData[ctx.parentDataProperty];
 
-      if (typeof realData === "boolean") {
+      if (typeof realValue === "boolean") {
         return true;
       }
 
-      if (truthyValues.includes(realData)) {
-        parentData[parentKey] = true;
-      } else if (falsyValues.includes(realData)) {
-        parentData[parentKey] = false;
+      if (truthyValues.includes(realValue)) {
+        ctx.parentData[ctx.parentDataProperty] = true;
+      } else if (falsyValues.includes(realValue)) {
+        ctx.parentData[ctx.parentDataProperty] = false;
       } else {
         return false;
       }
@@ -229,21 +230,21 @@ ajv.addKeyword("coerceBoolean", {
   },
 });
 
-ajv.addKeyword("multilineString", {
-  compile(value) {
-    return (data, dataPath, parentData, parentKey) => {
+ajv.addKeyword({
+  keyword: "multilineString",
+  compile() {
+    return (value, ctx) => {
       if (! value) {
         // Disabled -> no coercion
         return true;
       }
 
-      const realData = parentData[parentKey];
-
-      if (typeof realData === "string") {
+      const realValue = ctx.parentData[ctx.parentDataProperty];
+      if (typeof realValue === "string") {
         return true;
       }
 
-      parentData[parentKey] = realData.join("\n");
+      ctx.parentData[ctx.parentDataProperty] = realValue.join("\n");
 
       return true;
     };
