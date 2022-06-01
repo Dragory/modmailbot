@@ -43,7 +43,7 @@
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
-    "eslint": "^7.7.0",
+    "eslint": "^8.16.0",
     "jsdoc-to-markdown": "^6.0.1",
     "json-schema-to-jsdoc": "^1.1.0",
     "supervisor": "https://github.com/petruisfan/node-supervisor/archive/fb89a695779770d3cd63b624ef4b1ab2908c105d.tar.gz"
