@@ -262,7 +262,7 @@ if (! configIsValid) {
     if (error.params.missingProperty) {
       console.error(`- Missing required option: "${error.params.missingProperty.slice(1)}"`);
     } else {
-      console.error(`- The "${error.dataPath.slice(1)}" option ${error.message}`);
+      console.error(`- The "${error.instancePath.slice(1)}" option ${error.message}. (Is currently: ${typeof config[error.instancePath.slice(1)]})`);
     }
   }
   console.error("");
