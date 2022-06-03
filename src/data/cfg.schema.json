@@ -106,7 +106,7 @@
       "type": "string"
     },
     "mentionRole": {
-      "type": "string",
+      "$ref": "#/definitions/stringArray",
       "default": "none"
     },
     "pingOnBotMention": {
