@@ -103,12 +103,17 @@ function waitForGuild(guildId) {
 function initStatus() {
   function applyStatus() {
     const type = {
-      "playing": 0,
-      "watching": 3,
-      "listening": 2,
-      "streaming": 1,
-    }[config.statusType] || 0;
-    type == 1 ? bot.editStatus(null, {name: config.status, type, url: config.statusUrl}) : bot.editStatus(null, {name: config.status, type});
+      "playing": Eris.Constants.ActivityTypes.GAME,
+      "watching": Eris.Constants.ActivityTypes.WATCHING,
+      "listening": Eris.Constants.ActivityTypes.LISTENING,
+      "streaming": Eris.Constants.ActivityTypes.STREAMING,
+    }[config.statusType] || Eris.Constants.ActivityTypes.GAME;
+
+    if (type === Eris.Constants.ActivityTypes.STREAMING) {
+      bot.editStatus(null, { name: config.status, type, url: config.statusUrl });
+    } else {
+      bot.editStatus(null, { name: config.status, type });
+    }
   }
 
   if (config.status == null || config.status === "" || config.status === "none" || config.status === "off") {
