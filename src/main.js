@@ -151,8 +151,8 @@ function initBaseMessageHandlers() {
     if (msg.type !== 0) return; // Ignore pins etc.
 
     if (await blocked.isBlocked(msg.author.id)) {
-      if (config.blockedMessage != null) {
-        msg.channel.createMessage(config.blockedMessage).catch(utils.noop); //ignore silently
+      if (config.blockedReply != null) {
+        msg.channel.createMessage(config.blockedReply).catch(utils.noop); //ignore silently
       }
       return;
     }

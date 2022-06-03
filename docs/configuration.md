@@ -393,18 +393,18 @@ If enabled, channel permissions for the thread are synchronized with the categor
 **Default:** `off`  
 If enabled, the bot will automatically create a new thread for a user who pings it.
 
-#### newBlockMessage
+#### blockMessage
 **Default** *None*
-If set to text, will send this to a user when they get blocked indefinitely.
+Message to send to a user when they are blocked indefinitely
 
-#### newBlockMessageDuration
+#### timedBlockMessage
 **Default** *None*
-If set to text, will send this to a user when they get blocked for a specific duration.  
-The first `{duration}` in the text will be replaced with the humanized duration (e.g. `4 weeks, 2 days`).
+Message to send to a user when they are blocked for a specific duration.  
+You can use `{duration}` in the text to include the duration (e.g. `4 weeks, 2 days`).
 
-#### blockedMessage
+#### blockedReply
 **Default** *None*
-If set to text, will send this to a user when they try to message the bot while blocked.
+Message that the bot replies with if a user tries to message the bot while blocked.
 
 #### threadTimestamps
 **Default:** `off`  

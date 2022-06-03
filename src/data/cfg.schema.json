@@ -326,17 +326,17 @@
       "default": false
     },
 
-    "newBlockMessage": {
+    "blockMessage": {
       "type": "string",
       "default": null
     },
 
-    "newBlockMessageDuration": {
+    "timedBlockMessage": {
       "type": "string",
       "default": null
     },
 
-    "blockedMessage": {
+    "blockedReply": {
       "type": "string",
       "default": null
     },
