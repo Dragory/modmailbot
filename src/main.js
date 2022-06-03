@@ -4,17 +4,18 @@ const path = require("path");
 const config = require("./cfg");
 const bot = require("./bot");
 const knex = require("./knex");
-const {messageQueue} = require("./queue");
+const { messageQueue } = require("./queue");
 const utils = require("./utils");
+const { formatters } = require("./formatters")
 const { createCommandManager } = require("./commands");
 const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
-const { callBeforeNewThreadHooks } = require("./hooks/beforeNewThread");
+const ThreadMessage = require("./data/ThreadMessage");
 
 const blocked = require("./data/blocked");
 const threads = require("./data/threads");
 const updates = require("./data/updates");
 
-const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
+const { ACCIDENTAL_THREAD_MESSAGES } = require("./data/constants");
 const {getOrFetchChannel} = require("./utils");
 
 module.exports = {
@@ -189,7 +190,7 @@ function initBaseMessageHandlers() {
 
   /**
    * When a message is edited...
-   * 1) If that message was in DMs, and we have a thread open with that user, post the edit as a system message in the thread
+   * 1) If that message was in DMs, and we have a thread open with that user, post the edit as a system message in the thread, or edit the thread message
    * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
    */
   bot.on("messageUpdate", async (msg, oldMessage) => {
@@ -212,8 +213,21 @@ function initBaseMessageHandlers() {
       const thread = await threads.findOpenThreadByUserId(msg.author.id);
       if (! thread) return;
 
-      const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
-      thread.postSystemMessage(editMessage);
+      if (config.updateMessagesLive) {
+        await thread.updateChatMessageInLogs(msg);
+        const threadMessageProps = await knex("thread_messages")
+          .where("dm_message_id", msg.id)
+          .select();
+        if (! threadMessageProps) return;
+        const threadMessage = new ThreadMessage(threadMessageProps[0]);
+
+        const formatted = formatters.formatUserReplyThreadMessage(threadMessage);
+        bot.editMessage(thread.channel_id, threadMessage.inbox_message_id, formatted)
+          .catch(console.log);
+      } else {
+        const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
+        thread.postSystemMessage(editMessage);
+      }
     }
 
     // 2) If this edit was a chat message in the thread
@@ -225,19 +239,38 @@ function initBaseMessageHandlers() {
     }
   });
 
+
   /**
-   * When a staff message is deleted in a modmail thread, delete it from the database as well
+   * When a message is deleted...
+   * 1) If that message was in DMs, and we have a thread open with that user, delete the thread message
+   * 2) If that message was moderator chatter in the thread, delete it from the database as well
    */
   bot.on("messageDelete", async msg => {
     if (! msg.author) return;
     if (msg.author.id === bot.user.id) return;
-    if (! await utils.messageIsOnInboxServer(bot, msg)) return;
-    if (! msg.author.bot && ! utils.isStaff(msg.member)) return;
 
-    const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
-    if (! thread) return;
+    // 1) If this deleted message was in DMs
+    if (! msg.author.bot && msg.channel instanceof Eris.PrivateChannel) {
+      const thread = await threads.findOpenThreadByUserId(msg.author.id);
+      if (! thread) return;
 
-    thread.deleteChatMessageFromLogs(msg.id);
+      if (config.updateMessagesLive) {
+        const threadMessage = await knex("thread_messages")
+          .where("dm_message_id", msg.id)
+          .select();
+        if (! threadMessage) return;
+
+        bot.deleteMessage(thread.channel_id, threadMessage[0].inbox_message_id);
+      }
+    }
+
+    // 2) If this deleted message was in the thread
+    else if (utils.messageIsOnInboxServer(msg) && (msg.author.bot || utils.isStaff(msg.member))) {
+      const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
+      if (! thread) return;
+
+      thread.deleteChatMessageFromLogs(msg.id);
+    }
   });
 
   /**

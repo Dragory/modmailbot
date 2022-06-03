@@ -97,6 +97,10 @@ If enabled, staff members can delete their own replies in modmail threads with `
 **Default:** `on`  
 If enabled, staff members can edit their own replies in modmail threads with `!edit`
 
+#### updateMessagesLive
+**Default:** `off`
+If enabled, messages edited and deleted by the user will be updated accordingly in the thread, but will still be available in the logs
+
 #### allowBlock
 **Default:** `on`  
 If enabled, staff members can block a user from using modmail with `!block`
