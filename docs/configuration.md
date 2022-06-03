@@ -202,6 +202,10 @@ See [allowInlineSnippets](#allowInlineSnippets) for more details.
 **Default:** *None*  
 Role name to display in moderator replies if the moderator doesn't have a hoisted role
 
+#### breakFormattingForNames
+**Default:** `on`
+Whether or not to escape formatting characters in usernames, such as `~~` for strikethrough, `__` for underlined etc.
+
 #### greetingAttachment
 **Default:** *None*  
 Path to an image or other attachment to send as a greeting. Requires `enableGreeting` to be enabled.
@@ -371,7 +375,11 @@ The bot's status text. Set to `none` to disable.
 
 #### statusType
 **Default:** `playing`  
-The bot's status type. One of `playing`, `watching`, `listening`.
+The bot's status type. One of `playing`, `watching`, `listening`, `streaming`.
+
+#### statusUrl
+**Default:** [nothing]  
+The bot's Twitch url used for streaming status type. Must look like `https://twitch.tv/yourname`.
 
 #### syncPermissionsOnMove
 **Default:** `on`  

@@ -9,6 +9,7 @@ const {
   getModeratorThreadDisplayRoleName,
   getModeratorDefaultDisplayRoleName,
 } = require("../data/displayRoles");
+const {getOrFetchChannel} = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowChangingDisplayRole) {
@@ -31,7 +32,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     } else {
       thread.postSystemMessage("Your replies in this thread do not currently display a role");
     }
-  });
+  }, { allowSuspended: true });
 
   // Reset display role for a thread
   commands.addInboxThreadCommand("role reset", [], async (msg, args, thread) => {
@@ -45,6 +46,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     }
   }, {
     aliases: ["role_reset", "reset_role"],
+    allowSuspended: true,
   });
 
   // Set display role for a thread
@@ -57,15 +59,16 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await setModeratorThreadRoleOverride(msg.member.id, thread.id, role.id);
     thread.postSystemMessage(`Your display role for this thread has been set to **${role.name}**. You can reset it with \`${config.prefix}role reset\`.`);
-  });
+  }, { allowSuspended: true });
 
   // Get default display role
   commands.addInboxServerCommand("role", [], async (msg, args, thread) => {
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
     const displayRole = await getModeratorDefaultDisplayRoleName(msg.member);
     if (displayRole) {
-      msg.channel.createMessage(`Your default display role is currently **${displayRole}**`);
+      channel.createMessage(`Your default display role is currently **${displayRole}**`);
     } else {
-      msg.channel.createMessage("Your replies do not currently display a role by default");
+      channel.createMessage("Your replies do not currently display a role by default");
     }
   });
 
@@ -73,11 +76,12 @@ module.exports = ({ bot, knex, config, commands }) => {
   commands.addInboxServerCommand("role reset", [], async (msg, args, thread) => {
     await resetModeratorDefaultRoleOverride(msg.member.id);
 
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
     const displayRole = await getModeratorDefaultDisplayRoleName(msg.member);
     if (displayRole) {
-      msg.channel.createMessage(`Your default display role has been reset. Your replies will now display the role **${displayRole}** by default.`);
+      channel.createMessage(`Your default display role has been reset. Your replies will now display the role **${displayRole}** by default.`);
     } else {
-      msg.channel.createMessage("Your default display role has been reset. Your replies will no longer display a role by default.");
+      channel.createMessage("Your default display role has been reset. Your replies will no longer display a role by default.");
     }
   }, {
     aliases: ["role_reset", "reset_role"],
@@ -85,13 +89,14 @@ module.exports = ({ bot, knex, config, commands }) => {
 
   // Set default display role
   commands.addInboxServerCommand("role", "<role:string$>", async (msg, args, thread) => {
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
     const role = resolveRoleInput(args.role);
     if (! role || ! msg.member.roles.includes(role.id)) {
-      msg.channel.createMessage("No matching role found. Make sure you have the role before trying to set it as your default display role.");
+      channel.createMessage("No matching role found. Make sure you have the role before trying to set it as your default display role.");
       return;
     }
 
     await setModeratorDefaultRoleOverride(msg.member.id, role.id);
-    msg.channel.createMessage(`Your default display role has been set to **${role.name}**. You can reset it with \`${config.prefix}role reset\`.`);
+    channel.createMessage(`Your default display role has been set to **${role.name}**. You can reset it with \`${config.prefix}role reset\`.`);
   });
 };
