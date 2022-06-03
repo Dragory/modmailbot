@@ -1,6 +1,7 @@
 const attachments = require("./data/attachments");
 const logs = require("./data/logs");
 const { beforeNewThread } = require("./hooks/beforeNewThread");
+const { beforeNewMessageReceived } = require("./hooks/beforeNewMessageReceived");
 const { afterThreadClose } = require("./hooks/afterThreadClose");
 const formats = require("./formatters");
 const webserver = require("./modules/webserver");
@@ -147,6 +148,7 @@ module.exports = {
       },
       hooks: {
         beforeNewThread,
+        beforeNewMessageReceived,
         afterThreadClose,
       },
       formats,
