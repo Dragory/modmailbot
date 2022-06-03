@@ -254,6 +254,11 @@
       "minimum": 0
     },
 
+    "relayInlineReplies": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "attachmentStorage": {
       "type": "string",
       "default": "original"

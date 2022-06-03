@@ -49,6 +49,7 @@
  * @property {string} [timeOnServerDeniedMessage="You haven't been a member of the server for long enough to contact modmail."]
  * @property {boolean} [relaySmallAttachmentsAsAttachments=false]
  * @property {number} [smallAttachmentLimit=2097152] Max size of attachment to relay directly. Default is 2MB.
+ * @property {boolean} [relayInlineReplies=true]
  * @property {string} [attachmentStorage="original"]
  * @property {string} [attachmentStorageChannelId]
  * @property {object} [categoryAutomation]
