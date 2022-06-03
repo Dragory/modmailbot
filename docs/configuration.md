@@ -124,6 +124,10 @@ See [inlineSnippetStart](#inlineSnippetStart) and [inlineSnippetEnd](#inlineSnip
 **Default:** `on`  
 If enabled, moderators can change the role that's shown with their replies to any role they currently have using the `!role` command.
 
+#### allowNotes
+**Default:** `on`  
+If enabled, moderators can add notes on users using the `!note` command.
+
 #### alwaysReply
 **Default:** `off`  
 If enabled, all messages in modmail threads will be sent to the user without having to use `!r`.  

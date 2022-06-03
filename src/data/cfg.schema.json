@@ -422,6 +422,11 @@
       "default": true
     },
 
+    "allowNotes": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
     "logStorage": {
       "type": "string",
       "default": "local"

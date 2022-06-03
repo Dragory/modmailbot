@@ -539,6 +539,9 @@ async function getOrFetchChannel(client, channelId) {
   return fetchChannelPromises[channelId];
 }
 
+const START_CODEBLOCK = "```";
+const END_CODEBLOCK = "```";
+
 module.exports = {
   getInboxGuild,
   getMainGuilds,
@@ -589,4 +592,7 @@ module.exports = {
   getOrFetchChannel,
 
   noop,
+
+  START_CODEBLOCK,
+  END_CODEBLOCK,
 };

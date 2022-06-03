@@ -369,7 +369,7 @@ function getBasePlugins() {
     "file:./src/modules/alert",
     "file:./src/modules/joinLeaveNotification",
     "file:./src/modules/roles",
-    "file:./src/modules/note",
+    "file:./src/modules/notes",
   ];
 }
 
