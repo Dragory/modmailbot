@@ -1,4 +1,5 @@
 const utils = require("../utils");
+const {THREAD_MESSAGE_TYPE} = require("./constants");
 
 /**
  * @property {Number} id
@@ -81,6 +82,24 @@ class ThreadMessage {
    */
   getMetadataValue(key) {
     return this.metadata ? this.metadata[key] : null;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isFromUser() {
+    return this.message_type === THREAD_MESSAGE_TYPE.FROM_USER;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isChat() {
+    return this.message_type === THREAD_MESSAGE_TYPE.CHAT;
+  }
+
+  clone() {
+    return new ThreadMessage(this.getSQLProps());
   }
 }
 

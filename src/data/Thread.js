@@ -7,6 +7,7 @@ const utils = require("../utils");
 const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
+const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
 const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
@@ -14,6 +15,8 @@ const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
+
+const escapeFormattingRegex = new RegExp("[_`~*|]", "g");
 
 /**
  * @property {String} id
@@ -212,7 +215,10 @@ class Thread {
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
-    const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    if (config.breakFormattingForNames) {
+      moderatorName = moderatorName.replace(escapeFormattingRegex, "\\$&");
+    }
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
 
     if (config.allowSnippets && config.allowInlineSnippets) {
@@ -327,6 +333,21 @@ class Thread {
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg) {
+    const user = msg.author;
+    const opts = {
+      thread: this,
+      message: msg,
+    };
+    let hookResult;
+
+    // Call any registered beforeNewMessageReceivedHooks
+    hookResult = await callBeforeNewMessageReceivedHooks({
+      user,
+      opts,
+      message: opts.message
+    });
+    if (hookResult.cancelled) return;
+
     const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 
@@ -476,6 +497,21 @@ class Thread {
 
   /**
    * @param {string} text
+   * @returns {Promise<ThreadMessage>}
+   */
+  async addSystemMessageToLogs(text) {
+    const threadMessage = new ThreadMessage({
+      message_type: THREAD_MESSAGE_TYPE.SYSTEM,
+      user_id: null,
+      user_name: "",
+      body: text,
+      is_anonymous: 0,
+    });
+    return this._addThreadMessageToDB(threadMessage.getSQLProps());
+  }
+
+  /**
+   * @param {string} text
    * @param {object} opts
    * @param {object} [allowedMentions] Allowed mentions for the thread channel message
    * @param {boolean} [allowedMentions.everyone]
@@ -581,6 +617,15 @@ class Thread {
       .select();
 
     return threadMessages.map(row => new ThreadMessage(row));
+  }
+
+  async findThreadMessageByDmMessageId(messageId) {
+    const data = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("dm_message_id", messageId)
+      .first();
+
+    return data ? new ThreadMessage(data) : null;
   }
 
   /**
@@ -906,6 +951,17 @@ class Thread {
    */
   getMetadataValue(key) {
     return this.metadata ? this.metadata[key] : null;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isOpen() {
+    return this.status === THREAD_STATUS.OPEN;
+  }
+
+  isClosed() {
+    return this.status === THREAD_STATUS.CLOSED;
   }
 }
 

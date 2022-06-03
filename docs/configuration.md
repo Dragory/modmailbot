@@ -63,7 +63,7 @@ greetingMessage[] = Fourth line! With an empty line in the middle.
 ## Required options
 
 #### token
-The bot user's token from [Discord Developer Portal](https://discordapp.com/developers/).
+The bot user's token from [Discord Developer Portal](https://discord.com/developers/).
 
 #### mainServerId
 **Accepts multiple values** Your server's ID.
@@ -96,6 +96,10 @@ If enabled, staff members can delete their own replies in modmail threads with `
 #### allowStaffEdit
 **Default:** `on`  
 If enabled, staff members can edit their own replies in modmail threads with `!edit`
+
+#### updateMessagesLive
+**Default:** `off`
+If enabled, messages edited and deleted by the user will be updated accordingly in the thread, but will still be available in the logs
 
 #### allowBlock
 **Default:** `on`  
@@ -201,6 +205,10 @@ See [allowInlineSnippets](#allowInlineSnippets) for more details.
 #### fallbackRoleName
 **Default:** *None*  
 Role name to display in moderator replies if the moderator doesn't have a hoisted role
+
+#### breakFormattingForNames
+**Default:** `on`
+Whether or not to escape formatting characters in usernames, such as `~~` for strikethrough, `__` for underlined etc.
 
 #### greetingAttachment
 **Default:** *None*  
@@ -371,7 +379,11 @@ The bot's status text. Set to `none` to disable.
 
 #### statusType
 **Default:** `playing`  
-The bot's status type. One of `playing`, `watching`, `listening`.
+The bot's status type. One of `playing`, `watching`, `listening`, `streaming`.
+
+#### statusUrl
+**Default:** [nothing]  
+The bot's Twitch url used for streaming status type. Must look like `https://twitch.tv/yourname`.
 
 #### syncPermissionsOnMove
 **Default:** `on`  

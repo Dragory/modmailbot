@@ -4,12 +4,12 @@ const utils = require("../utils");
 module.exports = ({ bot, knex, config, commands }) => {
   commands.addInboxThreadCommand("id", [], async (msg, args, thread) => {
     thread.postSystemMessage(thread.user_id);
-  });
+  }, { allowSuspended: true });
 
   commands.addInboxThreadCommand("dm_channel_id", [], async (msg, args, thread) => {
     const dmChannel = await thread.getDMChannel();
     thread.postSystemMessage(dmChannel.id);
-  });
+  }, { allowSuspended: true });
 
   commands.addInboxThreadCommand("message", "<messageNumber:number>", async (msg, args, thread) => {
     /** @type {ThreadMessage} */
@@ -34,5 +34,5 @@ module.exports = ({ bot, knex, config, commands }) => {
     ];
 
     thread.postSystemMessage(parts.join("\n"));
-  });
+  }, { allowSuspended: true });
 };
