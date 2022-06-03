@@ -96,29 +96,34 @@ function isStaff(member) {
 
 /**
  * Returns whether the given message is on the inbox server
- * @param msg
- * @returns {boolean}
+ * @param {Eris.Client} client
+ * @param {Eris.Message} msg
+ * @returns {Promise<boolean>}
  */
-function messageIsOnInboxServer(msg) {
-  if (! msg.channel.guild) return false;
-  if (msg.channel.guild.id !== getInboxGuild().id) return false;
+async function messageIsOnInboxServer(client, msg) {
+  const channel = await getOrFetchChannel(client, msg.channel.id);
+  if (! channel.guild) return false;
+  if (channel.guild.id !== getInboxGuild().id) return false;
   return true;
 }
 
 /**
  * Returns whether the given message is on the main server
- * @param msg
- * @returns {boolean}
+ * @param {Eris.Client} client
+ * @param {Eris.Message} msg
+ * @returns {Promise<boolean>}
  */
-function messageIsOnMainServer(msg) {
-  if (! msg.channel.guild) return false;
+async function messageIsOnMainServer(client, msg) {
+  const channel = await getOrFetchChannel(client, msg.channel.id);
+  if (! channel || ! channel.guild) return false;
 
   return getMainGuilds()
-    .some(g => msg.channel.guild.id === g.id);
+    .some(g => channel.guild.id === g.id);
 }
 
 /**
- * @param attachment
+ * @param {Eris.Attachment} attachment
+ * @param {string} attachmentUrl
  * @returns {Promise<string>}
  */
 async function formatAttachment(attachment, attachmentUrl) {
@@ -151,6 +156,7 @@ function getUserMention(str) {
 
 /**
  * Returns the current timestamp in an easily readable form
+ * @param {...Parameters<typeof moment>>} momentArgs
  * @returns {String}
  */
 function getTimestamp(...momentArgs) {
@@ -490,6 +496,49 @@ function chunkMessageLines(str, maxChunkLength = 1990) {
   });
 }
 
+/**
+ * @type {Record<string, Promise<Eris.AnyChannel | null>>}
+ */
+const fetchChannelPromises = {};
+
+/**
+ * @param {Eris.Client} client
+ * @param {string} channelId
+ * @returns {Promise<Eris.AnyChannel | null>}
+ */
+async function getOrFetchChannel(client, channelId) {
+  const cachedChannel = client.getChannel(channelId);
+  if (cachedChannel) {
+    return cachedChannel;
+  }
+
+  if (! fetchChannelPromises[channelId]) {
+    fetchChannelPromises[channelId] = (async () => {
+      const channel = client.getRESTChannel(channelId);
+      if (! channel) {
+        return null;
+      }
+
+      // Cache the result
+      if (channel instanceof Eris.ThreadChannel) {
+        channel.guild.threads.add(channel);
+        client.threadGuildMap[channel.id] = channel.guild.id;
+      } else if (channel instanceof Eris.GuildChannel) {
+        channel.guild.channels.add(channel);
+        client.channelGuildMap[channel.id] = channel.guild.id;
+      } else if (channel instanceof Eris.PrivateChannel) {
+        client.privateChannels.add(channel);
+      } else if (channel instanceof Eris.GroupChannel) {
+        client.groupChannels.add(channel);
+      }
+
+      return channel;
+    })();
+  }
+
+  return fetchChannelPromises[channelId];
+}
+
 module.exports = {
   getInboxGuild,
   getMainGuilds,
@@ -536,6 +585,8 @@ module.exports = {
 
   messageContentIsWithinMaxLength,
   chunkMessageLines,
+
+  getOrFetchChannel,
 
   noop,
 };

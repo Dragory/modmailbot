@@ -7,6 +7,7 @@ const utils = require("../utils");
 const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
+const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
 const snippets = require("./snippets");
 const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
@@ -14,6 +15,8 @@ const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
+
+const escapeFormattingRegex = new RegExp("[_`~*|]", "g");
 
 /**
  * @property {String} id
@@ -212,7 +215,10 @@ class Thread {
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
-    const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    if (config.breakFormattingForNames) {
+      moderatorName = moderatorName.replace(escapeFormattingRegex, "\\$&");
+    }
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
 
     if (config.allowSnippets && config.allowInlineSnippets) {
@@ -327,6 +333,21 @@ class Thread {
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg) {
+    const user = msg.author;
+    const opts = {
+      thread: this,
+      message: msg,
+    };
+    let hookResult;
+
+    // Call any registered beforeNewMessageReceivedHooks
+    hookResult = await callBeforeNewMessageReceivedHooks({
+      user,
+      opts,
+      message: opts.message
+    });
+    if (hookResult.cancelled) return;
+
     const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 

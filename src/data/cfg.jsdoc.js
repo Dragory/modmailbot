@@ -10,7 +10,8 @@
  * @property {string} [snippetPrefix="!!"]
  * @property {string} [snippetPrefixAnon="!!!"]
  * @property {string} [status="Message me for help!"]
- * @property {"playing"|"watching"|"listening"} [statusType="playing"]
+ * @property {"playing"|"watching"|"listening"|"streaming"} [statusType="playing"]
+ * @proprety {string} [statusUrl=""]
  * @property {string} [responseMessage="Thank you for your message! Our mod team will reply to you here as soon as possible."]
  * @property {string} [closeMessage]
  * @property {boolean} [allowUserClose=false]
@@ -66,6 +67,7 @@
  * @property {boolean} [errorOnUnknownInlineSnippet=true]
  * @property {boolean} [allowChangingDisplayRole=true]
  * @property {string} [fallbackRoleName=null]
+ * @property {boolean} [breakFormattingForNames=true]
  * @property {boolean} [autoAlert=false]
  * @property {string} [autoAlertDelay="2m"] Delay before auto-alert kicks in. Uses the same format as timed close; for example 1m30s for 1 minute and 30 seconds.
  * @property {boolean} [pinThreadHeader=false]

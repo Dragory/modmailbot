@@ -12,10 +12,10 @@ To keep it online, you need to keep the bot process running.
 * A **user**, in modmail's context, is a Discord user who is contacting modmail by DMing the bot
 
 ## Prerequisites
-1. Create a bot on the [Discord Developer Portal](https://discordapp.com/developers/)
+1. Create a bot on the [Discord Developer Portal](https://discord.com/developers/)
 2. Turn on **Server Members Intent** in the bot's settings page on the developer portal ([Image](server-members-intent-2.png))
-3. Install Node.js 14 (LTS)
-    * Node.js 15 is not currently officially supported
+3. Install Node.js 16 (LTS)
+   * Old LTS versions 12 and 14 are also supported
 4. [Download the latest bot release here](https://github.com/Dragory/modmailbot/releases/latest) (click on "Source code (zip)")
 5. Extract the downloaded Zip file to a new folder
 6. In the bot's folder (that you extracted from the zip file), make a copy of the file `config.example.ini` and rename the copy to `config.ini`
