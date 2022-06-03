@@ -213,6 +213,7 @@ class Thread {
    * @param {string} text
    * @param {Eris.MessageFile[]} replyAttachments
    * @param {boolean} isAnonymous
+   * @param {Eris.MessageReference|null} messageReference
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, messageReference = null) {
@@ -222,12 +223,18 @@ class Thread {
     }
 
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
-    let userMessageReference = { messageID: "", failIfNotExists: false };
+    /** @var {Eris.MessageReference|null} userMessageReference */
+    let userMessageReference = null;
 
     // Handle replies
     if (config.relayInlineReplies && messageReference) {
       const repliedTo = await this.getThreadMessageForMessageId(messageReference.messageID);
-      if (repliedTo) userMessageReference.messageID = repliedTo.dm_message_id;
+      if (repliedTo) {
+        userMessageReference = {
+          channelID: repliedTo.dm_channel_id,
+          messageID: repliedTo.dm_message_id,
+        };
+      }
     }
 
     if (config.allowSnippets && config.allowInlineSnippets) {
@@ -288,10 +295,24 @@ class Thread {
     });
     const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
+    /** @var {Eris.AdvancedMessageContent} dmContent */
     const dmContent = { content: formatters.formatStaffReplyDM(threadMessage) };
-    dmContent.messageReferenceID = userMessageReference.messageID;
+    if (userMessageReference) {
+      dmContent.messageReference = {
+        ...userMessageReference,
+        failIfNotExists: false,
+      };
+    }
+
+    /** @var {Eris.AdvancedMessageContent} inboxContent */
     const inboxContent = { content: formatters.formatStaffReplyThreadMessage(threadMessage) };
-    inboxContent.messageReferenceID = messageReference.messageID;
+    if (messageReference) {
+      inboxContent.messageReference = {
+        channelID: messageReference.channelID,
+        messageID: messageReference.messageID,
+        failIfNotExists: false,
+      };
+    }
 
     // Because moderator replies have to be editable, we enforce them to fit within 1 message
     if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
@@ -380,11 +401,17 @@ class Thread {
       attachmentLinks.push(savedAttachment.url);
     }
 
-    // Handle inline replies (We use an object to futureproof for eris 0.15.1)
-    let messageReference = { messageID: "", failIfNotExists: false };
+    // Handle inline replies
+    /** @var {Eris.MessageReference|null} messageReference */
+    let messageReference = null;
     if (config.relayInlineReplies && msg.referencedMessage) {
       const repliedTo = await this.getThreadMessageForMessageId(msg.referencedMessage.id);
-      if (repliedTo) messageReference.messageID = repliedTo.inbox_message_id;
+      if (repliedTo) {
+        messageReference = {
+          channelID: this.channel_id,
+          messageID: repliedTo.inbox_message_id,
+        };
+      }
     }
 
     // Handle special embeds (listening party invites etc.)
@@ -440,8 +467,15 @@ class Thread {
     threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
 
     // Show user reply in the inbox thread
+    /** @var {Eris.AdvancedMessageContent} inboxContent */
     const inboxContent = { content: formatters.formatUserReplyThreadMessage(threadMessage) };
-    inboxContent.messageReferenceID = messageReference.messageID; // Once we use eris 0.15.1, just pass the whole object to .messageReference
+    if (messageReference) {
+      inboxContent.messageReference = {
+        channelID: messageReference.channelID,
+        messageID: messageReference.messageID,
+        failIfNotExists: false,
+      };
+    }
     const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
     if (inboxMessage) {
       await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
@@ -638,8 +672,12 @@ class Thread {
     return threadMessages.map(row => new ThreadMessage(row));
   }
 
+  /**
+   * @param {string} messageId
+   * @returns {Promise<ThreadMessage|null>}
+   */
   async getThreadMessageForMessageId(messageId) {
-    const msg = await knex("thread_messages")
+    const data = await knex("thread_messages")
       .where(function() {
         this.where("dm_message_id", messageId)
         this.orWhere("inbox_message_id", messageId)
@@ -647,7 +685,7 @@ class Thread {
       .andWhere("thread_id", this.id)
       .first();
 
-    return msg;
+    return (data ? new ThreadMessage(data) : null);
   }
 
   async findThreadMessageByDmMessageId(messageId) {
