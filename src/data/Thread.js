@@ -518,10 +518,11 @@ class Thread {
   /**
    * @param {string} text
    * @param {object} opts
-   * @param {object} [allowedMentions] Allowed mentions for the thread channel message
-   * @param {boolean} [allowedMentions.everyone]
-   * @param {boolean|string[]} [allowedMentions.roles]
-   * @param {boolean|string[]} [allowedMentions.users]
+   * @param {object} [opts.allowedMentions] Allowed mentions for the thread channel message
+   * @param {boolean} [opts.allowedMentions.everyone]
+   * @param {boolean|string[]} [opts.allowedMentions.roles]
+   * @param {boolean|string[]} [opts.allowedMentions.users]
+   * @param {Eris.MessageReference} [opts.messageReference]
    * @returns {Promise<void>}
    */
   async postSystemMessage(text, opts = {}) {
@@ -535,8 +536,15 @@ class Thread {
 
     const content = await formatters.formatSystemThreadMessage(threadMessage);
 
+    /** @var {Eris.AdvancedMessageContent} finalContent */
     const finalContent = typeof content === "string" ? { content } : content;
     finalContent.allowedMentions = opts.allowedMentions;
+    if (opts.messageReference) {
+      finalContent.messageReference = {
+        ...opts.messageReference,
+        failIfNotExists: false,
+      };
+    }
     const msg = await this._postToThreadChannel(finalContent);
 
     threadMessage.inbox_message_id = msg.id;
