@@ -13,6 +13,7 @@ const utils = require("../utils");
 const updates = require("./updates");
 
 const Thread = require("./Thread");
+const ThreadMessage = require("./ThreadMessage");
 const {callBeforeNewThreadHooks} = require("../hooks/beforeNewThread");
 const {THREAD_STATUS, DISOCRD_CHANNEL_TYPES} = require("./constants");
 
@@ -156,17 +157,6 @@ async function createNewThreadForUser(user, opts = {}) {
       }
     }
 
-    let hookResult;
-    if (! ignoreHooks) {
-      // Call any registered beforeNewThreadHooks
-      hookResult = await callBeforeNewThreadHooks({
-        user,
-        opts,
-        message: opts.message
-      });
-      if (hookResult.cancelled) return;
-    }
-
     // Use the user's name+discrim for the thread channel's name
     // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
     let cleanName = transliterate.slugify(user.username);
@@ -179,7 +169,20 @@ async function createNewThreadForUser(user, opts = {}) {
       channelName = crypto.createHash("md5").update(channelName + Date.now()).digest("hex").slice(0, 12);
     }
 
-    console.log(`[NOTE] Creating new thread channel ${channelName}`);
+    opts.channelName = channelName;
+
+    let hookResult;
+    if (! ignoreHooks) {
+      // Call any registered beforeNewThreadHooks
+      hookResult = await callBeforeNewThreadHooks({
+        user,
+        opts,
+        message: opts.message
+      });
+      if (hookResult.cancelled) return;
+    }
+
+    console.log(`[NOTE] Creating new thread channel ${opts.channelName}`);
 
     // Figure out which category we should place the thread channel in
     let newThreadCategoryId = (hookResult && hookResult.categoryId) || opts.categoryId || null;
@@ -202,7 +205,7 @@ async function createNewThreadForUser(user, opts = {}) {
     // Attempt to create the inbox channel for this thread
     let createdChannel;
     try {
-      createdChannel = await utils.getInboxGuild().createChannel(channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
+      createdChannel = await utils.getInboxGuild().createChannel(opts.channelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
         reason: "New Modmail thread",
         parentID: newThreadCategoryId,
       });
@@ -217,6 +220,7 @@ async function createNewThreadForUser(user, opts = {}) {
       user_id: user.id,
       user_name: `${user.username}#${user.discriminator}`,
       channel_id: createdChannel.id,
+      next_message_number: 1,
       created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
     });
 
@@ -289,6 +293,14 @@ async function createNewThreadForUser(user, opts = {}) {
     const userLogCount = await getClosedThreadCountByUserId(user.id);
     if (userLogCount > 0) {
       infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
+    }
+
+    //BYCOP
+    const row = await knex("notes")
+    .where("user_id", user.id)
+    .first();
+    if (row !== undefined && row.note !== "undefined") {
+      infoHeader += `\n\nNote : **${row.note}**.`;
     }
 
     infoHeader += "\n────────────────";
@@ -436,6 +448,18 @@ async function getThreadsThatShouldBeSuspended() {
   return threads.map(thread => new Thread(thread));
 }
 
+/**
+ * @param {string} dmMessageId
+ * @returns {Promise<ThreadMessage|null>}
+ */
+async function findThreadMessageByDMMessageId(dmMessageId) {
+  const data = await knex("thread_messages")
+    .where("dm_message_id", dmMessageId)
+    .first();
+
+  return (data ? new ThreadMessage(data) : null);
+}
+
 module.exports = {
   findById,
   findByThreadNumber,
@@ -448,5 +472,6 @@ module.exports = {
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
   getThreadsThatShouldBeSuspended,
-  createThreadInDB
+  createThreadInDB,
+  findThreadMessageByDMMessageId,
 };

@@ -86,7 +86,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       closedBy = "the user";
     } else {
       // A staff member is closing the thread
-      if (! utils.messageIsOnInboxServer(msg)) return;
+      if (! await utils.messageIsOnInboxServer(bot, msg)) return;
       if (! utils.isStaff(msg.member)) return;
 
       thread = await threads.findOpenThreadByChannelId(msg.channel.id);

@@ -149,6 +149,7 @@ if (! config.logOptions) {
   config.logOptions = {};
 }
 
+config.categoryAutomation = config.categoryAutomation || {};
 // categoryAutomation.newThreadFromGuild => categoryAutomation.newThreadFromServer
 if (config.categoryAutomation && config.categoryAutomation.newThreadFromGuild && ! config.categoryAutomation.newThreadFromServer) {
   config.categoryAutomation.newThreadFromServer = config.categoryAutomation.newThreadFromGuild;
@@ -163,8 +164,8 @@ if (config.guildGreetings && ! config.serverGreetings) {
 // Or, in other words, if greetingMessage and/or greetingAttachment is set, it is applied for all servers that don't
 // already have something set up in serverGreetings. This retains backwards compatibility while allowing you to override
 // greetings for specific servers in serverGreetings.
+config.serverGreetings = config.serverGreetings || {};
 if (config.greetingMessage || config.greetingAttachment) {
-  config.serverGreetings = config.serverGreetings || {};
   for (const guildId of config.mainServerId) {
     if (config.serverGreetings[guildId]) continue;
     config.serverGreetings[guildId] = {
@@ -192,34 +193,52 @@ for (const [key, value] of Object.entries(config)) {
 const ajv = new Ajv({
   useDefaults: true,
   coerceTypes: "array",
-  extendRefs: true, // Hides an error about ignored keywords when using $ref with $comment
+  allowUnionTypes: true,
 });
+
+/**
+ * @param {string[]} errors
+ * @returns void
+ */
+function exitWithConfigurationErrors(errors) {
+  console.error("");
+  console.error("NOTE! Issues with configuration:");
+  for (const error of errors) {
+    console.error(`- ${error}`);
+  }
+  console.error("");
+  console.error("Please restart the bot after fixing the issues mentioned above.");
+  console.error("");
+
+  process.exit(1);
+}
 
 // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270692820
 const truthyValues = ["1", "true", "on", "yes"];
 const falsyValues = ["0", "false", "off", "no"];
-ajv.addKeyword("coerceBoolean", {
-  compile(value) {
-    return (data, dataPath, parentData, parentKey) => {
+ajv.addKeyword({
+  keyword: "coerceBoolean",
+  compile() {
+    return (value, ctx) => {
       if (! value) {
         // Disabled -> no coercion
         return true;
       }
 
       // https://github.com/ajv-validator/ajv/issues/141#issuecomment-270777250
-      // The "data" argument doesn't update within the same set of schemas inside "allOf",
+      // The "value" argument doesn't update within the same set of schemas inside "allOf",
       // so we're referring to the original property instead.
       // This also means we can't use { "type": "boolean" }, as it would test the un-updated data value.
-      const realData = parentData[parentKey];
+      const realValue = ctx.parentData[ctx.parentDataProperty];
 
-      if (typeof realData === "boolean") {
+      if (typeof realValue === "boolean") {
         return true;
       }
 
-      if (truthyValues.includes(realData)) {
-        parentData[parentKey] = true;
-      } else if (falsyValues.includes(realData)) {
-        parentData[parentKey] = false;
+      if (truthyValues.includes(realValue)) {
+        ctx.parentData[ctx.parentDataProperty] = true;
+      } else if (falsyValues.includes(realValue)) {
+        ctx.parentData[ctx.parentDataProperty] = false;
       } else {
         return false;
       }
@@ -229,21 +248,21 @@ ajv.addKeyword("coerceBoolean", {
   },
 });
 
-ajv.addKeyword("multilineString", {
-  compile(value) {
-    return (data, dataPath, parentData, parentKey) => {
+ajv.addKeyword({
+  keyword: "multilineString",
+  compile() {
+    return (value, ctx) => {
       if (! value) {
         // Disabled -> no coercion
         return true;
       }
 
-      const realData = parentData[parentKey];
-
-      if (typeof realData === "string") {
+      const realValue = ctx.parentData[ctx.parentDataProperty];
+      if (typeof realValue === "string") {
         return true;
       }
 
-      parentData[parentKey] = realData.join("\n");
+      ctx.parentData[ctx.parentDataProperty] = realValue.join("\n");
 
       return true;
     };
@@ -252,21 +271,24 @@ ajv.addKeyword("multilineString", {
 
 const validate = ajv.compile(schema);
 const configIsValid = validate(config);
-
 if (! configIsValid) {
-  console.error("");
-  console.error("NOTE! Issues with configuration:");
-  for (const error of validate.errors) {
+  const errors = validate.errors.map(error => {
     if (error.params.missingProperty) {
-      console.error(`- Missing required option: "${error.params.missingProperty.slice(1)}"`);
+      return `Missing required option: "${error.params.missingProperty.slice(1)}"`;
     } else {
-      console.error(`- The "${error.dataPath.slice(1)}" option ${error.message}`);
+      return `The "${error.instancePath.slice(1)}" option ${error.message}. (Is currently: ${typeof config[error.instancePath.slice(1)]})`;
     }
+  });
+  exitWithConfigurationErrors(errors);
+}
+
+const validStreamingUrlRegex = /^https:\/\/(www\.)?twitch.tv\/[a-z\d_\-]+\/?$/i;
+if (config.statusType === "streaming") {
+  if (! validStreamingUrlRegex.test(config.statusUrl)) {
+    exitWithConfigurationErrors([
+      "When statusType is set to \"streaming\", statusUrl must be set to a valid Twitch channel URL, such as https://www.twitch.tv/Dragory",
+    ]);
   }
-  console.error("");
-  console.error("Please restart the bot after fixing the issues mentioned above.");
-  console.error("");
-  process.exit(1);
 }
 
 console.log("Configuration ok!");
