@@ -217,6 +217,7 @@ async function createNewThreadForUser(user, opts = {}) {
       user_id: user.id,
       user_name: `${user.username}#${user.discriminator}`,
       channel_id: createdChannel.id,
+      next_number_message: 1,
       created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
     });
 
