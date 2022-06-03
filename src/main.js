@@ -71,6 +71,7 @@ module.exports = {
       console.log("");
       console.log("Done! Now listening to DMs.");
       console.log("");
+      utils.recoverDowntimeMessages(await threads.getAllOpenThreads()); // We call threads.getAllOpenThreads here to prevent a circular dependency (threads, utils)
     });
 
     bot.connect();
