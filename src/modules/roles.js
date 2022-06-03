@@ -32,7 +32,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     } else {
       thread.postSystemMessage("Your replies in this thread do not currently display a role");
     }
-  });
+  }, { allowSuspended: true });
 
   // Reset display role for a thread
   commands.addInboxThreadCommand("role reset", [], async (msg, args, thread) => {
@@ -46,6 +46,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     }
   }, {
     aliases: ["role_reset", "reset_role"],
+    allowSuspended: true,
   });
 
   // Set display role for a thread
@@ -58,7 +59,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await setModeratorThreadRoleOverride(msg.member.id, thread.id, role.id);
     thread.postSystemMessage(`Your display role for this thread has been set to **${role.name}**. You can reset it with \`${config.prefix}role reset\`.`);
-  });
+  }, { allowSuspended: true });
 
   // Get default display role
   commands.addInboxServerCommand("role", [], async (msg, args, thread) => {

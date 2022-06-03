@@ -156,7 +156,11 @@ module.exports = {
           async (_, context) => {
             if (! await utils.messageIsOnInboxServer(bot, context.msg)) return false;
             if (! utils.isStaff(context.msg.member)) return false;
-            thread = await threads.findOpenThreadByChannelId(context.msg.channel.id);
+            if (commandConfig.allowSuspended) {
+              thread = await threads.findByChannelId(context.msg.channel.id);
+            } else {
+              thread = await threads.findOpenThreadByChannelId(context.msg.channel.id);
+            }
             if (! thread) return false;
             return true;
           }
