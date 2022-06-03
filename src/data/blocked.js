@@ -81,7 +81,7 @@ async function getExpiredBlocks() {
     .where("expires_at", "<=", now)
     .select();
 
-  return blocks.map(block => block.user_id);
+  return blocks.map(_block => _block.user_id);
 }
 
 module.exports = {

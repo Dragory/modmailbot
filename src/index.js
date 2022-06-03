@@ -26,7 +26,7 @@ const { PluginInstallationError } = require("./PluginInstallationError");
 // Error handling
 // Force crash on unhandled rejections and uncaught exceptions.
 // Use something like forever/pm2 to restart.
-const MAX_STACK_TRACE_LINES = 8;
+const MAX_STACK_TRACE_LINES = process.env.NODE_ENV === "development" ? Infinity : 8;
 
 function errorHandler(err) {
   // Unknown message types (nitro boosting messages at the time) should be safe to ignore
