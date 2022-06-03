@@ -395,7 +395,8 @@ If enabled, the bot will automatically create a new thread for a user who pings 
 
 #### blockMessage
 **Default** *None*
-Message to send to a user when they are blocked indefinitely
+Message to send to a user when they are blocked indefinitely.  
+This message is also used for timed blocks if timedBlockMessage is not set.
 
 #### timedBlockMessage
 **Default** *None*

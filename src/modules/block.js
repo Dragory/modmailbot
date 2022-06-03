@@ -55,9 +55,10 @@ module.exports = ({ bot, knex, config, commands }) => {
       const humanized = humanizeDuration(args.blockTime, { largest: 2, round: true });
       msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail for ${humanized}`);
 
-      if (config.timedBlockMessage != null) {
+      const timedBlockMessage = config.timedBlockMessage || config.blockMessage;
+      if (timedBlockMessage) {
         const dmChannel = await user.getDMChannel();
-        dmChannel.createMessage(config.timedBlockMessage.replace(/\{duration}/g, humanized)).catch(utils.noop);
+        dmChannel.createMessage(timedBlockMessage.replace(/\{duration}/g, humanized)).catch(utils.noop);
       }
     } else {
       msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail indefinitely`);
