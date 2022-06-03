@@ -403,6 +403,16 @@ This message is also used for timed blocks if timedBlockMessage is not set.
 Message to send to a user when they are blocked for a specific duration.  
 You can use `{duration}` in the text to include the duration (e.g. `4 weeks, 2 days`).
 
+#### unblockMessage
+**Default** *None*
+Message to send to a user when they are unblocked immediately.  
+This message is also used for timed unblocks if timedUnblockMessage is not set.
+
+#### timedUnblockMessage
+**Default** *None*
+Message to send to a user when they are scheduled to be unblocked after a specific amount of time.  
+You can use `{delay}` in the text to include the time until the user will be unblocked (e.g. `4 weeks, 2 days`).
+
 #### blockedReply
 **Default** *None*
 Message that the bot replies with if a user tries to message the bot while blocked.

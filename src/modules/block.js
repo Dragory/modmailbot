@@ -92,9 +92,20 @@ module.exports = ({ bot, knex, config, commands }) => {
       const humanized = humanizeDuration(args.unblockDelay, { largest: 2, round: true });
       await blocked.updateExpiryTime(userIdToUnblock, unblockAt);
       msg.channel.createMessage(`Scheduled <@${userIdToUnblock}> (id \`${userIdToUnblock}\`) to be unblocked in ${humanized}`);
+
+      const timedUnblockMessage = config.timedUnblockMessage || config.unblockMessage;
+      if (timedUnblockMessage) {
+        const dmChannel = await user.getDMChannel();
+        dmChannel.createMessage(timedUnblockMessage.replace(/\{delay}/g, humanized)).catch(utils.noop);
+      }
     } else {
       await blocked.unblock(userIdToUnblock);
       msg.channel.createMessage(`Unblocked <@${userIdToUnblock}> (id ${userIdToUnblock}) from modmail`);
+
+      if (config.unblockMessage) {
+        const dmChannel = await user.getDMChannel();
+        dmChannel.createMessage(config.unblockMessage).catch(utils.noop);
+      }
     }
   };
 

@@ -336,6 +336,16 @@
       "default": null
     },
 
+    "unblockMessage": {
+      "type": "string",
+      "default": null
+    },
+
+    "timedUnblockMessage": {
+      "type": "string",
+      "default": null
+    },
+
     "blockedReply": {
       "type": "string",
       "default": null

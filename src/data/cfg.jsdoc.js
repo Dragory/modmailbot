@@ -64,6 +64,8 @@
  * @property {boolean} [createThreadOnMention=false]
  * @property {string} [blockMessage=null]
  * @property {string} [timedBlockMessage=null]
+ * @property {string} [unblockMessage=null]
+ * @property {string} [timedUnblockMessage=null]
  * @property {string} [blockedReply=null]
  * @property {boolean} [notifyOnMainServerLeave=true]
  * @property {boolean} [notifyOnMainServerJoin=true]
