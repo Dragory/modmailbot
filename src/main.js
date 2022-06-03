@@ -157,7 +157,7 @@ function initBaseMessageHandlers() {
     const channel = await getOrFetchChannel(bot, msg.channel.id);
     if (! (channel instanceof Eris.PrivateChannel)) return;
     if (msg.author.bot) return;
-    if (msg.type !== 0) return; // Ignore pins etc.
+    if (msg.type !== Eris.Constants.MessageTypes.DEFAULT && msg.type !== Eris.Constants.MessageTypes.REPLY) return; // Ignore pins etc.
 
     if (await blocked.isBlocked(msg.author.id)) {
       if (config.blockedReply != null) {
