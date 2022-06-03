@@ -15,6 +15,7 @@ const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
+const {isBlocked} = require("./blocked");
 
 const escapeFormattingRegex = new RegExp("[_`~*|]", "g");
 
@@ -1010,6 +1011,31 @@ class Thread {
 
   isClosed() {
     return this.status === THREAD_STATUS.CLOSED;
+  }
+
+  /**
+   * Requests messages sent after last correspondence from Discord API to recover messages lost to downtime
+   */
+  async recoverDowntimeMessages() {
+    if (await isBlocked(this.user_id)) return;
+
+    const dmChannel = await bot.getDMChannel(this.user_id);
+    if (! dmChannel) return;
+
+    const lastMessageId = (await this.getLatestThreadMessage()).dm_message_id;
+    let messages = (await dmChannel.getMessages(50, null, lastMessageId, null))
+      .reverse() // We reverse the array to send the messages in the proper order - Discord returns them newest to oldest
+      .filter(msg => msg.author.id === this.user_id); // Make sure we're not recovering bot or system messages
+
+    if (messages.length === 0) return;
+
+    await this.postSystemMessage(`📥 Recovering ${messages.length} message(s) sent by user during bot downtime!`);
+
+    let isFirst = true;
+    for (const msg of messages) {
+      await this.receiveUserReply(msg, ! isFirst);
+      isFirst = false;
+    }
   }
 }
 

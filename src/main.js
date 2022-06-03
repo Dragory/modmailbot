@@ -71,7 +71,15 @@ module.exports = {
       console.log("");
       console.log("Done! Now listening to DMs.");
       console.log("");
-      utils.recoverDowntimeMessages(await threads.getAllOpenThreads()); // We call threads.getAllOpenThreads here to prevent a circular dependency (threads, utils)
+
+      const openThreads = await threads.getAllOpenThreads();
+      for (const thread of openThreads) {
+        try {
+          await thread.recoverDowntimeMessages();
+        } catch (err) {
+          console.error(`Error while recovering messages for ${thread.user_id}: ${err}`);
+        }
+      }
     });
 
     bot.connect();
@@ -153,7 +161,7 @@ function initBaseMessageHandlers() {
 
     if (await blocked.isBlocked(msg.author.id)) {
       if (config.blockedReply != null) {
-        msg.channel.createMessage(config.blockedReply).catch(utils.noop); //ignore silently
+        channel.createMessage(config.blockedReply).catch(utils.noop); //ignore silently
       }
       return;
     }
