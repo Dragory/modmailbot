@@ -497,6 +497,21 @@ class Thread {
 
   /**
    * @param {string} text
+   * @returns {Promise<ThreadMessage>}
+   */
+  async addSystemMessageToLogs(text) {
+    const threadMessage = new ThreadMessage({
+      message_type: THREAD_MESSAGE_TYPE.SYSTEM,
+      user_id: null,
+      user_name: "",
+      body: text,
+      is_anonymous: 0,
+    });
+    return this._addThreadMessageToDB(threadMessage.getSQLProps());
+  }
+
+  /**
+   * @param {string} text
    * @param {object} opts
    * @param {object} [allowedMentions] Allowed mentions for the thread channel message
    * @param {boolean} [allowedMentions.everyone]
@@ -602,6 +617,15 @@ class Thread {
       .select();
 
     return threadMessages.map(row => new ThreadMessage(row));
+  }
+
+  async findThreadMessageByDmMessageId(messageId) {
+    const data = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("dm_message_id", messageId)
+      .first();
+
+    return data ? new ThreadMessage(data) : null;
   }
 
   /**
@@ -927,6 +951,17 @@ class Thread {
    */
   getMetadataValue(key) {
     return this.metadata ? this.metadata[key] : null;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isOpen() {
+    return this.status === THREAD_STATUS.OPEN;
+  }
+
+  isClosed() {
+    return this.status === THREAD_STATUS.CLOSED;
   }
 }
 

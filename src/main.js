@@ -194,47 +194,44 @@ function initBaseMessageHandlers() {
    * 2) If that message was moderator chatter in the thread, update the corresponding chat message in the DB
    */
   bot.on("messageUpdate", async (msg, oldMessage) => {
-    if (! msg || ! msg.author) return;
-    if (msg.author.id === bot.user.id) return;
-    if (await blocked.isBlocked(msg.author.id)) return;
-    if (! msg.content) return;
+    if (! msg || ! msg.content) return;
 
-    const channel = await getOrFetchChannel(bot, msg.channel.id);
+    const threadMessage = await threads.findThreadMessageByDMMessageId(msg.id);
+    if (! threadMessage) {
+      return;
+    }
 
-    // Old message content doesn't persist between bot restarts
-    const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
+    const thread = await threads.findById(threadMessage.thread_id);
+    if (thread.isClosed()) {
+      return;
+    }
+
+    // FIXME: There is a small bug here. When we don't have the old message cached (i.e. when we use threadMessage.body as oldContent),
+    //        multiple edits of the same message will show the unedited original content as the "before" version in the logs.
+    //        To fix this properly, we'd have to store both the original version and the current edited version in the thread message,
+    //        and it's probably not worth it.
+    const oldContent = (oldMessage && oldMessage.content) || threadMessage.body;
     const newContent = msg.content;
 
-    // Ignore edit events with changes only in embeds etc.
-    if (newContent.trim() === oldContent.trim()) return;
-
-    // 1) If this edit was in DMs
-    if (! msg.author.bot && channel instanceof Eris.PrivateChannel) {
-      const thread = await threads.findOpenThreadByUserId(msg.author.id);
-      if (! thread) return;
+    if (threadMessage.isFromUser()) {
+      const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
 
       if (config.updateMessagesLive) {
-        await thread.updateChatMessageInLogs(msg);
-        const threadMessageProps = await knex("thread_messages")
-          .where("dm_message_id", msg.id)
-          .select();
-        if (! threadMessageProps) return;
-        const threadMessage = new ThreadMessage(threadMessageProps[0]);
+        // When directly updating the message in the staff view, we still want to keep the original content in the logs.
+        // To do this, we don't edit the log message at all and instead add a fake system message that includes the edit.
+        // This mirrors how the logs would look when we're not directly updating the message.
+        await thread.addSystemMessageToLogs(editMessage);
 
-        const formatted = formatters.formatUserReplyThreadMessage(threadMessage);
-        bot.editMessage(thread.channel_id, threadMessage.inbox_message_id, formatted)
-          .catch(console.log);
+        const threadMessageWithEdit = threadMessage.clone();
+        threadMessageWithEdit.body = newContent;
+        const formatted = formatters.formatUserReplyThreadMessage(threadMessageWithEdit);
+        await bot.editMessage(thread.channel_id, threadMessage.inbox_message_id, formatted).catch(console.warn);
       } else {
-        const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
-        thread.postSystemMessage(editMessage);
+        await thread.postSystemMessage(editMessage);
       }
     }
 
-    // 2) If this edit was a chat message in the thread
-    else if (await utils.messageIsOnInboxServer(bot, msg) && (msg.author.bot || utils.isStaff(msg.member))) {
-      const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
-      if (! thread) return;
-
+    if (threadMessage.isChat()) {
       thread.updateChatMessageInLogs(msg);
     }
   });
@@ -246,29 +243,21 @@ function initBaseMessageHandlers() {
    * 2) If that message was moderator chatter in the thread, delete it from the database as well
    */
   bot.on("messageDelete", async msg => {
-    if (! msg.author) return;
-    if (msg.author.id === bot.user.id) return;
+    const threadMessage = await threads.findThreadMessageByDMMessageId(msg.id);
+    if (! threadMessage) return;
 
-    // 1) If this deleted message was in DMs
-    if (! msg.author.bot && msg.channel instanceof Eris.PrivateChannel) {
-      const thread = await threads.findOpenThreadByUserId(msg.author.id);
-      if (! thread) return;
-
-      if (config.updateMessagesLive) {
-        const threadMessage = await knex("thread_messages")
-          .where("dm_message_id", msg.id)
-          .select();
-        if (! threadMessage) return;
-
-        bot.deleteMessage(thread.channel_id, threadMessage[0].inbox_message_id);
-      }
+    const thread = await threads.findById(threadMessage.thread_id);
+    if (thread.isClosed()) {
+      return;
     }
 
-    // 2) If this deleted message was in the thread
-    else if (utils.messageIsOnInboxServer(msg) && (msg.author.bot || utils.isStaff(msg.member))) {
-      const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
-      if (! thread) return;
+    if (threadMessage.isFromUser() && config.updateMessagesLive) {
+      // If the deleted message was in DMs and updateMessagesLive is enabled, reflect the deletion in staff view
+      bot.deleteMessage(thread.channel_id, threadMessage.inbox_message_id);
+    }
 
+    if (threadMessage.isChat()) {
+      // If the deleted message was staff chatter in the thread channel, also delete it from the logs
       thread.deleteChatMessageFromLogs(msg.id);
     }
   });

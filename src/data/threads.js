@@ -13,6 +13,7 @@ const utils = require("../utils");
 const updates = require("./updates");
 
 const Thread = require("./Thread");
+const ThreadMessage = require("./ThreadMessage");
 const {callBeforeNewThreadHooks} = require("../hooks/beforeNewThread");
 const {THREAD_STATUS, DISOCRD_CHANNEL_TYPES} = require("./constants");
 
@@ -219,7 +220,7 @@ async function createNewThreadForUser(user, opts = {}) {
       user_id: user.id,
       user_name: `${user.username}#${user.discriminator}`,
       channel_id: createdChannel.id,
-      next_number_message: 1,
+      next_message_number: 1,
       created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
     });
 
@@ -447,6 +448,18 @@ async function getThreadsThatShouldBeSuspended() {
   return threads.map(thread => new Thread(thread));
 }
 
+/**
+ * @param {string} dmMessageId
+ * @returns {Promise<ThreadMessage|null>}
+ */
+async function findThreadMessageByDMMessageId(dmMessageId) {
+  const data = await knex("thread_messages")
+    .where("dm_message_id", dmMessageId)
+    .first();
+
+  return (data ? new ThreadMessage(data) : null);
+}
+
 module.exports = {
   findById,
   findByThreadNumber,
@@ -459,5 +472,6 @@ module.exports = {
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
   getThreadsThatShouldBeSuspended,
-  createThreadInDB
+  createThreadInDB,
+  findThreadMessageByDMMessageId,
 };
