@@ -2,6 +2,7 @@ const humanizeDuration = require("humanize-duration");
 const moment = require("moment");
 const blocked = require("../data/blocked");
 const utils = require("../utils");
+const {getOrFetchChannel} = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowBlock) return;
@@ -35,9 +36,11 @@ module.exports = ({ bot, knex, config, commands }) => {
     const userIdToBlock = args.userId || (thread && thread.user_id);
     if (! userIdToBlock) return;
 
+    const channel = await getOrFetchChannel(bot, msg.channel.id);
+
     const isBlocked = await blocked.isBlocked(userIdToBlock);
     if (isBlocked) {
-      msg.channel.createMessage("User is already blocked");
+      channel.createMessage("User is already blocked");
       return;
     }
 
@@ -50,9 +53,9 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     if (expiresAt) {
       const humanized = humanizeDuration(args.blockTime, { largest: 2, round: true });
-      msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail for ${humanized}`);
+      channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail for ${humanized}`);
     } else {
-      msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail indefinitely`);
+      channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail indefinitely`);
     }
   };
 

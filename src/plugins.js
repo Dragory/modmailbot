@@ -1,6 +1,7 @@
 const attachments = require("./data/attachments");
 const logs = require("./data/logs");
 const { beforeNewThread } = require("./hooks/beforeNewThread");
+const { beforeNewMessageReceived } = require("./hooks/beforeNewMessageReceived");
 const { afterThreadClose } = require("./hooks/afterThreadClose");
 const formats = require("./formatters");
 const webserver = require("./modules/webserver");
@@ -119,13 +120,9 @@ module.exports = {
   },
 
   /**
-   * @param bot
-   * @param knex
-   * @param config
-   * @param commands
    * @returns {PluginAPI}
    */
-  getPluginAPI({ bot, knex, config, commands }) {
+  getPluginAPI({ bot, knex, commands }) {
     return {
       bot,
       knex,
@@ -151,6 +148,7 @@ module.exports = {
       },
       hooks: {
         beforeNewThread,
+        beforeNewMessageReceived,
         afterThreadClose,
       },
       formats,

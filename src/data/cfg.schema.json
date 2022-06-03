@@ -86,6 +86,10 @@
       "enum": ["playing", "watching", "listening"],
       "default": "playing"
     },
+    "statusUrl": {
+      "type": "string",
+      "default": ""
+    },
     "responseMessage": {
       "$ref": "#/definitions/multilineString",
       "default": "Thank you for your message! Our mod team will reply to you here as soon as possible."
@@ -196,6 +200,7 @@
       "type": "string"
     },
     "serverGreetings": {
+      "type": "object",
       "patternProperties": {
         "^\\d+$": {
           "type": "object",
@@ -208,8 +213,7 @@
             }
           }
         }
-      },
-      "default": {}
+      }
     },
     "guildGreetings": {
       "$comment": "Alias for serverGreetings",
@@ -255,6 +259,7 @@
     },
 
     "categoryAutomation": {
+      "type": "object",
       "properties": {
         "newThread": {
           "type": "string"
@@ -272,8 +277,7 @@
           "$comment": "Alias for categoryAutomation.newThreadFromServer",
           "$ref": "#/properties/categoryAutomation/properties/newThreadFromServer"
         }
-      },
-      "default": {}
+      }
     },
 
     "updateNotifications": {
@@ -295,6 +299,7 @@
     },
 
     "commandAliases": {
+      "type": "object",
       "patternProperties": {
         "^.+$": {
           "type": "string"

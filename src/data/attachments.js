@@ -125,7 +125,7 @@ const downloadAttachment = (attachment, tries = 0) => {
             cleanup: cleanupCallback
           });
         });
-      }).on("error", (err) => {
+      }).on("error", () => {
         fs.unlink(filepath);
         console.error("Error downloading attachment, retrying");
         resolve(downloadAttachment(attachment, tries++));
