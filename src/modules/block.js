@@ -58,7 +58,10 @@ module.exports = ({ bot, knex, config, commands }) => {
       const timedBlockMessage = config.timedBlockMessage || config.blockMessage;
       if (timedBlockMessage) {
         const dmChannel = await user.getDMChannel();
-        dmChannel.createMessage(timedBlockMessage.replace(/\{duration}/g, humanized)).catch(utils.noop);
+        const formatted = timedBlockMessage
+          .replace(/\{duration}/g, humanized)
+          .replace(/\{timestamp}/g, moment.utc(expiresAt).format("X"));
+        dmChannel.createMessage(formatted).catch(utils.noop);
       }
     } else {
       msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail indefinitely`);
@@ -96,7 +99,10 @@ module.exports = ({ bot, knex, config, commands }) => {
       const timedUnblockMessage = config.timedUnblockMessage || config.unblockMessage;
       if (timedUnblockMessage) {
         const dmChannel = await user.getDMChannel();
-        dmChannel.createMessage(timedUnblockMessage.replace(/\{delay}/g, humanized)).catch(utils.noop);
+        const formatted = timedUnblockMessage
+          .replace(/\{delay}/g, humanized)
+          .replace(/\{timestamp}/g, moment.utc(unblockAt).format("X"))
+        dmChannel.createMessage(formatted).catch(utils.noop);
       }
     } else {
       await blocked.unblock(userIdToUnblock);
