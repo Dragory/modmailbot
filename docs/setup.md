@@ -12,7 +12,7 @@ To keep it online, you need to keep the bot process running.
 * A **user**, in modmail's context, is a Discord user who is contacting modmail by DMing the bot
 
 ## Prerequisites
-1. Create a bot on the [Discord Developer Portal](https://discordapp.com/developers/)
+1. Create a bot on the [Discord Developer Portal](https://discord.com/developers/)
 2. Turn on **Server Members Intent** in the bot's settings page on the developer portal ([Image](server-members-intent-2.png))
 3. Install Node.js 16 (LTS)
    * Old LTS versions 12 and 14 are also supported
