@@ -1,6 +1,15 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.4.1
+* Fixed `npm` requiring Git with v3.4.0
+
+## v3.4.0
+* Updated Eris to fix crash with text in voice channels
+  * See also: https://discord.com/blog/text-in-voice-chat-channel-announcement-tiv
+* Updated outdated dependencies
+  * This also adds support for Node.js 16
+
 ## v3.3.2
 * Fix database warning when updating to v3.3.1 or higher
 
