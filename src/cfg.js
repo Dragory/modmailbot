@@ -149,6 +149,7 @@ if (! config.logOptions) {
   config.logOptions = {};
 }
 
+config.categoryAutomation = config.categoryAutomation || {};
 // categoryAutomation.newThreadFromGuild => categoryAutomation.newThreadFromServer
 if (config.categoryAutomation && config.categoryAutomation.newThreadFromGuild && ! config.categoryAutomation.newThreadFromServer) {
   config.categoryAutomation.newThreadFromServer = config.categoryAutomation.newThreadFromGuild;
