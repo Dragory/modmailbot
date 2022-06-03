@@ -215,7 +215,7 @@ class Thread {
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, messageReference = null) {
-    const moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
     if (config.breakFormattingForNames) {
       moderatorName = moderatorName.replace(escapeFormattingRegex, "\\$&");
     }
