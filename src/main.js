@@ -283,7 +283,12 @@ function initBaseMessageHandlers() {
     // Send an auto-response to the mention, if enabled
     if (config.botMentionResponse) {
       const botMentionResponse = utils.readMultilineConfigValue(config.botMentionResponse);
-      bot.createMessage(channel.id, botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`));
+      bot.createMessage(channel.id, {
+        content: botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`),
+        allowedMentions: {
+          users: [msg.author.id]
+        }
+      });
     }
 
     // If configured, automatically open a new thread with a user who has pinged it
