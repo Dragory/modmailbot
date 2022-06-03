@@ -1,6 +1,6 @@
 const Eris = require("eris");
 const transliterate = require("transliteration");
-const erisEndpoints = require("../../node_modules/eris/lib/rest/Endpoints");
+const erisEndpoints = require("eris/lib/rest/Endpoints");
 const {getOrFetchChannel} = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
