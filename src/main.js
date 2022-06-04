@@ -243,7 +243,7 @@ function initBaseMessageHandlers() {
 
         const threadMessageWithEdit = threadMessage.clone();
         threadMessageWithEdit.body = newContent;
-        const formatted = formatters.formatUserReplyThreadMessage(threadMessageWithEdit);
+        const formatted = await formatters.formatUserReplyThreadMessage(threadMessageWithEdit);
         await bot.editMessage(thread.channel_id, threadMessage.inbox_message_id, formatted).catch(console.warn);
       } else {
         await thread.postSystemMessage(editMessage);

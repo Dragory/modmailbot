@@ -296,7 +296,7 @@ class Thread {
     });
     const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
-    const dmContent = messageContentToAdvancedMessageContent(formatters.formatStaffReplyDM(threadMessage));
+    const dmContent = messageContentToAdvancedMessageContent(await formatters.formatStaffReplyDM(threadMessage));
     if (userMessageReference) {
       dmContent.messageReference = {
         ...userMessageReference,
@@ -304,7 +304,7 @@ class Thread {
       };
     }
 
-    const inboxContent = messageContentToAdvancedMessageContent(formatters.formatStaffReplyThreadMessage(threadMessage));
+    const inboxContent = messageContentToAdvancedMessageContent(await formatters.formatStaffReplyThreadMessage(threadMessage));
     if (messageReference) {
       inboxContent.messageReference = {
         channelID: messageReference.channelID,
@@ -466,7 +466,7 @@ class Thread {
     threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
 
     // Show user reply in the inbox thread
-    const inboxContent = messageContentToAdvancedMessageContent(formatters.formatUserReplyThreadMessage(threadMessage));
+    const inboxContent = messageContentToAdvancedMessageContent(await formatters.formatUserReplyThreadMessage(threadMessage));
     if (messageReference) {
       inboxContent.messageReference = {
         channelID: messageReference.channelID,
@@ -532,7 +532,7 @@ class Thread {
       is_anonymous: 0,
     });
 
-    const content = messageContentToAdvancedMessageContent(formatters.formatSystemThreadMessage(threadMessage));
+    const content = messageContentToAdvancedMessageContent(await formatters.formatSystemThreadMessage(threadMessage));
     content.allowedMentions = opts.allowedMentions;
     if (opts.messageReference) {
       content.messageReference = {
@@ -936,8 +936,8 @@ class Thread {
       body: newText,
     });
 
-    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(newThreadMessage);
-    const formattedDM = formatters.formatStaffReplyDM(newThreadMessage);
+    const formattedThreadMessage = await formatters.formatStaffReplyThreadMessage(newThreadMessage);
+    const formattedDM = await formatters.formatStaffReplyDM(newThreadMessage);
 
     // Same restriction as in replies. Because edits could theoretically change the number of messages a reply takes, we enforce replies
     // to fit within 1 message to avoid the headache and issues caused by that.
@@ -960,7 +960,7 @@ class Thread {
       editThreadMessage.setMetadataValue("originalThreadMessage", threadMessage);
       editThreadMessage.setMetadataValue("newBody", newText);
 
-      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(editThreadMessage);
+      const threadNotification = await formatters.formatStaffReplyEditNotificationThreadMessage(editThreadMessage);
       const inboxMessage = await this._postToThreadChannel(threadNotification);
       editThreadMessage.inbox_message_id = inboxMessage.id;
       await this._addThreadMessageToDB(editThreadMessage.getSQLProps());
@@ -991,7 +991,7 @@ class Thread {
       });
       deletionThreadMessage.setMetadataValue("originalThreadMessage", threadMessage);
 
-      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(deletionThreadMessage);
+      const threadNotification = await formatters.formatStaffReplyDeletionNotificationThreadMessage(deletionThreadMessage);
       const inboxMessage = await this._postToThreadChannel(threadNotification);
       deletionThreadMessage.inbox_message_id = inboxMessage.id;
       await this._addThreadMessageToDB(deletionThreadMessage.getSQLProps());
