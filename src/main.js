@@ -311,17 +311,16 @@ function initBaseMessageHandlers() {
     const messageLink = `https:\/\/discord.com\/channels\/${channel.guild.id}\/${channel.id}\/${msg.id}`;
 
     if (mainGuilds.length === 1) {
-        content = `${staffMention}Bot mentioned in ${channel.mention} by ${userMentionStr}: "${msg.cleanContent}"\n\n<${messageLink}>`;
+        content = `${staffMention}Bot mentioned in ${channel.mention} by ${userMentionStr}: "${msg.content}"\n\n<${messageLink}>`;
     } else {
-        content = `${staffMention}Bot mentioned in ${channel.mention} (${channel.guild.name}) by ${userMentionStr}: "${msg.cleanContent}"\n\n<${messageLink}>`;
+        content = `${staffMention}Bot mentioned in ${channel.mention} (${channel.guild.name}) by ${userMentionStr}: "${msg.content}"\n\n<${messageLink}>`;
     }
 
     content = utils.chunkMessageLines(content);
     const logChannelId = utils.getLogChannel().id;
     for (let i = 0; i < content.length; i++) {
-      chunk = content[i];
       await bot.createMessage(logChannelId, {
-        content: chunk,
+        content: content[i],
         allowedMentions,
       });
     }
