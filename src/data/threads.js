@@ -16,6 +16,7 @@ const Thread = require("./Thread");
 const ThreadMessage = require("./ThreadMessage");
 const {callBeforeNewThreadHooks} = require("../hooks/beforeNewThread");
 const {THREAD_STATUS, DISOCRD_CHANNEL_TYPES} = require("./constants");
+const {findNotesByUserId} = require("./notes");
 
 const MINUTES = 60 * 1000;
 const HOURS = 60 * MINUTES;
@@ -309,12 +310,9 @@ async function createNewThreadForUser(user, opts = {}) {
       infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
     }
 
-    //BYCOP
-    const row = await knex("notes")
-    .where("user_id", user.id)
-    .first();
-    if (row !== undefined && row.note !== "undefined") {
-      infoHeader += `\n\nNote : **${row.note}**.`;
+    const userNotes = await findNotesByUserId(user.id);
+    if (userNotes.length) {
+      infoHeader += `\n\nThis user has **${userNotes.length}** notes. Use \`${config.prefix}notes\` to see them.`;
     }
 
     infoHeader += "\n────────────────";
