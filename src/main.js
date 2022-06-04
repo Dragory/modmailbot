@@ -316,10 +316,15 @@ function initBaseMessageHandlers() {
         content = `${staffMention}Bot mentioned in ${channel.mention} (${channel.guild.name}) by ${userMentionStr}: "${msg.cleanContent}"\n\n<${messageLink}>`;
     }
 
-    bot.createMessage(utils.getLogChannel().id, {
-      content,
-      allowedMentions,
-    });
+    content = utils.chunkMessageLines(content);
+    const logChannelId = utils.getLogChannel().id;
+    for (let i = 0; i < content.length; i++) {
+      chunk = content[i];
+      await bot.createMessage(logChannelId, {
+        content: chunk,
+        allowedMentions,
+      });
+    }
 
     // Send an auto-response to the mention, if enabled
     if (config.botMentionResponse) {
