@@ -16,6 +16,7 @@ const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
 const {isBlocked} = require("./blocked");
+const {messageContentToAdvancedMessageContent} = require("../utils");
 
 const escapeFormattingRegex = new RegExp("[_`~*|]", "g");
 
@@ -295,8 +296,7 @@ class Thread {
     });
     const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
-    /** @var {Eris.AdvancedMessageContent} dmContent */
-    const dmContent = { content: formatters.formatStaffReplyDM(threadMessage) };
+    const dmContent = messageContentToAdvancedMessageContent(formatters.formatStaffReplyDM(threadMessage));
     if (userMessageReference) {
       dmContent.messageReference = {
         ...userMessageReference,
@@ -304,8 +304,7 @@ class Thread {
       };
     }
 
-    /** @var {Eris.AdvancedMessageContent} inboxContent */
-    const inboxContent = { content: formatters.formatStaffReplyThreadMessage(threadMessage) };
+    const inboxContent = messageContentToAdvancedMessageContent(formatters.formatStaffReplyThreadMessage(threadMessage));
     if (messageReference) {
       inboxContent.messageReference = {
         channelID: messageReference.channelID,
@@ -467,8 +466,7 @@ class Thread {
     threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
 
     // Show user reply in the inbox thread
-    /** @var {Eris.AdvancedMessageContent} inboxContent */
-    const inboxContent = { content: formatters.formatUserReplyThreadMessage(threadMessage) };
+    const inboxContent = messageContentToAdvancedMessageContent(formatters.formatUserReplyThreadMessage(threadMessage));
     if (messageReference) {
       inboxContent.messageReference = {
         channelID: messageReference.channelID,
@@ -534,18 +532,15 @@ class Thread {
       is_anonymous: 0,
     });
 
-    const content = await formatters.formatSystemThreadMessage(threadMessage);
-
-    /** @var {Eris.AdvancedMessageContent} finalContent */
-    const finalContent = typeof content === "string" ? { content } : content;
-    finalContent.allowedMentions = opts.allowedMentions;
+    const content = messageContentToAdvancedMessageContent(formatters.formatSystemThreadMessage(threadMessage));
+    content.allowedMentions = opts.allowedMentions;
     if (opts.messageReference) {
-      finalContent.messageReference = {
+      content.messageReference = {
         ...opts.messageReference,
         failIfNotExists: false,
       };
     }
-    const msg = await this._postToThreadChannel(finalContent);
+    const msg = await this._postToThreadChannel(content);
 
     threadMessage.inbox_message_id = msg.id;
     const finalThreadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
