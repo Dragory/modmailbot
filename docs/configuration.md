@@ -567,3 +567,5 @@ Examples:
   `MM_INBOX_SERVER_PERMISSION=kickMembers||manageMessages`
 
 The `port` option also accepts the environment variable `PORT` without a prefix, but `MM_PORT` takes precedence.
+
+You can also supply environment variables by creating a file called `.env` in the bot's directory.
