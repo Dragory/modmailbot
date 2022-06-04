@@ -1,6 +1,19 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.6.0
+* The logChannel message for a closed thread now also contains a summary of the number of messages in that thread (by LilyWonhalf)
+* 3 new plugin hooks (by LilyWonhalf):
+  * `afterNewMessageReceived`
+  * `afterThreadCloseScheduled`
+  * `afterThreadCloseScheduleCanceled`
+* All plugin message formatters can now be asynchronous
+* Environment variables for config can now also be supplied by a `.env` file (by Eight8-7020)
+* Fixed bug that broke message formatters (including the embeds plugin) in 3.5.0
+* Fixed ERR_PACKAGE_PATH_NOT_EXPORTED error on Node.js 17
+* Updated "engines" values in package.json
+* Updated outdated transitive dependencies
+
 ## v3.5.0
 
 **New features**
