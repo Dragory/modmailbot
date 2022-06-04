@@ -97,6 +97,10 @@ If enabled, staff members can delete their own replies in modmail threads with `
 **Default:** `on`  
 If enabled, staff members can edit their own replies in modmail threads with `!edit`
 
+#### updateMessagesLive
+**Default:** `off`  
+If enabled, messages edited and deleted by the user will be updated accordingly in the thread, but will still be available in the logs
+
 #### allowBlock
 **Default:** `on`  
 If enabled, staff members can block a user from using modmail with `!block`
@@ -119,6 +123,10 @@ See [inlineSnippetStart](#inlineSnippetStart) and [inlineSnippetEnd](#inlineSnip
 #### allowChangingDisplayRole
 **Default:** `on`  
 If enabled, moderators can change the role that's shown with their replies to any role they currently have using the `!role` command.
+
+#### allowNotes
+**Default:** `on`  
+If enabled, moderators can add notes on users using the `!note` command.
 
 #### alwaysReply
 **Default:** `off`  
@@ -389,6 +397,32 @@ If enabled, channel permissions for the thread are synchronized with the categor
 **Default:** `off`  
 If enabled, the bot will automatically create a new thread for a user who pings it.
 
+#### blockMessage
+**Default** *None*  
+Message to send to a user when they are blocked indefinitely.  
+This message is also used for timed blocks if timedBlockMessage is not set.
+
+#### timedBlockMessage
+**Default** *None*  
+Message to send to a user when they are blocked for a specific duration.
+* You can use `{duration}` in the text to include the duration (e.g. `4 weeks, 2 days`)
+* You can use `{timestamp}` in the text to create a Discord timestamp of the time the user is blocked until (e.g. `&lt;t:{timestamp}:f&gt;` would become `June 3, 2022 at 11:50 PM`)
+
+#### unblockMessage
+**Default** *None*  
+Message to send to a user when they are unblocked immediately.  
+This message is also used for timed unblocks if timedUnblockMessage is not set.
+
+#### timedUnblockMessage
+**Default** *None*  
+Message to send to a user when they are scheduled to be unblocked after a specific amount of time.  
+* You can use `{delay}` in the text to include the time until the user will be unblocked (e.g. `4 weeks, 2 days`)
+* You can use `{timestamp}` in the text to create a Discord timestamp of the unblock time (e.g. `&lt;t:{timestamp}:f&gt;` would become `June 3, 2022 at 11:50 PM`)
+
+#### blockedReply
+**Default** *None*  
+Message that the bot replies with if a user tries to message the bot while blocked.
+
 #### threadTimestamps
 **Default:** `off`  
 If enabled, modmail threads will show accurate UTC timestamps for each message, in addition to Discord's own timestamps.
@@ -533,3 +567,5 @@ Examples:
   `MM_INBOX_SERVER_PERMISSION=kickMembers||manageMessages`
 
 The `port` option also accepts the environment variable `PORT` without a prefix, but `MM_PORT` takes precedence.
+
+You can also supply environment variables by creating a file called `.env` in the bot's directory.

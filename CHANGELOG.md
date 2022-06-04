@@ -1,6 +1,59 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.6.1
+* Fixed inline replies not working with alwaysReply or snippets
+* Fixed buggy note display in thread header
+
+## v3.6.0
+* The logChannel message for a closed thread now also contains a summary of the number of messages in that thread (by LilyWonhalf)
+* 3 new plugin hooks (by LilyWonhalf):
+  * `afterNewMessageReceived`
+  * `afterThreadCloseScheduled`
+  * `afterThreadCloseScheduleCanceled`
+* All plugin message formatters can now be asynchronous
+* Environment variables for config can now also be supplied by a `.env` file (by Eight8-7020)
+* Fixed bug that broke message formatters (including the embeds plugin) in 3.5.0
+* Fixed ERR_PACKAGE_PATH_NOT_EXPORTED error on Node.js 17
+* Updated "engines" values in package.json
+* Updated outdated transitive dependencies
+
+## v3.5.0
+
+**New features**
+* Added support for user notes (by bycop)
+* Added support for streaming status (by GeekCornerGH)
+* Added `updateMessagesLive` option to show user edits/deletions directly in the original message (by cAttte)
+* Added option to remove ("break") markdown formatting in names within a thread (enabled by default) (by DarkView)
+* Added options to send a message to the user when they are blocked (by DarkView + Dragory)
+  * `blockMessage` is sent to the user when they are blocked
+  * `timedBlockMessage` is sent to the user when they are blocked temporarily
+  * `unblockMessage` is sent to the user when they are unblocked
+  * `timedUnblockMessage` is sent to the user when they are scheduled to be unblocked later
+  * `blockedReply` is sent to the user if they try to message the bot while blocked
+* Added ban/unban detection to user leave/join notifications (by DarkView)
+* Added functionality to recover DMs sent while the bot is offline (by DarkView)
+* Added support for sending/receiving inline replies
+
+**Plugins**
+* New plugin hook: `beforeNewMessageReceived` (by LilyWonhalf)
+* Added `channelName` to `beforeNewThreadHook`'s `opts` to allow plugins to change the name of the modmail channel before it's created (by LilyWonhalf)
+
+**Fixes, tweaks, and backend changes**
+* Updated to Eris 0.17.0
+* Added custom text if user has no logs when using !logs (by YetAnotherConnor)
+* `!alert`, `!id`, `!loglink`, and `!role` can now be used in suspended threads
+* Fixed bug where the first staff reply would say `null` instead of `1` (by dtslubbersen)
+* Fixed `mentionRole` config option not allowing multiple values (by Teekeks)
+* Fixed user pings not working when using `{userMention}` in `botMentionResponse` (by Rewish497)
+* Fixed error in database migrations with a large database (by PichotM)
+* Fixed links in documentation to point to discord.com rather than discordapp.com (by almeidx)
+* Fixed crash if categoryAutomation.newThread was not set (by DarkView)
+* Fixed crash if a message with only the snippet prefix is posted (by DarkView)
+* Fixed crash when trying to report configuration issues (by DarkView)
+* Fixed crash when trying to create a channel with a disallowed name on a server in Server Discovery (by Deldaflyer)
+* Fixed edited content for older messages not showing (by Dragory)
+
 ## v3.4.1
 * Fixed `npm` requiring Git with v3.4.0
 

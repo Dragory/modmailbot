@@ -539,6 +539,18 @@ async function getOrFetchChannel(client, channelId) {
   return fetchChannelPromises[channelId];
 }
 
+/**
+ * Converts a MessageContent, i.e. string | AdvancedMessageContent, to an AdvancedMessageContent object
+ * @param {Eris.MessageContent} content
+ * @returns {Eris.AdvancedMessageContent}
+ */
+function messageContentToAdvancedMessageContent(content) {
+  return typeof content === "string" ? { content } : content;
+}
+
+const START_CODEBLOCK = "```";
+const END_CODEBLOCK = "```";
+
 module.exports = {
   getInboxGuild,
   getMainGuilds,
@@ -586,7 +598,12 @@ module.exports = {
   messageContentIsWithinMaxLength,
   chunkMessageLines,
 
+  messageContentToAdvancedMessageContent,
+
   getOrFetchChannel,
 
   noop,
+
+  START_CODEBLOCK,
+  END_CODEBLOCK,
 };

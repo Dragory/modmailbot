@@ -1,6 +1,6 @@
 {
   "name": "modmailbot",
-  "version": "3.4.1",
+  "version": "3.6.1",
   "description": "",
   "license": "MIT",
   "main": "src/index.js",
@@ -22,7 +22,9 @@
   },
   "dependencies": {
     "ajv": "^8.11.0",
-    "eris": "https://github.com/abalabahaha/eris/archive/2712a85899dcbb0d25b3bc6a2791cf53f752ab04.tar.gz",
+    "discord-api-types": "^0.33.2",
+    "dotenv": "^16.0.1",
+    "eris": "^0.17.0",
     "express": "^4.17.1",
     "helmet": "^5.1.0",
     "humanize-duration": "^3.23.1",
@@ -49,6 +51,6 @@
     "nodemon": "^2.0.16"
   },
   "engines": {
-    "node": ">=12.0.0 <14.0.0"
+    "node": ">=12.0.0 <18.0.0"
   }
 }

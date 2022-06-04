@@ -8,13 +8,18 @@ const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
 const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
+const { callAfterNewMessageReceivedHooks } = require("../hooks/afterNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
+const { callAfterThreadCloseScheduledHooks } = require("../hooks/afterThreadCloseScheduled");
+const { callAfterThreadCloseScheduleCanceledHooks } = require("../hooks/afterThreadCloseScheduleCanceled");
 const snippets = require("./snippets");
 const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 
 const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
+const {isBlocked} = require("./blocked");
+const {messageContentToAdvancedMessageContent} = require("../utils");
 
 const escapeFormattingRegex = new RegExp("[_`~*|]", "g");
 
@@ -212,14 +217,29 @@ class Thread {
    * @param {string} text
    * @param {Eris.MessageFile[]} replyAttachments
    * @param {boolean} isAnonymous
+   * @param {Eris.MessageReference|null} messageReference
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
-  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
+  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, messageReference = null) {
     let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
     if (config.breakFormattingForNames) {
       moderatorName = moderatorName.replace(escapeFormattingRegex, "\\$&");
     }
+
     const roleName = await getModeratorThreadDisplayRoleName(moderator, this.id);
+    /** @var {Eris.MessageReference|null} userMessageReference */
+    let userMessageReference = null;
+
+    // Handle replies
+    if (config.relayInlineReplies && messageReference) {
+      const repliedTo = await this.getThreadMessageForMessageId(messageReference.messageID);
+      if (repliedTo) {
+        userMessageReference = {
+          channelID: repliedTo.dm_channel_id,
+          messageID: repliedTo.dm_message_id,
+        };
+      }
+    }
 
     if (config.allowSnippets && config.allowInlineSnippets) {
       // Replace {{snippet}} with the corresponding snippet
@@ -279,8 +299,22 @@ class Thread {
     });
     const threadMessage = await this._addThreadMessageToDB(rawThreadMessage.getSQLProps());
 
-    const dmContent = formatters.formatStaffReplyDM(threadMessage);
-    const inboxContent = formatters.formatStaffReplyThreadMessage(threadMessage);
+    const dmContent = messageContentToAdvancedMessageContent(await formatters.formatStaffReplyDM(threadMessage));
+    if (userMessageReference) {
+      dmContent.messageReference = {
+        ...userMessageReference,
+        failIfNotExists: false,
+      };
+    }
+
+    const inboxContent = messageContentToAdvancedMessageContent(await formatters.formatStaffReplyThreadMessage(threadMessage));
+    if (messageReference) {
+      inboxContent.messageReference = {
+        channelID: messageReference.channelID,
+        messageID: messageReference.messageID,
+        failIfNotExists: false,
+      };
+    }
 
     // Because moderator replies have to be editable, we enforce them to fit within 1 message
     if (! utils.messageContentIsWithinMaxLength(dmContent) || ! utils.messageContentIsWithinMaxLength(inboxContent)) {
@@ -332,7 +366,7 @@ class Thread {
    * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
-  async receiveUserReply(msg) {
+  async receiveUserReply(msg, skipAlert = false) {
     const user = msg.author;
     const opts = {
       thread: this,
@@ -367,6 +401,19 @@ class Thread {
       }
 
       attachmentLinks.push(savedAttachment.url);
+    }
+
+    // Handle inline replies
+    /** @var {Eris.MessageReference|null} messageReference */
+    let messageReference = null;
+    if (config.relayInlineReplies && msg.referencedMessage) {
+      const repliedTo = await this.getThreadMessageForMessageId(msg.referencedMessage.id);
+      if (repliedTo) {
+        messageReference = {
+          channelID: this.channel_id,
+          messageID: repliedTo.inbox_message_id,
+        };
+      }
     }
 
     // Handle special embeds (listening party invites etc.)
@@ -422,7 +469,14 @@ class Thread {
     threadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
 
     // Show user reply in the inbox thread
-    const inboxContent = formatters.formatUserReplyThreadMessage(threadMessage);
+    const inboxContent = messageContentToAdvancedMessageContent(await formatters.formatUserReplyThreadMessage(threadMessage));
+    if (messageReference) {
+      inboxContent.messageReference = {
+        channelID: messageReference.channelID,
+        messageID: messageReference.messageID,
+        failIfNotExists: false,
+      };
+    }
     const inboxMessage = await this._postToThreadChannel(inboxContent, attachmentFiles);
     if (inboxMessage) {
       await this._updateThreadMessage(threadMessage.id, { inbox_message_id: inboxMessage.id });
@@ -431,6 +485,13 @@ class Thread {
     if (config.reactOnSeen) {
       await msg.addReaction(config.reactOnSeenEmoji).catch(utils.noop);
     }
+
+    // Call any registered afterNewMessageReceivedHooks
+    await callAfterNewMessageReceivedHooks({
+      user,
+      opts,
+      message: opts.message
+    });
 
     // Interrupt scheduled closing, if in progress
     if (this.scheduled_close_at) {
@@ -442,7 +503,7 @@ class Thread {
       });
     }
 
-    if (this.alert_ids) {
+    if (this.alert_ids && ! skipAlert) {
       const ids = this.alert_ids.split(",");
       const mentionsStr = ids.map(id => `<@!${id}> `).join("");
 
@@ -465,10 +526,11 @@ class Thread {
   /**
    * @param {string} text
    * @param {object} opts
-   * @param {object} [allowedMentions] Allowed mentions for the thread channel message
-   * @param {boolean} [allowedMentions.everyone]
-   * @param {boolean|string[]} [allowedMentions.roles]
-   * @param {boolean|string[]} [allowedMentions.users]
+   * @param {object} [opts.allowedMentions] Allowed mentions for the thread channel message
+   * @param {boolean} [opts.allowedMentions.everyone]
+   * @param {boolean|string[]} [opts.allowedMentions.roles]
+   * @param {boolean|string[]} [opts.allowedMentions.users]
+   * @param {Eris.MessageReference} [opts.messageReference]
    * @returns {Promise<void>}
    */
   async postSystemMessage(text, opts = {}) {
@@ -480,11 +542,15 @@ class Thread {
       is_anonymous: 0,
     });
 
-    const content = await formatters.formatSystemThreadMessage(threadMessage);
-
-    const finalContent = typeof content === "string" ? { content } : content;
-    finalContent.allowedMentions = opts.allowedMentions;
-    const msg = await this._postToThreadChannel(finalContent);
+    const content = messageContentToAdvancedMessageContent(await formatters.formatSystemThreadMessage(threadMessage));
+    content.allowedMentions = opts.allowedMentions;
+    if (opts.messageReference) {
+      content.messageReference = {
+        ...opts.messageReference,
+        failIfNotExists: false,
+      };
+    }
+    const msg = await this._postToThreadChannel(content);
 
     threadMessage.inbox_message_id = msg.id;
     const finalThreadMessage = await this._addThreadMessageToDB(threadMessage.getSQLProps());
@@ -493,6 +559,21 @@ class Thread {
       message: msg,
       threadMessage: finalThreadMessage,
     };
+  }
+
+  /**
+   * @param {string} text
+   * @returns {Promise<ThreadMessage>}
+   */
+  async addSystemMessageToLogs(text) {
+    const threadMessage = new ThreadMessage({
+      message_type: THREAD_MESSAGE_TYPE.SYSTEM,
+      user_id: null,
+      user_name: "",
+      body: text,
+      is_anonymous: 0,
+    });
+    return this._addThreadMessageToDB(threadMessage.getSQLProps());
   }
 
   /**
@@ -605,6 +686,49 @@ class Thread {
   }
 
   /**
+   * @param {string} messageId
+   * @returns {Promise<ThreadMessage|null>}
+   */
+  async getThreadMessageForMessageId(messageId) {
+    const data = await knex("thread_messages")
+      .where(function() {
+        this.where("dm_message_id", messageId)
+        this.orWhere("inbox_message_id", messageId)
+      })
+      .andWhere("thread_id", this.id)
+      .first();
+
+    return (data ? new ThreadMessage(data) : null);
+  }
+
+  async findThreadMessageByDmMessageId(messageId) {
+    const data = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("dm_message_id", messageId)
+      .first();
+
+    return data ? new ThreadMessage(data) : null;
+  }
+
+  /**
+   * @returns {Promise<ThreadMessage>}
+   */
+  async getLatestThreadMessage() {
+    const threadMessage = await knex("thread_messages")
+      .where("thread_id", this.id)
+      .andWhere(function() {
+        this.where("message_type", THREAD_MESSAGE_TYPE.FROM_USER)
+          .orWhere("message_type", THREAD_MESSAGE_TYPE.TO_USER)
+          .orWhere("message_type", THREAD_MESSAGE_TYPE.SYSTEM_TO_USER)
+      })
+      .orderBy("created_at", "DESC")
+      .orderBy("id", "DESC")
+      .first();
+
+      return threadMessage;
+  }
+
+  /**
    * @param {number} messageNumber
    * @returns {Promise<ThreadMessage>}
    */
@@ -664,6 +788,8 @@ class Thread {
         scheduled_close_name: user.username,
         scheduled_close_silent: silent
       });
+
+    await callAfterThreadCloseScheduledHooks({ thread: this });
   }
 
   /**
@@ -678,6 +804,8 @@ class Thread {
         scheduled_close_name: null,
         scheduled_close_silent: null
       });
+
+    await callAfterThreadCloseScheduleCanceledHooks({ thread: this });
   }
 
   /**
@@ -822,8 +950,8 @@ class Thread {
       body: newText,
     });
 
-    const formattedThreadMessage = formatters.formatStaffReplyThreadMessage(newThreadMessage);
-    const formattedDM = formatters.formatStaffReplyDM(newThreadMessage);
+    const formattedThreadMessage = await formatters.formatStaffReplyThreadMessage(newThreadMessage);
+    const formattedDM = await formatters.formatStaffReplyDM(newThreadMessage);
 
     // Same restriction as in replies. Because edits could theoretically change the number of messages a reply takes, we enforce replies
     // to fit within 1 message to avoid the headache and issues caused by that.
@@ -846,7 +974,7 @@ class Thread {
       editThreadMessage.setMetadataValue("originalThreadMessage", threadMessage);
       editThreadMessage.setMetadataValue("newBody", newText);
 
-      const threadNotification = formatters.formatStaffReplyEditNotificationThreadMessage(editThreadMessage);
+      const threadNotification = await formatters.formatStaffReplyEditNotificationThreadMessage(editThreadMessage);
       const inboxMessage = await this._postToThreadChannel(threadNotification);
       editThreadMessage.inbox_message_id = inboxMessage.id;
       await this._addThreadMessageToDB(editThreadMessage.getSQLProps());
@@ -877,7 +1005,7 @@ class Thread {
       });
       deletionThreadMessage.setMetadataValue("originalThreadMessage", threadMessage);
 
-      const threadNotification = formatters.formatStaffReplyDeletionNotificationThreadMessage(deletionThreadMessage);
+      const threadNotification = await formatters.formatStaffReplyDeletionNotificationThreadMessage(deletionThreadMessage);
       const inboxMessage = await this._postToThreadChannel(threadNotification);
       deletionThreadMessage.inbox_message_id = inboxMessage.id;
       await this._addThreadMessageToDB(deletionThreadMessage.getSQLProps());
@@ -927,6 +1055,42 @@ class Thread {
    */
   getMetadataValue(key) {
     return this.metadata ? this.metadata[key] : null;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isOpen() {
+    return this.status === THREAD_STATUS.OPEN;
+  }
+
+  isClosed() {
+    return this.status === THREAD_STATUS.CLOSED;
+  }
+
+  /**
+   * Requests messages sent after last correspondence from Discord API to recover messages lost to downtime
+   */
+  async recoverDowntimeMessages() {
+    if (await isBlocked(this.user_id)) return;
+
+    const dmChannel = await bot.getDMChannel(this.user_id);
+    if (! dmChannel) return;
+
+    const lastMessageId = (await this.getLatestThreadMessage()).dm_message_id;
+    let messages = (await dmChannel.getMessages(50, null, lastMessageId, null))
+      .reverse() // We reverse the array to send the messages in the proper order - Discord returns them newest to oldest
+      .filter(msg => msg.author.id === this.user_id); // Make sure we're not recovering bot or system messages
+
+    if (messages.length === 0) return;
+
+    await this.postSystemMessage(`📥 Recovering ${messages.length} message(s) sent by user during bot downtime!`);
+
+    let isFirst = true;
+    for (const msg of messages) {
+      await this.receiveUserReply(msg, ! isFirst);
+      isFirst = false;
+    }
   }
 }
 

@@ -5,8 +5,39 @@ const threads = require("../data/threads");
 const blocked = require("../data/blocked");
 const { messageQueue } = require("../queue");
 const { getLogUrl, getLogFile, getLogCustomResponse } = require("../data/logs");
+const {THREAD_MESSAGE_TYPE} = require("../data/constants");
 
 module.exports = ({ bot, knex, config, commands }) => {
+  async function getMessagesAmounts(thread) {
+    const messages = await thread.getThreadMessages();
+    const chatMessages = [];
+    const toUserMessages = [];
+    const fromUserMessages = [];
+
+    messages.forEach(message => {
+      switch (message.message_type) {
+        case THREAD_MESSAGE_TYPE.CHAT:
+          chatMessages.push(message);
+          break;
+
+        case THREAD_MESSAGE_TYPE.TO_USER:
+          toUserMessages.push(message);
+          break;
+
+        case THREAD_MESSAGE_TYPE.FROM_USER:
+          fromUserMessages.push(message);
+          break;
+      }
+    });
+
+    let amounts = `**${fromUserMessages.length}** message${fromUserMessages.length >= 2 ? "s" : ""} from the user`;
+
+    amounts = `${amounts}, **${toUserMessages.length}** message${toUserMessages.length >= 2 ? "s" : ""} to the user`;
+    amounts = `${amounts} and **${chatMessages.length}** internal chat message${toUserMessages.length >= 2 ? "s" : ""}.`;
+
+    return amounts;
+  }
+
   async function sendCloseNotification(thread, body) {
     const logCustomResponse = await getLogCustomResponse(thread);
     if (logCustomResponse) {
@@ -14,6 +45,8 @@ module.exports = ({ bot, knex, config, commands }) => {
       await utils.postLog(logCustomResponse.content, logCustomResponse.file);
       return;
     }
+
+    body = `${body}\n${await getMessagesAmounts(thread)}`;
 
     const logUrl = await getLogUrl(thread);
     if (logUrl) {

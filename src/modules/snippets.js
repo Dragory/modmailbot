@@ -73,7 +73,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     args = args.map(arg => arg.value);
     const rendered = renderSnippet(snippet.body, args);
 
-    const replied = await thread.replyToUser(msg.member, rendered, [], isAnonymous);
+    const replied = await thread.replyToUser(msg.member, rendered, [], isAnonymous, msg.messageReference);
     if (replied) msg.delete();
   });
 

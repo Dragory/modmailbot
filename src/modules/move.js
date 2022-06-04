@@ -1,7 +1,7 @@
 const Eris = require("eris");
 const transliterate = require("transliteration");
-const erisEndpoints = require("eris/lib/rest/Endpoints");
-const {getOrFetchChannel} = require("../utils");
+const { getOrFetchChannel } = require("../utils");
+const { Routes } = require("discord-api-types/v9");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowMove) return;
@@ -69,7 +69,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       }));
 
       try {
-        await bot.requestHandler.request("PATCH", erisEndpoints.CHANNEL(thread.channel_id), true, {
+        await bot.requestHandler.request("PATCH", Routes.channel(thread.channel_id), true, {
           permission_overwrites: newPerms
         });
       } catch (e) {

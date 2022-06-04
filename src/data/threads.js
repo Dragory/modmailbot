@@ -13,8 +13,10 @@ const utils = require("../utils");
 const updates = require("./updates");
 
 const Thread = require("./Thread");
+const ThreadMessage = require("./ThreadMessage");
 const {callBeforeNewThreadHooks} = require("../hooks/beforeNewThread");
 const {THREAD_STATUS, DISOCRD_CHANNEL_TYPES} = require("./constants");
+const {findNotesByUserId} = require("./notes");
 
 const MINUTES = 60 * 1000;
 const HOURS = 60 * MINUTES;
@@ -209,8 +211,22 @@ async function createNewThreadForUser(user, opts = {}) {
         parentID: newThreadCategoryId,
       });
     } catch (err) {
-      console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
-      throw err;
+      // Fix for disallowed channel names in servers in Server Discovery
+      if (err.message.includes("Contains words not allowed for servers in Server Discovery")) {
+        const replacedChannelName = "badname-0000";
+        try {
+          createdChannel = await utils.getInboxGuild().createChannel(replacedChannelName, DISOCRD_CHANNEL_TYPES.GUILD_TEXT, {
+            reason: "New Modmail thread",
+            parentID: newThreadCategoryId,
+          });
+        } catch (_err) {
+          throw _err;
+        }
+      }
+
+      if (! createdChannel || ! createdChannel.id) {
+        throw err;
+      }
     }
 
     // Save the new thread in the database
@@ -219,7 +235,7 @@ async function createNewThreadForUser(user, opts = {}) {
       user_id: user.id,
       user_name: `${user.username}#${user.discriminator}`,
       channel_id: createdChannel.id,
-      next_number_message: 1,
+      next_message_number: 1,
       created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
     });
 
@@ -294,12 +310,9 @@ async function createNewThreadForUser(user, opts = {}) {
       infoHeader += `\n\nThis user has **${userLogCount}** previous modmail threads. Use \`${config.prefix}logs\` to see them.`;
     }
 
-    //BYCOP
-    const row = await knex("notes")
-    .where("user_id", user.id)
-    .first();
-    if (row !== undefined && row.note !== "undefined") {
-      infoHeader += `\n\nNote : **${row.note}**.`;
+    const userNotes = await findNotesByUserId(user.id);
+    if (userNotes.length) {
+      infoHeader += `\n\nThis user has **${userNotes.length}** notes. Use \`${config.prefix}notes\` to see them.`;
     }
 
     infoHeader += "\n────────────────";
@@ -447,6 +460,29 @@ async function getThreadsThatShouldBeSuspended() {
   return threads.map(thread => new Thread(thread));
 }
 
+/**
+ * @returns {Promise<Thread[]>}
+ */
+async function getAllOpenThreads() {
+  const threads = await knex("threads")
+  .where("status", THREAD_STATUS.OPEN)
+  .select();
+
+  return threads.map(thread => new Thread(thread));
+}
+
+/**
+ * @param {string} dmMessageId
+ * @returns {Promise<ThreadMessage|null>}
+ */
+async function findThreadMessageByDMMessageId(dmMessageId) {
+  const data = await knex("thread_messages")
+    .where("dm_message_id", dmMessageId)
+    .first();
+
+  return (data ? new ThreadMessage(data) : null);
+}
+
 module.exports = {
   findById,
   findByThreadNumber,
@@ -459,5 +495,7 @@ module.exports = {
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
   getThreadsThatShouldBeSuspended,
-  createThreadInDB
+  createThreadInDB,
+  getAllOpenThreads,
+  findThreadMessageByDMMessageId,
 };

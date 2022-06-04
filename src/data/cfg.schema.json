@@ -83,7 +83,7 @@
     },
     "statusType": {
       "type": "string",
-      "enum": ["playing", "watching", "listening"],
+      "enum": ["playing", "watching", "listening", "streaming"],
       "default": "playing"
     },
     "statusUrl": {
@@ -177,6 +177,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": true
     },
+    "updateMessagesLive": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
     "allowBlock": {
       "$ref": "#/definitions/customBoolean",
       "default": true
@@ -248,6 +252,11 @@
       "default": 2097152,
       "maximum": 8388608,
       "minimum": 0
+    },
+
+    "relayInlineReplies": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
     },
 
     "attachmentStorage": {
@@ -322,6 +331,31 @@
       "default": false
     },
 
+    "blockMessage": {
+      "type": "string",
+      "default": null
+    },
+
+    "timedBlockMessage": {
+      "type": "string",
+      "default": null
+    },
+
+    "unblockMessage": {
+      "type": "string",
+      "default": null
+    },
+
+    "timedUnblockMessage": {
+      "type": "string",
+      "default": null
+    },
+
+    "blockedReply": {
+      "type": "string",
+      "default": null
+    },
+
     "notifyOnMainServerLeave": {
       "$ref": "#/definitions/customBoolean",
       "default": true
@@ -384,6 +418,11 @@
     },
 
     "showResponseMessageInThreadChannel": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
+
+    "allowNotes": {
       "$ref": "#/definitions/customBoolean",
       "default": true
     },

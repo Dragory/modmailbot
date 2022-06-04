@@ -95,6 +95,15 @@ This is mainly useful when reporting messages to Discord's Trust & Safety team.
 ### `!id`
 Prints the user's ID.
 
+### `!note <text>`
+Add a note for the user
+
+### `!notes <userID>`
+Show all notes for the user
+
+### `!delete_note <noteID>`
+Delete the specified note. The note ID is shown when running `!notes`.
+
 ### `!dm_channel_id`
 Prints the ID of the current DM channel with the user
 
@@ -143,6 +152,15 @@ Check if the specified user is blocked.
 
 ### `!role <role name>`
 (Outside a modmail thread) Change your default display role to any role you currently have
+
+### `!note <userID> <text>`
+Add a note for the specified user
+
+### `!notes <userID>`
+Show all notes for the specified user
+
+### `!delete_note <noteID>`
+Delete the specified note. The note ID is shown when running `!notes`.
 
 ### `!version`
 Show the Modmail bot's version.
