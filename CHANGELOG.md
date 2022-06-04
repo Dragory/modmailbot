@@ -1,6 +1,10 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.6.1
+* Fixed inline replies not working with alwaysReply or snippets
+* Fixed buggy note display in thread header
+
 ## v3.6.0
 * The logChannel message for a closed thread now also contains a summary of the number of messages in that thread (by LilyWonhalf)
 * 3 new plugin hooks (by LilyWonhalf):
