@@ -6,6 +6,7 @@ const tmp = require("tmp");
 const config = require("../cfg");
 const utils = require("../utils");
 const mv = promisify(require("mv"));
+const path = require("path");
 
 const getUtils = () => require("../utils");
 
@@ -209,7 +210,11 @@ async function attachmentToDiscordFileObject(attachment) {
   const downloadResult = await downloadAttachment(attachment);
   const data = await readFile(downloadResult.path);
   downloadResult.cleanup();
-  return { file: data, name: attachment.filename };
+  // Attachments with duplicate filenames get dropped silently by the API, so give every attachment a unique filename
+  // This commonly happens when pasting images as attachments, as they get named "unknown.png"
+  const ext = path.extname(attachment.filename) || ".dat";
+  const filename = `${attachment.id}${ext}`;
+  return { file: data, name: filename };
 }
 
 /**
