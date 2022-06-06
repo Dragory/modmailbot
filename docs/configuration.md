@@ -137,6 +137,10 @@ To send internal messages in the thread when this option is enabled, add your co
 **Default:** `off`  
 If `alwaysReply` is enabled, this option controls whether the auto-reply is anonymous
 
+#### forceAnon
+**Default:** `off`  
+If enabled, all replies (including regular `!reply` and snippets) are anonymous
+
 #### anonymizeChannelName
 **Default:** `off`  
 If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy

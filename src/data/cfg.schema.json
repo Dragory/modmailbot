@@ -129,6 +129,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": false
     },
+    "forceAnon": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
     "useNicknames": {
       "$ref": "#/definitions/customBoolean",
       "default": false

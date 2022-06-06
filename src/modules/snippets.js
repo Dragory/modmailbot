@@ -57,6 +57,10 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
     }
 
+    if (config.forceAnon) {
+      isAnonymous = true;
+    }
+
     const thread = await threads.findByChannelId(msg.channel.id);
     if (! thread) return;
 

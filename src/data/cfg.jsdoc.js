@@ -22,6 +22,7 @@
  * @property {array} [inboxServerPermission=["manageMessages"]]
  * @property {boolean} [alwaysReply=false]
  * @property {boolean} [alwaysReplyAnon=false]
+ * @property {boolean} [forceAnon=false]
  * @property {boolean} [useNicknames=false]
  * @property {boolean} [anonymizeChannelName=false]
  * @property {boolean} [ignoreAccidentalThreads=false]
@@ -81,6 +82,7 @@
  * @property {string} [autoAlertDelay="2m"] Delay before auto-alert kicks in. Uses the same format as timed close; for example 1m30s for 1 minute and 30 seconds.
  * @property {boolean} [pinThreadHeader=false]
  * @property {boolean} [showResponseMessageInThreadChannel=true]
+ * @property {boolean} [allowNotes=true]
  * @property {string} [logStorage="local"]
  * @property {object} [logOptions]
  * @property {string} logOptions.attachmentDirectory

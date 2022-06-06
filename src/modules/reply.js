@@ -11,7 +11,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
-    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, false, msg.messageReference);
+    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, config.forceAnon, msg.messageReference);
     if (replied) msg.delete();
   }, {
     aliases: ["r"]
