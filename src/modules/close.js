@@ -30,12 +30,11 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
     });
 
-    let amounts = `**${fromUserMessages.length}** message${fromUserMessages.length >= 2 ? "s" : ""} from the user`;
-
-    amounts = `${amounts}, **${toUserMessages.length}** message${toUserMessages.length >= 2 ? "s" : ""} to the user`;
-    amounts = `${amounts} and **${chatMessages.length}** internal chat message${toUserMessages.length >= 2 ? "s" : ""}.`;
-
-    return amounts;
+    return [
+      `**${fromUserMessages.length}** message${fromUserMessages.length !== 1 ? "s" : ""} from the user`,
+      `, **${toUserMessages.length}** message${toUserMessages.length !== 1 ? "s" : ""} to the user`,
+      ` and **${chatMessages.length}** internal chat message${chatMessages.length !== 1 ? "s" : ""}.`,
+    ].join("");
   }
 
   async function sendCloseNotification(thread, body) {
