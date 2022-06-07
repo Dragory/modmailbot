@@ -204,4 +204,60 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed automatically because the channel was deleted`);
   });
+
+  // Auto-close threads on member remove if option is set
+  if (config.autoCloseAfterLeave) {
+    async function isMainGuildMemberEvent(guild, member) {
+      const mainGuilds = utils.getMainGuilds();
+
+      if (! mainGuilds.find((gld) => gld.id === guild.id)) {
+        return false;
+      }
+
+      let guildsWithUser = 0;
+
+      for (const mainGuild of mainGuilds) {
+        let found = mainGuild.members.get(member.id);
+
+        if (! found) {
+          try {
+            found = await bot.getRESTGuildMember(mainGuild.id, user.id);
+          } catch (e) {
+            continue;
+          }
+        }
+
+        if (found) {
+          guildsWithUser++;
+        }
+      }
+
+      return guildsWithUser;
+    }
+
+    bot.on("guildMemberRemove", async (guild, member) => {
+      if (! isMainGuildMemberEvent(guild, member)) return;
+
+      const thread = await threads.findOpenThreadByUserId(member.id);
+      if (! thread) return;
+
+      const delay = config.autoCloseAfterLeave * 1000 * 60;
+      const closeAt = moment.utc().add(delay, "ms");
+
+      await thread.scheduleClose(closeAt.format("YYYY-MM-DD HH:mm:ss"), member);
+      thread.postSystemMessage(`Thread is now scheduled to be closed in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`);
+    })
+
+    bot.on("guildMemberAdd", async (guild, member) => {
+      if (! isMainGuildMemberEvent(guild, member)) return;
+
+      const thread = await threads.findOpenThreadByUserId(member.id);
+      if (! thread) return;
+
+      if (thread.scheduled_close_at) {
+        await thread.cancelScheduledClose();
+        thread.postSystemMessage("Cancelling scheduled closing of this thread because the user rejoined.");
+      }
+    })
+  }
 };

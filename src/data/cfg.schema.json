@@ -412,6 +412,12 @@
       "description": "Delay before auto-alert kicks in. Uses the same format as timed close; for example 1m30s for 1 minute and 30 seconds."
     },
 
+    "autoCloseAfterLeave": {
+      "type": "number",
+      "default": null,
+      "description": "If set, the bot will close any open threads from users that leave the main guild after the specified interval (in minutes)."
+    },
+
     "pinThreadHeader": {
       "$ref": "#/definitions/customBoolean",
       "default": false

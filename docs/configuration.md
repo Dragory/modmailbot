@@ -161,6 +161,10 @@ This alert kicks in after a delay, set by the `autoAlertDelay` option below.
 **Default:** `2m`  
 The delay after which `autoAlert` kicks in. Uses the same format as timed close; for example `1m30s` for 1 minute and 30 seconds.
 
+#### autoCloseAfterLeave
+**Default:** *None*
+If set, the bot will close any open threads from users that leave the main guild after the specified interval (in minutes).
+
 #### botMentionResponse
 **Default:** *None*  
 If set, the bot auto-replies to bot mentions (pings) with this message. Use `{userMention}` in the text to ping the user back.
