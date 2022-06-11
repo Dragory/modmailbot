@@ -252,9 +252,8 @@ module.exports = ({ bot, knex, config, commands }) => {
       if (! isSignificantMemberChangeEvent(guild, member)) return;
 
       const thread = await threads.findOpenThreadByUserId(member.id);
-      if (! thread) return;
 
-      if (thread.scheduled_close_at) {
+      if (thread && thread.scheduled_close_at) {
         await thread.cancelScheduledClose();
         thread.postSystemMessage("Cancelling scheduled closing of this thread because the user rejoined.");
       }
