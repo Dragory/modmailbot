@@ -43,7 +43,7 @@ const beforeNewThreadHooks = [];
  */
 let beforeNewThread; // Workaround to inconsistent IDE bug with @type and anonymous functions
 beforeNewThread = (fn) => {
-  beforeNewThreadHooks.push(fn);
+	beforeNewThreadHooks.push(fn);
 };
 
 /**
@@ -55,37 +55,37 @@ beforeNewThread = (fn) => {
  * @return {Promise<BeforeNewThreadHookResult>}
  */
 async function callBeforeNewThreadHooks(input) {
-  /**
-   * @type {BeforeNewThreadHookResult}
-   */
-  const result = {
-    cancelled: false,
-    categoryId: null,
-  };
+	/**
+	 * @type {BeforeNewThreadHookResult}
+	 */
+	const result = {
+		cancelled: false,
+		categoryId: null,
+	};
 
-  /**
-   * @type {BeforeNewThreadHookData}
-   */
-  const data = {
-    ...input,
+	/**
+	 * @type {BeforeNewThreadHookData}
+	 */
+	const data = {
+		...input,
 
-    cancel() {
-      result.cancelled = true;
-    },
+		cancel() {
+			result.cancelled = true;
+		},
 
-    setCategoryId(value) {
-      result.categoryId = value;
-    },
-  };
+		setCategoryId(value) {
+			result.categoryId = value;
+		},
+	};
 
-  for (const hook of beforeNewThreadHooks) {
-    await hook(data);
-  }
+	for (const hook of beforeNewThreadHooks) {
+		await hook(data);
+	}
 
-  return result;
+	return result;
 }
 
 module.exports = {
-  beforeNewThread,
-  callBeforeNewThreadHooks,
+	beforeNewThread,
+	callBeforeNewThreadHooks,
 };

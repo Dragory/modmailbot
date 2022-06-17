@@ -7,11 +7,11 @@ const Note = require("./Note");
  * @returns {Promise<Note[]>}
  */
 async function findNotesByUserId(userId) {
-  const rows = await knex("notes")
-    .where("user_id", userId)
-    .select();
+	const rows = await knex("notes")
+		.where("user_id", userId)
+		.select();
 
-  return rows.map(row => new Note(row));
+	return rows.map(row => new Note(row));
 }
 
 /**
@@ -19,11 +19,11 @@ async function findNotesByUserId(userId) {
  * @returns {Promise<Note|null>}
  */
 async function findNote(id) {
-  const row = await knex("notes")
-    .where("id", id)
-    .first();
+	const row = await knex("notes")
+		.where("id", id)
+		.first();
 
-  return row ? new Note(row) : null;
+	return row ? new Note(row) : null;
 }
 
 /**
@@ -31,9 +31,9 @@ async function findNote(id) {
  * @returns {Promise<void>}
  */
 async function deleteNote(id) {
-  await knex("notes")
-    .where("id", id)
-    .delete();
+	await knex("notes")
+		.where("id", id)
+		.delete();
 }
 
 /**
@@ -43,19 +43,19 @@ async function deleteNote(id) {
  * @returns {Promise<Note>}
  */
 async function createUserNote(userId, authorId, body) {
-  const createdRow = await knex("notes").insert({
-    user_id: userId,
-    author_id: authorId,
-    body,
-    created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
-  });
+	const createdRow = await knex("notes").insert({
+		user_id: userId,
+		author_id: authorId,
+		body,
+		created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
+	});
 
-  return new Note(createdRow);
+	return new Note(createdRow);
 }
 
 module.exports = {
-  findNotesByUserId,
-  findNote,
-  deleteNote,
-  createUserNote,
+	findNotesByUserId,
+	findNote,
+	deleteNote,
+	createUserNote,
 };

@@ -8,9 +8,9 @@ const utils = require("../utils");
  * @property {string} created_at
  */
 class Note {
-  constructor(props) {
-    utils.setDataModelProps(this, props);
-  }
+	constructor(props) {
+		utils.setDataModelProps(this, props);
+	}
 }
 
 module.exports = Note;

@@ -27,7 +27,7 @@ const afterThreadCloseScheduledHooks = [];
  */
 let afterThreadCloseScheduled; // Workaround to inconsistent IDE bug with @type and anonymous functions
 afterThreadCloseScheduled = (fn) => {
-  afterThreadCloseScheduledHooks.push(fn);
+	afterThreadCloseScheduledHooks.push(fn);
 };
 
 /**
@@ -35,12 +35,12 @@ afterThreadCloseScheduled = (fn) => {
  * @return {Promise<void>}
  */
 async function callAfterThreadCloseScheduledHooks(input) {
-  for (const hook of afterThreadCloseScheduledHooks) {
-    await hook(input);
-  }
+	for (const hook of afterThreadCloseScheduledHooks) {
+		await hook(input);
+	}
 }
 
 module.exports = {
-  afterThreadCloseScheduled: afterThreadCloseScheduled,
-  callAfterThreadCloseScheduledHooks: callAfterThreadCloseScheduledHooks,
+	afterThreadCloseScheduled: afterThreadCloseScheduled,
+	callAfterThreadCloseScheduledHooks: callAfterThreadCloseScheduledHooks,
 };

@@ -1,5 +1,5 @@
-class BotError extends Error {}
+class BotError extends Error { }
 
 module.exports = {
-  BotError,
+	BotError,
 };

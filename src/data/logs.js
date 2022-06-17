@@ -1,3 +1,4 @@
+/* eslint-disable space-unary-ops */
 const Thread = require("./Thread");
 const ThreadMessage = require("./ThreadMessage");
 const utils = require("../utils");
@@ -65,7 +66,7 @@ const logStorageTypes = {};
  * @type AddLogStorageTypeFn
  */
 const addStorageType = (name, handler) => {
-  logStorageTypes[name] = handler;
+	logStorageTypes[name] = handler;
 };
 
 /**
@@ -78,16 +79,15 @@ const addStorageType = (name, handler) => {
  * @type {SaveLogToStorageFn}
  */
 const saveLogToStorage = async (thread, overrideType = null) => {
-  const storageType = overrideType || config.logStorage;
-
-  const { save, shouldSave } = logStorageTypes[storageType] || {};
-  if (shouldSave && ! await shouldSave(thread)) return;
-
-  if (save) {
-    const threadMessages = await thread.getThreadMessages();
-    const storageData = await save(thread, threadMessages);
-    await thread.updateLogStorageValues(storageType, storageData);
-  }
+	const storageType = overrideType || config.logStorage;
+	const { save, shouldSave } = logStorageTypes[storageType] || {};
+	if (shouldSave && ! await shouldSave(thread))
+		return;
+	if (save) {
+		const threadMessages = await thread.getThreadMessages();
+		const storageData = await save(thread, threadMessages);
+		await thread.updateLogStorageValues(storageType, storageData);
+	}
 };
 
 /**
@@ -99,14 +99,15 @@ const saveLogToStorage = async (thread, overrideType = null) => {
  * @type {GetLogUrlFn}
  */
 const getLogUrl = async (thread) => {
-  if (! thread.log_storage_type) {
-    await saveLogToStorage(thread);
-  }
+	if (!thread.log_storage_type) {
+		await saveLogToStorage(thread);
+	}
 
-  const { getUrl } = logStorageTypes[thread.log_storage_type] || {};
-  return getUrl
-    ? getUrl(thread)
-    : null;
+	const { getUrl } = logStorageTypes[thread.log_storage_type] || {};
+
+	return getUrl
+		? getUrl(thread)
+		: null;
 };
 
 /**
@@ -118,14 +119,15 @@ const getLogUrl = async (thread) => {
  * @type {GetLogFileFn}
  */
 const getLogFile = async (thread) => {
-  if (! thread.log_storage_type) {
-    await saveLogToStorage(thread);
-  }
+	if (!thread.log_storage_type) {
+		await saveLogToStorage(thread);
+	}
 
-  const { getFile } = logStorageTypes[thread.log_storage_type] || {};
-  return getFile
-    ? getFile(thread)
-    : null;
+	const { getFile } = logStorageTypes[thread.log_storage_type] || {};
+
+	return getFile
+		? getFile(thread)
+		: null;
 };
 
 /**
@@ -137,70 +139,71 @@ const getLogFile = async (thread) => {
  * @type {GetLogCustomResponseFn}
  */
 const getLogCustomResponse = async (thread) => {
-  if (! thread.log_storage_type) {
-    await saveLogToStorage(thread);
-  }
+	if (!thread.log_storage_type) {
+		await saveLogToStorage(thread);
+	}
 
-  const { getCustomResponse } = logStorageTypes[thread.log_storage_type] || {};
-  return getCustomResponse
-    ? getCustomResponse(thread)
-    : null;
+	const { getCustomResponse } = logStorageTypes[thread.log_storage_type] || {};
+
+	return getCustomResponse
+		? getCustomResponse(thread)
+		: null;
 };
 
 addStorageType("local", {
-  save() {
-    return null;
-  },
+	save() {
+		return null;
+	},
 
-  getUrl(thread) {
-    return utils.getSelfUrl(`logs/${thread.id}`);
-  },
+	getUrl(thread) {
+		return utils.getSelfUrl(`logs/${thread.id}`);
+	},
 });
 
 const getLogAttachmentFilename = threadId => {
-  const filename = `${threadId}.txt`;
-  const fullPath = path.join(config.logOptions.attachmentDirectory, filename);
+	const filename = `${threadId}.txt`;
+	const fullPath = path.join(config.logOptions.attachmentDirectory, filename);
 
-  return { filename, fullPath };
+	return { filename, fullPath };
 };
 
 addStorageType("attachment", {
-  shouldSave(thread) {
-    return thread.status === THREAD_STATUS.CLOSED;
-  },
+	shouldSave(thread) {
+		return thread.status === THREAD_STATUS.CLOSED;
+	},
 
-  async save(thread, threadMessages) {
-    const { fullPath, filename } = getLogAttachmentFilename(thread.id);
+	async save(thread, threadMessages) {
+		const { fullPath, filename } = getLogAttachmentFilename(thread.id);
+		const formatLogResult = await formatters.formatLog(thread, threadMessages);
+		fs.writeFileSync(fullPath, formatLogResult.content, { encoding: "utf8" });
 
-    const formatLogResult = await formatters.formatLog(thread, threadMessages);
-    fs.writeFileSync(fullPath, formatLogResult.content, { encoding: "utf8" });
+		return { fullPath, filename };
+	},
 
-    return { fullPath, filename };
-  },
+	async getFile(thread) {
+		const { fullPath, filename } = thread.log_storage_data || {};
+		if (!fullPath)
+			return;
 
-  async getFile(thread) {
-    const { fullPath, filename } = thread.log_storage_data || {};
-    if (! fullPath) return;
+		try {
+			fs.accessSync(fullPath);
+		} catch (e) {
+			return null;
+		}
 
-    try {
-      fs.accessSync(fullPath);
-    } catch (e) {
-      return null;
-    }
-
-    return {
-      file: fs.readFileSync(fullPath, { encoding: "utf8" }),
-      name: filename,
-    };
-  }
+		return {
+			file: fs.readFileSync(fullPath, { encoding: "utf8" }),
+			name: filename,
+		};
+	}
 });
 
 addStorageType("none", {});
 
 module.exports = {
-  addStorageType,
-  saveLogToStorage,
-  getLogUrl,
-  getLogFile,
-  getLogCustomResponse,
+	addStorageType,
+	saveLogToStorage,
+	getLogUrl,
+	getLogFile,
+	getLogCustomResponse,
 };

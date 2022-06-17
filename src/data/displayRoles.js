@@ -8,12 +8,12 @@ const config = require("../cfg");
  * @returns {Promise<string|null>}
  */
 async function getModeratorDefaultRoleOverride(moderatorId) {
-  const roleOverride = await knex("moderator_role_overrides")
-    .where("moderator_id", moderatorId)
-    .whereNull("thread_id")
-    .first();
+	const roleOverride = await knex("moderator_role_overrides")
+		.where("moderator_id", moderatorId)
+		.whereNull("thread_id")
+		.first();
 
-  return roleOverride ? roleOverride.role_id : null;
+	return roleOverride ? roleOverride.role_id : null;
 }
 
 /**
@@ -22,20 +22,20 @@ async function getModeratorDefaultRoleOverride(moderatorId) {
  * @returns {Promise<void>}
  */
 async function setModeratorDefaultRoleOverride(moderatorId, roleId) {
-  const existingGlobalOverride = await getModeratorDefaultRoleOverride(moderatorId);
-  if (existingGlobalOverride) {
-    await knex("moderator_role_overrides")
-      .where("moderator_id", moderatorId)
-      .whereNull("thread_id")
-      .update({ role_id: roleId });
-  } else {
-    await knex("moderator_role_overrides")
-      .insert({
-        moderator_id: moderatorId,
-        thread_id: null,
-        role_id: roleId,
-      });
-  }
+	const existingGlobalOverride = await getModeratorDefaultRoleOverride(moderatorId);
+	if (existingGlobalOverride) {
+		await knex("moderator_role_overrides")
+			.where("moderator_id", moderatorId)
+			.whereNull("thread_id")
+			.update({ role_id: roleId });
+	} else {
+		await knex("moderator_role_overrides")
+			.insert({
+				moderator_id: moderatorId,
+				thread_id: null,
+				role_id: roleId,
+			});
+	}
 }
 
 /**
@@ -43,10 +43,10 @@ async function setModeratorDefaultRoleOverride(moderatorId, roleId) {
  * @returns {Promise<void>}
  */
 async function resetModeratorDefaultRoleOverride(moderatorId) {
-  await knex("moderator_role_overrides")
-    .where("moderator_id", moderatorId)
-    .whereNull("thread_id")
-    .delete();
+	await knex("moderator_role_overrides")
+		.where("moderator_id", moderatorId)
+		.whereNull("thread_id")
+		.delete();
 }
 
 /**
@@ -55,12 +55,12 @@ async function resetModeratorDefaultRoleOverride(moderatorId) {
  * @returns {Promise<string|null>}
  */
 async function getModeratorThreadRoleOverride(moderatorId, threadId) {
-  const roleOverride = await knex("moderator_role_overrides")
-    .where("moderator_id", moderatorId)
-    .where("thread_id", threadId)
-    .first();
+	const roleOverride = await knex("moderator_role_overrides")
+		.where("moderator_id", moderatorId)
+		.where("thread_id", threadId)
+		.first();
 
-  return roleOverride ? roleOverride.role_id : null;
+	return roleOverride ? roleOverride.role_id : null;
 }
 
 /**
@@ -70,20 +70,20 @@ async function getModeratorThreadRoleOverride(moderatorId, threadId) {
  * @returns {Promise<void>}
  */
 async function setModeratorThreadRoleOverride(moderatorId, threadId, roleId) {
-  const existingGlobalOverride = await getModeratorThreadRoleOverride(moderatorId, threadId);
-  if (existingGlobalOverride) {
-    await knex("moderator_role_overrides")
-      .where("moderator_id", moderatorId)
-      .where("thread_id", threadId)
-      .update({ role_id: roleId });
-  } else {
-    await knex("moderator_role_overrides")
-      .insert({
-        moderator_id: moderatorId,
-        thread_id: threadId,
-        role_id: roleId,
-      });
-  }
+	const existingGlobalOverride = await getModeratorThreadRoleOverride(moderatorId, threadId);
+	if (existingGlobalOverride) {
+		await knex("moderator_role_overrides")
+			.where("moderator_id", moderatorId)
+			.where("thread_id", threadId)
+			.update({ role_id: roleId });
+	} else {
+		await knex("moderator_role_overrides")
+			.insert({
+				moderator_id: moderatorId,
+				thread_id: threadId,
+				role_id: roleId,
+			});
+	}
 }
 
 /**
@@ -92,10 +92,10 @@ async function setModeratorThreadRoleOverride(moderatorId, threadId, roleId) {
  * @returns {Promise<void>}
  */
 async function resetModeratorThreadRoleOverride(moderatorId, threadId) {
-  await knex("moderator_role_overrides")
-    .where("moderator_id", moderatorId)
-    .where("thread_id", threadId)
-    .delete();
+	await knex("moderator_role_overrides")
+		.where("moderator_id", moderatorId)
+		.where("thread_id", threadId)
+		.delete();
 }
 
 /**
@@ -103,12 +103,12 @@ async function resetModeratorThreadRoleOverride(moderatorId, threadId) {
  * @returns {Promise<Eris.Role|null>}
  */
 async function getModeratorDefaultDisplayRole(moderator) {
-  const globalOverrideRoleId = await getModeratorDefaultRoleOverride(moderator.id);
-  if (globalOverrideRoleId && moderator.roles.includes(globalOverrideRoleId)) {
-    return moderator.guild.roles.get(globalOverrideRoleId);
-  }
+	const globalOverrideRoleId = await getModeratorDefaultRoleOverride(moderator.id);
+	if (globalOverrideRoleId && moderator.roles.includes(globalOverrideRoleId)) {
+		return moderator.guild.roles.get(globalOverrideRoleId);
+	}
 
-  return utils.getMainRole(moderator);
+	return utils.getMainRole(moderator);
 }
 
 /**
@@ -116,10 +116,11 @@ async function getModeratorDefaultDisplayRole(moderator) {
  * @returns {Promise<string|null>}
  */
 async function getModeratorDefaultDisplayRoleName(moderator) {
-  const defaultDisplayRole = await getModeratorDefaultDisplayRole(moderator);
-  return defaultDisplayRole
-    ? defaultDisplayRole.name
-    : (config.fallbackRoleName || null);
+	const defaultDisplayRole = await getModeratorDefaultDisplayRole(moderator);
+
+	return defaultDisplayRole
+		? defaultDisplayRole.name
+		: (config.fallbackRoleName || null);
 }
 
 /**
@@ -128,12 +129,12 @@ async function getModeratorDefaultDisplayRoleName(moderator) {
  * @returns {Promise<Eris.Role|null>}
  */
 async function getModeratorThreadDisplayRole(moderator, threadId) {
-  const threadOverrideRoleId = await getModeratorThreadRoleOverride(moderator.id, threadId);
-  if (threadOverrideRoleId && moderator.roles.includes(threadOverrideRoleId)) {
-    return moderator.guild.roles.get(threadOverrideRoleId);
-  }
+	const threadOverrideRoleId = await getModeratorThreadRoleOverride(moderator.id, threadId);
+	if (threadOverrideRoleId && moderator.roles.includes(threadOverrideRoleId)) {
+		return moderator.guild.roles.get(threadOverrideRoleId);
+	}
 
-  return getModeratorDefaultDisplayRole(moderator);
+	return getModeratorDefaultDisplayRole(moderator);
 }
 
 /**
@@ -142,24 +143,25 @@ async function getModeratorThreadDisplayRole(moderator, threadId) {
  * @returns {Promise<string|null>}
  */
 async function getModeratorThreadDisplayRoleName(moderator, threadId) {
-  const threadDisplayRole = await getModeratorThreadDisplayRole(moderator, threadId);
-  return threadDisplayRole
-    ? threadDisplayRole.name
-    : (config.fallbackRoleName || null);
+	const threadDisplayRole = await getModeratorThreadDisplayRole(moderator, threadId);
+
+	return threadDisplayRole
+		? threadDisplayRole.name
+		: (config.fallbackRoleName || null);
 }
 
 module.exports = {
-  getModeratorDefaultRoleOverride,
-  setModeratorDefaultRoleOverride,
-  resetModeratorDefaultRoleOverride,
+	getModeratorDefaultRoleOverride,
+	setModeratorDefaultRoleOverride,
+	resetModeratorDefaultRoleOverride,
 
-  getModeratorThreadRoleOverride,
-  setModeratorThreadRoleOverride,
-  resetModeratorThreadRoleOverride,
+	getModeratorThreadRoleOverride,
+	setModeratorThreadRoleOverride,
+	resetModeratorThreadRoleOverride,
 
-  getModeratorDefaultDisplayRole,
-  getModeratorDefaultDisplayRoleName,
+	getModeratorDefaultDisplayRole,
+	getModeratorDefaultDisplayRoleName,
 
-  getModeratorThreadDisplayRole,
-  getModeratorThreadDisplayRoleName,
+	getModeratorThreadDisplayRole,
+	getModeratorThreadDisplayRoleName,
 };

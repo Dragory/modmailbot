@@ -35,7 +35,7 @@ const beforeNewMessageReceivedHooks = [];
  */
 let beforeNewMessageReceived; // Workaround to inconsistent IDE bug with @type and anonymous functions
 beforeNewMessageReceived = (fn) => {
-  beforeNewMessageReceivedHooks.push(fn);
+	beforeNewMessageReceivedHooks.push(fn);
 };
 
 /**
@@ -47,32 +47,32 @@ beforeNewMessageReceived = (fn) => {
  * @return {Promise<BeforeNewMessageReceivedHookResult>}
  */
 async function callBeforeNewMessageReceivedHooks(input) {
-  /**
-   * @type {BeforeNewMessageReceivedHookResult}
-   */
-  const result = {
-    cancelled: false,
-  };
+	/**
+	 * @type {BeforeNewMessageReceivedHookResult}
+	 */
+	const result = {
+		cancelled: false,
+	};
 
-  /**
-   * @type {BeforeNewMessageReceivedHookData}
-   */
-  const data = {
-    ...input,
+	/**
+	 * @type {BeforeNewMessageReceivedHookData}
+	 */
+	const data = {
+		...input,
 
-    cancel() {
-      result.cancelled = true;
-    },
-  };
+		cancel() {
+			result.cancelled = true;
+		},
+	};
 
-  for (const hook of beforeNewMessageReceivedHooks) {
-    await hook(data);
-  }
+	for (const hook of beforeNewMessageReceivedHooks) {
+		await hook(data);
+	}
 
-  return result;
+	return result;
 }
 
 module.exports = {
-  beforeNewMessageReceived: beforeNewMessageReceived,
-  callBeforeNewMessageReceivedHooks: callBeforeNewMessageReceivedHooks,
+	beforeNewMessageReceived: beforeNewMessageReceived,
+	callBeforeNewMessageReceivedHooks: callBeforeNewMessageReceivedHooks,
 };

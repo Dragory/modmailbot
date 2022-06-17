@@ -7,11 +7,11 @@ const Snippet = require("./Snippet");
  * @returns {Promise<Snippet>}
  */
 async function getSnippet(trigger) {
-  const snippet = await knex("snippets")
-    .where(knex.raw("LOWER(`trigger`)"), trigger.toLowerCase())
-    .first();
+	const snippet = await knex("snippets")
+		.where(knex.raw("LOWER(`trigger`)"), trigger.toLowerCase())
+		.first();
 
-  return (snippet ? new Snippet(snippet) : null);
+	return (snippet ? new Snippet(snippet) : null);
 }
 
 /**
@@ -20,14 +20,15 @@ async function getSnippet(trigger) {
  * @returns {Promise<void>}
  */
 async function addSnippet(trigger, body, createdBy = 0) {
-  if (await getSnippet(trigger)) return;
+	if (await getSnippet(trigger))
+		return;
 
-  return knex("snippets").insert({
-    trigger,
-    body,
-    created_by: createdBy,
-    created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
-  });
+	return knex("snippets").insert({
+		trigger,
+		body,
+		created_by: createdBy,
+		created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
+	});
 }
 
 /**
@@ -35,24 +36,24 @@ async function addSnippet(trigger, body, createdBy = 0) {
  * @returns {Promise<void>}
  */
 async function deleteSnippet(trigger) {
-  return knex("snippets")
-    .where(knex.raw("LOWER(`trigger`)"), trigger.toLowerCase())
-    .delete();
+	return knex("snippets")
+		.where(knex.raw("LOWER(`trigger`)"), trigger.toLowerCase())
+		.delete();
 }
 
 /**
  * @returns {Promise<Snippet[]>}
  */
 async function getAllSnippets() {
-  const snippets = await knex("snippets")
-    .select();
+	const snippets = await knex("snippets")
+		.select();
 
-  return snippets.map(s => new Snippet(s));
+	return snippets.map(s => new Snippet(s));
 }
 
 module.exports = {
-  get: getSnippet,
-  add: addSnippet,
-  del: deleteSnippet,
-  all: getAllSnippets,
+	get: getSnippet,
+	add: addSnippet,
+	del: deleteSnippet,
+	all: getAllSnippets,
 };

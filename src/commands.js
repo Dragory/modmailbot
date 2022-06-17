@@ -1,3 +1,4 @@
+/* eslint-disable space-unary-ops */
 const { CommandManager, defaultParameterTypes, TypeConversionError, IParameter, ICommandConfig } = require("knub-command-manager");
 const Eris = require("eris");
 const config = require("./cfg");
@@ -58,137 +59,157 @@ const Thread = require("./data/Thread");
  */
 
 module.exports = {
-  createCommandManager(bot) {
-    const manager = new CommandManager({
-      prefix: config.prefix,
-      types: Object.assign({}, defaultParameterTypes, {
-        userId(value) {
-          const userId = utils.getUserMention(value);
-          if (! userId) throw new TypeConversionError();
-          return userId;
-        },
+	createCommandManager(bot) {
+		const manager = new CommandManager({
+			prefix: config.prefix,
+			types: Object.assign({}, defaultParameterTypes, {
+				userId(value) {
+					const userId = utils.getUserMention(value);
+					if (!userId)
+						throw new TypeConversionError();
 
-        delay(value) {
-          const ms = utils.convertDelayStringToMS(value);
-          if (ms === null) throw new TypeConversionError();
-          return ms;
-        }
-      })
-    });
+					return userId;
+				},
 
-    const handlers = {};
-    const aliasMap = new Map();
+				delay(value) {
+					const ms = utils.convertDelayStringToMS(value);
+					if (ms === null)
+						throw new TypeConversionError();
 
-    bot.on("messageCreate", async msg => {
-      if (msg.author.bot) return;
-      if (msg.author.id === bot.user.id) return;
-      if (! msg.content) return;
+					return ms;
+				}
+			})
+		});
 
-      const matchedCommand = await manager.findMatchingCommand(msg.content, { msg });
-      if (matchedCommand === null) return;
-      if (matchedCommand.error !== undefined) {
-        utils.postError(msg.channel, matchedCommand.error);
-        return;
-      }
+		const handlers = {};
+		const aliasMap = new Map();
 
-      const allArgs = {};
-      for (const [name, arg] of Object.entries(matchedCommand.args)) {
-        allArgs[name] = arg.value;
-      }
-      for (const [name, opt] of Object.entries(matchedCommand.opts)) {
-        allArgs[name] = opt.value;
-      }
+		bot.on("messageCreate", async msg => {
+			if (msg.author.bot)
+				return;
+			if (msg.author.id === bot.user.id)
+				return;
+			if (!msg.content)
+				return;
 
-      handlers[matchedCommand.id](msg, allArgs);
-    });
+			const matchedCommand = await manager.findMatchingCommand(msg.content, { msg });
+			if (matchedCommand === null)
+				return;
+			if (matchedCommand.error !== undefined) {
+				utils.postError(msg.channel, matchedCommand.error);
 
-    /**
-     * Add a command that can be invoked anywhere
-     * @type {AddGlobalCommandFn}
-     */
-    const addGlobalCommand = (trigger, parameters, handler, commandConfig = {}) => {
-      let aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
-      if (commandConfig.aliases) aliases.push(...commandConfig.aliases);
+				return;
+			}
 
-      const cmd = manager.add(trigger, parameters, { ...commandConfig, aliases });
-      handlers[cmd.id] = handler;
-    };
+			const allArgs = {};
 
-    /**
-     * Add a command that can only be invoked on the inbox server
-     * @type {AddInboxServerCommandFn}
-     */
-    const addInboxServerCommand = (trigger, parameters, handler, commandConfig = {}) => {
-      const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
-      if (commandConfig.aliases) aliases.push(...commandConfig.aliases);
+			for (const [name, arg] of Object.entries(matchedCommand.args)) {
+				allArgs[name] = arg.value;
+			}
+			for (const [name, opt] of Object.entries(matchedCommand.opts)) {
+				allArgs[name] = opt.value;
+			}
 
-      const cmd = manager.add(trigger, parameters, {
-        ...commandConfig,
-        aliases,
-        preFilters: [
-          async (_, context) => {
-            if (! await utils.messageIsOnInboxServer(bot, context.msg)) return false;
-            if (! utils.isStaff(context.msg.member)) return false;
-            return true;
-          }
-        ]
-      });
+			handlers[matchedCommand.id](msg, allArgs);
+		});
 
-      handlers[cmd.id] = async (msg, args) => {
-        const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
-        handler(msg, args, thread);
-      };
-    };
+		/**
+		 * Add a command that can be invoked anywhere
+		 * @type {AddGlobalCommandFn}
+		 */
+		const addGlobalCommand = (trigger, parameters, handler, commandConfig = {}) => {
+			let aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
+			if (commandConfig.aliases)
+				aliases.push(...commandConfig.aliases);
 
-    /**
-     * Add a command that can only be invoked in a thread on the inbox server
-     * @type {AddInboxThreadCommandFn}
-     */
-    const addInboxThreadCommand = (trigger, parameters, handler, commandConfig = {}) => {
-      const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
-      if (commandConfig.aliases) aliases.push(...commandConfig.aliases);
+			const cmd = manager.add(trigger, parameters, { ...commandConfig, aliases });
+			handlers[cmd.id] = handler;
+		};
 
-      let thread;
-      const cmd = manager.add(trigger, parameters, {
-        ...commandConfig,
-        aliases,
-        preFilters: [
-          async (_, context) => {
-            if (! await utils.messageIsOnInboxServer(bot, context.msg)) return false;
-            if (! utils.isStaff(context.msg.member)) return false;
-            if (commandConfig.allowSuspended) {
-              thread = await threads.findByChannelId(context.msg.channel.id);
-            } else {
-              thread = await threads.findOpenThreadByChannelId(context.msg.channel.id);
-            }
-            if (! thread) return false;
-            return true;
-          }
-        ]
-      });
+		/**
+		 * Add a command that can only be invoked on the inbox server
+		 * @type {AddInboxServerCommandFn}
+		 */
+		const addInboxServerCommand = (trigger, parameters, handler, commandConfig = {}) => {
+			const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
+			if (commandConfig.aliases)
+				aliases.push(...commandConfig.aliases);
 
-      handlers[cmd.id] = async (msg, args) => {
-        handler(msg, args, thread);
-      };
-    };
+			const cmd = manager.add(trigger, parameters, {
+				...commandConfig,
+				aliases,
+				preFilters: [
+					async (_, context) => {
+						if (! await utils.messageIsOnInboxServer(bot, context.msg))
+							return false;
+						if (!utils.isStaff(context.msg.member))
+							return false;
 
-    /**
-     * @type {AddAliasFn}
-     */
-    const addAlias = (originalCmd, alias) => {
-      if (! aliasMap.has(originalCmd)) {
-        aliasMap.set(originalCmd, new Set());
-      }
+						return true;
+					}
+				]
+			});
 
-      aliasMap.get(originalCmd).add(alias);
-    };
+			handlers[cmd.id] = async (msg, args) => {
+				const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
+				handler(msg, args, thread);
+			};
+		};
 
-    return {
-      manager,
-      addGlobalCommand,
-      addInboxServerCommand,
-      addInboxThreadCommand,
-      addAlias,
-    };
-  }
+		/**
+		 * Add a command that can only be invoked in a thread on the inbox server
+		 * @type {AddInboxThreadCommandFn}
+		 */
+		const addInboxThreadCommand = (trigger, parameters, handler, commandConfig = {}) => {
+			const aliases = aliasMap.has(trigger) ? [...aliasMap.get(trigger)] : [];
+			if (commandConfig.aliases)
+				aliases.push(...commandConfig.aliases);
+
+			let thread;
+			const cmd = manager.add(trigger, parameters, {
+				...commandConfig,
+				aliases,
+				preFilters: [
+					async (_, context) => {
+						if (! await utils.messageIsOnInboxServer(bot, context.msg))
+							return false;
+						if (!utils.isStaff(context.msg.member))
+							return false;
+						if (commandConfig.allowSuspended) {
+							thread = await threads.findByChannelId(context.msg.channel.id);
+						} else {
+							thread = await threads.findOpenThreadByChannelId(context.msg.channel.id);
+						}
+						if (!thread)
+							return false;
+
+						return true;
+					}
+				]
+			});
+
+			handlers[cmd.id] = async (msg, args) => {
+				handler(msg, args, thread);
+			};
+		};
+
+		/**
+		 * @type {AddAliasFn}
+		 */
+		const addAlias = (originalCmd, alias) => {
+			if (!aliasMap.has(originalCmd)) {
+				aliasMap.set(originalCmd, new Set());
+			}
+
+			aliasMap.get(originalCmd).add(alias);
+		};
+
+		return {
+			manager,
+			addGlobalCommand,
+			addInboxServerCommand,
+			addInboxThreadCommand,
+			addAlias,
+		};
+	}
 };

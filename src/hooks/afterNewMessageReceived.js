@@ -29,7 +29,7 @@ const afterNewMessageReceivedHooks = [];
  */
 let afterNewMessageReceived; // Workaround to inconsistent IDE bug with @type and anonymous functions
 afterNewMessageReceived = (fn) => {
-  afterNewMessageReceivedHooks.push(fn);
+	afterNewMessageReceivedHooks.push(fn);
 };
 
 /**
@@ -40,12 +40,12 @@ afterNewMessageReceived = (fn) => {
  * }} input
  */
 async function callAfterNewMessageReceivedHooks(input) {
-  for (const hook of afterNewMessageReceivedHooks) {
-    await hook(input);
-  }
+	for (const hook of afterNewMessageReceivedHooks) {
+		await hook(input);
+	}
 }
 
 module.exports = {
-  afterNewMessageReceived: afterNewMessageReceived,
-  callAfterNewMessageReceivedHooks: callAfterNewMessageReceivedHooks,
+	afterNewMessageReceived: afterNewMessageReceived,
+	callAfterNewMessageReceivedHooks: callAfterNewMessageReceivedHooks,
 };

@@ -1,26 +1,29 @@
 {
-  "root": true,
-
-  "parserOptions": {
-    "ecmaVersion": 10,
-    "sourceType": "module"
-  },
-
-  "env": {
-    "node": true
-  },
-
-  "rules": {
-    "space-infix-ops": "error",
-    "space-unary-ops": ["error", {
-      "words": true,
-      "nonwords": false,
-      "overrides": {
-        "!": true,
-        "!!": true
-      }
-    }],
-    "quotes": ["error", "double"],
-    "no-shadow": "error"
-  }
+    "root": true,
+    "parserOptions": {
+        "ecmaVersion": 10,
+        "sourceType": "module"
+    },
+    "env": {
+        "node": true
+    },
+    "rules": {
+        "space-infix-ops": "error",
+        "space-unary-ops": [
+            "error",
+            {
+                "words": true,
+                "nonwords": false,
+                "overrides": {
+                    "!": true,
+                    "!!": true
+                }
+            }
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "no-shadow": "error"
+    }
 }
