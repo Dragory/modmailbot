@@ -14,6 +14,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 		const chatMessages = [];
 		const toUserMessages = [];
 		const fromUserMessages = [];
+
 		messages.forEach(message => {
 			switch (message.message_type) {
 				case THREAD_MESSAGE_TYPE.CHAT:
@@ -74,6 +75,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 		for (const thread of threadsToBeClosed) {
 			if (config.closeMessage && !thread.scheduled_close_silent) {
 				const closeMessage = utils.readMultilineConfigValue(config.closeMessage);
+
 				await thread.sendSystemMessageToUser(closeMessage).catch(() => { });
 			}
 
@@ -159,6 +161,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 				await thread.scheduleClose(closeAt.format("YYYY-MM-DD HH:mm:ss"), msg.author, silentClose ? 1 : 0);
 
 				let response;
+
 				if (silentClose) {
 					response = `Thread is now scheduled to be closed silently in ${utils.humanizeDelay(delay)}. Use \`${config.prefix}close cancel\` to cancel.`;
 				} else {
@@ -183,10 +186,11 @@ module.exports = ({ bot, knex, config, commands }) => {
 		await thread.close(suppressSystemMessages, silentClose);
 		await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`);
 	}, {
-		options: [
-			{ name: "silent", shortcut: "s", isSwitch: true },
-			{ name: "cancel", shortcut: "c", isSwitch: true },
-		],
+		options: [{
+			name: "silent", shortcut: "s", isSwitch: true
+		}, {
+			name: "cancel", shortcut: "c", isSwitch: true
+		}],
 	});
 
 	// Auto-close threads if their channel is deleted

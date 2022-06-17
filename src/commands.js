@@ -69,9 +69,7 @@ module.exports = {
 						throw new TypeConversionError();
 
 					return userId;
-				},
-
-				delay(value) {
+				}, delay(value) {
 					const ms = utils.convertDelayStringToMS(value);
 					if (ms === null)
 						throw new TypeConversionError();

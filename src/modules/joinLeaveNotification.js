@@ -31,7 +31,6 @@ module.exports = ({ bot }) => {
 			// Ensure that possible ban events are caught before sending message (race condition)
 			setTimeout(async () => {
 				const thread = await threads.findOpenThreadByUserId(member.id);
-
 				if (thread != null) {
 					if (leaveIgnoreIDs.includes(member.id)) {
 						leaveIgnoreIDs.splice(leaveIgnoreIDs.indexOf(member.id), 1);

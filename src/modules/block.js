@@ -53,9 +53,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 			? moment.utc().add(args.blockTime, "ms").format("YYYY-MM-DD HH:mm:ss")
 			: null;
 		const user = bot.users.get(userIdToBlock);
-
 		await blocked.block(userIdToBlock, (user ? `${user.username}#${user.discriminator}` : ""), msg.author.id, expiresAt);
-
 		if (expiresAt) {
 			const humanized = humanizeDuration(args.blockTime, { largest: 2, round: true });
 			msg.channel.createMessage(`Blocked <@${userIdToBlock}> (id \`${userIdToBlock}\`) from modmail for ${humanized}`);

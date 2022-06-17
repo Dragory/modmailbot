@@ -105,7 +105,6 @@ try {
 	const knex = require("./knex");
 	// Make sure the database is up to date
 	const [completed, newMigrations] = await knex.migrate.list();
-
 	if (newMigrations.length > 0) {
 		console.log("Updating database. This can take a while. Don't close the bot!");
 

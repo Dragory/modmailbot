@@ -42,7 +42,8 @@ function serveAttachments(req, res) {
 
 	const attachmentPath = attachments.getLocalAttachmentPath(req.params.attachmentId);
 	fs.access(attachmentPath, (err) => {
-		if (err) return notfound(res);
+		if (err)
+			return notfound(res);
 
 		const filenameParts = req.params.filename.split(".");
 		const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : "bin");

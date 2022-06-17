@@ -32,7 +32,6 @@ module.exports = ({ bot }) => {
 			const filename = path.basename(serverGreeting.attachment);
 			fs.readFile(serverGreeting.attachment, (err, data) => {
 				const file = { file: data, name: filename };
-
 				sendGreeting(greetingMessage, file);
 			});
 		} else {

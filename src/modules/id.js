@@ -8,6 +8,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 	}, { allowSuspended: true });
 	commands.addInboxThreadCommand("dm_channel_id", [], async (msg, args, thread) => {
 		const dmChannel = await thread.getDMChannel();
+
 		thread.postSystemMessage(dmChannel.id);
 	}, { allowSuspended: true });
 	commands.addInboxThreadCommand("message", "<messageNumber:number>", async (msg, args, thread) => {

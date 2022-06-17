@@ -1,5 +1,6 @@
 const path = require("path");
 const config = require("./cfg");
+
 let knexOptions;
 
 if (config.dbType === "sqlite") {

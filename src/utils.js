@@ -6,6 +6,7 @@ const humanizeDuration = require("humanize-duration");
 const publicIp = require("public-ip");
 const config = require("./cfg");
 const { BotError } = require("./BotError");
+
 const userMentionRegex = /^<@!?([0-9]+?)>$/;
 let inboxGuild = null;
 let mainGuilds = [];
@@ -251,10 +252,14 @@ function convertDelayStringToMS(str) {
 
 	str = str.trim();
 	while (str !== "" && (match = str.match(delayStringRegex)) !== null) {
-		if (match[2] === "d") ms += match[1] * 1000 * 60 * 60 * 24;
-		else if (match[2] === "h") ms += match[1] * 1000 * 60 * 60;
-		else if (match[2] === "s") ms += match[1] * 1000;
-		else if (match[2] === "m" || !match[2]) ms += match[1] * 1000 * 60;
+		if (match[2] === "d")
+			ms += match[1] * 1000 * 60 * 60 * 24;
+		else if (match[2] === "h")
+			ms += match[1] * 1000 * 60 * 60;
+		else if (match[2] === "s")
+			ms += match[1] * 1000;
+		else if (match[2] === "m" || !match[2])
+			ms += match[1] * 1000 * 60;
 
 		str = str.slice(match[0].length);
 	}
@@ -399,7 +404,6 @@ function noop() { }
 
 // https://discord.com/developers/docs/resources/channel#create-message-params
 const MAX_MESSAGE_CONTENT_LENGTH = 2000;
-
 // https://discord.com/developers/docs/resources/channel#embed-limits
 const MAX_EMBED_CONTENT_LENGTH = 6000;
 

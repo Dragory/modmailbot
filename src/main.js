@@ -29,22 +29,19 @@ module.exports = {
 
 			await (new Promise(resolve => {
 				const waitNoteTimeout = setTimeout(() => {
-					console.log("Servers did not become available after 15 seconds, continuing start-up anyway");
-					console.log("");
+					console.log("Servers did not become available after 15 seconds, continuing start-up anyway\n");
 
 					const isSingleServer = config.mainServerId.includes(config.inboxServerId);
 					if (isSingleServer) {
-						console.log("WARNING: The bot will not work before it's invited to the server.");
+						console.log("WARNING: The bot will not work before it's invited to the server.\n");
 					} else {
 						const hasMultipleMainServers = config.mainServerId.length > 1;
 						if (hasMultipleMainServers) {
-							console.log("WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.");
+							console.log("WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.\n");
 						} else {
-							console.log("WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.");
+							console.log("WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.\n");
 						}
 					}
-
-					console.log("");
 
 					resolve();
 				}, 15 * 1000);
@@ -67,11 +64,8 @@ module.exports = {
 			console.log("Loading plugins...");
 
 			const pluginResult = await loadAllPlugins();
-
-			console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
-			console.log("");
-			console.log("Done! Now listening to DMs.");
-			console.log("");
+			console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)\n`);
+			console.log("Done! Now listening to DMs.\n");
 
 			const openThreads = await threads.getAllOpenThreads();
 			for (const thread of openThreads) {
@@ -108,8 +102,7 @@ function initStatus() {
 			"watching": Eris.Constants.ActivityTypes.WATCHING,
 			"listening": Eris.Constants.ActivityTypes.LISTENING,
 			"streaming": Eris.Constants.ActivityTypes.STREAMING,
-		}[config.statusType] || Eris.Constants.ActivityTypes.GAME;
-
+		}[config.statusType] || Eris.Constants.ActivityTypes.WATCHING;
 		if (type === Eris.Constants.ActivityTypes.STREAMING) {
 			bot.editStatus(null, { name: config.status, type, url: config.statusUrl });
 		} else {

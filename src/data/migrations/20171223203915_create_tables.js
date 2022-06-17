@@ -2,8 +2,8 @@ exports.up = async function (knex, Promise) {
 	if (! await knex.schema.hasTable("blocked_users")) {
 		await knex.schema.createTable("blocked_users", table => {
 			table.string("user_id", 20).primary().notNullable();
-			table.string("user_name", 128).notNullable();
 			table.string("blocked_by", 20).nullable();
+			table.string("user_name", 128).notNullable();
 			table.dateTime("blocked_at").notNullable();
 			table.dateTime("expires_at").nullable();
 		});
@@ -20,9 +20,9 @@ exports.up = async function (knex, Promise) {
 	if (! await knex.schema.hasTable("notes")) {
 		await knex.schema.createTable("notes", table => {
 			table.increments("id");
-			table.string("user_id", 20).nullable();
-			table.string("author_id", 20).nullable();
+			table.string("author_id", 20).nullable().index();
 			table.mediumtext("body").nullable();
+			table.string("user_id", 20).nullable().index();
 			table.datetime("created_at");
 		});
 	}

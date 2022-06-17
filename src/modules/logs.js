@@ -5,6 +5,7 @@ const utils = require("../utils");
 const { getLogUrl, getLogFile, getLogCustomResponse, saveLogToStorage } = require("../data/logs");
 const { THREAD_STATUS } = require("../data/constants");
 const { getOrFetchChannel } = require("../utils");
+
 const LOG_LINES_PER_PAGE = 10;
 
 module.exports = ({ bot, knex, config, commands, hooks }) => {
@@ -91,7 +92,6 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
 
 		const channel = await getOrFetchChannel(bot, msg.channel.id);
 		const customResponse = await getLogCustomResponse(thread);
-
 		if (customResponse && (customResponse.content || customResponse.file)) {
 			channel.createMessage(customResponse.content, customResponse.file);
 		}
@@ -118,10 +118,11 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
 		channel.createMessage("This thread's logs are not currently available");
 	};
 
-	const logCmdOptions = [
-		{ name: "verbose", shortcut: "v", isSwitch: true },
-		{ name: "simple", shortcut: "s", isSwitch: true },
-	];
+	const logCmdOptions = [{
+		name: "verbose", shortcut: "v", isSwitch: true
+	}, {
+		name: "simple", shortcut: "s", isSwitch: true
+	}];
 
 	commands.addInboxServerCommand("logs", "<userId:userId> [page:number]", logsCmd, { options: logCmdOptions });
 	commands.addInboxServerCommand("logs", "[page:number]", logsCmd, { options: logCmdOptions });

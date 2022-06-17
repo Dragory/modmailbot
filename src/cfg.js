@@ -291,7 +291,7 @@ const validStreamingUrlRegex = /^https:\/\/(www\.)?twitch.tv\/[a-z\d_\-]+\/?$/i;
 if (config.statusType === "streaming") {
 	if (!validStreamingUrlRegex.test(config.statusUrl)) {
 		exitWithConfigurationErrors([
-			"When statusType is set to \"streaming\", statusUrl must be set to a valid Twitch channel URL, such as https://www.twitch.tv/Dragory",
+			"When statusType is set to \"streaming\", statusUrl must be set to a valid Twitch channel URL, such as https://www.twitch.tv/ShyzagoNakamoto",
 		]);
 	}
 }

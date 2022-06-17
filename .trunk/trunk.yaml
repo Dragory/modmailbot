@@ -1,9 +1,0 @@
-version: 0.1
-cli:
-  version: 0.13.1-beta
-lint:
-  enabled:
-    - eslint@8.17.0
-    - gitleaks@8.8.7
-    - markdownlint@0.31.1
-    - prettier@2.7.1

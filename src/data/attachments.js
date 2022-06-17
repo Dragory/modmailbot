@@ -10,6 +10,7 @@ const mv = promisify(require("mv"));
 const getUtils = () => require("../utils");
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
+
 const localAttachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
 const attachmentSavePromises = {};
 const attachmentStorageTypes = {};

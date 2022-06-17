@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+
 const gitDir = path.resolve(__dirname, "..", ".git");
 
 function getPackageVersion() {

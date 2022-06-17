@@ -12,7 +12,6 @@ module.exports = ({ bot, knex, config, commands }) => {
 	// Check for threads that are scheduled to be suspended and suspend them
 	async function applyScheduledSuspensions() {
 		const threadsToBeSuspended = await threads.getThreadsThatShouldBeSuspended();
-
 		for (const thread of threadsToBeSuspended) {
 			if (thread.status === THREAD_STATUS.OPEN) {
 				await thread.suspend();
