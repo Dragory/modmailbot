@@ -1,15 +1,13 @@
 /* eslint-disable space-unary-ops */
 const Eris = require("eris");
-const path = require("path");
 const config = require("./cfg");
 const bot = require("./bot");
 const knex = require("./knex");
 const { messageQueue } = require("./queue");
 const utils = require("./utils");
-const { formatters } = require("./formatters")
+const { formatters } = require("./formatters");
 const { createCommandManager } = require("./commands");
 const { getPluginAPI, installPlugins, loadPlugins } = require("./plugins");
-const ThreadMessage = require("./data/ThreadMessage");
 const blocked = require("./data/blocked");
 const threads = require("./data/threads");
 const updates = require("./data/updates");

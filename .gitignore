@@ -1,7 +1,3 @@
-# Configs
-configs
-config.*
-
 # Logs
 logs
 *.log
@@ -75,8 +71,6 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
-!.env.project
-!.env.vault
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -108,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Other stuff
+*.ini

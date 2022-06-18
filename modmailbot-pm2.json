@@ -1,9 +1,0 @@
-{
-    "apps": [
-        {
-            "name": "ModMailBot",
-            "cwd": "./",
-            "script": "src/index.js"
-        }
-    ]
-}
