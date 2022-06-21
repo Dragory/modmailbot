@@ -1,39 +1,40 @@
 /* eslint-disable space-unary-ops */
-const config = require("../cfg");
-const threads = require("../data/threads");
-const Eris = require("eris");
+const Eris = require('eris');
+const config = require('../cfg');
+const threads = require('../data/threads');
 
 module.exports = ({ bot }) => {
 	// Typing proxy: forwarding typing events between the DM and the modmail thread
 	if (config.typingProxy || config.typingProxyReverse) {
-		bot.on("typingStart", async (channel, user) => {
-			if (!user) {
-				// If the user doesn't exist in the bot's cache, it will be undefined here
-				return;
-			}
+		bot.on('typingStart', async (channel, user) => {
+			// If the user doesn't exist in the bot's cache, it will be undefined here
+			if (!user) return;
 			// config.typingProxy: forward user typing in a DM to the modmail thread
 			if (config.typingProxy && (channel instanceof Eris.PrivateChannel)) {
 				const thread = await threads.findOpenThreadByUserId(user.id);
-				if (!thread)
-					return;
+				if (!thread) return;
 
 				try {
 					await bot.sendChannelTyping(thread.channel_id);
-				} catch (e) { }
+				}
+				catch (e) {
+					//
+				}
 			}
 			// config.typingProxyReverse: forward moderator typing in a thread to the DM
 			else if (config.typingProxyReverse && (channel instanceof Eris.GuildChannel) && !user.bot) {
 				const thread = await threads.findByChannelId(channel.id);
-				if (!thread)
-					return;
+				if (!thread) return;
 
 				const dmChannel = await thread.getDMChannel();
-				if (!dmChannel)
-					return;
+				if (!dmChannel) return;
 
 				try {
 					await bot.sendChannelTyping(dmChannel.id);
-				} catch (e) { }
+				}
+				catch (e) {
+					//
+				}
 			}
 		});
 	}

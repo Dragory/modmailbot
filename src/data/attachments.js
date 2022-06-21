@@ -1,24 +1,25 @@
+/* eslint-disable prefer-const */
 /* eslint-disable space-unary-ops */
-const Eris = require("eris");
-const fs = require("fs");
-const https = require("https");
-const { promisify } = require("util");
-const tmp = require("tmp");
-const config = require("../cfg");
-const utils = require("../utils");
-const mv = promisify(require("mv"));
-const getUtils = () => require("../utils");
-const access = promisify(fs.access);
-const readFile = promisify(fs.readFile);
+const { promisify } = require('util');
+const config = require('../cfg');
+const Eris = require('eris');
+const fs = require('fs');
+const getUtils = () => require('../utils');
+const https = require('https');
+const tmp = require('tmp');
+const utils = require('../utils');
 
-const localAttachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
+const access = promisify(fs.access);
+const mv = promisify(require('mv'));
+const readFile = promisify(fs.readFile);
 const attachmentSavePromises = {};
 const attachmentStorageTypes = {};
+const localAttachmentDir = config.attachmentDir || `${__dirname}/../../attachments`;
 
 function getErrorResult(msg = null) {
 	return {
-		url: `Attachment could not be saved${msg ? ": " + msg : ""}`,
-		failed: true
+		url: `Attachment could not be saved${msg ? ': ' + msg : ''}`,
+		failed: true,
 	};
 }
 
@@ -67,7 +68,8 @@ function getErrorResult(msg = null) {
 /**
  * @type {AttachmentStorageTypeHandler}
  */
-let passthroughOriginalAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let passthroughOriginalAttachment;
 passthroughOriginalAttachment = (attachment) => {
 	return { url: attachment.url };
 };
@@ -76,7 +78,8 @@ passthroughOriginalAttachment = (attachment) => {
  * An attachment storage option that downloads each attachment and serves them from a local web server
  * @type {AttachmentStorageTypeHandler}
  */
-let saveLocalAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let saveLocalAttachment;
 saveLocalAttachment = async (attachment) => {
 	const targetPath = getLocalAttachmentPath(attachment.id);
 
@@ -84,8 +87,12 @@ saveLocalAttachment = async (attachment) => {
 		// If the file already exists, resolve immediately
 		await access(targetPath);
 		const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
-		return { url };
-	} catch (e) { }
+
+		return url;
+	}
+	catch (e) {
+		//
+	}
 
 	// Download the attachment
 	const downloadResult = await downloadAttachment(attachment);
@@ -95,7 +102,7 @@ saveLocalAttachment = async (attachment) => {
 	// Resolve the attachment URL
 	const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
 
-	return { url };
+	return url;
 };
 
 /**
@@ -104,9 +111,9 @@ saveLocalAttachment = async (attachment) => {
 const downloadAttachment = (attachment, tries = 0) => {
 	return new Promise((resolve, reject) => {
 		if (tries > 3) {
-			console.error("Attachment download failed after 3 tries:", attachment);
+			console.error('Attachment download failed after 3 tries:', attachment);
 
-			reject("Attachment download failed after 3 tries");
+			reject('Attachment download failed after 3 tries');
 
 			return;
 		}
@@ -116,17 +123,17 @@ const downloadAttachment = (attachment, tries = 0) => {
 
 			https.get(attachment.url, (res) => {
 				res.pipe(writeStream);
-				writeStream.on("finish", () => {
+				writeStream.on('finish', () => {
 					writeStream.end();
 					resolve({
 						path: filepath,
-						cleanup: cleanupCallback
+						cleanup: cleanupCallback,
 					});
 				});
-			}).on("error", () => {
+			}).on('error', () => {
 				fs.unlink(filepath);
 
-				console.error("Error downloading attachment, retrying");
+				console.error('Error downloading attachment, retrying');
 
 				resolve(downloadAttachment(attachment, tries++));
 			});
@@ -150,8 +157,7 @@ function getLocalAttachmentPath(attachmentId) {
  * @returns {Promise<String>}
  */
 function getLocalAttachmentUrl(attachmentId, desiredName = null) {
-	if (desiredName == null)
-		desiredName = "file.bin";
+	if (desiredName == null) desiredName = 'file.bin';
 
 	return getUtils().getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
 }
@@ -161,27 +167,21 @@ function getLocalAttachmentUrl(attachmentId, desiredName = null) {
  * The re-posted attachment is then linked in the actual thread.
  * @type {AttachmentStorageTypeHandler}
  */
-let saveDiscordAttachment; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let saveDiscordAttachment;
 saveDiscordAttachment = async (attachment) => {
-	if (attachment.size > 1024 * 1024 * 8) {
-		return getErrorResult("attachment too large (max 8MB)");
-	}
+	if (attachment.size > 1024 * 1024 * 8) return getErrorResult('attachment too large (max 8MB)');
 
 	const attachmentChannelId = config.attachmentStorageChannelId;
 	const inboxGuild = utils.getInboxGuild();
-	if (!inboxGuild.channels.has(attachmentChannelId)) {
-		throw new Error("Attachment storage channel not found!");
-	}
+	if (!inboxGuild.channels.has(attachmentChannelId)) throw new Error('Attachment storage channel not found!');
 
 	const attachmentChannel = inboxGuild.channels.get(attachmentChannelId);
-	if (!(attachmentChannel instanceof Eris.TextChannel)) {
-		throw new Error("Attachment storage channel must be a text channel!");
-	}
+	if (!(attachmentChannel instanceof Eris.TextChannel)) throw new Error('Attachment storage channel must be a text channel!');
 
 	const file = await attachmentToDiscordFileObject(attachment);
 	const savedAttachment = await createDiscordAttachmentMessage(attachmentChannel, file);
-	if (!savedAttachment)
-		return getErrorResult();
+	if (!savedAttachment) return getErrorResult();
 
 	return { url: savedAttachment.url };
 };
@@ -193,7 +193,8 @@ async function createDiscordAttachmentMessage(channel, file, tries = 0) {
 		const attachmentMessage = await channel.createMessage(undefined, file);
 
 		return attachmentMessage.attachments[0];
-	} catch (e) {
+	}
+	catch (e) {
 		if (tries > 3) {
 			console.error(`Attachment storage message could not be created after 3 tries: ${e.message}`);
 			return;
@@ -211,7 +212,6 @@ async function createDiscordAttachmentMessage(channel, file, tries = 0) {
 async function attachmentToDiscordFileObject(attachment) {
 	const downloadResult = await downloadAttachment(attachment);
 	const data = await readFile(downloadResult.path);
-
 	downloadResult.cleanup();
 
 	return { file: data, name: attachment.filename };
@@ -221,14 +221,9 @@ async function attachmentToDiscordFileObject(attachment) {
  * @type {SaveAttachmentFn}
  */
 const saveAttachment = (attachment) => {
-	if (attachmentSavePromises[attachment.id]) {
-		return attachmentSavePromises[attachment.id];
-	}
-	if (attachmentStorageTypes[config.attachmentStorage]) {
-		attachmentSavePromises[attachment.id] = Promise.resolve(attachmentStorageTypes[config.attachmentStorage](attachment));
-	} else {
-		throw new Error(`Unknown attachment storage option: ${config.attachmentStorage}`);
-	}
+	if (attachmentSavePromises[attachment.id]) return attachmentSavePromises[attachment.id];
+	if (attachmentStorageTypes[config.attachmentStorage]) attachmentSavePromises[attachment.id] = Promise.resolve(attachmentStorageTypes[config.attachmentStorage](attachment));
+	else throw new Error(`Unknown attachment storage option: ${config.attachmentStorage}`);
 
 	attachmentSavePromises[attachment.id].then(() => {
 		delete attachmentSavePromises[attachment.id];
@@ -244,14 +239,14 @@ const addStorageType = (name, handler) => {
 	attachmentStorageTypes[name] = handler;
 };
 
-addStorageType("original", passthroughOriginalAttachment);
-addStorageType("local", saveLocalAttachment);
-addStorageType("discord", saveDiscordAttachment);
+addStorageType('original', passthroughOriginalAttachment);
+addStorageType('local', saveLocalAttachment);
+addStorageType('discord', saveDiscordAttachment);
 
 module.exports = {
 	getLocalAttachmentPath,
 	attachmentToDiscordFileObject,
 	saveAttachment,
 	addStorageType,
-	downloadAttachment
+	downloadAttachment,
 };

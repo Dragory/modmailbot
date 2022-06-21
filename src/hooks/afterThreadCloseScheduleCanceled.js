@@ -1,5 +1,4 @@
-const Eris = require("eris");
-
+/* eslint-disable prefer-const */
 /**
  * @typedef AfterThreadCloseScheduleCanceledHookData
  * @property {Thread} thread
@@ -25,7 +24,8 @@ const afterThreadCloseScheduleCanceledHooks = [];
 /**
  * @type {AddAfterThreadCloseScheduleCanceledHookFn}
  */
-let afterThreadCloseScheduleCanceled; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let afterThreadCloseScheduleCanceled;
 afterThreadCloseScheduleCanceled = (fn) => {
 	afterThreadCloseScheduleCanceledHooks.push(fn);
 };
@@ -35,9 +35,7 @@ afterThreadCloseScheduleCanceled = (fn) => {
  * @return {Promise<void>}
  */
 async function callAfterThreadCloseScheduleCanceledHooks(input) {
-	for (const hook of afterThreadCloseScheduleCanceledHooks) {
-		await hook(input);
-	}
+	for (const hook of afterThreadCloseScheduleCanceledHooks) await hook(input);
 }
 
 module.exports = {

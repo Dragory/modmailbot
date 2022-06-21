@@ -1,5 +1,4 @@
-const Eris = require("eris");
-
+/* eslint-disable prefer-const */
 /**
  * @typedef AfterNewMessageReceivedHookData
  * @property {Eris.User} user
@@ -27,7 +26,8 @@ const afterNewMessageReceivedHooks = [];
 /**
  * @type {AddAfterNewMessageReceivedHookFn}
  */
-let afterNewMessageReceived; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let afterNewMessageReceived;
 afterNewMessageReceived = (fn) => {
 	afterNewMessageReceivedHooks.push(fn);
 };
@@ -40,9 +40,7 @@ afterNewMessageReceived = (fn) => {
  * }} input
  */
 async function callAfterNewMessageReceivedHooks(input) {
-	for (const hook of afterNewMessageReceivedHooks) {
-		await hook(input);
-	}
+	for (const hook of afterNewMessageReceivedHooks) await hook(input);
 }
 
 module.exports = {

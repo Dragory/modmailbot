@@ -1,10 +1,8 @@
-const Eris = require("eris");
-const utils = require("./utils");
-const config = require("./cfg");
-const ThreadMessage = require("./data/ThreadMessage");
-const { THREAD_MESSAGE_TYPE } = require("./data/constants");
-const moment = require("moment");
-const bot = require("./bot");
+const { THREAD_MESSAGE_TYPE } = require('./data/constants');
+const bot = require('./bot');
+const config = require('./cfg');
+const moment = require('moment');
+const utils = require('./utils');
 
 /**
  * Function to format the DM that is sent to the user when a staff member replies to them via !reply
@@ -119,24 +117,18 @@ const defaultFormatters = {
 		let result = modInfo
 			? `**${modInfo}:** ${threadMessage.body}`
 			: threadMessage.body;
-
 		if (config.threadTimestamps) {
 			const formattedTimestamp = utils.getTimestamp(threadMessage.created_at);
 			result = `[${formattedTimestamp}] ${result}`;
 		}
-
-		result = `\`${threadMessage.message_number}\`  ${result}`;
+		result = `\`${threadMessage.message_number}\` ${result}`;
 
 		return result;
 	},
 
 	formatUserReplyThreadMessage(threadMessage) {
 		let result = `**${threadMessage.user_name}:** ${threadMessage.body}`;
-
-		for (const link of threadMessage.attachments) {
-			result += `\n\n${link}`;
-		}
-
+		for (const link of threadMessage.attachments) result += `\n\n${link}`;
 		if (config.threadTimestamps) {
 			const formattedTimestamp = utils.getTimestamp(threadMessage.created_at);
 			result = `[${formattedTimestamp}] ${result}`;
@@ -146,16 +138,16 @@ const defaultFormatters = {
 	},
 
 	formatStaffReplyEditNotificationThreadMessage(threadMessage) {
-		const originalThreadMessage = threadMessage.getMetadataValue("originalThreadMessage");
-		const newBody = threadMessage.getMetadataValue("newBody");
+		const originalThreadMessage = threadMessage.getMetadataValue('originalThreadMessage');
+		const newBody = threadMessage.getMetadataValue('newBody');
 		let content = `**${originalThreadMessage.user_name}** (\`${originalThreadMessage.user_id}\`) edited reply \`${originalThreadMessage.message_number}\``;
-
 		if (originalThreadMessage.body.length < 200 && newBody.length < 200) {
 			// Show edits of small messages inline
 			content += ` from \`${utils.disableInlineCode(originalThreadMessage.body)}\` to \`${newBody}\``;
-		} else {
+		}
+		else {
 			// Show edits of long messages in two code blocks
-			content += ":";
+			content += ':';
 			content += `\n\nBefore:\n\`\`\`${utils.disableCodeBlocks(originalThreadMessage.body)}\`\`\``;
 			content += `\nAfter:\n\`\`\`${utils.disableCodeBlocks(newBody)}\`\`\``;
 		}
@@ -164,46 +156,33 @@ const defaultFormatters = {
 	},
 
 	formatStaffReplyDeletionNotificationThreadMessage(threadMessage) {
-		const originalThreadMessage = threadMessage.getMetadataValue("originalThreadMessage");
+		const originalThreadMessage = threadMessage.getMetadataValue('originalThreadMessage');
 		let content = `**${originalThreadMessage.user_name}** (\`${originalThreadMessage.user_id}\`) deleted reply \`${originalThreadMessage.message_number}\``;
-
-		if (originalThreadMessage.body.length < 200) {
-			// Show the original content of deleted small messages inline
-			content += ` (message content: \`${utils.disableInlineCode(originalThreadMessage.body)}\`)`;
-		} else {
-			// Show the original content of deleted large messages in a code block
-			content += ":\n```" + utils.disableCodeBlocks(originalThreadMessage.body) + "```";
-		}
+		// Show the original content of deleted small messages inline
+		if (originalThreadMessage.body.length < 200) content += ` (message content: \`${utils.disableInlineCode(originalThreadMessage.body)}\`)`;
+		// Show the original content of deleted large messages in a code block
+		else content += ':\n```' + utils.disableCodeBlocks(originalThreadMessage.body) + '```';
 
 		return content;
 	},
 
 	formatSystemThreadMessage(threadMessage) {
 		let result = threadMessage.body;
-
-		for (const link of threadMessage.attachments) {
-			result += `\n\n${link}`;
-		}
+		for (const link of threadMessage.attachments) result += `\n\n${link}`;
 
 		return result;
 	},
 
 	formatSystemToUserThreadMessage(threadMessage) {
 		let result = `**⚙️ ${bot.user.username}:** ${threadMessage.body}`;
-
-		for (const link of threadMessage.attachments) {
-			result += `\n\n${link}`;
-		}
+		for (const link of threadMessage.attachments) result += `\n\n${link}`;
 
 		return result;
 	},
 
 	formatSystemToUserDM(threadMessage) {
 		let result = threadMessage.body;
-
-		for (const link of threadMessage.attachments) {
-			result += `\n\n${link}`;
-		}
+		for (const link of threadMessage.attachments) result += `\n\n${link}`;
 
 		return result;
 	},
@@ -222,79 +201,72 @@ const defaultFormatters = {
 
 		const lines = threadMessages.map(message => {
 			// Legacy messages (from 2018) are the entire log in one message, so just serve them as they are
-			if (message.message_type === THREAD_MESSAGE_TYPE.LEGACY) {
-				return message.body;
-			}
+			if (message.message_type === THREAD_MESSAGE_TYPE.LEGACY) return message.body;
 
-			let line = `[${moment.utc(message.created_at).format("YYYY-MM-DD HH:mm:ss")}]`;
-
+			let line = `[${moment.utc(message.created_at).format('YYYY-MM-DD HH:mm:ss')}]`;
 			if (opts.verbose) {
-				if (message.dm_channel_id) {
-					line += ` [DM CHA ${message.dm_channel_id}]`;
-				}
-
-				if (message.dm_message_id) {
-					line += ` [DM MSG ${message.dm_message_id}]`;
-				}
+				if (message.dm_channel_id) line += ` [DM CHA ${message.dm_channel_id}]`;
+				if (message.dm_message_id) line += ` [DM MSG ${message.dm_message_id}]`;
 			}
 
 			if (message.message_type === THREAD_MESSAGE_TYPE.FROM_USER) {
 				line += ` [FROM USER] [${message.user_name}] ${message.body}`;
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
-				if (opts.verbose) {
-					line += ` [TO USER] [${message.message_number || "0"}] [${message.user_name}]`;
-				} else {
-					line += ` [TO USER] [${message.user_name}]`;
-				}
-
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.TO_USER) {
+				if (opts.verbose) line += ` [TO USER] [${message.message_number || '0'}] [${message.user_name}]`;
+				else line += ` [TO USER] [${message.user_name}]`;
 				if (message.use_legacy_format) {
 					// Legacy format (from pre-2.31.0) includes the role and username in the message body, so serve that as is
 					line += ` ${message.body}`;
-				} else if (message.is_anonymous) {
-					if (message.role_name) {
-						line += ` (Anonymous) ${message.role_name}: ${message.body}`;
-					} else {
-						line += ` (Anonymous) Moderator: ${message.body}`;
-					}
-				} else {
-					if (message.role_name) {
-						line += ` (${message.role_name}) ${message.user_name}: ${message.body}`;
-					} else {
-						line += ` ${message.user_name}: ${message.body}`;
-					}
 				}
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
+				else if (message.is_anonymous) {
+					if (message.role_name) line += ` (Anonymous) ${message.role_name}: ${message.body}`;
+					else line += ` (Anonymous) Moderator: ${message.body}`;
+				}
+				else if (message.role_name) {
+					line += ` (${message.role_name}) ${message.user_name}: ${message.body}`;
+				}
+				else {
+					line += ` ${message.user_name}: ${message.body}`;
+				}
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM) {
 				line += ` [BOT] ${message.body}`;
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM_TO_USER) {
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.SYSTEM_TO_USER) {
 				line += ` [BOT TO USER] ${message.body}`;
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.CHAT) {
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.CHAT) {
 				line += ` [CHAT] [${message.user_name}] ${message.body}`;
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.COMMAND) {
 				line += ` [COMMAND] [${message.user_name}] ${message.body}`;
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.REPLY_EDITED) {
-				const originalThreadMessage = message.getMetadataValue("originalThreadMessage");
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.REPLY_EDITED) {
+				const originalThreadMessage = message.getMetadataValue('originalThreadMessage');
 				line += ` [REPLY EDITED] ${originalThreadMessage.user_name} edited reply ${originalThreadMessage.message_number}:`;
 				line += `\n\nBefore:\n${originalThreadMessage.body}`;
-				line += `\n\nAfter:\n${message.getMetadataValue("newBody")}`;
-			} else if (message.message_type === THREAD_MESSAGE_TYPE.REPLY_DELETED) {
-				const originalThreadMessage = message.getMetadataValue("originalThreadMessage");
+				line += `\n\nAfter:\n${message.getMetadataValue('newBody')}`;
+			}
+			else if (message.message_type === THREAD_MESSAGE_TYPE.REPLY_DELETED) {
+				const originalThreadMessage = message.getMetadataValue('originalThreadMessage');
 				line += ` [REPLY DELETED] ${originalThreadMessage.user_name} deleted reply ${originalThreadMessage.message_number}:`;
 				line += `\n\n${originalThreadMessage.body}`;
-			} else {
+			}
+			else {
 				line += ` [${message.user_name}] ${message.body}`;
 			}
-
 			if (message.attachments.length) {
-				line += "\n\n";
-				line += message.attachments.join("\n");
+				line += '\n\n';
+				line += message.attachments.join('\n');
 			}
 
 			return line;
 		});
 
-		const openedAt = moment(thread.created_at).format("YYYY-MM-DD HH:mm:ss");
+		const openedAt = moment(thread.created_at).format('YYYY-MM-DD HH:mm:ss');
 		const header = `# Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) started at ${openedAt}. All times are in UTC+0.`;
-		const fullResult = header + "\n\n" + lines.join("\n");
+		const fullResult = header + '\n\n' + lines.join('\n');
 
 		return {
 			content: fullResult,
@@ -327,7 +299,7 @@ const formatters = { ...defaultFormatters };
 module.exports = {
 	formatters: new Proxy(formatters, {
 		set() {
-			throw new Error("Please use the formatter setter functions instead of modifying the formatters directly");
+			throw new Error('Please use the formatter setter functions instead of modifying the formatters directly');
 		},
 	}),
 

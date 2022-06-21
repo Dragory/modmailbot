@@ -1,18 +1,18 @@
 /* eslint-disable space-unary-ops */
-const utils = require("../utils");
-const threads = require("../data/threads");
-const { getOrFetchChannel } = require("../utils");
+const { getOrFetchChannel } = require('../utils');
+const threads = require('../data/threads');
+const utils = require('../utils');
 
-module.exports = ({ bot, knex, config, commands }) => {
-	commands.addInboxServerCommand("newthread", "<userId:userId>", async (msg, args, thread) => {
+module.exports = ({ bot, commands }) => {
+	commands.addInboxServerCommand('newthread', '<userId:userId>', async (msg, args, thread) => {
 		const user = bot.users.get(args.userId) || await bot.getRESTUser(args.userId).catch(() => null);
 		if (!user) {
-			utils.postSystemMessageWithFallback(msg.channel, thread, "User not found!");
+			utils.postSystemMessageWithFallback(msg.channel, thread, 'User not found!');
 
 			return;
 		}
 		if (user.bot) {
-			utils.postSystemMessageWithFallback(msg.channel, thread, "Can't create a thread for a bot");
+			utils.postSystemMessageWithFallback(msg.channel, thread, 'Can\'t create a thread for a bot');
 			return;
 		}
 
@@ -27,7 +27,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 			quiet: true,
 			ignoreRequirements: true,
 			ignoreHooks: true,
-			source: "command",
+			source: 'command',
 		});
 		createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
 

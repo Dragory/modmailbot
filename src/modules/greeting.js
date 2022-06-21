@@ -1,26 +1,22 @@
 /* eslint-disable space-unary-ops */
-const path = require("path");
-const fs = require("fs");
-const config = require("../cfg");
-const utils = require("../utils");
+const config = require('../cfg');
+const fs = require('fs');
+const path = require('path');
+const utils = require('../utils');
 
 module.exports = ({ bot }) => {
-	if (!config.enableGreeting)
-		return;
+	if (!config.enableGreeting) return;
 
-	bot.on("guildMemberAdd", (guild, member) => {
+	bot.on('guildMemberAdd', (guild, member) => {
 		const serverGreeting = config.serverGreetings[guild.id];
-		if (!serverGreeting || (!serverGreeting.message && !serverGreeting.attachment))
-			return;
+		if (!serverGreeting || (!serverGreeting.message && !serverGreeting.attachment)) return;
 
 		function sendGreeting(message, file) {
 			bot.getDMChannel(member.id).then(channel => {
-				if (!channel)
-					return;
-				channel.createMessage(message || "", file)
+				if (!channel) return;
+				channel.createMessage(message || '', file)
 					.catch(e => {
-						if (e.code === 50007)
-							return;
+						if (e.code === 50007) return;
 
 						throw e;
 					});
@@ -34,7 +30,8 @@ module.exports = ({ bot }) => {
 				const file = { file: data, name: filename };
 				sendGreeting(greetingMessage, file);
 			});
-		} else {
+		}
+		else {
 			sendGreeting(greetingMessage);
 		}
 	});

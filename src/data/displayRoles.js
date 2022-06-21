@@ -1,16 +1,15 @@
-const knex = require("../knex");
-const Eris = require("eris");
-const utils = require("../utils");
-const config = require("../cfg");
+const config = require('../cfg');
+const knex = require('../knex');
+const utils = require('../utils');
 
 /**
  * @param {string} moderatorId
  * @returns {Promise<string|null>}
  */
 async function getModeratorDefaultRoleOverride(moderatorId) {
-	const roleOverride = await knex("moderator_role_overrides")
-		.where("moderator_id", moderatorId)
-		.whereNull("thread_id")
+	const roleOverride = await knex('moderator_role_overrides')
+		.where('moderator_id', moderatorId)
+		.whereNull('thread_id')
 		.first();
 
 	return roleOverride ? roleOverride.role_id : null;
@@ -24,12 +23,13 @@ async function getModeratorDefaultRoleOverride(moderatorId) {
 async function setModeratorDefaultRoleOverride(moderatorId, roleId) {
 	const existingGlobalOverride = await getModeratorDefaultRoleOverride(moderatorId);
 	if (existingGlobalOverride) {
-		await knex("moderator_role_overrides")
-			.where("moderator_id", moderatorId)
-			.whereNull("thread_id")
+		await knex('moderator_role_overrides')
+			.where('moderator_id', moderatorId)
+			.whereNull('thread_id')
 			.update({ role_id: roleId });
-	} else {
-		await knex("moderator_role_overrides")
+	}
+	else {
+		await knex('moderator_role_overrides')
 			.insert({
 				moderator_id: moderatorId,
 				thread_id: null,
@@ -43,9 +43,9 @@ async function setModeratorDefaultRoleOverride(moderatorId, roleId) {
  * @returns {Promise<void>}
  */
 async function resetModeratorDefaultRoleOverride(moderatorId) {
-	await knex("moderator_role_overrides")
-		.where("moderator_id", moderatorId)
-		.whereNull("thread_id")
+	await knex('moderator_role_overrides')
+		.where('moderator_id', moderatorId)
+		.whereNull('thread_id')
 		.delete();
 }
 
@@ -55,9 +55,9 @@ async function resetModeratorDefaultRoleOverride(moderatorId) {
  * @returns {Promise<string|null>}
  */
 async function getModeratorThreadRoleOverride(moderatorId, threadId) {
-	const roleOverride = await knex("moderator_role_overrides")
-		.where("moderator_id", moderatorId)
-		.where("thread_id", threadId)
+	const roleOverride = await knex('moderator_role_overrides')
+		.where('moderator_id', moderatorId)
+		.where('thread_id', threadId)
 		.first();
 
 	return roleOverride ? roleOverride.role_id : null;
@@ -72,12 +72,13 @@ async function getModeratorThreadRoleOverride(moderatorId, threadId) {
 async function setModeratorThreadRoleOverride(moderatorId, threadId, roleId) {
 	const existingGlobalOverride = await getModeratorThreadRoleOverride(moderatorId, threadId);
 	if (existingGlobalOverride) {
-		await knex("moderator_role_overrides")
-			.where("moderator_id", moderatorId)
-			.where("thread_id", threadId)
+		await knex('moderator_role_overrides')
+			.where('moderator_id', moderatorId)
+			.where('thread_id', threadId)
 			.update({ role_id: roleId });
-	} else {
-		await knex("moderator_role_overrides")
+	}
+	else {
+		await knex('moderator_role_overrides')
 			.insert({
 				moderator_id: moderatorId,
 				thread_id: threadId,
@@ -92,9 +93,9 @@ async function setModeratorThreadRoleOverride(moderatorId, threadId, roleId) {
  * @returns {Promise<void>}
  */
 async function resetModeratorThreadRoleOverride(moderatorId, threadId) {
-	await knex("moderator_role_overrides")
-		.where("moderator_id", moderatorId)
-		.where("thread_id", threadId)
+	await knex('moderator_role_overrides')
+		.where('moderator_id', moderatorId)
+		.where('thread_id', threadId)
 		.delete();
 }
 
@@ -104,9 +105,7 @@ async function resetModeratorThreadRoleOverride(moderatorId, threadId) {
  */
 async function getModeratorDefaultDisplayRole(moderator) {
 	const globalOverrideRoleId = await getModeratorDefaultRoleOverride(moderator.id);
-	if (globalOverrideRoleId && moderator.roles.includes(globalOverrideRoleId)) {
-		return moderator.guild.roles.get(globalOverrideRoleId);
-	}
+	if (globalOverrideRoleId && moderator.roles.includes(globalOverrideRoleId)) return moderator.guild.roles.get(globalOverrideRoleId);
 
 	return utils.getMainRole(moderator);
 }
@@ -130,9 +129,7 @@ async function getModeratorDefaultDisplayRoleName(moderator) {
  */
 async function getModeratorThreadDisplayRole(moderator, threadId) {
 	const threadOverrideRoleId = await getModeratorThreadRoleOverride(moderator.id, threadId);
-	if (threadOverrideRoleId && moderator.roles.includes(threadOverrideRoleId)) {
-		return moderator.guild.roles.get(threadOverrideRoleId);
-	}
+	if (threadOverrideRoleId && moderator.roles.includes(threadOverrideRoleId)) return moderator.guild.roles.get(threadOverrideRoleId);
 
 	return getModeratorDefaultDisplayRole(moderator);
 }

@@ -1,4 +1,4 @@
-const server = require("./webserver");
+const server = require('./webserver');
 
 module.exports = ({ config }) => {
 	server.listen(config.port);

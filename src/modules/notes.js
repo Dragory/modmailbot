@@ -1,14 +1,10 @@
 /* eslint-disable space-unary-ops */
-const moment = require("moment");
-const utils = require("../utils");
-const { findNotesByUserId, createUserNote, findNote, deleteNote } = require("../data/notes");
-const { START_CODEBLOCK, escapeMarkdown, END_CODEBLOCK, chunkMessageLines,
-	postError
-} = require("../utils");
+const { findNotesByUserId, createUserNote, findNote, deleteNote } = require('../data/notes');
+const { START_CODEBLOCK, escapeMarkdown, END_CODEBLOCK, chunkMessageLines, postError } = require('../utils');
+const moment = require('moment');
 
-module.exports = ({ bot, knex, config, commands }) => {
-	if (!config.allowNotes)
-		return;
+module.exports = ({ config, commands }) => {
+	if (!config.allowNotes) return;
 
 	async function userNotesCmd(msg, userId) {
 		const userNotes = await findNotesByUserId(userId);
@@ -22,12 +18,12 @@ module.exports = ({ bot, knex, config, commands }) => {
 		}
 
 		for (const userNote of userNotes) {
-			const timestamp = moment.utc(userNote.created_at).format("X");
+			const timestamp = moment.utc(userNote.created_at).format('X');
 			const content = [
 				`Set by <@!${userNote.author_id}> at <t:${timestamp}:f>:`,
 				`${START_CODEBLOCK}${escapeMarkdown(userNote.body)}${END_CODEBLOCK}`,
 				`*Delete with \`${config.prefix}delete_note ${userNote.id}\`*\n`,
-			].join("\n");
+			].join('\n');
 			const chunks = chunkMessageLines(content);
 			for (const chunk of chunks) {
 				await msg.channel.createMessage({
@@ -39,10 +35,10 @@ module.exports = ({ bot, knex, config, commands }) => {
 		}
 	}
 
-	commands.addInboxServerCommand("notes", "<userId:userId>", (msg, args) => {
+	commands.addInboxServerCommand('notes', '<userId:userId>', (msg, args) => {
 		return userNotesCmd(msg, args.userId);
 	});
-	commands.addInboxThreadCommand("notes", "", (msg, args, thread) => {
+	commands.addInboxThreadCommand('notes', '', (msg, args, thread) => {
 		return userNotesCmd(msg, thread.user_id);
 	});
 
@@ -56,17 +52,17 @@ module.exports = ({ bot, knex, config, commands }) => {
 		});
 	}
 
-	commands.addInboxServerCommand("note", "<userId:userId> <body:string$>", (msg, args) => {
+	commands.addInboxServerCommand('note', '<userId:userId> <body:string$>', (msg, args) => {
 		return addUserNoteCmd(msg, args.userId, args.body);
 	});
-	commands.addInboxThreadCommand("note", "<body:string$>", (msg, args, thread) => {
+	commands.addInboxThreadCommand('note', '<body:string$>', (msg, args, thread) => {
 		return addUserNoteCmd(msg, thread.user_id, args.body);
 	});
 
 	async function deleteUserNoteCmd(msg, noteId) {
 		const note = await findNote(noteId);
 		if (!note) {
-			postError(msg.channel, "Note not found!");
+			postError(msg.channel, 'Note not found!');
 
 			return;
 		}
@@ -75,9 +71,9 @@ module.exports = ({ bot, knex, config, commands }) => {
 		await msg.channel.createMessage(`Deleted note on <@!${note.user_id}>:\n${START_CODEBLOCK}${escapeMarkdown(note.body)}${END_CODEBLOCK}`);
 	}
 
-	commands.addInboxServerCommand("delete_note", "<noteId:number>", (msg, args) => {
+	commands.addInboxServerCommand('delete_note', '<noteId:number>', (msg, args) => {
 		return deleteUserNoteCmd(msg, args.noteId);
 	}, {
-		aliases: ["deletenote", "delnote"],
+		aliases: ['deletenote', 'delnote'],
 	});
 };

@@ -1,5 +1,4 @@
-const Eris = require("eris");
-
+/* eslint-disable prefer-const */
 /**
  * @callback BeforeNewThreadHook_SetCategoryId
  * @param {String} categoryId
@@ -41,7 +40,8 @@ const beforeNewThreadHooks = [];
 /**
  * @type {AddBeforeNewThreadHookFn}
  */
-let beforeNewThread; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let beforeNewThread;
 beforeNewThread = (fn) => {
 	beforeNewThreadHooks.push(fn);
 };
@@ -68,19 +68,14 @@ async function callBeforeNewThreadHooks(input) {
 	 */
 	const data = {
 		...input,
-
 		cancel() {
 			result.cancelled = true;
-		},
-
-		setCategoryId(value) {
+		}, setCategoryId(value) {
 			result.categoryId = value;
 		},
 	};
 
-	for (const hook of beforeNewThreadHooks) {
-		await hook(data);
-	}
+	for (const hook of beforeNewThreadHooks) await hook(data);
 
 	return result;
 }

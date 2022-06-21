@@ -12,8 +12,7 @@ class Queue {
 				resolve();
 			});
 
-			if (!this.running)
-				this.next();
+			if (!this.running) this.next();
 		});
 
 		return promise;
@@ -40,5 +39,5 @@ class Queue {
 
 module.exports = {
 	Queue,
-	messageQueue: new Queue()
+	messageQueue: new Queue(),
 };

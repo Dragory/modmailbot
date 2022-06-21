@@ -1,5 +1,4 @@
-const Eris = require("eris");
-
+/* eslint-disable prefer-const */
 /**
  * @typedef BeforeNewMessageReceivedHookData
  * @property {Eris.User} user
@@ -33,7 +32,8 @@ const beforeNewMessageReceivedHooks = [];
 /**
  * @type {AddBeforeNewMessageReceivedHookFn}
  */
-let beforeNewMessageReceived; // Workaround to inconsistent IDE bug with @type and anonymous functions
+// Workaround to inconsistent IDE bug with @type and anonymous functions
+let beforeNewMessageReceived;
 beforeNewMessageReceived = (fn) => {
 	beforeNewMessageReceivedHooks.push(fn);
 };
@@ -59,15 +59,12 @@ async function callBeforeNewMessageReceivedHooks(input) {
 	 */
 	const data = {
 		...input,
-
 		cancel() {
 			result.cancelled = true;
 		},
 	};
 
-	for (const hook of beforeNewMessageReceivedHooks) {
-		await hook(data);
-	}
+	for (const hook of beforeNewMessageReceivedHooks) await hook(data);
 
 	return result;
 }

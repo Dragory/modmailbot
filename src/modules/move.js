@@ -1,13 +1,13 @@
 /* eslint-disable space-unary-ops */
-const Eris = require("eris");
-const transliterate = require("transliteration");
-const { getOrFetchChannel } = require("../utils");
-const { Routes } = require("discord-api-types/v9");
+const { getOrFetchChannel } = require('../utils');
+const { Routes } = require('discord-api-types/v9');
+const Eris = require('eris');
+const transliterate = require('transliteration');
 
-module.exports = ({ bot, knex, config, commands }) => {
+module.exports = ({ bot, config, commands }) => {
 	if (!config.allowMove) return;
 
-	commands.addInboxThreadCommand("move", "<category:string$>", async (msg, args, thread) => {
+	commands.addInboxThreadCommand('move', '<category:string$>', async (msg, args, thread) => {
 		const searchStr = args.category;
 		const normalizedSearchStr = transliterate.slugify(searchStr);
 		const channel = await getOrFetchChannel(bot, msg.channel.id);
@@ -15,8 +15,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 			// Filter to categories that are not the thread's current parent category
 			return (c instanceof Eris.CategoryChannel) && (c.id !== channel.parentID);
 		});
-		if (categories.length === 0)
-			return;
+		if (categories.length === 0) return;
 
 		// See if any category name contains a part of the search string
 		const containsRankings = categories.map(cat => {
@@ -24,16 +23,13 @@ module.exports = ({ bot, knex, config, commands }) => {
 			let i = 0;
 
 			do {
-				if (!normalizedCatName.includes(normalizedSearchStr.slice(0, i + 1)))
-					break;
+				if (!normalizedCatName.includes(normalizedSearchStr.slice(0, i + 1))) { break; }
 
 				i++;
 			} while (i < normalizedSearchStr.length);
 
-			if (i > 0 && normalizedCatName.startsWith(normalizedSearchStr.slice(0, i))) {
-				// Slightly prioritize categories that *start* with the search string
-				i += 0.5;
-			}
+			// Slightly prioritize categories that *start* with the search string
+			if (i > 0 && normalizedCatName.startsWith(normalizedSearchStr.slice(0, i))) i += 0.5;
 
 			return [cat, i];
 		});
@@ -43,7 +39,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 			return a[1] > b[1] ? -1 : 1;
 		});
 		if (containsRankings[0][1] === 0) {
-			thread.postSystemMessage("No matching category");
+			thread.postSystemMessage('No matching category');
 
 			return;
 		}
@@ -52,9 +48,10 @@ module.exports = ({ bot, knex, config, commands }) => {
 
 		try {
 			await bot.editChannel(thread.channel_id, {
-				parentID: targetCategory.id
+				parentID: targetCategory.id,
 			});
-		} catch (e) {
+		}
+		catch (e) {
 			thread.postSystemMessage(`Failed to move thread: ${e.message}`);
 
 			return;
@@ -67,15 +64,16 @@ module.exports = ({ bot, knex, config, commands }) => {
 					id: ow.id,
 					type: ow.type,
 					allow: ow.allow,
-					deny: ow.deny
+					deny: ow.deny,
 				};
 			}));
 
 			try {
-				await bot.requestHandler.request("PATCH", Routes.channel(thread.channel_id), true, {
-					permission_overwrites: newPerms
+				await bot.requestHandler.request('PATCH', Routes.channel(thread.channel_id), true, {
+					permission_overwrites: newPerms,
 				});
-			} catch (e) {
+			}
+			catch (e) {
 				thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}, but failed to sync permissions: ${e.message}`);
 
 				return;

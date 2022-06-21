@@ -1,21 +1,20 @@
 /* eslint-disable space-unary-ops */
-const ThreadMessage = require("../data/ThreadMessage");
-const utils = require("../utils");
+const utils = require('../utils');
 
-module.exports = ({ bot, knex, config, commands }) => {
-	commands.addInboxThreadCommand("id", [], async (msg, args, thread) => {
+module.exports = ({ commands }) => {
+	commands.addInboxThreadCommand('id', [], async (msg, args, thread) => {
 		thread.postSystemMessage(thread.user_id);
 	}, { allowSuspended: true });
-	commands.addInboxThreadCommand("dm_channel_id", [], async (msg, args, thread) => {
+	commands.addInboxThreadCommand('dm_channel_id', [], async (msg, args, thread) => {
 		const dmChannel = await thread.getDMChannel();
 
 		thread.postSystemMessage(dmChannel.id);
 	}, { allowSuspended: true });
-	commands.addInboxThreadCommand("message", "<messageNumber:number>", async (msg, args, thread) => {
+	commands.addInboxThreadCommand('message', '<messageNumber:number>', async (msg, args, thread) => {
 		/** @type {ThreadMessage} */
 		const threadMessage = await thread.findThreadMessageByMessageNumber(args.messageNumber);
 		if (!threadMessage) {
-			thread.postSystemMessage("No message in this thread with that number");
+			thread.postSystemMessage('No message in this thread with that number');
 
 			return;
 		}
@@ -33,6 +32,6 @@ module.exports = ({ bot, knex, config, commands }) => {
 			`Link: <${messageLink}>`,
 		];
 
-		thread.postSystemMessage(parts.join("\n"));
+		thread.postSystemMessage(parts.join('\n'));
 	}, { allowSuspended: true });
 };
