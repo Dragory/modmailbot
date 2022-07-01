@@ -24,7 +24,7 @@
     "ajv": "^8.11.0",
     "discord-api-types": "^0.33.2",
     "dotenv": "^16.0.1",
-    "eris": "^0.17.0",
+    "eris": "^0.17.1",
     "express": "^4.17.1",
     "helmet": "^5.1.0",
     "humanize-duration": "^3.23.1",
