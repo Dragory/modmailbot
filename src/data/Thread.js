@@ -122,6 +122,9 @@ class Thread {
       if (e.code === 10003) {
         console.log(`[INFO] Failed to send message to thread channel for ${this.user_name} because the channel no longer exists. Auto-closing the thread.`);
         this.close(true);
+      } else if (e.code === 240000) {
+        console.log(`[INFO] Failed to send message to thread channel for ${this.user_name} because the message contains a link blocked by the harmful links filter`);
+        await bot.createMessage(this.channel_id, "Failed to send message to thread channel because the message contains a link blocked by the harmful links filter");
       } else {
         throw e;
       }
