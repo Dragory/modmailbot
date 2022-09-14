@@ -101,7 +101,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     let silentClose = false;
     let suppressSystemMessages = false;
 
-    if (msg.channel instanceof Eris.PrivateChannel) {
+    if (!msg.guildID) {
       // User is closing the thread by themselves (if enabled)
       if (! config.allowUserClose) return;
       if (await blocked.isBlocked(msg.author.id)) return;
