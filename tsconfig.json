@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2020",
+    "lib": [
+      "esnext"
+    ],
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmitOnError": true,
+    "incremental": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@modmailbot/*": ["./packages/*/src"]
+    }
+  }
+}

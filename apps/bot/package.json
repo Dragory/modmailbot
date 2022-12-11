@@ -1,0 +1,13 @@
+{
+  "name": "@modmailbot/bot",
+  "version": "4.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start-dev": "tsc && node dist/index.js"
+  },
+  "dependencies": {
+    "@modmailbot/example": "*",
+    "discord.js": "^14.7.1"
+  }
+}

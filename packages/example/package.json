@@ -1,0 +1,16 @@
+{
+  "name": "@modmailbot/example",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "type": "module",
+  "devDependencies": {},
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch --preserveWatchOutput"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dragory/modmailbot.git"
+  },
+  "license": "MIT"
+}

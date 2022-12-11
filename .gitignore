@@ -1,6 +1,6 @@
-/.vscode
-/.idea
-/node_modules
+.vscode
+.idea
+node_modules
 /welcome.png
 /update.sh
 
@@ -8,3 +8,6 @@
 /config.*
 *.config.ini
 !/config.example.ini
+
+# Build artifacts
+dist/
