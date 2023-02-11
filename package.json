@@ -37,7 +37,7 @@
     "mv": "^2.1.1",
     "mysql2": "^2.1.0",
     "pacote": "^13.6.0",
-    "public-ip": "^4.0.2",
+    "public-ip": "^6.0.1",
     "sqlite3": "^5.0.8",
     "tmp": "^0.2.1",
     "transliteration": "^2.1.11",
@@ -48,7 +48,7 @@
     "eslint": "^8.16.0",
     "jsdoc-to-markdown": "^7.1.1",
     "json-schema-to-jsdoc": "^1.1.0",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.20"
   },
   "engines": {
     "node": ">=12.0.0 <18.0.0"
