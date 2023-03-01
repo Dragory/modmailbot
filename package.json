@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "ajv": "^8.11.0",
-    "discord-api-types": "^0.33.2",
+    "discord-api-types": "^0.37.35",
     "dotenv": "^16.0.1",
     "eris": "^0.17.0",
     "express": "^4.17.1",
