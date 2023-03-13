@@ -38,7 +38,7 @@
     "mysql2": "^2.1.0",
     "pacote": "^13.6.0",
     "public-ip": "^4.0.2",
-    "sqlite3": "^5.0.8",
+    "sqlite3": "^5.1.5",
     "tmp": "^0.2.1",
     "transliteration": "^2.1.11",
     "uuid": "^8.3.0",
