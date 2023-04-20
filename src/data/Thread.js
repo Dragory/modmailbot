@@ -443,10 +443,10 @@ class Thread {
       messageContent = messageContent.trim();
     }
 
-    if (msg.stickers && msg.stickers.length) {
-      const stickerLines = msg.stickers.map(sticker => {
-        return `*<Message contains sticker "${sticker.name}">*`;
-      });
+    if (msg.stickerItems && msg.stickerItems.length) {
+      const stickerLines = msg.stickerItems.map(sticker => {
+        return `*Sent sticker "${sticker.name}":* https://media.discordapp.net/stickers/${sticker.id}.webp?size=160`
+      })
 
       messageContent += "\n\n" + stickerLines.join("\n");
     }
