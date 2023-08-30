@@ -143,7 +143,7 @@ If enabled, all replies (including regular `!reply` and snippets) are anonymous
 
 #### anonymizeChannelName
 **Default:** `off`  
-If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy
+If enabled, channel names will be the user's name salted with the current time, then hashed to protect the user's privacy
 
 #### attachmentStorage
 **Default:** `original`  

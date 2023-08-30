@@ -158,13 +158,12 @@ async function createNewThreadForUser(user, opts = {}) {
       }
     }
 
-    // Use the user's name+discrim for the thread channel's name
+    // Use the user's name for the thread channel's name
     // Channel names are particularly picky about what characters they allow, so we gotta do some clean-up
     let cleanName = transliterate.slugify(user.username);
     if (cleanName === "") cleanName = "unknown";
-    cleanName = cleanName.slice(0, 95); // Make sure the discrim fits
 
-    let channelName = `${cleanName}-${user.discriminator}`;
+    let channelName = cleanName;
 
     if (config.anonymizeChannelName) {
       channelName = crypto.createHash("md5").update(channelName + Date.now()).digest("hex").slice(0, 12);
