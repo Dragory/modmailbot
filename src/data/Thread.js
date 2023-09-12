@@ -385,7 +385,6 @@ class Thread {
     });
     if (hookResult.cancelled) return;
 
-    const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 
     // Prepare attachments
@@ -460,7 +459,7 @@ class Thread {
     let threadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
-      user_name: fullUserName,
+      user_name: msg.author.username,
       body: messageContent,
       is_anonymous: 0,
       dm_message_id: msg.id,
@@ -633,7 +632,7 @@ class Thread {
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
-      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      user_name: msg.author.username,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
@@ -644,7 +643,7 @@ class Thread {
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.COMMAND,
       user_id: msg.author.id,
-      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      user_name: msg.author.username,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id

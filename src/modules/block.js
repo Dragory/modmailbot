@@ -49,7 +49,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       : null;
 
     const user = bot.users.get(userIdToBlock);
-    await blocked.block(userIdToBlock, (user ? `${user.username}#${user.discriminator}` : ""), msg.author.id, expiresAt);
+    await blocked.block(userIdToBlock, (user ? user.username : ""), msg.author.id, expiresAt);
 
     if (expiresAt) {
       const humanized = humanizeDuration(args.blockTime, { largest: 2, round: true });

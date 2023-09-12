@@ -232,7 +232,7 @@ async function createNewThreadForUser(user, opts = {}) {
     const newThreadId = await createThreadInDB({
       status: THREAD_STATUS.OPEN,
       user_id: user.id,
-      user_name: `${user.username}#${user.discriminator}`,
+      user_name: user.username,
       channel_id: createdChannel.id,
       next_message_number: 1,
       created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
