@@ -20,6 +20,11 @@ Send an anonymous reply to the user. Anonymous replies only show the moderator's
 
 **Example:** `!ar Please only use Modmail for serious messages`
 
+To reply automatically without using `!reply`, [turn on `alwaysReply` in bot settings](configuration.md).
+
+### `!realreply <text>` / `!rr <text>`
+Send a reply to the user. This will always include the moderator's name, even if the `forceAnon` option is enabled.
+
 ### `!close`
 Close the Modmail thread.
 
