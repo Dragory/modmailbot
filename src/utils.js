@@ -2,7 +2,7 @@ const Eris = require("eris");
 const bot = require("./bot");
 const moment = require("moment");
 const humanizeDuration = require("humanize-duration");
-const publicIp = require("public-ip");
+const { publicIp } = require("public-ip");
 const config = require("./cfg");
 const { BotError } = require("./BotError");
 
@@ -182,7 +182,7 @@ async function getSelfUrl(path = "") {
     return `${config.url}/${path}`;
   } else {
     const port = config.port || 8890;
-    const ip = await publicIp.v4();
+    const ip = await publicIp();
     return `http://${ip}:${port}/${path}`;
   }
 }

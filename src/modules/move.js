@@ -1,7 +1,7 @@
 const Eris = require("eris");
 const transliterate = require("transliteration");
 const { getOrFetchChannel } = require("../utils");
-const { Routes } = require("discord-api-types/v9");
+const { Routes } = require("discord-api-types/v10");
 
 module.exports = ({ bot, knex, config, commands }) => {
   if (! config.allowMove) return;
