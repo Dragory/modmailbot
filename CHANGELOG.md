@@ -1,7 +1,7 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
-## v3.7.0
+## v3.7.0 (2023-09-12)
 * Added support for Node.js 18
 * Added `!realreply` / `!rr` command ([#763](https://github.com/Dragory/modmailbot/pull/763))
   * This command always replies with the moderator's name, even if `forceAnon` is enabled
