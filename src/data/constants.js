@@ -18,7 +18,7 @@ module.exports = {
   },
 
   // https://discord.com/developers/docs/resources/channel#channel-object-channel-types
-  DISOCRD_CHANNEL_TYPES: {
+  DISCORD_CHANNEL_TYPES: {
     GUILD_TEXT: 0,
     DM: 1,
     GUILD_VOICE: 2,
