@@ -2,7 +2,6 @@ const Eris = require("eris");
 const bot = require("./bot");
 const moment = require("moment");
 const humanizeDuration = require("humanize-duration");
-const publicIp = require("public-ip");
 const config = require("./cfg");
 const { BotError } = require("./BotError");
 
@@ -172,6 +171,27 @@ function disableLinkPreviews(str) {
   return str.replace(/(^|[^<])(https?:\/\/\S+)/ig, "$1<$2>");
 }
 
+/** @var {Promise<string>|null} cachedIp */
+let cachedIpPromise = null;
+
+/**
+ * @returns {Promise<string>}
+ */
+async function getSelfIp() {
+  if (! cachedIpPromise) {
+    // public-ip is ESM only, so we need to import it rather than require.
+    // dynamic import() works in cjs code.
+    const { publicIp } = await import("public-ip");
+    cachedIpPromise = publicIp({ timeout: 1000 })
+      .catch(err => {
+        console.warn(`Error while fetching public ip: ${err}`);
+        cachedIpPromise = null; // Retry later
+        return "UNKNOWN";
+      });
+  }
+  return cachedIpPromise;
+}
+
 /**
  * Returns a URL to the bot's web server
  * @param {String} path
@@ -182,7 +202,7 @@ async function getSelfUrl(path = "") {
     return `${config.url}/${path}`;
   } else {
     const port = config.port || 8890;
-    const ip = await publicIp.v4();
+    const ip = await getSelfIp();
     return `http://${ip}:${port}/${path}`;
   }
 }

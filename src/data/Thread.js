@@ -122,6 +122,9 @@ class Thread {
       if (e.code === 10003) {
         console.log(`[INFO] Failed to send message to thread channel for ${this.user_name} because the channel no longer exists. Auto-closing the thread.`);
         this.close(true);
+      } else if (e.code === 240000) {
+        console.log(`[INFO] Failed to send message to thread channel for ${this.user_name} because the message contains a link blocked by the harmful links filter`);
+        await bot.createMessage(this.channel_id, "Failed to send message to thread channel because the message contains a link blocked by the harmful links filter");
       } else {
         throw e;
       }
@@ -382,7 +385,6 @@ class Thread {
     });
     if (hookResult.cancelled) return;
 
-    const fullUserName = `${msg.author.username}#${msg.author.discriminator}`;
     let messageContent = msg.content || "";
 
     // Prepare attachments
@@ -443,10 +445,10 @@ class Thread {
       messageContent = messageContent.trim();
     }
 
-    if (msg.stickers && msg.stickers.length) {
-      const stickerLines = msg.stickers.map(sticker => {
-        return `*<Message contains sticker "${sticker.name}">*`;
-      });
+    if (msg.stickerItems && msg.stickerItems.length) {
+      const stickerLines = msg.stickerItems.map(sticker => {
+        return `*Sent sticker "${sticker.name}":* https://media.discordapp.net/stickers/${sticker.id}.webp?size=160`
+      })
 
       messageContent += "\n\n" + stickerLines.join("\n");
     }
@@ -457,7 +459,7 @@ class Thread {
     let threadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
-      user_name: fullUserName,
+      user_name: msg.author.username,
       body: messageContent,
       is_anonymous: 0,
       dm_message_id: msg.id,
@@ -630,7 +632,7 @@ class Thread {
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
-      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      user_name: msg.author.username,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
@@ -641,7 +643,7 @@ class Thread {
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.COMMAND,
       user_id: msg.author.id,
-      user_name: `${msg.author.username}#${msg.author.discriminator}`,
+      user_name: msg.author.username,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id

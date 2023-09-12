@@ -28,7 +28,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       source: "command",
     });
 
-    createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
+    createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}`);
 
     const channel = await getOrFetchChannel(bot, msg.channel.id);
     channel.createMessage(`Thread opened: <#${createdThread.channel_id}>`);

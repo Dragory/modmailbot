@@ -66,7 +66,7 @@ greetingMessage[] = Fourth line! With an empty line in the middle.
 The bot user's token from [Discord Developer Portal](https://discord.com/developers/).
 
 #### mainServerId
-**Accepts multiple values** Your server's ID.
+**Accepts multiple values**. Your server's ID.
 
 #### inboxServerId
 For a single-server setup, same as [mainServerId](#mainServerId).  
@@ -143,7 +143,7 @@ If enabled, all replies (including regular `!reply` and snippets) are anonymous
 
 #### anonymizeChannelName
 **Default:** `off`  
-If enabled, channel names will be the user's name and discriminator salted with the current time, then hashed to protect the user's privacy
+If enabled, channel names will be the user's name salted with the current time, then hashed to protect the user's privacy
 
 #### attachmentStorage
 **Default:** `original`  
@@ -449,7 +449,7 @@ If enabled, update notifications will also be given for new beta versions
 
 #### url
 **Default:** *None*  
-URL to use for attachment and log links. Defaults to `http://IP:PORT`.
+URL to use for attachment and log links. Defaults to `http://IP:PORT/`.
 
 #### useNicknames
 **Default:** `off`  

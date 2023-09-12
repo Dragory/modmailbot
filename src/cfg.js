@@ -276,7 +276,7 @@ const configIsValid = validate(config);
 if (! configIsValid) {
   const errors = validate.errors.map(error => {
     if (error.params.missingProperty) {
-      return `Missing required option: "${error.params.missingProperty.slice(1)}"`;
+      return `Missing required option: "${error.params.missingProperty}"`;
     } else {
       return `The "${error.instancePath.slice(1)}" option ${error.message}. (Is currently: ${typeof config[error.instancePath.slice(1)]})`;
     }

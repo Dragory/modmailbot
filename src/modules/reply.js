@@ -30,6 +30,19 @@ module.exports = ({ bot, knex, config, commands }) => {
     aliases: ["ar"]
   });
 
+  // Replies always with the role and the username. Useful if forceAnon is enabled.
+  commands.addInboxThreadCommand("realreply", "[text$]", async (msg, args, thread) => {
+    if (! args.text && msg.attachments.length === 0) {
+      utils.postError(msg.channel, "Text or attachment required");
+      return;
+    }
+
+    const replied = await thread.replyToUser(msg.member, args.text || "", msg.attachments, false, msg.messageReference);
+    if (replied) msg.delete();
+  }, {
+    aliases: ["rr"]
+  });
+
   if (config.allowStaffEdit) {
     commands.addInboxThreadCommand("edit", "<messageNumber:number> <text:string$>", async (msg, args, thread) => {
       const threadMessage = await thread.findThreadMessageByMessageNumber(args.messageNumber);

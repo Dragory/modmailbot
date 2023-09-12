@@ -5,7 +5,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       await thread.postSystemMessage("Cancelled new message alert");
     } else {
       await thread.addAlert(msg.author.id);
-      await thread.postSystemMessage(`Pinging ${msg.author.username}#${msg.author.discriminator} when this thread gets a new reply`);
+      await thread.postSystemMessage(`Pinging ${msg.author.username} when this thread gets a new reply`);
     }
   }, { allowSuspended: true });
 };
