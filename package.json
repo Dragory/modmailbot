@@ -1,6 +1,6 @@
 {
   "name": "modmailbot",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "description": "",
   "license": "MIT",
   "main": "src/index.js",
@@ -51,6 +51,6 @@
     "nodemon": "^3.0.1"
   },
   "engines": {
-    "node": ">=16.0.0 <20.0.0"
+    "node": ">=16.0.0"
   }
 }
