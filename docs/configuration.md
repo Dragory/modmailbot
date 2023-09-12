@@ -66,7 +66,7 @@ greetingMessage[] = Fourth line! With an empty line in the middle.
 The bot user's token from [Discord Developer Portal](https://discord.com/developers/).
 
 #### mainServerId
-**Accepts multiple values** Your server's ID.
+**Accepts multiple values**. Your server's ID.
 
 #### inboxServerId
 For a single-server setup, same as [mainServerId](#mainServerId).  
