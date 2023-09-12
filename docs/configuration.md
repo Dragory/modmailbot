@@ -449,7 +449,7 @@ If enabled, update notifications will also be given for new beta versions
 
 #### url
 **Default:** *None*  
-URL to use for attachment and log links. Defaults to `http://IP:PORT`.
+URL to use for attachment and log links. Defaults to `http://IP:PORT/`.
 
 #### useNicknames
 **Default:** `off`  
