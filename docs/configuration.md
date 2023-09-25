@@ -409,7 +409,7 @@ This message is also used for timed blocks if timedBlockMessage is not set.
 **Default** *None*  
 Message to send to a user when they are blocked for a specific duration.
 * You can use `{duration}` in the text to include the duration (e.g. `4 weeks, 2 days`)
-* You can use `{timestamp}` in the text to create a Discord timestamp of the time the user is blocked until (e.g. `&lt;t:{timestamp}:f&gt;` would become `June 3, 2022 at 11:50 PM`)
+* You can use `{timestamp}` in the text to create a Discord timestamp of the time the user is blocked until (e.g. `<t:{timestamp}:f>` would become `June 3, 2022 at 11:50 PM`)
 
 #### unblockMessage
 **Default** *None*  
