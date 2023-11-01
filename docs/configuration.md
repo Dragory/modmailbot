@@ -56,7 +56,7 @@ To do that, use the same format as with "Accepts multiple values" above:
 ```ini
 greetingMessage[] = Welcome to the server!
 greetingMessage[] = This is the second line of the greeting.
-greetingMessage[] =
+greetingMessage[] = 
 greetingMessage[] = Fourth line! With an empty line in the middle.
 ```
 
@@ -302,10 +302,8 @@ If enabled, a system message will be posted into any open threads if the user le
 
 #### overrideRoleNameDisplay
 **Default:** `None`  
-Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For example;
-```ini
-overrideRoleNameDisplay = Moderator
-```
+Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For example; `overrideRoleNameDisplay = Moderator`
+
 
 #### pingOnBotMention
 **Default:** `on`  
