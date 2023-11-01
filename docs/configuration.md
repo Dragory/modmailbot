@@ -301,7 +301,7 @@ If enabled, a system message will be posted into any open threads if the user jo
 If enabled, a system message will be posted into any open threads if the user leaves a main server
 
 #### overrideRoleNameDisplay
-**Default:** `None`
+**Default:** `None`  
 Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For example;
 ```ini
 overrideRoleNameDisplay = Moderator
