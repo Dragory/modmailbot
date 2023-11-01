@@ -302,7 +302,7 @@ If enabled, a system message will be posted into any open threads if the user le
 
 #### overrideRoleNameDisplay
 **Default:** *None*
-Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For esample;
+Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For example;
 ```ini
 overrideRoleNameDisplay = Moderator
 ```
