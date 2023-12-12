@@ -203,7 +203,8 @@ Note that you can combine different commands and parameters together:
 
 ```ini
 # !replysus is a alias/shortcut for !reply and !suspend
-commandAliases.replysus = reply Thank you for this, we will suspend this thread whilst we conduct our investigations
+commandAliases.replysus = reply Thank you for this, we will suspend this thread whilst we conduct our investigations.
+# The !suspend shortcut is implemented here
 commandAliases.replysus = suspend
 ```
 
