@@ -199,6 +199,13 @@ commandAliases.mv = move
 # !x is an alias/shortcut for !close
 commandAliases.x = close
 ```
+Note that you can combine different commands and parameters together:
+
+```ini
+# !replysus is a alias/shortcut for !reply and !suspend
+commandAliases.replysus = reply Thank you for this. We will suspend this thread whilst we conduct our investigations.
+commandAliases.replysus = suspend
+```
 
 #### enableGreeting
 **Default:** `off`  
