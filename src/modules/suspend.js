@@ -13,7 +13,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     for (const thread of threadsToBeSuspended) {
       if (thread.status === THREAD_STATUS.OPEN) {
         await thread.suspend();
-        await thread.postSystemMessage(`**Thread suspended** as scheduled by ${thread.scheduled_suspend_name}. This thread will act as closed until unsuspended with \`!unsuspend\``);
+        await thread.postSystemMessage(`**Thread suspended** as scheduled by ${thread.scheduled_suspend_name}. This thread will act as closed until unsuspended with \`${config.prefix}unsuspend\``);
       }
     }
   }
@@ -55,7 +55,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     }
 
     await thread.suspend();
-    thread.postSystemMessage("**Thread suspended!** This thread will act as closed until unsuspended with `!unsuspend`");
+    thread.postSystemMessage(`**Thread suspended!** This thread will act as closed until unsuspended with \`${config.prefix}unsuspend\``);
   }, { allowSuspended: true });
 
   commands.addInboxServerCommand("unsuspend", [], async (msg, args, thread) => {
