@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "unsupported_nodejs_version": "Version de NodeJS non supportée ! Veuillez installer Node.js 12, 13 ou 14.",
+    "unknown_error": "Une erreur inconnue s'est produite"
+  },
+  "messages": {
+    "starting_modmail": "Démarrage de Modmail",
+    "on_nodejs": "sur Node.js",
+    "please_run_npm_ci": "Veuillez exécuter \"npm ci\" avant de démarrer le bot",
+    "error_disallowed_intents": "Erreur : Intentions interdites spécifiées",
+    "to_run_the_bot": "Pour exécuter le bot, vous devez activer 'Server Members Intent' sur la page de votre bot dans le portail développeur Discord :",
+    "go_to_discord_developers": "Allez sur https://discord.com/developers/applications",
+    "click_on_your_bot": "Cliquez sur votre bot",
+    "click_bot_sidebar": "Cliquez sur 'Bot' dans la barre latérale",
+    "turn_on_server_members_intent": "Activez 'Server Members Intent'",
+    "please_run_npm_ci_again": "Veuillez exécuter \"npm ci\" à nouveau ! Le package \"{{testedPackage}}\" est manquant.",
+    "is_missing": "est manquant.",
+    "updating_database": "Mise à jour de la base de données. Cela peut prendre un certain temps. Ne fermez pas le bot !",
+    "done": "Terminé !",
+    "preparing_plugins": "Préparation des plugins...",
+    "connecting_to_discord": "Connexion à Discord...",
+    "connected_waiting_servers": "Connecté ! Attente de la disponibilité des serveurs...",
+    "servers_not_available": "Les serveurs n'ont pas été disponibles après 15 secondes, poursuite du démarrage quand même",
+    "single_server_warning": "AVERTISSEMENT : Le bot ne fonctionnera pas avant d'être invité sur le serveur.",
+    "multiple_servers_warning": "AVERTISSEMENT : Le bot ne fonctionnera pas correctement tant qu'il ne sera pas invité à *tous* les serveurs principaux et le serveur de la boîte de réception.",
+    "both_servers_warning": "AVERTISSEMENT : Le bot ne fonctionnera pas correctement tant qu'il ne sera pas invité à *à la fois* le serveur principal et le serveur de la boîte de réception.",
+    "initializing": "Initialisation...",
+    "loading_plugins": "Chargement des plugins...",
+    "loaded_plugins": "Chargé {{loadedCount}} plugins ({{baseCount}} plugins intégrés, {{externalCount}} plugins externes)",
+    "listening_to_dms": "Terminé ! Maintenant à l'écoute des MP."
+  }
+}

@@ -1,7 +1,10 @@
+//Init translations
+const i18next = require("./i18next");
+
 // Verify NodeJS version
 const nodeMajorVersion = parseInt(process.versions.node.split(".")[0], 10);
 if (nodeMajorVersion < 12) {
-  console.error("Unsupported NodeJS version! Please install Node.js 12, 13, or 14.");
+  console.error(i18next.t("errors.unsupported_nodejs_version"));
   process.exit(1);
 }
 
@@ -16,7 +19,7 @@ const path = require("path");
 try {
   fs.accessSync(path.join(__dirname, "..", "node_modules"));
 } catch (e) {
-  console.error("Please run \"npm ci\" before starting the bot");
+  console.error(i18next.t("messages.please_run_npm_ci"));
   process.exit(1);
 }
 
@@ -41,14 +44,14 @@ function errorHandler(err) {
       // Leave out stack traces for BotErrors (the message has enough info)
       console.error(`Error: ${err.message}`);
     } else if (err.message === "Disallowed intents specified") {
-      let fullMessage = "Error: Disallowed intents specified";
+      let fullMessage = i18next.t("messages.error_disallowed_intents");
       fullMessage += "\n\n";
-      fullMessage += "To run the bot, you must enable 'Server Members Intent' on your bot's page in the Discord Developer Portal:";
+      fullMessage += i18next.t("messages.to_run_the_bot");
       fullMessage += "\n\n";
-      fullMessage += "1. Go to https://discord.com/developers/applications"
-      fullMessage += "2. Click on your bot"
-      fullMessage += "3. Click 'Bot' on the sidebar"
-      fullMessage += "4. Turn on 'Server Members Intent'"
+      fullMessage += i18next.t("messages.go_to_discord_developers");
+      fullMessage += i18next.t("messages.click_on_your_bot");
+      fullMessage += i18next.t("messages.click_bot_sidebar");
+      fullMessage += i18next.t("messages.turn_on_server_members_intent");
 
       console.error(fullMessage);
     } else if (err instanceof PluginInstallationError) {
@@ -89,7 +92,7 @@ try {
     fs.accessSync(path.join(__dirname, "..", "node_modules", mod))
   });
 } catch (e) {
-  console.error(`Please run "npm ci" again! Package "${testedPackage}" is missing.`);
+  console.error(i18next.t("messages.please_run_npm_ci_again", { testedPackage }));
   process.exit(1);
 }
 
@@ -101,9 +104,9 @@ try {
   // Make sure the database is up to date
   const [completed, newMigrations] = await knex.migrate.list();
   if (newMigrations.length > 0) {
-    console.log("Updating database. This can take a while. Don't close the bot!");
+    console.log(i18next.t("messages.updating_database"));
     await knex.migrate.latest();
-    console.log("Done!");
+    console.log(i18next.t("messages.done"));
   }
 
   // Start the bot

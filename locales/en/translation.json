@@ -1,0 +1,32 @@
+{
+  "errors": {
+    "unsupported_nodejs_version": "Unsupported NodeJS version! Please install Node.js 12, 13, or 14.",
+    "unknown_error": "Unknown error occurred"
+  },
+  "messages": {
+    "starting_modmail": "Starting Modmail",
+    "on_nodejs": "on Node.js",
+    "please_run_npm_ci": "Please run \"npm ci\" before starting the bot",
+    "error_disallowed_intents": "Error: Disallowed intents specified",
+    "to_run_the_bot": "To run the bot, you must enable 'Server Members Intent' on your bot's page in the Discord Developer Portal:",
+    "go_to_discord_developers": "Go to https://discord.com/developers/applications",
+    "click_on_your_bot": "Click on your bot",
+    "click_bot_sidebar": "Click 'Bot' on the sidebar",
+    "turn_on_server_members_intent": "Turn on 'Server Members Intent'",
+    "please_run_npm_ci_again": "Please run \"npm ci\" again! Package \"{{testedPackage}}\" is missing.",
+    "is_missing": "is missing.",
+    "updating_database": "Updating database. This can take a while. Don't close the bot!",
+    "done": "Done!",
+    "preparing_plugins": "Preparing plugins...",
+    "connecting_to_discord": "Connecting to Discord...",
+    "connected_waiting_servers": "Connected! Waiting for servers to become available...",
+    "servers_not_available": "Servers did not become available after 15 seconds, continuing start-up anyway",
+    "single_server_warning": "WARNING: The bot will not work before it's invited to the server.",
+    "multiple_servers_warning": "WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.",
+    "both_servers_warning": "WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.",
+    "initializing": "Initializing...",
+    "loading_plugins": "Loading plugins...",
+    "loaded_plugins": "Loaded {{loadedCount}} plugins ({{baseCount}} built-in plugins, {{externalCount}} external plugins)",
+    "listening_to_dms": "Done! Now listening to DMs."
+  }
+}

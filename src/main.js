@@ -4,6 +4,7 @@ const path = require("path");
 const config = require("./cfg");
 const bot = require("./bot");
 const knex = require("./knex");
+const i18next = require("./i18next");
 const { messageQueue } = require("./queue");
 const utils = require("./utils");
 const { formatters } = require("./formatters")
@@ -20,28 +21,28 @@ const {getOrFetchChannel} = require("./utils");
 
 module.exports = {
   async start() {
-    console.log("Preparing plugins...");
+    console.log(i18next.t("messages.preparing_plugins"));
     await installAllPlugins();
 
-    console.log("Connecting to Discord...");
+    console.log(i18next.t("messages.connecting_to_discord"));
 
     bot.once("ready", async () => {
-      console.log("Connected! Waiting for servers to become available...");
+      console.log(i18next.t("messages.connected_waiting_servers"));
 
       await (new Promise(resolve => {
         const waitNoteTimeout = setTimeout(() => {
-          console.log("Servers did not become available after 15 seconds, continuing start-up anyway");
+          console.log(i18next.t("messages.servers_not_available"));
           console.log("");
 
           const isSingleServer = config.mainServerId.includes(config.inboxServerId);
           if (isSingleServer) {
-            console.log("WARNING: The bot will not work before it's invited to the server.");
+            console.log(i18next.t("messages.single_server_warning"));
           } else {
             const hasMultipleMainServers = config.mainServerId.length > 1;
             if (hasMultipleMainServers) {
-              console.log("WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.");
+              console.log(i18next.t("messages.multiple_servers_warning"));
             } else {
-              console.log("WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.");
+              console.log(i18next.t("messages.both_servers_warning"));
             }
           }
 
@@ -59,17 +60,22 @@ module.exports = {
         });
       }));
 
-      console.log("Initializing...");
+      console.log(i18next.t("messages.initializing"));
       initStatus();
       initBaseMessageHandlers();
       initUpdateNotifications();
 
-      console.log("Loading plugins...");
+      console.log(i18next.t("messages.loading_plugins"));
       const pluginResult = await loadAllPlugins();
-      console.log(`Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)`);
+      console.log(i18next.t("messages.loaded_plugins", {
+        loadedCount: pluginResult.loadedCount,
+        baseCount: pluginResult.baseCount,
+        externalCount: pluginResult.externalCount
+      }
+      ));
 
       console.log("");
-      console.log("Done! Now listening to DMs.");
+      console.log(i18next.t("messages.listening_to_dms"));
       console.log("");
 
       const openThreads = await threads.getAllOpenThreads();
