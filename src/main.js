@@ -16,6 +16,7 @@ const threads = require("./data/threads");
 const updates = require("./data/updates");
 
 const { ACCIDENTAL_THREAD_MESSAGES } = require("./data/constants");
+const { OFFENSIVE_THREAD_MESSAGES } = require("./data/constants");
 const {getOrFetchChannel} = require("./utils");
 
 module.exports = {
@@ -180,6 +181,8 @@ function initBaseMessageHandlers() {
       if (createNewThread) {
         // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
         if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
+
+        if (config.ignoreOffensiveThreads && msg.content && OFFENSIVE_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
         thread = await threads.createNewThreadForUser(msg.author, {
           source: "dm",

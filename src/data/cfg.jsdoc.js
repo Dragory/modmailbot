@@ -26,6 +26,7 @@
  * @property {boolean} [useNicknames=false]
  * @property {boolean} [anonymizeChannelName=false]
  * @property {boolean} [ignoreAccidentalThreads=false]
+ * @property {boolean} [ignoreOffensiveThreads=false]
  * @property {boolean} [threadTimestamps=false]
  * @property {boolean} [allowMove=false]
  * @property {boolean} [syncPermissionsOnMove=true]
