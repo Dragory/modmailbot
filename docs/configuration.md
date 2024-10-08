@@ -463,6 +463,11 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT/`.
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
 
+#### useDisplaynames
+**Default:** `on`  
+If enabled, the bot will use the users display name instead of their username where it makes sense  
+Setting `useNicknames` to `on` will override this in most cases  
+
 #### useGitForGitHubPlugins
 **Default:** `off`  
 If enabled, GitHub plugins will be installed with Git rather than by downloading the archive's tarball.  

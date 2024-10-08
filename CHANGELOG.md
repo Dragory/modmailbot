@@ -3,7 +3,9 @@ For instructions on how to update the bot, see **[✨ Updating the bot](docs/upd
 
 ## v3.8.0 (2024-MM-DD)
 * Updated eris to 0.18.0
-* Use Display names instead of User names where it makes sense to do so
+* Add new config option `useDisplaynames` to use a users display name instead of their username
+  * Defaults to `on`
+  * `useNicknames` will override this in most cases
 
 ## v3.7.0 (2023-09-12)
 * Added support for Node.js 18 and higher
