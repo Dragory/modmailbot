@@ -24,6 +24,7 @@
  * @property {boolean} [alwaysReplyAnon=false]
  * @property {boolean} [forceAnon=false]
  * @property {boolean} [useNicknames=false]
+ * @property {boolean} [useDisplaynames=true]
  * @property {boolean} [anonymizeChannelName=false]
  * @property {boolean} [ignoreAccidentalThreads=false]
  * @property {boolean} [threadTimestamps=false]

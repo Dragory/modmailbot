@@ -137,6 +137,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": false
     },
+    "useDisplaynames": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
     "anonymizeChannelName": {
       "$ref": "#/definitions/customBoolean",
       "default": false
