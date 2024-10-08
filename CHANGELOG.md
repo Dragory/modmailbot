@@ -1,6 +1,10 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.8.0 (2024-MM-DD)
+* Updated eris to 0.18.0
+* Use Display names instead of User names where it makes sense to do so
+
 ## v3.7.0 (2023-09-12)
 * Added support for Node.js 18 and higher
 * Added `!realreply` / `!rr` command ([#763](https://github.com/Dragory/modmailbot/pull/763))
