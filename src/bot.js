@@ -8,6 +8,7 @@ const intents = [
   // REGULAR INTENTS
   "directMessages", // For core functionality
   "guildMessages", // For bot commands and mentions
+  "messageContent", // For everything
   "guilds", // For core functionality
   "guildVoiceStates", // For member information in the thread header
   "guildMessageTyping", // For typing indicators
