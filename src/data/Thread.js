@@ -630,10 +630,15 @@ class Thread {
    */
   async saveChatMessageToLogs(msg) {
     // TODO: Save attachments?
+    const userName = config.useDisplaynames ? msg.author.globalName : msg.author.username;
+    if (userName == "") {
+      console.log(`[WARN] Could not save chat message to logs because the user's name is empty, message: ${msg}`);
+      return;
+    }
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
-      user_name: config.useDisplaynames ? msg.author.globalName : msg.author.username,
+      user_name: userName,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
