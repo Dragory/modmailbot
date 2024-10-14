@@ -10,7 +10,7 @@ For instructions on how to update the bot, see **[✨ Updating the bot](docs/upd
 * Added `!blocklist` command to list all blocked users (by Akinator31)
 * Fixed typingProxy (by Akinator31)
 * Updated to Eris 0.18.0 (by DarkView)
-* `modmailbot-pm2.json` now includes timestamps by default
+* `modmailbot-pm2.json` now includes timestamps by default (by wrac4242)
 
 ## v3.7.0 (2023-09-12)
 * Added support for Node.js 18 and higher
