@@ -244,6 +244,10 @@ Alias for [`serverGreetings`](#serverGreetings)
 **Default:** `off`  
 If enabled, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.
 
+#### ignoreOffensiveThreads
+**Default:** `off`  
+If enabled, the bot attempts to ignore common "offensive" messages that would start a new thread, such as "fuck", "idiot", etc.
+
 #### inboxServerPermission
 **Default:** `manageMessages`  
 **Accepts multiple values.** Permission name, user id, or role id required to use bot commands on the inbox server.
