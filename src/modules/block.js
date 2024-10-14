@@ -142,4 +142,20 @@ module.exports = ({ bot, knex, config, commands }) => {
       });
     }
   });
+
+  commands.addInboxServerCommand("blocklist", "", async (msg, args, thread) => {
+    const blockedUsers = await blocked.getBlockedUsers();
+    if (blockedUsers.length === 0) {
+      msg.channel.createMessage("No users are currently blocked.");
+      return;
+    }
+
+    let reply = "List of blocked users:\n";
+    for (const user of blockedUsers) {
+      const userInfo = `**<@!${user.userId}> (id \`${user.userId}\`)** - Blocked by <@${user.blockedBy}>${user.expiresAt ? ` until ${user.expiresAt} (UTC)` : " permanently"}`;
+      reply += userInfo + "\n";
+    }
+
+    msg.channel.createMessage(reply);
+  });
 };

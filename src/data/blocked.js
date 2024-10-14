@@ -84,6 +84,22 @@ async function getExpiredBlocks() {
   return blocks.map(_block => _block.user_id);
 }
 
+/**
+ * Returns the list of all blocked users
+ * @returns {Promise<Array<{ userId: string, userName: string, blockedBy: string, blockedAt: string, expiresAt: string }>>}
+ */
+async function getBlockedUsers() {
+  const rows = await knex("blocked_users").select();
+
+  return rows.map(row => ({
+    userId: row.user_id,
+    userName: row.user_name,
+    blockedBy: row.blocked_by,
+    blockedAt: row.blocked_at,
+    expiresAt: row.expires_at
+  }));
+}
+
 module.exports = {
   getBlockStatus,
   isBlocked,
@@ -91,4 +107,5 @@ module.exports = {
   unblock,
   updateExpiryTime,
   getExpiredBlocks,
+  getBlockedUsers,
 };
