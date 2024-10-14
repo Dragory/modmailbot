@@ -404,6 +404,12 @@
       "default": null
     },
 
+    "overrideRoleNameDisplay": {
+      "$comment": "Overrides the role displayed on replies",
+      "type": "string",
+      "default": null
+    },
+
     "breakFormattingForNames": {
       "$ref": "#/definitions/customBoolean",
       "default": true

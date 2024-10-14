@@ -308,6 +308,11 @@ If enabled, a system message will be posted into any open threads if the user jo
 **Default:** `on`  
 If enabled, a system message will be posted into any open threads if the user leaves a main server
 
+#### overrideRoleNameDisplay
+**Default:** `None`  
+Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For example; `overrideRoleNameDisplay = Moderator`
+
+
 #### pingOnBotMention
 **Default:** `on`  
 If enabled, the bot will mention staff (see `mentionRole` option) on the inbox server when the bot is mentioned on the main server.
