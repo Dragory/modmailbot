@@ -166,7 +166,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
 
       // Regular close
-      closedBy = msg.author.username;
+      closedBy = config.useDisplaynames ? msg.author.globalName || msg.author.username : msg.author.username;
     }
 
     // Send close message (unless suppressed with a silent close)

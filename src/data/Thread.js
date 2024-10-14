@@ -224,7 +224,8 @@ class Thread {
    * @returns {Promise<boolean>} Whether we were able to send the reply
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, messageReference = null) {
-    let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : moderator.user.username;
+    const regularName = config.useDisplaynames ? moderator.user.globalName || moderator.user.username : moderator.user.username;
+    let moderatorName = config.useNicknames && moderator.nick ? moderator.nick : regularName;
     if (config.breakFormattingForNames) {
       moderatorName = moderatorName.replace(escapeFormattingRegex, "\\$&");
     }
@@ -459,7 +460,7 @@ class Thread {
     let threadMessage = new ThreadMessage({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
-      user_name: msg.author.username,
+      user_name: config.useDisplaynames ? msg.author.globalName || msg.author.username : msg.author.username,
       body: messageContent,
       is_anonymous: 0,
       dm_message_id: msg.id,
@@ -632,7 +633,7 @@ class Thread {
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
-      user_name: msg.author.username,
+      user_name: config.useDisplaynames ? msg.author.globalName || msg.author.username : msg.author.username,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
@@ -643,7 +644,7 @@ class Thread {
     return this._addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.COMMAND,
       user_id: msg.author.id,
-      user_name: msg.author.username,
+      user_name: config.useDisplaynames ? msg.author.globalName || msg.author.username : msg.author.username,
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
@@ -787,7 +788,7 @@ class Thread {
       .update({
         scheduled_close_at: time,
         scheduled_close_id: user.id,
-        scheduled_close_name: user.username,
+        scheduled_close_name: config.useDisplaynames ? user.globalName || user.username : user.username,
         scheduled_close_silent: silent
       });
 
@@ -846,7 +847,7 @@ class Thread {
       .update({
         scheduled_suspend_at: time,
         scheduled_suspend_id: user.id,
-        scheduled_suspend_name: user.username
+        scheduled_suspend_name: config.useDisplaynames ? user.globalName || user.username : user.username,
       });
   }
 
