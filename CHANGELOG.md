@@ -1,11 +1,16 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
-## v3.8.0 (2024-MM-DD)
-* Updated eris to 0.18.0
-* Add new config option `useDisplaynames` to use a users display name instead of their username
+## v3.8.0 (2024-10-14)
+* Added `useDisplaynames` option to use a user's display name instead of their username (by DarkView)
   * Defaults to `on`
   * `useNicknames` will override this in most cases
+* Added `overrideRoleNameDisplay` option to set the displayed moderator role name to a specific text (by jpptinsley)
+  * Defaults to none (using moderator role instead)
+* Added `!blocklist` command to list all blocked users (by Akinator31)
+* Fixed typingProxy (by Akinator31)
+* Updated to Eris 0.18.0 (by DarkView)
+* `modmailbot-pm2.json` now includes timestamps by default
 
 ## v3.7.0 (2023-09-12)
 * Added support for Node.js 18 and higher
