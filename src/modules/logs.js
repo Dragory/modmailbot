@@ -22,6 +22,8 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
   };
 
   const logsCmd = async (msg, args, thread) => {
+    if (msg.channel.parentID === config.communityThreadCategoryId) return; // temporary until oauth access is added
+
     let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;
 
