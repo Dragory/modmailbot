@@ -468,6 +468,11 @@
       "default": 8890
     },
 
+    "host": {
+      "type": "string",
+      "default": "0.0.0.0"
+    },
+
     "url": {
       "type": "string"
     },
