@@ -116,6 +116,18 @@ Prints the ID of the current DM channel with the user
 Shows the DM channel ID, DM message ID, and message link of the specified user reply.
 `<number>` is the message number shown in front of staff replies in the thread channel.
 
+### `!rem <HH:MM> <reason>`
+Adds a reminder for a task. You will be pinged as soon as the time is reached.
+The reminder is stored in the database so if you restart the bot, the reminders remain active.
+After you set up a reminder, the bot confirms it and gives you the reminder ID.
+
+**Example:** `!rem 18:40 Help this people`
+
+### `!delrem <ID>`
+Delete a reminder via its ID
+
+**Example:** `!delrem 18`
+
 ## Anywhere on the inbox server
 These commands can be used anywhere on the inbox server, even outside Modmail threads.
 
