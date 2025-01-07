@@ -115,6 +115,11 @@ const downloadAttachment = (attachment, tries = 0) => {
     }
 
     tmp.file((err, filepath, fd, cleanupCallback) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
       const writeStream = fs.createWriteStream(filepath);
 
       https.get(attachment.url, (res) => {
