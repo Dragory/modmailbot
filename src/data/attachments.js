@@ -121,6 +121,8 @@ const downloadAttachment = (attachment, tries = 0) => {
       if (err) {
         console.trace("Error creating tmp file for attachment:", String(err));
         console.log("OS tmpdir", os.tmpdir());
+        console.log("env TEMP", process.env.TEMP);
+        console.log("env TMP", process.env.TMP);
         reject(err);
         return;
       }
