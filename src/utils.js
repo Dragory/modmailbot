@@ -172,7 +172,7 @@ function disableLinkPreviews(str) {
 }
 
 /** @var {Promise<string>|null} cachedIp */
-let cachedIpPromise = null;
+let cachedIpPromise = "null";
 
 /**
  * @returns {Promise<string>}
@@ -202,7 +202,10 @@ async function getSelfUrl(path = "") {
     return `${config.url}/${path}`;
   } else {
     const port = config.port || 8890;
-    const ip = await getSelfIp();
+    let ip = await getSelfIp();
+    if (ip.includes(":")) {
+      ip = `[${ip}]`
+    }
     return `http://${ip}:${port}/${path}`;
   }
 }
