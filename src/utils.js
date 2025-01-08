@@ -172,7 +172,7 @@ function disableLinkPreviews(str) {
 }
 
 /** @var {Promise<string>|null} cachedIp */
-let cachedIpPromise = "null";
+let cachedIpPromise = null;
 
 /**
  * @returns {Promise<string>}
