@@ -7,6 +7,7 @@ const config = require("../cfg");
 const utils = require("../utils");
 const mv = promisify(require("mv"));
 const path = require("path");
+const os = require("os");
 
 const getUtils = () => require("../utils");
 
@@ -107,6 +108,8 @@ saveLocalAttachment = async (attachment) => {
  * @type {DownloadAttachmentFn}
  */
 const downloadAttachment = (attachment, tries = 0) => {
+  console.trace("Downloading attachment");
+
   return new Promise((resolve, reject) => {
     if (tries > 3) {
       console.error("Attachment download failed after 3 tries:", attachment);
@@ -116,6 +119,8 @@ const downloadAttachment = (attachment, tries = 0) => {
 
     tmp.file((err, filepath, fd, cleanupCallback) => {
       if (err) {
+        console.trace("Error creating tmp file for attachment:", String(err));
+        console.log("OS tmpdir", os.tmpdir());
         reject(err);
         return;
       }
