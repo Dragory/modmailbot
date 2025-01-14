@@ -43,6 +43,18 @@ exports.up = async function(knex, Promise) {
       table.dateTime("created_at").notNullable();
     });
   }
+
+  if (! await knex.schema.hasTable("reminders")) {
+    await knex.schema.createTable("reminders", table => {
+      table.increments('id').primary();
+      table.string('thread_id').notNullable();
+      table.string('user_id').notNullable();
+      table.timestamp('reminder_time').notNullable();
+      table.text('message').notNullable();
+      table.timestamp('created_at').defaultTo(knex.fn.now());
+      table.timestamp('updated_at').defaultTo(knex.fn.now());
+    });
+  }
 };
 
 exports.down = async function(knex, Promise) {
@@ -60,5 +72,9 @@ exports.down = async function(knex, Promise) {
 
   if (await knex.schema.hasTable("snippets")) {
     await knex.schema.dropTable("snippets");
+  }
+
+  if (await knex.schema.hasTable("reminders")) {
+    await knex.schema.dropTable("reminders");
   }
 };
