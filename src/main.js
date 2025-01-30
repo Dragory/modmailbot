@@ -281,72 +281,72 @@ function initBaseMessageHandlers() {
     }
   });
 
-  /**
-   * When the bot is mentioned on the main server, ping staff in the log channel about it
-   */
-  bot.on("messageCreate", async msg => {
-    const channel = await getOrFetchChannel(bot, msg.channel.id);
-    if (! await utils.messageIsOnMainServer(bot, msg)) return;
-    if (! msg.mentions.some(user => user.id === bot.user.id)) return;
-    if (msg.author.bot) return;
+  // /**
+  //  * When the bot is mentioned on the main server, ping staff in the log channel about it
+  //  */
+  // bot.on("messageCreate", async msg => {
+  //   const channel = await getOrFetchChannel(bot, msg.channel.id);
+  //   if (! await utils.messageIsOnMainServer(bot, msg)) return;
+  //   if (! msg.mentions.some(user => user.id === bot.user.id)) return;
+  //   if (msg.author.bot) return;
 
-    if (await utils.messageIsOnInboxServer(bot, msg)) {
-      // For same server setups, check if the person who pinged modmail is staff. If so, ignore the ping.
-      if (utils.isStaff(msg.member)) return;
-    } else {
-      // For separate server setups, check if the member is staff on the modmail server
-      const inboxMember = utils.getInboxGuild().members.get(msg.author.id);
-      if (inboxMember && utils.isStaff(inboxMember)) return;
-    }
+  //   if (await utils.messageIsOnInboxServer(bot, msg)) {
+  //     // For same server setups, check if the person who pinged modmail is staff. If so, ignore the ping.
+  //     if (utils.isStaff(msg.member)) return;
+  //   } else {
+  //     // For separate server setups, check if the member is staff on the modmail server
+  //     const inboxMember = utils.getInboxGuild().members.get(msg.author.id);
+  //     if (inboxMember && utils.isStaff(inboxMember)) return;
+  //   }
 
-    // If the person who mentioned the bot is blocked, ignore them
-    if (await blocked.isBlocked(msg.author.id)) return;
+  //   // If the person who mentioned the bot is blocked, ignore them
+  //   if (await blocked.isBlocked(msg.author.id)) return;
 
-    let content;
-    const mainGuilds = utils.getMainGuilds();
-    const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : "");
-    const allowedMentions = (config.pingOnBotMention ? utils.getInboxMentionAllowedMentions() : undefined);
+  //   let content;
+  //   const mainGuilds = utils.getMainGuilds();
+  //   const staffMention = (config.pingOnBotMention ? utils.getInboxMention() : "");
+  //   const allowedMentions = (config.pingOnBotMention ? utils.getInboxMentionAllowedMentions() : undefined);
 
-    const userMentionStr = `**${msg.author.username}** (\`${msg.author.id}\`)`;
-    const messageLink = `https:\/\/discord.com\/channels\/${channel.guild.id}\/${channel.id}\/${msg.id}`;
+  //   const userMentionStr = `**${msg.author.username}** (\`${msg.author.id}\`)`;
+  //   const messageLink = `https:\/\/discord.com\/channels\/${channel.guild.id}\/${channel.id}\/${msg.id}`;
 
-    if (mainGuilds.length === 1) {
-        content = `${staffMention}Bot mentioned in ${channel.mention} by ${userMentionStr}: "${msg.content}"\n\n<${messageLink}>`;
-    } else {
-        content = `${staffMention}Bot mentioned in ${channel.mention} (${channel.guild.name}) by ${userMentionStr}: "${msg.content}"\n\n<${messageLink}>`;
-    }
+  //   if (mainGuilds.length === 1) {
+  //       content = `${staffMention}Bot mentioned in ${channel.mention} by ${userMentionStr}: "${msg.content}"\n\n<${messageLink}>`;
+  //   } else {
+  //       content = `${staffMention}Bot mentioned in ${channel.mention} (${channel.guild.name}) by ${userMentionStr}: "${msg.content}"\n\n<${messageLink}>`;
+  //   }
 
-    content = utils.chunkMessageLines(content);
-    const logChannelId = utils.getLogChannel().id;
-    for (let i = 0; i < content.length; i++) {
-      await bot.createMessage(logChannelId, {
-        content: content[i],
-        allowedMentions,
-      });
-    }
+  //   content = utils.chunkMessageLines(content);
+  //   const logChannelId = utils.getLogChannel().id;
+  //   for (let i = 0; i < content.length; i++) {
+  //     await bot.createMessage(logChannelId, {
+  //       content: content[i],
+  //       allowedMentions,
+  //     });
+  //   }
 
-    // Send an auto-response to the mention, if enabled
-    if (config.botMentionResponse) {
-      const botMentionResponse = utils.readMultilineConfigValue(config.botMentionResponse);
-      bot.createMessage(channel.id, {
-        content: botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`),
-        allowedMentions: {
-          users: [msg.author.id]
-        }
-      });
-    }
+  //   // Send an auto-response to the mention, if enabled
+  //   if (config.botMentionResponse) {
+  //     const botMentionResponse = utils.readMultilineConfigValue(config.botMentionResponse);
+  //     bot.createMessage(channel.id, {
+  //       content: botMentionResponse.replace(/{userMention}/g, `<@${msg.author.id}>`),
+  //       allowedMentions: {
+  //         users: [msg.author.id]
+  //       }
+  //     });
+  //   }
 
-    // If configured, automatically open a new thread with a user who has pinged it
-    if (config.createThreadOnMention) {
-      const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
-      if (! existingThread) {
-        // Only open a thread if we don't already have one
-        const createdThread = await threads.createNewThreadForUser(msg.author, { quiet: true });
-        await createdThread.postSystemMessage(`This thread was opened from a bot mention in <#${channel.id}>`);
-        await createdThread.receiveUserReply(msg);
-      }
-    }
-  });
+  //   // If configured, automatically open a new thread with a user who has pinged it
+  //   if (config.createThreadOnMention) {
+  //     const existingThread = await threads.findOpenThreadByUserId(msg.author.id);
+  //     if (! existingThread) {
+  //       // Only open a thread if we don't already have one
+  //       const createdThread = await threads.createNewThreadForUser(msg.author, { quiet: true });
+  //       await createdThread.postSystemMessage(`This thread was opened from a bot mention in <#${channel.id}>`);
+  //       await createdThread.receiveUserReply(msg);
+  //     }
+  //   }
+  // });
 }
 
 function initUpdateNotifications() {
