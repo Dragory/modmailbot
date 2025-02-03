@@ -399,7 +399,7 @@ The bot's status text. Set to `none` to disable.
 
 #### statusType
 **Default:** `playing`  
-The bot's status type. One of `playing`, `watching`, `listening`, `streaming`.
+The bot's status type. One of `playing`, `watching`, `listening`, `streaming`, `custom`, `competing`.
 
 #### statusUrl
 **Default:** [nothing]  
