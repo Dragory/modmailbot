@@ -83,7 +83,7 @@
     },
     "statusType": {
       "type": "string",
-      "enum": ["playing", "watching", "listening", "streaming", "custom"],
+      "enum": ["playing", "watching", "listening", "streaming", "custom", "competing"],
       "default": "playing"
     },
     "statusUrl": {

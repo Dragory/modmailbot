@@ -108,11 +108,12 @@ function initStatus() {
       "listening": Eris.Constants.ActivityTypes.LISTENING,
       "streaming": Eris.Constants.ActivityTypes.STREAMING,
       "custom": Eris.Constants.ActivityTypes.CUSTOM,
+      "competing": Eris.Constants.ActivityTypes.COMPETING,
     }[config.statusType] || Eris.Constants.ActivityTypes.GAME;
 
     if (type === Eris.Constants.ActivityTypes.STREAMING) {
       bot.editStatus(null, { name: config.status, type, url: config.statusUrl });
-    } else if (type == Eris.Constants.ActivityTypes.CUSTOM) {
+    } else if (type === Eris.Constants.ActivityTypes.CUSTOM) {
       bot.editStatus(null, { name: "custom", type, state: config.status });
     } else {
       bot.editStatus(null, { name: config.status, type });

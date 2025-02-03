@@ -10,7 +10,7 @@
  * @property {string} [snippetPrefix="!!"]
  * @property {string} [snippetPrefixAnon="!!!"]
  * @property {string} [status="Message me for help!"]
- * @property {"playing"|"watching"|"listening"|"streaming"|"custom"} [statusType="playing"]
+ * @property {"playing"|"watching"|"listening"|"streaming"|"custom"|"competing"} [statusType="playing"]
  * @property {string} [statusUrl=""]
  * @property {string} [responseMessage="Thank you for your message! Our mod team will reply to you here as soon as possible."]
  * @property {string} [closeMessage]
