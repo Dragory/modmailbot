@@ -169,6 +169,12 @@ The delay after which `autoAlert` kicks in. Uses the same format as timed close;
 **Default:** *None*  
 If set, the bot auto-replies to bot mentions (pings) with this message. Use `{userMention}` in the text to ping the user back.
 
+Note that the bot will ignore mentions in messages on the main server if any of the following are true:
+* The message author is the owner of the inbox server
+* [`inboxServerPermission`](#inboxServerPermission) has not been configured
+* The message author matches an `inboxServerPermission`
+* The message author is by the bot
+
 #### categoryAutomation.newThread
 **Default:** *None*  
 ID of the category where new threads are opened. Also functions as a fallback for `categoryAutomation.newThreadFromServer`.
