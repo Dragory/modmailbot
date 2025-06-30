@@ -203,7 +203,7 @@ async function getSelfUrl(path = "") {
   } else {
     const port = config.port || 8890;
     let ip = await getSelfIp();
-    if (ip.includes(":")) {
+    if (net.isIPv6(ip)) {
       ip = `[${ip}]`
     }
     return `http://${ip}:${port}/${path}`;
