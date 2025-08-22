@@ -14,6 +14,8 @@ const intents = [
   "guildMessageTyping", // For typing indicators
   "directMessageTyping", // For typing indicators
   "guildBans", // For join/leave notification Ban message
+  "directMessageReactions", // For user reaction notifications
+  "guildMessageReactions", // For server reaction notifications
 
   // EXTRA INTENTS (from the config)
   ...config.extraIntents,
@@ -36,7 +38,7 @@ const SAFE_TO_IGNORE_ERROR_CODES = [
   "ECONNRESET", // Pretty much the same as above
 ];
 
-bot.on("error", err => {
+bot.on("error", (err) => {
   if (SAFE_TO_IGNORE_ERROR_CODES.includes(err.code)) {
     return;
   }

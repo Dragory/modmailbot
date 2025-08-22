@@ -64,6 +64,8 @@
  * @property {object} [commandAliases]
  * @property {boolean} [reactOnSeen=false]
  * @property {string} [reactOnSeenEmoji="📨"]
+ * @property {boolean} [notifyOnReaction=false]
+ * @property {boolean} [notifyOnReactionRemoval=false]
  * @property {boolean} [createThreadOnMention=false]
  * @property {string} [blockMessage=null]
  * @property {string} [timedBlockMessage=null]

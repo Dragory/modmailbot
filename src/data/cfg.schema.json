@@ -334,6 +334,16 @@
       "default": "\uD83D\uDCE8"
     },
 
+    "notifyOnReaction": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "notifyOnReactionRemoval": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
     "createThreadOnMention": {
       "$ref": "#/definitions/customBoolean",
       "default": false
@@ -488,10 +498,7 @@
     },
 
     "dbType": {
-      "anyOf": [
-        { "const": "sqlite" },
-        { "const": "mysql" }
-      ],
+      "anyOf": [{ "const": "sqlite" }, { "const": "mysql" }],
       "default": "sqlite"
     },
 
@@ -535,7 +542,13 @@
   "allOf": [
     {
       "$comment": "Base required values",
-      "required": ["token", "mainServerId", "inboxServerId", "logChannelId", "dbType"]
+      "required": [
+        "token",
+        "mainServerId",
+        "inboxServerId",
+        "logChannelId",
+        "dbType"
+      ]
     },
     {
       "$comment": "Make attachmentStorageChannelId required if attachmentStorage is set to 'discord'",
