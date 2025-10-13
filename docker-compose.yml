@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  modmailbot:
+    build: .
+    container_name: Marvel-Modmail
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./db:/app/db
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    networks:
+      - modmail-net
+
+
+networks:
+  modmail-net:
+    external: true
