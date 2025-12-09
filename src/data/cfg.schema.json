@@ -137,6 +137,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": false
     },
+    "useDisplaynames": {
+      "$ref": "#/definitions/customBoolean",
+      "default": true
+    },
     "anonymizeChannelName": {
       "$ref": "#/definitions/customBoolean",
       "default": false
@@ -400,6 +404,12 @@
       "default": null
     },
 
+    "overrideRoleNameDisplay": {
+      "$comment": "Overrides the role displayed on replies",
+      "type": "string",
+      "default": null
+    },
+
     "breakFormattingForNames": {
       "$ref": "#/definitions/customBoolean",
       "default": true
@@ -456,6 +466,11 @@
       "maximum": 65535,
       "minimum": 1,
       "default": 8890
+    },
+
+    "host": {
+      "type": "string",
+      "default": "0.0.0.0"
     },
 
     "url": {

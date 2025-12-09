@@ -332,6 +332,11 @@ If enabled, a system message will be posted into any open threads if the user jo
 **Default:** `on`  
 If enabled, a system message will be posted into any open threads if the user leaves a main server
 
+#### overrideRoleNameDisplay
+**Default:** `None`  
+Role name to display in all replies. This completely overrides normal role selection, all replies will contain the string entered. For example; `overrideRoleNameDisplay = Moderator`
+
+
 #### pingOnBotMention
 **Default:** `on`  
 If enabled, the bot will mention staff (see `mentionRole` option) on the inbox server when the bot is mentioned on the main server.
@@ -486,6 +491,11 @@ URL to use for attachment and log links. Defaults to `http://IP:PORT/`.
 #### useNicknames
 **Default:** `off`  
 If enabled, mod replies will use their nicknames (on the inbox server) instead of their usernames
+
+#### useDisplaynames
+**Default:** `on`  
+If enabled, the bot will use the users display name instead of their username where it makes sense  
+Setting `useNicknames` to `on` will override this in most cases  
 
 #### useGitForGitHubPlugins
 **Default:** `off`  

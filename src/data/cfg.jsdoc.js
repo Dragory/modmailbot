@@ -24,6 +24,7 @@
  * @property {boolean} [alwaysReplyAnon=false]
  * @property {boolean} [forceAnon=false]
  * @property {boolean} [useNicknames=false]
+ * @property {boolean} [useDisplaynames=true]
  * @property {boolean} [anonymizeChannelName=false]
  * @property {boolean} [ignoreAccidentalThreads=false]
  * @property {boolean} [threadTimestamps=false]
@@ -77,6 +78,7 @@
  * @property {boolean} [errorOnUnknownInlineSnippet=true]
  * @property {boolean} [allowChangingDisplayRole=true]
  * @property {string} [fallbackRoleName=null]
+ * @property {string} [overrideRoleNameDisplay=null]
  * @property {boolean} [breakFormattingForNames=true]
  * @property {boolean} [autoAlert=false]
  * @property {string} [autoAlertDelay="2m"] Delay before auto-alert kicks in. Uses the same format as timed close; for example 1m30s for 1 minute and 30 seconds.
@@ -88,6 +90,7 @@
  * @property {string} logOptions.attachmentDirectory
  * @property {*} [logOptions.allowAttachmentUrlFallback=false]
  * @property {number} [port=8890]
+ * @property {string} [host="0.0.0.0"]
  * @property {string} [url]
  * @property {boolean} [useGitForGitHubPlugins=false]
  * @property {array} [extraIntents=[]]

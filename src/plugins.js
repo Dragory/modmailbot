@@ -44,7 +44,7 @@ const pluginSources = {
         const npmProcess = childProcess.spawn(
           npmProcessName,
           ["install", "--verbose", "--no-save", ...finalPluginNames],
-          { cwd: process.cwd() }
+          { cwd: process.cwd(), shell: true }
         );
         npmProcess.stderr.on("data", data => { stderr += String(data) });
         npmProcess.on("close", code => {

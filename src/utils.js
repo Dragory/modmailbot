@@ -86,7 +86,7 @@ function isStaff(member) {
       if (member.roles.includes(perm)) return true;
     } else {
       // Otherwise assume perm is the name of a permission
-      return member.permission.has(perm);
+      return member.permissions.has(perm);
     }
 
     return false;
