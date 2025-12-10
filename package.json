@@ -25,6 +25,7 @@
     "discord-api-types": "^0.37.101",
     "dotenv": "^16.4.5",
     "eris": "^0.18.0",
+    "eris-pagination": "github:CaptainM777/eris-pagination",
     "express": "^4.21.1",
     "helmet": "^7.2.0",
     "humanize-duration": "^3.32.1",
