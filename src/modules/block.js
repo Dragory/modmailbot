@@ -2,6 +2,7 @@ const humanizeDuration = require("humanize-duration");
 const moment = require("moment");
 const blocked = require("../data/blocked");
 const utils = require("../utils");
+const embedPaginator = require('eris-pagination');
 const {getOrFetchChannel} = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
@@ -166,12 +167,52 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
-    let reply = "List of blocked users:\n";
+    const userInfoArray = [];
+
     for (const user of blockedUsers) {
-      const userInfo = `**<@!${user.userId}> (id \`${user.userId}\`)** - Blocked by <@${user.blockedBy}>${user.expiresAt ? ` until ${user.expiresAt} (UTC)` : " permanently"}`;
-      reply += userInfo + "\n";
+      const userInfo = `**<@!${user.userId}>** - Blocked by <@${user.blockedBy}>${user.expiresAt ? ` until ${user.expiresAt} (UTC)` : " permanently"}`;
+      userInfoArray.push(userInfo);
     }
 
-    msg.channel.createMessage(reply);
+    const embedDescriptionCharacterLimit = 4096;
+
+    const embedColor = 15785893;
+    const embedTitle = "List of Blocked Users";
+    const embedTimestamp = new Date().toISOString();
+
+    const embeds = [];
+
+    let currentPage = [];
+    let currentLength = 0;
+
+    for (const info of userInfoArray) {
+      const infoLength = info.length + 1;
+
+      if (currentLength + infoLength > embedDescriptionCharacterLimit) {
+        embeds.push({
+          color: embedColor,
+          title: embedTitle,
+          description: currentPage.join("\n"),
+          timestamp: embedTimestamp
+        });
+
+        currentPage = [info];
+        currentLength = info.length + 1;
+      } else {
+        currentPage.push(info);
+        currentLength += infoLength;
+      }
+    }
+
+    if (currentPage.length > 0) {
+      embeds.push({
+        color: embedColor,
+        title: embedTitle,
+        description: currentPage.join("\n"),
+        timestamp: embedTimestamp
+      });
+    }
+
+    embedPaginator.createPaginationEmbed(msg, embeds, { timeout: 180000, cycling: true }); // 3 minute timeout
   });
 };
