@@ -1,0 +1,51 @@
+diff --git a/node_modules/eris/lib/structures/Message.js b/node_modules/eris/lib/structures/Message.js
+index 7eac7d3..19a1a64 100644
+--- a/node_modules/eris/lib/structures/Message.js
++++ b/node_modules/eris/lib/structures/Message.js
+@@ -81,25 +81,27 @@ class Message extends Base {
+       this.messageReference = null;
+     }
+ 
+-    if (data.message_snapshots && this.messageReference) {
+-      this.messageSnapshots = data.message_snapshots.map((snapshot) => {
+-        const channel = this._client.getChannel(this.messageReference.channelID);
+-        let message;
+-
+-        snapshot.message.id = this.messageReference.messageID;
+-
+-        if (channel) {
+-          message = channel.messages.update(snapshot.message, this._client);
+-        } else {
+-          message = new Message(snapshot.message, this._client);
+-        }
+-
+-        return {
+-          guildID: this.messageReference.guildID,
+-          message: message,
+-        };
+-      });
+-    }
++    // Forwarded messages break Hawky and the code below will remain commented out until a fix is implemented
++
++    // if (data.message_snapshots && this.messageReference) {
++    //   this.messageSnapshots = data.message_snapshots.map((snapshot) => {
++    //     const channel = this._client.getChannel(this.messageReference.channelID);
++    //     let message;
++
++    //     snapshot.message.id = this.messageReference.messageID;
++
++    //     if (channel) {
++    //       message = channel.messages.update(snapshot.message, this._client);
++    //     } else {
++    //       message = new Message(snapshot.message, this._client);
++    //     }
++
++    //     return {
++    //       guildID: this.messageReference.guildID,
++    //       message: message,
++    //     };
++    //   });
++    // }
+ 
+     this.flags = data.flags || 0;
+ 
