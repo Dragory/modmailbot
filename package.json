@@ -14,7 +14,8 @@
     "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js",
     "generate-plugin-api-docs": "jsdoc2md -t docs/plugin-api-template.hbs src/pluginApi.js > docs/plugin-api.md",
     "create-migration": "knex migrate:make",
-    "run-migrations": "knex migrate:latest"
+    "run-migrations": "knex migrate:latest",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -49,7 +50,8 @@
     "eslint": "^8.57.1",
     "jsdoc-to-markdown": "^8.0.3",
     "json-schema-to-jsdoc": "^1.1.1",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "patch-package": "^8.0.1"
   },
   "engines": {
     "node": ">=16.0.0"
