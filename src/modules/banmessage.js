@@ -33,7 +33,7 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
     } 
   
-    console.log(message.channel.guild.channels.get('736344840253472833').messages.get('801246595248816149').edit({ embeds: [{message}]}));
+    bot.guilds.get('736344840253472830').channels.get('736344840253472833').messages.get('801246595248816149').edit({ embeds: [{message}]});
   utils.postSystemMessageWithFallback(msg.channel, thread, response);
   });
 };
