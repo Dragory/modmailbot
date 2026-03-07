@@ -3,7 +3,7 @@ const utils = require("../utils");
 module.exports = ({ bot, knex, config, commands }) => {
   commands.addInboxServerCommand("banmessage", [], async (msg, args, thread) => {
     let embed = {
-      title: "Avatar: The Last Airbender - Ban Appeals",
+      title: "Ban Appeals",
       description: "The Earth King welcomes you to Lake Laogai. If you're here, it means that you were banned from the main ATLA server. \n Here are a few things to note:",
       author: {
         name: msg.channel.guild.name,
