@@ -21,7 +21,7 @@ module.exports = ({ bot, knex, config, commands }) => {
         {
           name: "Appeals",
           value: `If your ban was permanent, there is very good reason it won't be lifted. If we wanted it to be temporary, that temporary punishment would have been issued instead. That being said, if you feel that this action was unjust or misinterpreted by our team, Please contact us via our modmail bot, <@718577208687460482>
-          \n\nIn the event your appeal is denied, you will be blocked from appealing for up to 3 months. The cooldown may increase with subsequent denials, up to and including the permanent inability to appeal.`
+          \nIn the event your appeal is denied, you will be blocked from appealing for up to 3 months. The cooldown may increase with subsequent denials, up to and including the permanent inability to appeal.`
         },
         {
           name: "Invite",
