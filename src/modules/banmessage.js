@@ -2,7 +2,7 @@ const utils = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
   commands.addInboxServerCommand("banmessage", [], async (msg, args, thread) => {
-    let message = {
+    let embed = {
       title: "Avatar: The Last Airbender - Ban Appeals",
       description: "The Earth King welcomes you to Lake Laogai. If you're here, it means that you were banned from the main ATLA server. \n Here are a few things to note:",
       author: {
@@ -33,7 +33,9 @@ module.exports = ({ bot, knex, config, commands }) => {
       }
     } 
   
-    await bot.guilds.get('736344840253472830').channels.get('736344840253472833').getMessage('801246595248816149').edit({ embeds: [{message}]});
+    let message = await bot.guilds.get('736344840253472830').channels.get('736344840253472833').getMessage('801246595248816149');
+    console.log(message);
+    message.edit({ embeds: [{embed}]});
   utils.postSystemMessageWithFallback(msg.channel, thread, response);
   });
 };
