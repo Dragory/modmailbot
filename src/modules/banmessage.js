@@ -34,7 +34,6 @@ module.exports = ({ bot, knex, config, commands }) => {
     } 
   
     let message = await bot.guilds.get('736344840253472830').channels.get('736344840253472833').getMessage('801246595248816149');
-    console.log(message);
     await message.edit({ embeds: [embed]});
   utils.postSystemMessageWithFallback(msg.channel, thread, embed);
   });
