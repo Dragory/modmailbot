@@ -82,6 +82,7 @@ function getHeaderGuildInfo(member) {
  * @property {boolean} [quiet] If true, doesn't ping mentionRole
  * @property {boolean} [ignoreRequirements] If true, creates a new thread even if the account doesn't meet requiredAccountAge
  * @property {boolean} [ignoreHooks] If true, doesn't call beforeNewThread hooks
+ * @property {boolean} [isPrivate] If true, creates the thread under the admin category and saves it to the database as private
  * @property {Message} [message] Original DM message that is trying to start the thread, if there is one
  * @property {string} [categoryId] Category where to open the thread
  * @property {string} [source] A string identifying the source of the new thread
@@ -235,7 +236,8 @@ async function createNewThreadForUser(user, opts = {}) {
       user_name: user.username,
       channel_id: createdChannel.id,
       next_message_number: 1,
-      created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
+      created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
+      isPrivate: opts.isPrivate ? 1 : 0
     });
 
     const newThread = await findById(newThreadId);
