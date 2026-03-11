@@ -30,8 +30,8 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
     const channel = await getOrFetchChannel(bot, msg.channel.id);
     let userThreads = await threads.getClosedThreadsByUserId(userId);
 
-    // Command isn't being used in an admin channel or thread
-    if (! [msg.channel.parentID, msg.channel.id].includes('370708369951948802')) {
+    // Command isn't being used in an admin channel or thread '370708369951948802'
+    if (! [msg.channel.parentID, msg.channel.id].includes(config.adminChannelId)) {
       userThreads = userThreads.filter((t) => ! t.isPrivate);
     }
 
