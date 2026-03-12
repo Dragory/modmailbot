@@ -11,6 +11,12 @@ if (config.dbType === "sqlite") {
     connection: {
       ...config.sqliteOptions,
     },
+    pool: {
+      min: 1,
+      max: 1,
+      acquireTimeoutMillis: 60000,
+      idleTimeoutMillis: 30000,
+    },
   };
 } else if (config.dbType === "mysql") {
   const host = config.mysqlOptions.host || "localhost";
