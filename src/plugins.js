@@ -22,34 +22,39 @@ const pluginSources = {
       return new Promise(async (resolve, reject) => {
         try {
           console.log(`Checking ${plugins.length} npm plugin(s)...`);
-    
+
           const npmGitHubPattern = /^([a-z0-9_.-]+)\/([a-z0-9_.-]+)(?:#([a-z0-9_.-]+))?$/i;
           const missingPlugins = [];
-    
-          for (const pluginName of plugins) {
-            const gitHubPackageParts = pluginName.match(npmGitHubPattern);
-            try {
-              if (gitHubPackageParts) {
-                const tarballUrl = `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
-                const manifest = await pacote.manifest(tarballUrl);
-                require.resolve(manifest.name);
-              } else {
-                require.resolve(pluginName);
+
+          if (config.reinstallPlugins) {
+            console.log("reinstallPlugins is set, skipping installation cache...");
+            missingPlugins.push(...plugins);
+          } else {
+            for (const pluginName of plugins) {
+              const gitHubPackageParts = pluginName.match(npmGitHubPattern);
+              try {
+                if (gitHubPackageParts) {
+                  const tarballUrl = `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
+                  const manifest = await pacote.manifest(tarballUrl);
+                  require.resolve(manifest.name);
+                } else {
+                  require.resolve(pluginName);
+                }
+                console.log(`Plugin '${pluginName}' already installed, skipping.`);
+              } catch (e) {
+                console.log(`Plugin '${pluginName}' not installed, queuing for install.`);
+                missingPlugins.push(pluginName);
               }
-              console.log(`Plugin '${pluginName}' already installed, skipping.`);
-            } catch (e) {
-              console.log(`Plugin '${pluginName}' not installed, queuing for install.`);
-              missingPlugins.push(pluginName);
             }
           }
-    
+
           if (missingPlugins.length === 0) {
             console.log("All npm plugins already installed.");
             return resolve();
           }
-    
+
           console.log(`Installing ${missingPlugins.length} npm plugin(s)...`);
-    
+
           let finalPluginNames = missingPlugins;
           if (! config.useGitForGitHubPlugins) {
             finalPluginNames = missingPlugins.map(pluginName => {
@@ -60,7 +65,7 @@ const pluginSources = {
               return `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
             });
           }
-    
+
           let stderr = "";
           const npmProcessName = /^win/.test(process.platform) ? "npm.cmd" : "npm";
           const npmProcess = childProcess.spawn(
