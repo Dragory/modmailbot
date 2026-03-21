@@ -19,41 +19,70 @@ const config = require("./cfg");
 const pluginSources = {
   npm: {
     install(plugins) {
-      return new Promise((resolve, reject) => {
-        console.log(`Installing ${plugins.length} plugins from NPM...`);
+      return new Promise(async (resolve, reject) => {
+        try {
+          console.log(`Checking ${plugins.length} npm plugin(s)...`);
 
-        let finalPluginNames = plugins;
-        if (! config.useGitForGitHubPlugins) {
-          // Rewrite GitHub npm package names to full GitHub tarball links to avoid
-          // needing to have Git installed to install these plugins.
-
-          // $1 package author, $2 package name, $3 branch (optional)
           const npmGitHubPattern = /^([a-z0-9_.-]+)\/([a-z0-9_.-]+)(?:#([a-z0-9_.-]+))?$/i;
-          finalPluginNames = plugins.map(pluginName => {
-            const gitHubPackageParts = pluginName.match(npmGitHubPattern);
-            if (! gitHubPackageParts) {
-              return pluginName;
+          const missingPlugins = [];
+
+          if (config.reinstallPlugins) {
+            console.log("reinstallPlugins is set, skipping installation cache...");
+            missingPlugins.push(...plugins);
+          } else {
+            for (const pluginName of plugins) {
+              const gitHubPackageParts = pluginName.match(npmGitHubPattern);
+              try {
+                if (gitHubPackageParts) {
+                  const tarballUrl = `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
+                  const manifest = await pacote.manifest(tarballUrl);
+                  require.resolve(manifest.name);
+                } else {
+                  require.resolve(pluginName);
+                }
+                console.log(`Plugin '${pluginName}' already installed, skipping.`);
+              } catch (e) {
+                console.log(`Plugin '${pluginName}' not installed, queuing for install.`);
+                missingPlugins.push(pluginName);
+              }
             }
-
-            return `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
-          });
-        }
-
-        let stderr = "";
-        const npmProcessName = /^win/.test(process.platform) ? "npm.cmd" : "npm";
-        const npmProcess = childProcess.spawn(
-          npmProcessName,
-          ["install", "--verbose", "--no-save", ...finalPluginNames],
-          { cwd: process.cwd(), shell: true }
-        );
-        npmProcess.stderr.on("data", data => { stderr += String(data) });
-        npmProcess.on("close", code => {
-          if (code !== 0) {
-            return reject(new PluginInstallationError(stderr));
           }
 
-          return resolve();
-        });
+          if (missingPlugins.length === 0) {
+            console.log("All npm plugins already installed.");
+            return resolve();
+          }
+
+          console.log(`Installing ${missingPlugins.length} npm plugin(s)...`);
+
+          let finalPluginNames = missingPlugins;
+          if (! config.useGitForGitHubPlugins) {
+            finalPluginNames = missingPlugins.map(pluginName => {
+              const gitHubPackageParts = pluginName.match(npmGitHubPattern);
+              if (! gitHubPackageParts) {
+                return pluginName;
+              }
+              return `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
+            });
+          }
+
+          let stderr = "";
+          const npmProcessName = /^win/.test(process.platform) ? "npm.cmd" : "npm";
+          const npmProcess = childProcess.spawn(
+            npmProcessName,
+            ["install", "--verbose", "--no-save", ...finalPluginNames],
+            { cwd: process.cwd(), shell: true }
+          );
+          npmProcess.stderr.on("data", data => { stderr += String(data) });
+          npmProcess.on("close", code => {
+            if (code !== 0) {
+              return reject(new PluginInstallationError(stderr));
+            }
+            return resolve();
+          });
+        } catch (err) {
+          return reject(err);
+        }
       });
     },
 
