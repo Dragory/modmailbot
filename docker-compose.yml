@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   modmailbot:
@@ -7,13 +7,24 @@ services:
     volumes:
       - ./config.ini:/app/config.ini
       - ./db:/app/db
+      - modmail_node_modules:/app/node_modules
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    command: >
+      sh -lc '
+        if [ -n "$GITHUB_TOKEN" ]; then
+          printf "//api.github.com/:_authToken=%s\n" "$GITHUB_TOKEN" > /root/.npmrc;
+        fi;
+        npm start
+      '
     networks:
       - modmail-net
-
 
 networks:
   modmail-net:
     external: true
+
+volumes:
+  modmail_node_modules:
