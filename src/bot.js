@@ -34,10 +34,24 @@ const SAFE_TO_IGNORE_ERROR_CODES = [
   1001, // "CloudFlare WebSocket proxy restarting"
   1006, // "Connection reset by peer"
   "ECONNRESET", // Pretty much the same as above
+  "EAI_AGAIN", // DNS resolution temporary failure
 ];
 
-bot.on("error", err => {
+bot.on("error", (err) => {
   if (SAFE_TO_IGNORE_ERROR_CODES.includes(err.code)) {
+    console.warn(
+      `[Eris warning] Ignoring transient error code ${err.code}: ${err.message || "no message"}`,
+    );
+    return;
+  }
+
+  if (
+    err &&
+    typeof err.message === "string" &&
+    err.message.startsWith("Invalid channel ID:")
+  ) {
+    // Known noisy Eris cache race; safe to ignore
+    console.warn(`[Eris warning] Ignoring known cache race: ${err.message}`);
     return;
   }
 
