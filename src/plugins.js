@@ -1,11 +1,17 @@
 const attachments = require("./data/attachments");
 const logs = require("./data/logs");
 const { beforeNewThread } = require("./hooks/beforeNewThread");
-const { beforeNewMessageReceived } = require("./hooks/beforeNewMessageReceived");
+const {
+  beforeNewMessageReceived,
+} = require("./hooks/beforeNewMessageReceived");
 const { afterNewMessageReceived } = require("./hooks/afterNewMessageReceived");
 const { afterThreadClose } = require("./hooks/afterThreadClose");
-const { afterThreadCloseScheduled } = require("./hooks/afterThreadCloseScheduled");
-const { afterThreadCloseScheduleCanceled } = require("./hooks/afterThreadCloseScheduleCanceled");
+const {
+  afterThreadCloseScheduled,
+} = require("./hooks/afterThreadCloseScheduled");
+const {
+  afterThreadCloseScheduleCanceled,
+} = require("./hooks/afterThreadCloseScheduleCanceled");
 const formats = require("./formatters");
 const webserver = require("./modules/webserver");
 const childProcess = require("child_process");
@@ -16,6 +22,49 @@ const displayRoles = require("./data/displayRoles");
 const { PluginInstallationError } = require("./PluginInstallationError");
 const config = require("./cfg");
 
+const PLUGIN_INSTALL_MAX_RETRIES = Number(
+  process.env.MM_PLUGIN_INSTALL_MAX_RETRIES || 5,
+);
+const PLUGIN_INSTALL_RETRY_BASE_DELAY_MS = Number(
+  process.env.MM_PLUGIN_INSTALL_RETRY_BASE_DELAY_MS || 10000,
+);
+const PLUGIN_INSTALL_RETRY_MAX_DELAY_MS = Number(
+  process.env.MM_PLUGIN_INSTALL_RETRY_MAX_DELAY_MS || 120000,
+);
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryablePluginInstallError(err) {
+  const combined = `${err && err.message ? err.message : ""}\n${err && err.stderr ? err.stderr : ""}`;
+  return /(?:^|\D)403(?:\D|$)|\bE403\b/i.test(combined);
+}
+
+function runNpmInstall(npmProcessName, pluginsToInstall) {
+  return new Promise((resolve, reject) => {
+    let stderr = "";
+    const npmProcess = childProcess.spawn(
+      npmProcessName,
+      ["install", "--verbose", "--no-save", ...pluginsToInstall],
+      { cwd: process.cwd(), shell: true },
+    );
+
+    npmProcess.stderr.on("data", (data) => {
+      stderr += String(data);
+    });
+    npmProcess.on("close", (code) => {
+      if (code !== 0) {
+        const err = new PluginInstallationError(stderr);
+        err.stderr = stderr;
+        err.code = code;
+        return reject(err);
+      }
+      return resolve();
+    });
+  });
+}
+
 const pluginSources = {
   npm: {
     install(plugins) {
@@ -23,11 +72,14 @@ const pluginSources = {
         try {
           console.log(`Checking ${plugins.length} npm plugin(s)...`);
 
-          const npmGitHubPattern = /^([a-z0-9_.-]+)\/([a-z0-9_.-]+)(?:#([a-z0-9_.-]+))?$/i;
+          const npmGitHubPattern =
+            /^([a-z0-9_.-]+)\/([a-z0-9_.-]+)(?:#([a-z0-9_.-]+))?$/i;
           const missingPlugins = [];
 
           if (config.reinstallPlugins) {
-            console.log("reinstallPlugins is set, skipping installation cache...");
+            console.log(
+              "reinstallPlugins is set, skipping installation cache...",
+            );
             missingPlugins.push(...plugins);
           } else {
             for (const pluginName of plugins) {
@@ -40,9 +92,13 @@ const pluginSources = {
                 } else {
                   require.resolve(pluginName);
                 }
-                console.log(`Plugin '${pluginName}' already installed, skipping.`);
+                console.log(
+                  `Plugin '${pluginName}' already installed, skipping.`,
+                );
               } catch (e) {
-                console.log(`Plugin '${pluginName}' not installed, queuing for install.`);
+                console.log(
+                  `Plugin '${pluginName}' not installed, queuing for install.`,
+                );
                 missingPlugins.push(pluginName);
               }
             }
@@ -56,30 +112,48 @@ const pluginSources = {
           console.log(`Installing ${missingPlugins.length} npm plugin(s)...`);
 
           let finalPluginNames = missingPlugins;
-          if (! config.useGitForGitHubPlugins) {
-            finalPluginNames = missingPlugins.map(pluginName => {
+          if (!config.useGitForGitHubPlugins) {
+            finalPluginNames = missingPlugins.map((pluginName) => {
               const gitHubPackageParts = pluginName.match(npmGitHubPattern);
-              if (! gitHubPackageParts) {
+              if (!gitHubPackageParts) {
                 return pluginName;
               }
               return `https://api.github.com/repos/${gitHubPackageParts[1]}/${gitHubPackageParts[2]}/tarball${gitHubPackageParts[3] ? "/" + gitHubPackageParts[3] : ""}`;
             });
           }
 
-          let stderr = "";
-          const npmProcessName = /^win/.test(process.platform) ? "npm.cmd" : "npm";
-          const npmProcess = childProcess.spawn(
-            npmProcessName,
-            ["install", "--verbose", "--no-save", ...finalPluginNames],
-            { cwd: process.cwd(), shell: true }
-          );
-          npmProcess.stderr.on("data", data => { stderr += String(data) });
-          npmProcess.on("close", code => {
-            if (code !== 0) {
-              return reject(new PluginInstallationError(stderr));
+          const npmProcessName = /^win/.test(process.platform)
+            ? "npm.cmd"
+            : "npm";
+          const totalAttempts = Math.max(1, PLUGIN_INSTALL_MAX_RETRIES + 1);
+
+          for (let attempt = 1; attempt <= totalAttempts; attempt++) {
+            try {
+              if (attempt > 1) {
+                console.log(
+                  `Retrying npm plugin install (attempt ${attempt}/${totalAttempts})...`,
+                );
+              }
+
+              await runNpmInstall(npmProcessName, finalPluginNames);
+              return resolve();
+            } catch (err) {
+              const shouldRetry =
+                isRetryablePluginInstallError(err) && attempt < totalAttempts;
+              if (!shouldRetry) {
+                return reject(err);
+              }
+
+              const delay = Math.min(
+                PLUGIN_INSTALL_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1),
+                PLUGIN_INSTALL_RETRY_MAX_DELAY_MS,
+              );
+              console.log(
+                `Plugin install hit HTTP 403/rate limit. Retrying in ${Math.round(delay / 1000)}s...`,
+              );
+              await wait(delay);
             }
-            return resolve();
-          });
+          }
         } catch (err) {
           return reject(err);
         }
@@ -91,7 +165,9 @@ const pluginSources = {
       const packageName = manifest.name;
       const pluginFn = require(packageName);
       if (typeof pluginFn !== "function") {
-        throw new PluginInstallationError(`Plugin '${plugin}' is not a valid plugin`);
+        throw new PluginInstallationError(
+          `Plugin '${plugin}' is not a valid plugin`,
+        );
       }
 
       return pluginFn(pluginApi);
@@ -104,11 +180,13 @@ const pluginSources = {
       const requirePath = path.join(__dirname, "..", plugin);
       const pluginFn = require(requirePath);
       if (typeof pluginFn !== "function") {
-        throw new PluginInstallationError(`Plugin '${plugin}' is not a valid plugin`);
+        throw new PluginInstallationError(
+          `Plugin '${plugin}' is not a valid plugin`,
+        );
       }
       return pluginFn(pluginApi);
     },
-  }
+  },
 };
 
 const defaultPluginSource = "file";
@@ -164,7 +242,7 @@ module.exports = {
         addGlobalCommand: commands.addGlobalCommand,
         addInboxServerCommand: commands.addInboxServerCommand,
         addInboxThreadCommand: commands.addInboxThreadCommand,
-        addAlias: commands.addAlias
+        addAlias: commands.addAlias,
       },
       attachments: {
         addStorageType: attachments.addStorageType,

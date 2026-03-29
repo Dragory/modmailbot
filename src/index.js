@@ -33,6 +33,25 @@ const { PluginInstallationError } = require("./PluginInstallationError");
 const MAX_STACK_TRACE_LINES =
   process.env.NODE_ENV === "development" ? Infinity : 8;
 
+function getStdoutErrorSummary(err) {
+  if (!err) return "Unknown error occurred";
+
+  if (typeof err === "string") {
+    return err.replace(/\s+/g, " ").trim();
+  }
+
+  const parts = [];
+  if (err.name) parts.push(`type=${err.name}`);
+  if (err.code) parts.push(`code=${err.code}`);
+  if (err.message) parts.push(err.message.replace(/\s+/g, " ").trim());
+
+  if (parts.length === 0) {
+    return "Non-standard error object thrown";
+  }
+
+  return parts.join(" | ");
+}
+
 function errorHandler(err) {
   // Unknown message types (nitro boosting messages at the time) should be safe to ignore
   if (
@@ -42,6 +61,9 @@ function errorHandler(err) {
   ) {
     return;
   }
+
+  // Keep a concise one-line summary in stdout so the root cause stays visible in noisy logs.
+  console.log(`[Error summary] ${getStdoutErrorSummary(err)}`);
 
   if (err) {
     if (typeof err === "string") {
