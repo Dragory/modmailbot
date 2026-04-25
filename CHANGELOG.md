@@ -1,6 +1,9 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.9.0 (2026-04-25)
+* Added support for Node.js 24 (LTS). This is now also the required Node.js version.
+
 ## v3.8.0 (2024-10-14)
 * Added `useDisplaynames` option to use a user's display name instead of their username (by DarkView)
   * Defaults to `on`
