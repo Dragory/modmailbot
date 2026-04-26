@@ -45,7 +45,7 @@
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
+    "eslint": "^10.2.0",
     "jsdoc-to-markdown": "^8.0.3",
     "json-schema-to-jsdoc": "^1.1.1",
     "nodemon": "^3.1.7"
