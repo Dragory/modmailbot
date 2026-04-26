@@ -42,7 +42,7 @@
     "sqlite3": "^6.0.1",
     "tmp": "^0.2.3",
     "transliteration": "^2.3.5",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
