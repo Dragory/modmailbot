@@ -5,6 +5,7 @@
   "license": "MIT",
   "main": "src/index.js",
   "scripts": {
+    "postinstall": "patch-package",
     "start": "node src/index.js",
     "start-dev": "NODE_ENV=development node src/index.js",
     "watch": "NODE_ENV=development nodemon --watch src --inspect=0.0.0.0:9229 src/index.js",
@@ -48,7 +49,8 @@
     "eslint": "^8.57.1",
     "jsdoc-to-markdown": "^8.0.3",
     "json-schema-to-jsdoc": "^1.1.1",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "patch-package": "^8.0.1"
   },
   "engines": {
     "node": ">=24.0.0"
