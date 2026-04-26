@@ -14,6 +14,7 @@ const intents = [
   "guildMessageTyping", // For typing indicators
   "directMessageTyping", // For typing indicators
   "guildBans", // For join/leave notification Ban message
+  "directMessageReactions", // For DM reaction notifications
 
   // EXTRA INTENTS (from the config)
   ...config.extraIntents,

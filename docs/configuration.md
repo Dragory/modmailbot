@@ -343,6 +343,15 @@ If enabled, the bot will react to messages sent to it with the emoji defined in 
 The emoji that the bot will react with when it sees a message.  Requires `reactOnSeen` to be enabled.  
 Must be pasted in the config file as the Emoji representation and not as a unicode codepoint. Use `emojiName:emojiID` for custom emoji.
 
+#### notifyOnReaction
+**Default:** `off`  
+If enabled, the bot will notify staff in the modmail thread when a user reacts to a message sent to them by the bot.
+
+#### notifyOnReactionRemoval
+**Default:** `off`  
+If enabled, the bot will notify staff in the modmail thread when a user removes a reaction from a message sent to them by the bot.  
+Requires `notifyOnReaction` to be enabled for reactions to be tracked.
+
 #### relaySmallAttachmentsAsAttachments
 **Default:** `off`  
 If enabled, small attachments from users are sent as real attachments rather than links in modmail threads.

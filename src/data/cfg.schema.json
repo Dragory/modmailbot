@@ -334,6 +334,16 @@
       "default": "\uD83D\uDCE8"
     },
 
+    "notifyOnReaction": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "notifyOnReactionRemoval": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
     "createThreadOnMention": {
       "$ref": "#/definitions/customBoolean",
       "default": false
