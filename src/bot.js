@@ -36,7 +36,24 @@ const SAFE_TO_IGNORE_ERROR_CODES = [
   "ECONNRESET", // Pretty much the same as above
 ];
 
+let missingAuthorWarningCount = 0;
+let lastMissingAuthorWarningAt = 0;
+
 bot.on("error", err => {
+  // Discord can (rarely) send partial message objects without an author (e.g. forwards / history fetches).
+  // Eris emits these as "error" events; we don't want them to crash the bot.
+  if (err && typeof err.message === "string" && err.message.startsWith("MESSAGE_CREATE but no message author:")) {
+    missingAuthorWarningCount++;
+
+    const now = Date.now();
+    // Log at most once per minute to avoid console spam
+    if (now - lastMissingAuthorWarningAt > 60 * 1000) {
+      lastMissingAuthorWarningAt = now;
+      console.warn(`[WARN] Received message without an author from Discord (likely a forwarded message or partial payload). Suppressing. Seen ${missingAuthorWarningCount} time(s) since start.`);
+    }
+    return;
+  }
+
   if (SAFE_TO_IGNORE_ERROR_CODES.includes(err.code)) {
     return;
   }

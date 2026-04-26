@@ -9,6 +9,7 @@ const config = require("../cfg");
 const threads = require("../data/threads");
 const attachments = require("../data/attachments");
 const { formatters } = require("../formatters");
+const { summariseEmbedsAsText } = require("../embedLogging");
 
 function notfound(res) {
   res.status(404).send("Page Not Found");
@@ -23,6 +24,19 @@ async function serveLogs(req, res) {
   if (! thread) return notfound(res);
 
   let threadMessages = await thread.getThreadMessages();
+
+  threadMessages = threadMessages.map(msg => {
+    const embeds = msg.getMetadataValue && msg.getMetadataValue("embeds");
+    const forwardedEmbeds = msg.getMetadataValue && msg.getMetadataValue("forwardedEmbeds");
+    const embedText = summariseEmbedsAsText(embeds, "User sent an embed");
+    const forwardedEmbedText = summariseEmbedsAsText(forwardedEmbeds, "User forwarded an embed");
+
+    if (! embedText && ! forwardedEmbedText) return msg;
+
+    const injected = [msg.body, embedText, forwardedEmbedText].filter(Boolean).join("\n\n");
+    msg.body = injected;
+    return msg;
+  });
 
   const formatLogResult = await formatters.formatLog(thread, threadMessages, {
     simple: Boolean(req.query.simple),
