@@ -177,7 +177,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await thread.close(suppressSystemMessages, silentClose);
 
-    await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`);
+    await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy} (${msg.author.id})`);
   }, {
     options: [
       { name: "silent", shortcut: "s", isSwitch: true },
