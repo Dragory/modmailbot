@@ -7,3 +7,5 @@ updates:
     target-branch: "dev"
     allow:
       - dependency-type: "direct"
+    cooldown:
+      default-days: 14

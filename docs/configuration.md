@@ -169,6 +169,12 @@ The delay after which `autoAlert` kicks in. Uses the same format as timed close;
 **Default:** *None*  
 If set, the bot auto-replies to bot mentions (pings) with this message. Use `{userMention}` in the text to ping the user back.
 
+Note that the bot will ignore mentions in messages on the main server if any of the following are true:
+* The message author is the owner of the inbox server
+* [`inboxServerPermission`](#inboxServerPermission) has not been configured
+* The message author matches an `inboxServerPermission`
+* The message author is the bot
+
 #### categoryAutomation.newThread
 **Default:** *None*  
 ID of the category where new threads are opened. Also functions as a fallback for `categoryAutomation.newThreadFromServer`.
@@ -343,6 +349,15 @@ If enabled, the bot will react to messages sent to it with the emoji defined in 
 The emoji that the bot will react with when it sees a message.  Requires `reactOnSeen` to be enabled.  
 Must be pasted in the config file as the Emoji representation and not as a unicode codepoint. Use `emojiName:emojiID` for custom emoji.
 
+#### notifyOnReaction
+**Default:** `off`  
+If enabled, the bot will notify staff in the modmail thread when a user reacts to a message sent to them by the bot.
+
+#### notifyOnReactionRemoval
+**Default:** `off`  
+If enabled, the bot will notify staff in the modmail thread when a user removes a reaction from a message sent to them by the bot.  
+Requires `notifyOnReaction` to be enabled for reactions to be tracked.
+
 #### relaySmallAttachmentsAsAttachments
 **Default:** `off`  
 If enabled, small attachments from users are sent as real attachments rather than links in modmail threads.
@@ -399,7 +414,7 @@ The bot's status text. Set to `none` to disable.
 
 #### statusType
 **Default:** `playing`  
-The bot's status type. One of `playing`, `watching`, `listening`, `streaming`.
+The bot's status type. One of `playing`, `watching`, `listening`, `streaming`, `custom`, `competing`.
 
 #### statusUrl
 **Default:** [nothing]  
