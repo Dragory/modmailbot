@@ -8,6 +8,7 @@ const config = require("../cfg");
 const threads = require("../data/threads");
 const attachments = require("../data/attachments");
 const { formatters } = require("../formatters");
+const { summariseEmbedsAsText } = require("../embedLogging");
 const crypto = require("crypto");
 const bot = require("../bot");
 const https = require("https");
@@ -49,7 +50,7 @@ module.exports = ({ config, commands }) => {
       testUserGeneralAccess,
       testUserConfidentialAccess,
       serveLogs,
-    ]
+    ],
   );
   server.get(
     "/attachments/:attachmentId/:filename",
@@ -58,7 +59,7 @@ module.exports = ({ config, commands }) => {
         ? [testTokenCookie, testUserGeneralAccess]
         : []),
       serveAttachments,
-    ]
+    ],
   );
   server.get(oauthPath, processAuth);
   server.listen(config.port);
@@ -81,17 +82,17 @@ module.exports = ({ config, commands }) => {
           return utils.postSystemMessageWithFallback(
             msg.channel,
             _thread,
-            threadAlreadyConfidentialMessage
+            threadAlreadyConfidentialMessage,
           );
 
         thread.setMetadataValue("confidential", true);
         utils.postSystemMessageWithFallback(
           msg.channel,
           _thread,
-          markThreadAsConfidentialMessage
+          markThreadAsConfidentialMessage,
         );
       },
-      { aliases: markThreadAsConfidentialCommands }
+      { aliases: markThreadAsConfidentialCommands },
     );
 
     commands.addInboxServerCommand(
@@ -111,17 +112,17 @@ module.exports = ({ config, commands }) => {
           return utils.postSystemMessageWithFallback(
             msg.channel,
             _thread,
-            threadNotConfidentialMessage
+            threadNotConfidentialMessage,
           );
 
         thread.setMetadataValue("confidential", false);
         utils.postSystemMessageWithFallback(
           msg.channel,
           _thread,
-          unmarkThreadAsConfidentialMessage
+          unmarkThreadAsConfidentialMessage,
         );
       },
-      { aliases: unmarkThreadAsConfidentialCommands }
+      { aliases: unmarkThreadAsConfidentialCommands },
     );
   }
 };
@@ -158,6 +159,24 @@ async function serveLogs(req, res) {
 
   let threadMessages = await thread.getThreadMessages();
 
+  threadMessages = threadMessages.map((msg) => {
+    const embeds = msg.getMetadataValue && msg.getMetadataValue("embeds");
+    const forwardedEmbeds =
+      msg.getMetadataValue && msg.getMetadataValue("forwardedEmbeds");
+    const embedText = summariseEmbedsAsText(embeds, "User sent an embed");
+    const forwardedEmbedText = summariseEmbedsAsText(
+      forwardedEmbeds,
+      "User forwarded an embed",
+    );
+
+    if (!embedText && !forwardedEmbedText) return msg;
+
+    msg.body = [msg.body, embedText, forwardedEmbedText]
+      .filter(Boolean)
+      .join("\n\n");
+    return msg;
+  });
+
   const formatLogResult = await formatters.formatLog(thread, threadMessages, {
     simple: Boolean(req.query.simple),
     verbose: Boolean(req.query.verbose),
@@ -181,7 +200,7 @@ function serveAttachments(req, res) {
     return notFound(res);
 
   const attachmentPath = attachments.getLocalAttachmentPath(
-    req.params.attachmentId
+    req.params.attachmentId,
   );
   fs.access(attachmentPath, (err) => {
     if (err) return notFound(res);
@@ -295,7 +314,7 @@ async function testUserConfidentialAccess(req, res, next) {
 
   forbidden(
     res,
-    "User has no confidential access (thread marked as confidential)"
+    "User has no confidential access (thread marked as confidential)",
   );
 }
 
@@ -324,7 +343,7 @@ function getAccessToken(code) {
           let body = "";
           response.on("data", (chunk) => (body += chunk));
           response.on("end", () => resolve(JSON.parse(body).access_token));
-        }
+        },
       )
       .end(params.toString());
   });
@@ -346,7 +365,7 @@ function getUserIdFromAccessToken(accessToken) {
           let body = "";
           response.on("data", (chunk) => (body += chunk));
           response.on("end", () => resolve((JSON.parse(body).user || {}).id));
-        }
+        },
       )
       .end();
   });
@@ -375,7 +394,7 @@ function decodeToken(token) {
 
 function sign(input) {
   return base64urlEscape(
-    crypto.createHmac("sha256", encryptionKey).update(input).digest("base64")
+    crypto.createHmac("sha256", encryptionKey).update(input).digest("base64"),
   );
 }
 
