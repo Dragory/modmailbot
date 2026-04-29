@@ -1,4 +1,5 @@
 const Eris = require("eris");
+const net = require("net")
 const bot = require("./bot");
 const moment = require("moment");
 const humanizeDuration = require("humanize-duration");
