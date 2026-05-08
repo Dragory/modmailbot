@@ -211,7 +211,7 @@ module.exports = ({ bot, knex, config, commands }) => {
 
       await sendCloseNotification(
         thread,
-        `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`
+        `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy} (${msg.author.id})`
       );
     },
     {

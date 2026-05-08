@@ -31,26 +31,26 @@ module.exports = {
       await new Promise((resolve) => {
         const waitNoteTimeout = setTimeout(() => {
           console.log(
-            "Servers did not become available after 15 seconds, continuing start-up anyway"
+            "Servers did not become available after 15 seconds, continuing start-up anyway",
           );
           console.log("");
 
           const isSingleServer = config.mainServerId.includes(
-            config.inboxServerId
+            config.inboxServerId,
           );
           if (isSingleServer) {
             console.log(
-              "WARNING: The bot will not work before it's invited to the server."
+              "WARNING: The bot will not work before it's invited to the server.",
             );
           } else {
             const hasMultipleMainServers = config.mainServerId.length > 1;
             if (hasMultipleMainServers) {
               console.log(
-                "WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server."
+                "WARNING: The bot will not function correctly until it's invited to *all* main servers and the inbox server.",
               );
             } else {
               console.log(
-                "WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server."
+                "WARNING: The bot will not function correctly until it's invited to *both* the main server and the inbox server.",
               );
             }
           }
@@ -77,7 +77,7 @@ module.exports = {
       console.log("Loading plugins...");
       const pluginResult = await loadAllPlugins();
       console.log(
-        `Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)`
+        `Loaded ${pluginResult.loadedCount} plugins (${pluginResult.baseCount} built-in plugins, ${pluginResult.externalCount} external plugins)`,
       );
 
       console.log("");
@@ -90,7 +90,7 @@ module.exports = {
           await thread.recoverDowntimeMessages();
         } catch (err) {
           console.error(
-            `Error while recovering messages for ${thread.user_id}: ${err}`
+            `Error while recovering messages for ${thread.user_id}: ${err}`,
           );
         }
       }
@@ -122,6 +122,8 @@ function initStatus() {
         watching: Eris.Constants.ActivityTypes.WATCHING,
         listening: Eris.Constants.ActivityTypes.LISTENING,
         streaming: Eris.Constants.ActivityTypes.STREAMING,
+        custom: Eris.Constants.ActivityTypes.CUSTOM,
+        competing: Eris.Constants.ActivityTypes.COMPETING,
       }[config.statusType] || Eris.Constants.ActivityTypes.GAME;
 
     if (type === Eris.Constants.ActivityTypes.STREAMING) {
@@ -130,6 +132,8 @@ function initStatus() {
         type,
         url: config.statusUrl,
       });
+    } else if (type === Eris.Constants.ActivityTypes.CUSTOM) {
+      bot.editStatus(null, { name: "custom", type, state: config.status });
     } else {
       bot.editStatus(null, { name: config.status, type });
     }
@@ -178,7 +182,7 @@ function initBaseMessageHandlers() {
         msg.content.trim(),
         msg.attachments,
         config.alwaysReplyAnon || false,
-        msg.messageReference
+        msg.messageReference,
       );
       if (replied) msg.delete();
     } else {
@@ -237,7 +241,7 @@ function initBaseMessageHandlers() {
           // Send auto-reply to the user
           if (config.responseMessage) {
             const responseMessage = utils.readMultilineConfigValue(
-              config.responseMessage
+              config.responseMessage,
             );
 
             try {
@@ -248,7 +252,7 @@ function initBaseMessageHandlers() {
               });
             } catch (err) {
               await thread.postSystemMessage(
-                `**NOTE:** Could not send auto-response to the user. The error given was: \`${err.message}\``
+                `**NOTE:** Could not send auto-response to the user. The error given was: \`${err.message}\``,
               );
             }
           }
@@ -284,7 +288,7 @@ function initBaseMessageHandlers() {
 
     if (threadMessage.isFromUser()) {
       const editMessage = utils.disableLinkPreviews(
-        `**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`
+        `**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`,
       );
 
       if (config.updateMessagesLive) {
@@ -296,13 +300,13 @@ function initBaseMessageHandlers() {
         const threadMessageWithEdit = threadMessage.clone();
         threadMessageWithEdit.body = newContent;
         const formatted = await formatters.formatUserReplyThreadMessage(
-          threadMessageWithEdit
+          threadMessageWithEdit,
         );
         await bot
           .editMessage(
             thread.channel_id,
             threadMessage.inbox_message_id,
-            formatted
+            formatted,
           )
           .catch(console.warn);
       } else {
@@ -389,12 +393,12 @@ function initBaseMessageHandlers() {
     // Send an auto-response to the mention, if enabled
     if (config.botMentionResponse) {
       const botMentionResponse = utils.readMultilineConfigValue(
-        config.botMentionResponse
+        config.botMentionResponse,
       );
       bot.createMessage(channel.id, {
         content: botMentionResponse.replace(
           /{userMention}/g,
-          `<@${msg.author.id}>`
+          `<@${msg.author.id}>`,
         ),
         allowedMentions: {
           users: [msg.author.id],
@@ -405,7 +409,7 @@ function initBaseMessageHandlers() {
     // If configured, automatically open a new thread with a user who has pinged it
     if (config.createThreadOnMention) {
       const existingThread = await threads.findOpenThreadByUserId(
-        msg.author.id
+        msg.author.id,
       );
       if (!existingThread) {
         // Only open a thread if we don't already have one
@@ -413,7 +417,7 @@ function initBaseMessageHandlers() {
           quiet: true,
         });
         await createdThread.postSystemMessage(
-          `This thread was opened from a bot mention in <#${channel.id}>`
+          `This thread was opened from a bot mention in <#${channel.id}>`,
         );
         await createdThread.receiveUserReply(msg);
       }
@@ -446,6 +450,7 @@ function getBasePlugins() {
     "file:./src/modules/joinLeaveNotification",
     "file:./src/modules/roles",
     "file:./src/modules/notes",
+    "file:./src/modules/dmReactions",
   ];
 }
 

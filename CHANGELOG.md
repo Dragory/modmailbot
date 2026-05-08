@@ -1,6 +1,19 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.10.0 (2026-04-26)
+* Added support for forwarded messages ([#832](https://github.com/Dragory/modmailbot/pull/832))
+  * This also fixes the bot crashing when receiving forwarded messages
+* Added `notifyOnReaction` and `notifyOnReactionRemoval` options ([#826](https://github.com/Dragory/modmailbot/pull/826))
+* Added support for `custom` and `competing` status types ([#820](https://github.com/Dragory/modmailbot/pull/820))
+* Added user ID to "closed by" log message ([#828](https://github.com/Dragory/modmailbot/pull/828))
+* Clarified documentation for `botMentionResponse` ([#821](https://github.com/Dragory/modmailbot/pull/821))
+* Fixed format of generated IPv6 links ([#817](https://github.com/Dragory/modmailbot/pull/817))
+* Fixed persistent bot update notification/banner in every thread (regression introduced by v3.9.0)
+
+## v3.9.0 (2026-04-25)
+* Added support for Node.js 24 (LTS). This is now also the required Node.js version.
+
 ## v3.8.0 (2024-10-14)
 * Added `useDisplaynames` option to use a user's display name instead of their username (by DarkView)
   * Defaults to `on`

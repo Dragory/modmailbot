@@ -83,7 +83,7 @@
     },
     "statusType": {
       "type": "string",
-      "enum": ["playing", "watching", "listening", "streaming"],
+      "enum": ["playing", "watching", "listening", "streaming", "custom", "competing"],
       "default": "playing"
     },
     "statusUrl": {
@@ -332,6 +332,16 @@
     "reactOnSeenEmoji": {
       "type": "string",
       "default": "\uD83D\uDCE8"
+    },
+
+    "notifyOnReaction": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
+
+    "notifyOnReactionRemoval": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
     },
 
     "createThreadOnMention": {

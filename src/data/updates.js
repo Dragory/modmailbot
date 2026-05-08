@@ -1,4 +1,3 @@
-const url = require("url");
 const https = require("https");
 const moment = require("moment");
 const knex = require("../knex");
@@ -33,7 +32,7 @@ async function refreshVersions() {
   const repositoryUrl = packageJson.repository && packageJson.repository.url;
   if (! repositoryUrl) return;
 
-  const parsedUrl = url.parse(repositoryUrl);
+  const parsedUrl = new URL(repositoryUrl);
   if (parsedUrl.hostname !== "github.com") return;
 
   const [, owner, repo] = parsedUrl.pathname.split("/");

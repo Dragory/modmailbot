@@ -7,6 +7,7 @@ const utils = require("../utils");
 const config = require("../cfg");
 const attachments = require("./attachments");
 const { formatters } = require("../formatters");
+const { sanitiseEmbedsForMetadata } = require("../embedLogging");
 const { callBeforeNewMessageReceivedHooks } = require("../hooks/beforeNewMessageReceived");
 const { callAfterNewMessageReceivedHooks } = require("../hooks/afterNewMessageReceived");
 const { callAfterThreadCloseHooks } = require("../hooks/afterThreadClose");
@@ -100,11 +101,9 @@ class Thread {
       const textContent = typeof content === "string" ? content : content.content;
       const contentObj = typeof content === "string" ? {} : content;
       if (textContent) {
-        // Text content is included, chunk it and send it as individual messages.
-        // Files (attachments) are only sent with the last message.
+   
         const chunks = utils.chunkMessageLines(textContent);
         for (const [i, chunk] of chunks.entries()) {
-          // Only send embeds, files, etc. with the last message
           const msg = (i === chunks.length - 1)
             ? await bot.createMessage(this.channel_id, { ...contentObj, content: chunk }, file)
             : await bot.createMessage(this.channel_id, { ...contentObj, content: chunk, embed: null });
@@ -112,7 +111,6 @@ class Thread {
           firstMessage = firstMessage || msg;
         }
       } else {
-        // No text content, send as one message
         firstMessage = await bot.createMessage(this.channel_id, content, file);
       }
 
@@ -371,6 +369,12 @@ class Thread {
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg, skipAlert = false) {
+    // Avoid duplicate inserts (e.g. downtime recovery fetching overlapping history)
+    const existing = await knex("thread_messages")
+      .where("dm_message_id", msg.id)
+      .first();
+    if (existing) return;
+
     const user = msg.author;
     const opts = {
       thread: this,
@@ -387,6 +391,85 @@ class Thread {
     if (hookResult.cancelled) return;
 
     let messageContent = msg.content || "";
+
+    let forwardedEmbeds = null;
+
+    const formatPollLines = poll => {
+      if (! poll) return null;
+
+      const title = poll.question && poll.question.text
+        ? String(poll.question.text).trim()
+        : "*(no poll title)*";
+
+      const answers = Array.isArray(poll.answers) ? poll.answers : [];
+      const optionLines = answers.map((answer, i) => {
+        const text = answer && answer.poll_media && answer.poll_media.text
+          ? String(answer.poll_media.text).trim()
+          : "";
+        return `Option ${i + 1}: ${text || "*(no option text)*"}`;
+      });
+
+      return [
+        "*User sent a poll:*",
+        `Title: ${title}`,
+        ...optionLines,
+      ].filter(Boolean);
+    };
+
+    const pushSection = (lines, title, sectionLines) => {
+      if (! sectionLines || sectionLines.length === 0) return;
+      lines.push("", title, ...sectionLines);
+    };
+
+    const pushMessageLink = (lines, link) => {
+      if (! link) return;
+      const line = `*Message link:* <${link}>`;
+      // If we're only showing the header (e.g. embed-only forward), don't insert a blank line.
+      lines.push(...(lines.length === 1 ? [line] : ["", line]));
+    };
+
+    // Snapshot reading for forwarded messages
+    const snapshot = Array.isArray(msg.messageSnapshots) ? msg.messageSnapshots[0] : null;
+    const snapshotMessage = snapshot && snapshot.message;
+    if (snapshotMessage) {
+      const forwardedContent = (snapshotMessage.content || "").trim();
+      const forwardedGuildId = snapshot.guildID || snapshotMessage.guildID;
+      const forwardedChannelId = snapshotMessage.channel && snapshotMessage.channel.id;
+      const forwardedMessageId = snapshotMessage.id;
+      const forwardedPollLines = formatPollLines(snapshotMessage.poll);
+
+      // Get the attachment URLs from the forwarded message
+      const forwardedAttachmentUrls = Array.isArray(snapshotMessage.attachments)
+        ? snapshotMessage.attachments.map(a => a && a.url).filter(Boolean)
+        : [];
+
+      forwardedEmbeds = sanitiseEmbedsForMetadata(snapshotMessage.embeds);
+
+      const forwardedJumpLink = (forwardedGuildId && forwardedChannelId && forwardedMessageId)
+        ? `https://discord.com/channels/${forwardedGuildId}/${forwardedChannelId}/${forwardedMessageId}`
+        : null;
+
+      const isEmbedForward = Boolean(forwardedEmbeds && forwardedEmbeds.length);
+      const forwardedHeader = isEmbedForward ? "*User forwarded an embed:*" : "*Forwarded message:*";
+      const forwardedLines = [forwardedHeader];
+      if (forwardedContent) {
+        forwardedLines.push(forwardedContent);
+      } else if (! forwardedPollLines && ! isEmbedForward) {
+        forwardedLines.push("*(no text content)*");
+      }
+
+      pushSection(forwardedLines, "*Attachments:*", forwardedAttachmentUrls);
+      if (forwardedPollLines) pushSection(forwardedLines, forwardedPollLines[0], forwardedPollLines.slice(1));
+      pushMessageLink(forwardedLines, forwardedJumpLink);
+      const forwardedBlock = forwardedLines.join("\n").trim();
+
+      messageContent = [messageContent, forwardedBlock].filter(Boolean).join("\n\n");
+    }
+
+    const pollLines = formatPollLines(msg.poll);
+    if (pollLines) {
+      messageContent = [messageContent, pollLines.join("\n")].filter(Boolean).join("\n\n");
+    }
 
     // Prepare attachments
     const attachmentLinks = [];
@@ -462,6 +545,10 @@ class Thread {
       user_id: this.user_id,
       user_name: config.useDisplaynames ? msg.author.globalName || msg.author.username : msg.author.username,
       body: messageContent,
+      metadata: {
+        embeds: sanitiseEmbedsForMetadata(msg.embeds),
+        forwardedEmbeds: snapshotMessage ? sanitiseEmbedsForMetadata(snapshotMessage.embeds) : null,
+      },
       is_anonymous: 0,
       dm_message_id: msg.id,
       dm_channel_id: msg.channel.id,
@@ -473,6 +560,9 @@ class Thread {
 
     // Show user reply in the inbox thread
     const inboxContent = messageContentToAdvancedMessageContent(await formatters.formatUserReplyThreadMessage(threadMessage));
+    if (forwardedEmbeds) {
+      inboxContent.embeds = forwardedEmbeds;
+    }
     if (messageReference) {
       inboxContent.messageReference = {
         channelID: messageReference.channelID,
@@ -1083,7 +1173,7 @@ class Thread {
     const lastMessageId = (await this.getLatestThreadMessage()).dm_message_id;
     let messages = (await dmChannel.getMessages(50, null, lastMessageId, null))
       .reverse() // We reverse the array to send the messages in the proper order - Discord returns them newest to oldest
-      .filter(msg => msg.author.id === this.user_id); // Make sure we're not recovering bot or system messages
+      .filter(msg => msg.author && msg.author.id === this.user_id); // Make sure we're not recovering bot or system messages (author can be missing for partial payloads)
 
     if (messages.length === 0) return;
 
