@@ -81,6 +81,18 @@ ID of a channel on the inbox server where logs are posted after a modmail thread
 **Default:** `Your Discord account is not old enough to contact modmail.`  
 See `requiredAccountAge` below
 
+#### adminMentionRole
+**Default:** *None*
+The role to mention when a thread is moved to an admin category. The bot will ping in the moved thread. Set to `off` to disable
+
+#### adminHerePing
+**Default:** *None*
+Pings @here when a thread is moved to the admin category. Disable adminMentionRole before enabling [might change in a future update]
+
+#### adminEveryonePing
+**Default:** *None*
+Pings @everyone when a thread is moved to the admin category. Disable adminMentionRole and adminHerePing before enabling [might change in a future update]
+
 #### allowMove
 **Default:** `off`  
 If enabled, allows you to move threads between categories using `!move <category>`
@@ -127,6 +139,10 @@ If enabled, moderators can change the role that's shown with their replies to an
 #### allowNotes
 **Default:** `on`  
 If enabled, moderators can add notes on users using the `!note` command.
+
+#### allowedCategories
+**Default:** *None*
+**Accepts multiple values.** Category IDs that modmail threads can be moved to
 
 #### alwaysReply
 **Default:** `off`  
@@ -214,6 +230,10 @@ commandAliases.replysus = reply Thank you for this, we will suspend this thread 
 commandAliases.replysus = suspend
 ```
 
+#### communityThreadCategoryId
+**Default:** *None*
+The ID of the Community category
+
 #### enableGreeting
 **Default:** `off`  
 If enabled, the bot will send a greeting DM to users that join the main server
@@ -249,6 +269,10 @@ Alias for [`serverGreetings`](#serverGreetings)
 #### ignoreAccidentalThreads
 **Default:** `off`  
 If enabled, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.
+
+#### inboxAdminRoleIDs
+**Default:** *None*
+**Accepts multiple values.** Role IDs on the inbox server that will be used for admin command permission checks.
 
 #### inboxServerPermission
 **Default:** `manageMessages`  

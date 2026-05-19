@@ -22,11 +22,18 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
   };
 
   const logsCmd = async (msg, args, thread) => {
+    if (msg.channel.parentID === config.communityThreadCategoryId) return; // temporary until oauth access is added
+
     let userId = args.userId || (thread && thread.user_id);
     if (! userId) return;
 
     const channel = await getOrFetchChannel(bot, msg.channel.id);
     let userThreads = await threads.getClosedThreadsByUserId(userId);
+
+    // Command isn't being used in an admin channel or thread
+    if (! [msg.channel.parentID, msg.channel.id].includes(config.adminChannelId)) {
+      userThreads = userThreads.filter((t) => ! t.isPrivate);
+    }
 
     // Descending by date
     userThreads.sort((a, b) => {
@@ -50,8 +57,9 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
       const formattedLogUrl = logUrl
         ? `<${addOptQueryStringToUrl(logUrl, args)}>`
         : `View log with \`${config.prefix}log ${userThread.thread_number}\``
-      const formattedDate = moment.utc(userThread.created_at).format("MMM Do [at] HH:mm [UTC]");
-      return `\`#${userThread.thread_number}\` \`${formattedDate}\`: ${formattedLogUrl}`;
+      const formattedDate = moment.utc(userThread.created_at).format("MMM Do YYYY [at] HH:mm [UTC]");
+      const adminThread = userThread.isPrivate ? ' \`[Admin-Only]\`' : '';
+      return `\`#${userThread.thread_number}\` \`${formattedDate}\`${adminThread}: ${formattedLogUrl}`;
     }));
 
     let message = isPaginated

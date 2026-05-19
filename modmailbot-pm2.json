@@ -1,8 +1,10 @@
 {
     "apps": [{
-        "name": "ModMailBot",
+        "name": "Hawky",
         "cwd": "./",
         "script": "src/index.js",
-        "log_date_format": "YYYY-MM-DD HH:mm Z"
+        "log_date_format": "YYYY-MM-DD HH:mm Z",
+        "max_restarts": 4,
+        "min_uptime": 10000
     }]
 }

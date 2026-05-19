@@ -2,6 +2,7 @@ const humanizeDuration = require("humanize-duration");
 const moment = require("moment");
 const blocked = require("../data/blocked");
 const utils = require("../utils");
+const embedPaginator = require('eris-pagination');
 const {getOrFetchChannel} = require("../utils");
 
 module.exports = ({ bot, knex, config, commands }) => {
@@ -32,6 +33,18 @@ module.exports = ({ bot, knex, config, commands }) => {
 
   expiredBlockLoop();
 
+  async function getUserREST(userId) {
+    let user; 
+    try {
+      console.log(`Getting data for user ${userId} from the REST API...`);
+      user = await bot.getRESTUser(userId);
+    } catch (e) {
+      console.log(e);
+    }
+
+    return user;
+  }
+
   const blockCmd = async (msg, args, thread) => {
     const userIdToBlock = args.userId || (thread && thread.user_id);
     if (! userIdToBlock) return;
@@ -48,7 +61,9 @@ module.exports = ({ bot, knex, config, commands }) => {
       ? moment.utc().add(args.blockTime, "ms").format("YYYY-MM-DD HH:mm:ss")
       : null;
 
-    const user = bot.users.get(userIdToBlock);
+    let user = bot.users.get(userIdToBlock) || await getUserREST(userIdToBlock);
+    if (! user) return channel.createMessage(`Unable to block user due to an internal error.`);
+
     await blocked.block(userIdToBlock, (user ? user.username : ""), msg.author.id, expiresAt);
 
     if (expiresAt) {
@@ -90,7 +105,9 @@ module.exports = ({ bot, knex, config, commands }) => {
       ? moment.utc().add(args.unblockDelay, "ms").format("YYYY-MM-DD HH:mm:ss")
       : null;
 
-    const user = bot.users.get(userIdToUnblock);
+    let user = bot.users.get(userIdToUnblock) || await getUserREST(userIdToUnblock);
+    if (! user) return channel.createMessage(`Unable to unblock user due to an internal error.`);
+
     if (unblockAt) {
       const humanized = humanizeDuration(args.unblockDelay, { largest: 2, round: true });
       await blocked.updateExpiryTime(userIdToUnblock, unblockAt);
@@ -150,12 +167,52 @@ module.exports = ({ bot, knex, config, commands }) => {
       return;
     }
 
-    let reply = "List of blocked users:\n";
+    const userInfoArray = [];
+
     for (const user of blockedUsers) {
-      const userInfo = `**<@!${user.userId}> (id \`${user.userId}\`)** - Blocked by <@${user.blockedBy}>${user.expiresAt ? ` until ${user.expiresAt} (UTC)` : " permanently"}`;
-      reply += userInfo + "\n";
+      const userInfo = `**<@!${user.userId}>** - Blocked by <@${user.blockedBy}>${user.expiresAt ? ` until ${user.expiresAt} (UTC)` : " permanently"}`;
+      userInfoArray.push(userInfo);
     }
 
-    msg.channel.createMessage(reply);
+    const embedDescriptionCharacterLimit = 4096;
+
+    const embedColor = 15785893;
+    const embedTitle = "List of Blocked Users";
+    const embedTimestamp = new Date().toISOString();
+
+    const embeds = [];
+
+    let currentPage = [];
+    let currentLength = 0;
+
+    for (const info of userInfoArray) {
+      const infoLength = info.length + 1;
+
+      if (currentLength + infoLength > embedDescriptionCharacterLimit) {
+        embeds.push({
+          color: embedColor,
+          title: embedTitle,
+          description: currentPage.join("\n"),
+          timestamp: embedTimestamp
+        });
+
+        currentPage = [info];
+        currentLength = info.length + 1;
+      } else {
+        currentPage.push(info);
+        currentLength += infoLength;
+      }
+    }
+
+    if (currentPage.length > 0) {
+      embeds.push({
+        color: embedColor,
+        title: embedTitle,
+        description: currentPage.join("\n"),
+        timestamp: embedTimestamp
+      });
+    }
+
+    embedPaginator.createPaginationEmbed(msg, embeds, { timeout: 180000, cycling: true }); // 3 minute timeout
   });
 };

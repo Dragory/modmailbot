@@ -15,17 +15,19 @@
     "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js",
     "generate-plugin-api-docs": "jsdoc2md -t docs/plugin-api-template.hbs src/pluginApi.js > docs/plugin-api.md",
     "create-migration": "knex migrate:make",
-    "run-migrations": "knex migrate:latest"
+    "run-migrations": "knex migrate:latest",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Dragory/modmailbot"
+    "url": "https://github.com/atlacord/modmailbot"
   },
   "dependencies": {
     "ajv": "^8.17.1",
     "discord-api-types": "^0.37.101",
     "dotenv": "^16.4.5",
     "eris": "^0.18.0",
+    "eris-pagination": "github:CaptainM777/eris-pagination",
     "express": "^4.21.1",
     "helmet": "^7.2.0",
     "humanize-duration": "^3.32.1",

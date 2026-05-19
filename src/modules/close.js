@@ -38,6 +38,8 @@ module.exports = ({ bot, knex, config, commands }) => {
   }
 
   async function sendCloseNotification(thread, body) {
+    if (thread.isPrivate) return;
+
     const logCustomResponse = await getLogCustomResponse(thread);
     if (logCustomResponse) {
       await utils.postLog(body);
@@ -68,13 +70,15 @@ module.exports = ({ bot, knex, config, commands }) => {
   // Check for threads that are scheduled to be closed and close them
   async function applyScheduledCloses() {
     const threadsToBeClosed = await threads.getThreadsThatShouldBeClosed();
-    for (const thread of threadsToBeClosed) {
+    for (let thread of threadsToBeClosed) {
       if (config.closeMessage && ! thread.scheduled_close_silent) {
         const closeMessage = utils.readMultilineConfigValue(config.closeMessage);
         await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
       }
 
       await thread.close(false, thread.scheduled_close_silent);
+
+      thread = await threads.findById(thread.id); // Re-initialize to get updated isPrivate value
 
       await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}`);
     }
@@ -177,7 +181,9 @@ module.exports = ({ bot, knex, config, commands }) => {
 
     await thread.close(suppressSystemMessages, silentClose);
 
-    await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy} (${msg.author.id})`);
+    thread = await threads.findById(thread.id); // Re-initialize to get updated isPrivate value
+
+    await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy}`);
   }, {
     options: [
       { name: "silent", shortcut: "s", isSwitch: true },
@@ -190,7 +196,7 @@ module.exports = ({ bot, knex, config, commands }) => {
     if (! (channel instanceof Eris.TextChannel)) return;
     if (channel.guild.id !== utils.getInboxGuild().id) return;
 
-    const thread = await threads.findOpenThreadByChannelId(channel.id);
+    let thread = await threads.findOpenThreadByChannelId(channel.id);
     if (! thread) return;
 
     console.log(`[INFO] Auto-closing thread with ${thread.user_name} because the channel was deleted`);
@@ -200,6 +206,11 @@ module.exports = ({ bot, knex, config, commands }) => {
     }
 
     await thread.close(true);
+
+    // Edge case: if someone manually moves the Hawky thread to an admin category and manually deletes it, it will be treated like
+    // a public thread, with a log link being posted in the thread log channel. Unlikely to happen, but may account for it in the future.
+
+    thread = await threads.findById(thread.id); // Re-initialize to get updated isPrivate value
 
     await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed automatically because the channel was deleted`);
   });

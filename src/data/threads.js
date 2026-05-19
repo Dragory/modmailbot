@@ -82,6 +82,7 @@ function getHeaderGuildInfo(member) {
  * @property {boolean} [quiet] If true, doesn't ping mentionRole
  * @property {boolean} [ignoreRequirements] If true, creates a new thread even if the account doesn't meet requiredAccountAge
  * @property {boolean} [ignoreHooks] If true, doesn't call beforeNewThread hooks
+ * @property {boolean} [isPrivate] If true, creates the thread under the admin category and saves it to the database as private
  * @property {Message} [message] Original DM message that is trying to start the thread, if there is one
  * @property {string} [categoryId] Category where to open the thread
  * @property {string} [source] A string identifying the source of the new thread
@@ -235,7 +236,8 @@ async function createNewThreadForUser(user, opts = {}) {
       user_name: user.username,
       channel_id: createdChannel.id,
       next_message_number: 1,
-      created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss")
+      created_at: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
+      isPrivate: opts.isPrivate ? 1 : 0
     });
 
     const newThread = await findById(newThreadId);
@@ -291,7 +293,7 @@ async function createNewThreadForUser(user, opts = {}) {
 
       if (config.rolesInThreadHeader && guildData.member.roles.length) {
         const roles = guildData.member.roles.map(roleId => guildData.guild.roles.get(roleId)).filter(Boolean);
-        headerItems.push(`ROLES **${roles.map(r => r.name).join(", ")}**`);
+        headerItems.push(`ROLES **${roles.sort((a, b) => b.position - a.position).map(r => `<@&${r.id}>`).join(", ")}**`);
       }
 
       const headerStr = headerItems.join(", ");
@@ -333,6 +335,56 @@ async function createNewThreadForUser(user, opts = {}) {
 
     // Return the thread
     return newThread;
+  });
+}
+
+/**
+ * Move a thread channel to a different category
+ * @param {Thread} thread The thread object
+ * @param {Eris.CategoryChannel} targetCategory The category to move the specified thread to
+ * @param {Boolean | Array<String>} mentionRole Whether the bot should mention the adminMentionRole, or an array of role IDs to be pinged if supplied
+ */
+async function moveThread(thread, targetCategory, mentionRole) {
+  const threadChannel = targetCategory.guild.channels.get(thread.channel_id);
+
+  threadChannel.edit({
+    parentID: targetCategory.id
+  }).then(() => {
+
+    // Make thread private/unprivate
+    if (targetCategory.id !== config.categoryAutomation.newThread && targetCategory.id !== config.communityThreadCategoryId) {
+      thread.makePrivate();
+
+      if (mentionRole) {
+        // Ping Admins if necessary
+        if (Array.isArray(mentionRole)) {
+          if (mentionRole.length !== 0) {
+            threadChannel.createMessage({
+              content: `${mentionRole.map((r) => `<@&${r}>`).join(" ")}, a thread has been moved.`,
+              allowedMentions: {
+                roles: true
+              }
+            });
+          }
+        } else if (config.adminMentionRole) {
+          threadChannel.createMessage({
+            content: `<@&${config.adminMentionRole}>, a thread has been moved.`,
+            allowedMentions: {
+              roles: true
+            }
+          });
+        } else if (config.adminHerePing || config.adminEveryonePing) {
+          threadChannel.createMessage({
+            content: `${config.adminHerePing ? `@here` : `@everyone`}, a thread has been moved.`,
+            allowedMentions: {
+              everyone: true
+            }
+          });
+        }
+      }
+    } else {
+      thread.makePublic();
+    }
   });
 }
 
@@ -494,6 +546,7 @@ module.exports = {
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
   getThreadsThatShouldBeSuspended,
+  moveThread,
   createThreadInDB,
   getAllOpenThreads,
   findThreadMessageByDMMessageId,

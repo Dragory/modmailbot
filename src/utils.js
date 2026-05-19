@@ -94,6 +94,17 @@ function isStaff(member) {
 }
 
 /**
+ * Returns whether the given member has an administrator role
+ * @param {Eris.Member} member
+ * @returns {boolean}
+ */
+function isAdmin(member) {
+  if (! config.inboxAdminRoleIDs.length) return false;
+  if (! member) return false;
+  return member.roles.some((r) => config.inboxAdminRoleIDs.includes(r));
+}
+
+/**
  * Returns whether the given message is on the inbox server
  * @param {Eris.Client} client
  * @param {Eris.Message} msg
@@ -582,6 +593,7 @@ module.exports = {
   postLog,
 
   isStaff,
+  isAdmin,
   messageIsOnInboxServer,
   messageIsOnMainServer,
 

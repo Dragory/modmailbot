@@ -1,6 +1,6 @@
 const Eris = require("eris");
-const transliterate = require("transliteration");
-const { getOrFetchChannel } = require("../utils");
+const threads = require("../data/threads");
+const utils = require("../utils");
 const { Routes } = require("discord-api-types/v10");
 
 module.exports = ({ bot, knex, config, commands }) => {
@@ -8,53 +8,44 @@ module.exports = ({ bot, knex, config, commands }) => {
 
   commands.addInboxThreadCommand("move", "<category:string$>", async (msg, args, thread) => {
     const searchStr = args.category;
-    const normalizedSearchStr = transliterate.slugify(searchStr);
 
-    const channel = await getOrFetchChannel(bot, msg.channel.id);
-    const categories = channel.guild.channels.filter(c => {
+    const categories = bot.guilds.get(msg.guildID).channels.filter(c => {
+      if (config.allowedCategories && config.allowedCategories.length) {
+        if (config.allowedCategories.find(id => id === c.id)) {
+          return true;
+        }
+
+        return false;
+      }
       // Filter to categories that are not the thread's current parent category
-      return (c instanceof Eris.CategoryChannel) && (c.id !== channel.parentID);
+      return (c instanceof Eris.CategoryChannel) && (c.id !== msg.channel.parentID);
     });
 
     if (categories.length === 0) return;
 
-    // See if any category name contains a part of the search string
-    const containsRankings = categories.map(cat => {
-      const normalizedCatName = transliterate.slugify(cat.name);
+     /**
+     * @type {Eris.CategoryChannel}
+     */
+     const targetCategory = categories.find(c =>
+      c.id == searchStr ||
+      c.name.toLowerCase() === searchStr.toLowerCase() ||
+      c.name.toLowerCase().startsWith(searchStr.toLowerCase()) ||
+      c.name.toLowerCase().endsWith(searchStr.toLowerCase())
+    );
 
-      let i = 0;
-      do {
-        if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i + 1))) break;
-        i++;
-      } while (i < normalizedSearchStr.length);
-
-      if (i > 0 && normalizedCatName.startsWith(normalizedSearchStr.slice(0, i))) {
-        // Slightly prioritize categories that *start* with the search string
-        i += 0.5;
-      }
-
-      return [cat, i];
-    });
-
-    // Sort by best match
-    containsRankings.sort((a, b) => {
-      return a[1] > b[1] ? -1 : 1;
-    });
-
-    if (containsRankings[0][1] === 0) {
-      thread.postSystemMessage("No matching category");
-      return;
+    if (! targetCategory) {
+      return utils.postError(msg.channel, "No matching category found.");
     }
 
-    const targetCategory = containsRankings[0][0];
-
     try {
-      await bot.editChannel(thread.channel_id, {
-        parentID: targetCategory.id
-      });
-    } catch (e) {
-      thread.postSystemMessage(`Failed to move thread: ${e.message}`);
-      return;
+      if(targetCategory.id === config.communityThreadCategoryId || targetCategory.id === config.categoryAutomation.newThread) {
+        threads.moveThread(thread, targetCategory, false);
+      } else {
+        threads.moveThread(thread, targetCategory, true);
+      }
+    } catch (err) {
+      console.log(err);
+      return utils.postError(msg.channel, "Something went wrong while trying to move this thread.");
     }
 
     // If enabled, sync thread channel permissions with the category it's moved to
