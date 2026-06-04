@@ -27,7 +27,7 @@ const usersNotRequiredToBeInInboxServer = [];
 
 // CONFIGURE CONFIDENTIALITY HERE
 const allowMarkingThreadAsConfidential = true; // enable this if you want this module to work
-const rolesWithConfidentialAccess = [1346216350376398980];
+const rolesWithConfidentialAccess = [1346216350376398980, 1329016136288960532, 1331074963804913796, 281649361664999425];
 const usersWithConfidentialAccess = [];
 const confidentialAccessToAllAdminsInInboxServer = true;
 const markThreadAsConfidentialCommands = ["promote", "elevate", "raise"];
