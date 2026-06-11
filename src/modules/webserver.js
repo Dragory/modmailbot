@@ -3,6 +3,7 @@ const helmet = require("helmet");
 const mime = require("mime");
 const url = require("url");
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const qs = require("querystring");
 const moment = require("moment");
 const config = require("../cfg");
@@ -10,6 +11,10 @@ const threads = require("../data/threads");
 const attachments = require("../data/attachments");
 const { formatters } = require("../formatters");
 const { summariseEmbedsAsText } = require("../embedLogging");
+
+const API_ENDPOINT = "https://discord.com/api/v9";
+
+let bot;
 
 function notfound(res) {
   res.status(404).send("Page Not Found");
@@ -66,16 +71,60 @@ function serveAttachments(req, res) {
     const read = fs.createReadStream(attachmentPath);
     read.pipe(res);
   })
-}
+};
+
+function decodeJwt(token) {
+  return jwt.decode(token, config.jwtSecret);
+};
+
+async function createThread(req, res) {
+  console.log("This should be running");
+  res.set("Content-Security-Policy", "script-src 'nonce-hawky'")
+
+  if (req.query.t !== undefined) {
+    const meta = decodeJwt(req.query.t);
+  };
+
+  console.log(req.body);
+
+  const payload = {
+    token: req.query.t || undefined
+  };
+
+  if (payload.token !== undefined) {
+    const ctx = decodeJwt(payload.token);
+    const meta = {
+      user: ctx.user,
+      category: ctx.category,
+      content: ctx.content.slice(0, 4000)
+    };
+
+    const options = {
+      categoryId: meta.category
+    }
+
+    threads.createNewThreadForUser(meta.user, options).then(thread => {
+      if (thread === undefined) return res.status(400);
+      const botUser = bot.guilds.get(config.mailGuildId).members.get(bot.user.id);
+      thread._postToThreadChannel(meta.content).then(msg => msg.pin());
+    });
+      return res.status(200);
+  };
+  res.status(400);
+};
 
 const server = express();
 server.use(helmet());
 
 server.get("/logs/:threadId", serveLogs);
 server.get("/attachments/:attachmentId/:filename", serveAttachments);
+server.get("/threads/create", createThread)
 
 server.on("error", err => {
   console.log("[WARN] Web server error:", err.message);
 });
 
-module.exports = server;
+module.exports = (mmbot) => {
+  bot = mmbot;
+  return server;
+};

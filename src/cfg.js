@@ -99,6 +99,10 @@ for (const [key, value] of Object.entries(process.env)) {
   loadedEnvValues++;
 }
 
+if (process.env.JWT_SECRET) {
+  config.jwtSecret = process.env.JWT_SECRET;
+}
+
 if (process.env.PORT && ! process.env.MM_PORT) {
   // Special case: allow common "PORT" environment variable without prefix
   config.port = process.env.PORT;
