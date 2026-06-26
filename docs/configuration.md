@@ -250,6 +250,10 @@ Alias for [`serverGreetings`](#serverGreetings)
 **Default:** `off`  
 If enabled, the bot attempts to ignore common "accidental" messages that would start a new thread, such as "ok", "thanks", etc.
 
+#### ignoreAccidentalScheduledCloseReplies
+**Default:** `off`  
+If enabled, common "accidental" replies such as "ok" or "thanks" will not cancel a scheduled thread close.
+
 #### inboxServerPermission
 **Default:** `manageMessages`  
 **Accepts multiple values.** Permission name, user id, or role id required to use bot commands on the inbox server.

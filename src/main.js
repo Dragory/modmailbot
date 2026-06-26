@@ -15,7 +15,7 @@ const blocked = require("./data/blocked");
 const threads = require("./data/threads");
 const updates = require("./data/updates");
 
-const { ACCIDENTAL_THREAD_MESSAGES } = require("./data/constants");
+const { shouldIgnoreAccidentalThreadMessage } = require("./data/constants");
 const {getOrFetchChannel} = require("./utils");
 
 module.exports = {
@@ -183,7 +183,7 @@ function initBaseMessageHandlers() {
       // New thread
       if (createNewThread) {
         // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
-        if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
+        if (config.ignoreAccidentalThreads && shouldIgnoreAccidentalThreadMessage(msg.content)) return;
 
         thread = await threads.createNewThreadForUser(msg.author, {
           source: "dm",
