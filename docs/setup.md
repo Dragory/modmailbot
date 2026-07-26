@@ -21,14 +21,7 @@ To keep it online, you need to keep the bot process running.
 6. In the bot's folder (that you extracted from the zip file), make a copy of the file `config.example.ini` and rename the copy to `config.ini`
     * If you're on Windows, the file may be named `config.example` (without `.ini` at the end)
 
-**Note:** To comply with the [Discord Developer Terms of Service](https://support-dev.discord.com/hc/en-us/articles/8562894815383-Discord-Developer-Terms-of-Service):
-* Your bot must have a [privacy policy](./privacy-policy.md)
-* You must ensure your bot's database is encrypted at rest
-  * Some approaches to this:
-    * Full disk encryption (BitLocker, FileVault, LUKS)
-    * Encrypted database volume (VeraCrypt, cryptsetup)
-    * Database encryption settings ([InnoDB Data-at-Rest Encryption](https://dev.mysql.com/doc/refman/8.0/en/innodb-data-encryption.html))
-  * Many hosting companies also offer an encrypted disk option as part of the server provisioning process
+**Note:** Once you have finished setting up the bot, see [Note on Discord Developer Terms of Service](#note-on-discord-developer-terms-of-service) below.
 
 ## Single-server setup
 In this setup, modmail threads are opened on the main server in a special category.
@@ -67,3 +60,13 @@ You might also want this setup for privacy concerns*.
 
 *\* Since all channel names, even for channels you can't see, are public information through the API, a user with a
 modified client could see the names of all users contacting modmail through the modmail channel names.* 
+
+## Note on Discord Developer Terms of Service
+To comply with the [Discord Developer Terms of Service](https://support-dev.discord.com/hc/en-us/articles/8562894815383-Discord-Developer-Terms-of-Service):
+* Your bot must have a [privacy policy](./privacy-policy.md)
+* You must ensure your bot's database is encrypted at rest
+  * Some approaches to this:
+    * Full disk encryption (BitLocker, FileVault, LUKS)
+    * Encrypted database volume (VeraCrypt, cryptsetup)
+    * Database encryption settings ([InnoDB Data-at-Rest Encryption](https://dev.mysql.com/doc/refman/8.0/en/innodb-data-encryption.html))
+  * Many hosting companies also offer an encrypted disk option as part of the server provisioning process
