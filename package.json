@@ -5,7 +5,6 @@
   "license": "MIT",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "patch-package",
     "start": "node src/index.js",
     "start-dev": "NODE_ENV=development node src/index.js",
     "watch": "NODE_ENV=development nodemon --watch src --inspect=0.0.0.0:9229 src/index.js",
@@ -25,7 +24,7 @@
     "ajv": "^8.17.1",
     "discord-api-types": "^0.37.101",
     "dotenv": "^16.4.5",
-    "eris": "^0.18.0",
+    "eris": "npm:@mivir/eris-modmailbot-fork@0.18.0-fix",
     "express": "^4.21.1",
     "helmet": "^7.2.0",
     "humanize-duration": "^3.32.1",
@@ -49,8 +48,7 @@
     "eslint": "^8.57.1",
     "jsdoc-to-markdown": "^8.0.3",
     "json-schema-to-jsdoc": "^1.1.1",
-    "nodemon": "^3.1.7",
-    "patch-package": "^8.0.1"
+    "nodemon": "^3.1.7"
   },
   "engines": {
     "node": ">=24.0.0"
