@@ -61,7 +61,7 @@ Below are some guidelines for answering the questions in the review. Note that t
 - ### "Please provide links to screenshots and/or videos that demonstrate your use case"
   > Please see the following link for screenshots of an example modmail thread as well as the generated transcript:
   > 
-  > https://github.com/Dragory/modmailbot/blob/master/screenshots
+  > https://github.com/Dragory/modmailbot/blob/master/screenshots/README.md
 
 ## Server Members Intent
 Note that this intent is only required if you use the bot's server greeting or join/leave notification features.
