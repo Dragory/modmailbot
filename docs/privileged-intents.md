@@ -61,7 +61,7 @@ Below are some guidelines for answering the questions in the review. Note that t
 - ### "Please provide links to screenshots and/or videos that demonstrate your use case"
   > Please see the following link for screenshots of an example modmail thread as well as the generated transcript:
   > 
-  > https://github.com/Dragory/modmailbot/blob/master/screenshots#modmail-thread-transcript
+  > https://github.com/Dragory/modmailbot/blob/master/screenshots
 
 ## Server Members Intent
 Note that this intent is only required if you use the bot's server greeting or join/leave notification features.
@@ -72,9 +72,9 @@ Note that this intent is only required if you use the bot's server greeting or j
   > The bot includes a join/leave notifications feature that posts a note in the modmail thread if the user contacting the bot leaves or rejoins the server while the thread is open. This is important context, as a user that has left the server can no longer be messaged by the bot.
 
 - ### "Please provide links to screenshots and/or videos that demonstrate your use case"
-  > Please see the following link for a screenshot of a greeting message sent by the bot:
-  > 
-  > https://github.com/Dragory/modmailbot/blob/master/screenshots#greeting-message
+  > Please see the following screenshots:
+  > - A greeting message sent by the bot: https://github.com/Dragory/modmailbot/blob/master/screenshots/greeting-message.png
+  > - Join/leave notifications in the context of a thread: https://github.com/Dragory/modmailbot/blob/master/screenshots/join-leave-notifications.png
 
 - ### "Are you storing message content data off-platform (outside of Discord)?"
   ```

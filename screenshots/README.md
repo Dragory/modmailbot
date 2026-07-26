@@ -11,3 +11,6 @@
 
 ## Greeting message
 ![Screenshot showing a greeting message sent by the bot.](./greeting-message.png)
+
+## Join/leave notifications
+![Screenshot showing a Modmail thread with join and leave notifications.](./join-leave-notifications.png)
