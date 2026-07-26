@@ -76,12 +76,12 @@ Note that this intent is only required if you use the bot's server greeting or j
   > - A greeting message sent by the bot: https://github.com/Dragory/modmailbot/blob/master/screenshots/greeting-message.png
   > - Join/leave notifications in the context of a thread: https://github.com/Dragory/modmailbot/blob/master/screenshots/join-leave-notifications.png
 
-- ### "Are you storing message content data off-platform (outside of Discord)?"
+- ### "Are you storing any API Data off-platform (outside of Discord)?"
   ```
   Yes
   ```
 
-  - #### "Are you storing user message content data for 30 days or less?"
+  - #### "Are you storing API Data for 30 days or less?"
     ```
     No
     ```
