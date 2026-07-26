@@ -39,9 +39,6 @@ Below are some guidelines for answering the questions in the review. Note that t
     > Contact details are included as part of the bot's privacy policy: `<link to privacy policy>`
 
   - #### "Are you encrypting the data that you store at rest, as is required by our developer policy?"
-    ```
-    Yes
-    ```
     **Note:** To comply with [Discord Developer Terms of Service](https://support-dev.discord.com/hc/en-us/articles/8562894815383-Discord-Developer-Terms-of-Service), you must ensure your bot's database is encrypted at rest. See [Note on Discord Developer Terms of Service](./setup.md#note-on-discord-developer-terms-of-service).
 
 - ### "Will the message content data be used to train machine learning or AI Models?"
@@ -84,7 +81,4 @@ Note that this intent is only required if you use the bot's server greeting or j
     > Contact details are included as part of the bot's privacy policy: `<link to privacy policy>`
 
   - #### "Are you encrypting the data that you store at rest, as is required by our developer policy?"
-    ```
-    Yes
-    ```
     **Note:** To comply with [Discord Developer Terms of Service](https://support-dev.discord.com/hc/en-us/articles/8562894815383-Discord-Developer-Terms-of-Service), you must ensure your bot's database is encrypted at rest. See [Note on Discord Developer Terms of Service](./setup.md#note-on-discord-developer-terms-of-service).
