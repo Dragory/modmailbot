@@ -1,9 +1,16 @@
 const Eris = require("eris");
 const config = require("./cfg");
 
+const privilegedIntents = [
+  "messageContent", // For thread logs/transcripts
+];
+if (Object.keys(config.serverGreetings).length || config.notifyOnMainServerJoin || config.notifyOnMainServerLeave) {
+  // Required for member join/leave events
+  privilegedIntents.push("guildMembers");
+}
+
 const intents = [
-  // PRIVILEGED INTENTS
-  "guildMembers", // For server greetings
+  ...privilegedIntents,
 
   // REGULAR INTENTS
   "directMessages", // For core functionality

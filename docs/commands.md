@@ -170,5 +170,8 @@ Delete the specified note. The note ID is shown when running `!notes`.
 ### `!version`
 Show the Modmail bot's version.
 
+### `!privacy_policy_link`
+Get a link to the bot's [privacy policy](./privacy-policy.md).
+
 ## Snippets (canned messages)
 See the [📋 Snippets](snippets.md) page for more information!

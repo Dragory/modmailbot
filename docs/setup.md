@@ -13,12 +13,22 @@ To keep it online, you need to keep the bot process running.
 
 ## Prerequisites
 1. Create a bot on the [Discord Developer Portal](https://discord.com/developers/)
-2. Turn on **Server Members Intent** and **Message Content Intent** in the bot's settings page on the developer portal ([Image](intents.png))
+2. Turn on **Message Content** intent in the bot's settings page on the developer portal ([Image](./message-content-intent.png))
+    * If you plan to use the server greeting or join/leave notification features, also enable **Server Members** intent ([Image](./server-members-intent.png))
 3. Install Node.js 24 (LTS) or higher
 4. [Download the latest bot release here](https://github.com/Dragory/modmailbot/releases/latest) (click on "Source code (zip)")
 5. Extract the downloaded Zip file to a new folder
 6. In the bot's folder (that you extracted from the zip file), make a copy of the file `config.example.ini` and rename the copy to `config.ini`
     * If you're on Windows, the file may be named `config.example` (without `.ini` at the end)
+
+**Note:** To comply with the [Discord Developer Terms of Service](https://support-dev.discord.com/hc/en-us/articles/8562894815383-Discord-Developer-Terms-of-Service):
+* Your bot must have a [privacy policy](./privacy-policy.md)
+* You must ensure your bot's database is encrypted at rest
+  * Some approaches to this:
+    * Full disk encryption (BitLocker, FileVault, LUKS)
+    * Encrypted database volume (VeraCrypt, cryptsetup)
+    * Database encryption settings ([InnoDB Data-at-Rest Encryption](https://dev.mysql.com/doc/refman/8.0/en/innodb-data-encryption.html))
+  * Many hosting companies also offer an encrypted disk option as part of the server provisioning process
 
 ## Single-server setup
 In this setup, modmail threads are opened on the main server in a special category.

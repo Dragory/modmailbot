@@ -8,3 +8,6 @@
 
 ## Modmail thread transcript
 ![Screenshot showing a transcript of a full Modmail thread.](./thread-transcript.png)
+
+## Greeting message
+![Screenshot showing a greeting message sent by the bot.](./greeting-message.png)
