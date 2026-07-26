@@ -137,6 +137,10 @@ if (config.mailGuildId && ! config.inboxServerId) {
   config.inboxServerId = config.mailGuildId;
 }
 
+if (!Array.isArray(config.mainServerId)) {
+  config.mainServerId = [config.mainServerId];
+}
+
 if (! config.dbType) {
   config.dbType = "sqlite";
 }
