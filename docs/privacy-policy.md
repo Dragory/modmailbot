@@ -14,6 +14,9 @@ Modmail contains a built-in feature to host your privacy policy.
 
 Note that you are not required to use this built-in feature to host your privacy policy, it only exists for convenience.
 
+## Linking to the policy
+To allow users to easily access your privacy policy, it's recommended to add a link to it in the bot application's "Description" field in the Discord developer portal. This will show up in the "About Me" section of the bot's profile on Discord.
+
 ## Example privacy policy
 Below is an example of a simple privacy policy in Markdown format. You can use this as a base for your own privacy policy.
 

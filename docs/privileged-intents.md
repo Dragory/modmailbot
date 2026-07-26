@@ -14,8 +14,9 @@ Below are some guidelines for answering the questions in the review. Note that t
   ```
   Yes
   ```
+  See also: [Privacy policy](./privacy-policy.md)
   - #### "Where is your Privacy Policy available?"
-    Describe where your [privacy policy](./privacy-policy.md) is available.
+    Describe where users can find your bot's privacy policy. See also: [Linking to the policy](./privacy-policy.md#linking-to-the-policy)
 
   - #### "Please share a link to your Privacy Policy."
     Include a link to your [privacy policy](./privacy-policy.md) here.
