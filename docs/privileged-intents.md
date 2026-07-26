@@ -17,14 +17,8 @@ Below are some guidelines for answering the questions in the review. Note that t
   - #### "Where is your Privacy Policy available?"
     Describe where your [privacy policy](./privacy-policy.md) is available.
 
-  - #### "Where is your Privacy Policy available?"
-    Describe where your [privacy policy](./privacy-policy.md) is available.
-
   - #### "Please share a link to your Privacy Policy."
     Include a link to your [privacy policy](./privacy-policy.md) here.
-
-- ### "How do users contact you to request deletion of their activity data?"
-  No guideline here, as this depends on your own processes and privacy policy.
 
 ## Message Content Intent
 
