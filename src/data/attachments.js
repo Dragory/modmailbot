@@ -1,11 +1,11 @@
 const Eris = require("eris");
 const fs = require("fs");
+const fsp = require("fs/promises");
 const https = require("https");
 const {promisify} = require("util");
 const tmp = require("tmp");
 const config = require("../cfg");
 const utils = require("../utils");
-const mv = promisify(require("mv"));
 const path = require("path");
 
 const getUtils = () => require("../utils");
@@ -95,7 +95,7 @@ saveLocalAttachment = async (attachment) => {
   const downloadResult = await downloadAttachment(attachment);
 
   // Move the temp file to the attachment folder
-  await mv(downloadResult.path, targetPath);
+  await fsp.rename(downloadResult.path, targetPath);
 
   // Resolve the attachment URL
   const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
