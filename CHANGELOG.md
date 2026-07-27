@@ -1,6 +1,13 @@
 # Changelog
 For instructions on how to update the bot, see **[✨ Updating the bot](docs/updating.md)**
 
+## v3.11.0 (2026-07-27)
+* Added documentation and guidance around [Privileged Intents](./docs/privileged-intents.md) and creating a [privacy policy](./docs/privacy-policy.md)
+* Added support for serving a privacy policy from a Markdown file (see: [hosting a privacy policy](./docs/privacy-policy.md#hosting-a-privacy-policy))
+* Fixed crash when fetching own public IP ([#844](https://github.com/Dragory/modmailbot/pull/844))
+* Fixed Eris crash fix not applying on some bot hosts
+* Updated dependencies
+
 ## v3.10.0 (2026-04-26)
 * Added support for forwarded messages ([#832](https://github.com/Dragory/modmailbot/pull/832))
   * This also fixes the bot crashing when receiving forwarded messages
