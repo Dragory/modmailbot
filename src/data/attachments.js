@@ -243,7 +243,7 @@ const saveAttachment = (attachment) => {
     throw new Error(`Unknown attachment storage option: ${config.attachmentStorage}`);
   }
 
-  attachmentSavePromises[attachment.id].then(() => {
+  attachmentSavePromises[attachment.id] = attachmentSavePromises[attachment.id].finally(() => {
     delete attachmentSavePromises[attachment.id];
   });
 
