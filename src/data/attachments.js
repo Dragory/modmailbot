@@ -95,7 +95,14 @@ saveLocalAttachment = async (attachment) => {
   const downloadResult = await downloadAttachment(attachment);
 
   // Move the temp file to the attachment folder
-  await fsp.rename(downloadResult.path, targetPath);
+  try {
+    await fsp.rename(downloadResult.path, targetPath);
+  } catch (err) {
+    if (err.code !== "EXDEV") throw err;
+
+    await fsp.copyFile(downloadResult.path, targetPath);
+    await fsp.unlink(downloadResult.path);
+  }
 
   // Resolve the attachment URL
   const url = await getLocalAttachmentUrl(attachment.id, attachment.filename);
