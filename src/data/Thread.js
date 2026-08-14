@@ -18,7 +18,7 @@ const { getModeratorThreadDisplayRoleName } = require("./displayRoles");
 
 const ThreadMessage = require("./ThreadMessage");
 
-const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES} = require("./constants");
+const {THREAD_MESSAGE_TYPE, THREAD_STATUS, DISCORD_MESSAGE_ACTIVITY_TYPES, shouldIgnoreAccidentalThreadMessage} = require("./constants");
 const {isBlocked} = require("./blocked");
 const {messageContentToAdvancedMessageContent} = require("../utils");
 
@@ -587,7 +587,7 @@ class Thread {
     });
 
     // Interrupt scheduled closing, if in progress
-    if (this.scheduled_close_at) {
+    if (this.scheduled_close_at && (! config.ignoreAccidentalScheduledCloseReplies || ! shouldIgnoreAccidentalThreadMessage(msg.content))) {
       await this.cancelScheduledClose();
       await this.postSystemMessage(`<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`, {
         allowedMentions: {

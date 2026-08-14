@@ -149,6 +149,10 @@
       "$ref": "#/definitions/customBoolean",
       "default": false
     },
+    "ignoreAccidentalScheduledCloseReplies": {
+      "$ref": "#/definitions/customBoolean",
+      "default": false
+    },
     "threadTimestamps": {
       "$ref": "#/definitions/customBoolean",
       "default": false

@@ -1,3 +1,12 @@
+function shouldIgnoreAccidentalThreadMessage(str) {
+  const normalizedMessage = (str || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[!?.]+$/g, "");
+
+  return module.exports.ACCIDENTAL_THREAD_MESSAGES.includes(normalizedMessage);
+}
+
 module.exports = {
   THREAD_STATUS: {
     OPEN: 1,
@@ -74,4 +83,6 @@ module.exports = {
     "okey np",
     "cheers"
   ],
+
+  shouldIgnoreAccidentalThreadMessage,
 };
