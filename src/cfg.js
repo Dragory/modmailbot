@@ -77,7 +77,7 @@ config.dbDir = path.join(__dirname, "..", "db");
 config.logDir = path.join(__dirname, "..", "logs"); // Only used for migrating data from older Modmail versions
 
 // Load config values from environment variables
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 
 const envKeyPrefix = "MM_";
 let loadedEnvValues = 0;
@@ -135,6 +135,10 @@ if (config.mainGuildId && ! config.mainServerId) {
 }
 if (config.mailGuildId && ! config.inboxServerId) {
   config.inboxServerId = config.mailGuildId;
+}
+
+if (!Array.isArray(config.mainServerId)) {
+  config.mainServerId = [config.mainServerId];
 }
 
 if (! config.dbType) {

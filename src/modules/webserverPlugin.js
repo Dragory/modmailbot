@@ -67,7 +67,12 @@ module.exports = ({ config, commands }) => {
     ],
   );
   server.get(oauthPath, processAuth);
-  server.listen(config.port);
+  server.listen(config.port, config.host);
+
+  commands.addInboxServerCommand("privacy_policy_link", "", async (msg, args, thread) => {
+    const url = await utils.getSelfUrl("privacy-policy");
+    utils.postSystemMessageWithFallback(msg.channel, thread, `<${url}>`);
+  });
 
   if (allowMarkingThreadAsConfidential) {
     commands.addInboxServerCommand(

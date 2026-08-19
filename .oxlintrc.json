@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "no-shadow": "error",
+    "no-underscore-dangle": "allow",
+    "unicorn/consistent-function-scoping": "allow"
+  },
+  "env": {
+    "node": true
+  }
+}

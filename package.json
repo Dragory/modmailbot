@@ -1,17 +1,16 @@
 {
   "name": "modmailbot",
-  "version": "3.10.0",
+  "version": "3.11.0",
   "description": "",
   "license": "MIT",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "patch-package",
     "start": "node src/index.js",
-    "start-dev": "NODE_ENV=development node src/index.js",
-    "watch": "NODE_ENV=development nodemon --watch src --inspect=0.0.0.0:9229 src/index.js",
+    "start-dev": "NODE_ENV=development node --inspect=0.0.0.0:9229 src/index.js",
+    "watch": "NODE_ENV=development node --watch --inspect=0.0.0.0:9229 src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint ./src",
-    "lint-fix": "eslint --fix ./src",
+    "lint": "oxlint ./src",
+    "lint-fix": "oxlint --fix ./src",
     "generate-config-jsdoc": "node src/data/generateCfgJsdoc.js",
     "generate-plugin-api-docs": "jsdoc2md -t docs/plugin-api-template.hbs src/pluginApi.js > docs/plugin-api.md",
     "create-migration": "knex migrate:make",
@@ -24,35 +23,36 @@
   "dependencies": {
     "ajv": "^8.17.1",
     "discord-api-types": "^0.37.101",
-    "dotenv": "^16.4.5",
-    "eris": "^0.18.0",
-    "express": "^4.21.1",
-    "helmet": "^7.2.0",
+    "dotenv": "^17.4.2",
+    "eris": "npm:@mivir/eris-modmailbot-fork@0.18.0-fix",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
     "humanize-duration": "^3.32.1",
-    "ini": "^4.1.3",
+    "ini": "^7.0.0",
     "json5": "^2.2.3",
     "knex": "^3",
     "knub-command-manager": "^6.1.0",
+    "marked": "^18.0.6",
     "mime": "^3.0.0",
     "moment": "^2.30.1",
-    "mv": "^2.1.1",
     "mysql2": "^3.11.3",
-    "pacote": "^21.5.0",
-    "public-ip": "^6.0.2",
+    "pacote": "^22.0.0",
+    "public-ip": "^8.0.0",
     "sqlite3": "^6.0.1",
     "tmp": "^0.2.3",
     "transliteration": "^2.3.5",
-    "uuid": "^13.0.0",
-    "yargs-parser": "^21.1.1"
+    "uuid": "^14.0.1",
+    "yargs-parser": "^22.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
-    "jsdoc-to-markdown": "^8.0.3",
+    "jsdoc-to-markdown": "^9.1.3",
     "json-schema-to-jsdoc": "^1.1.1",
-    "nodemon": "^3.1.7",
-    "patch-package": "^8.0.1"
+    "oxlint": "^1.73.0"
   },
   "engines": {
     "node": ">=24.0.0"
+  },
+  "allowScripts": {
+    "sqlite3@6.0.1": true
   }
 }
