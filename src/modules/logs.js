@@ -50,8 +50,8 @@ module.exports = ({ bot, knex, config, commands, hooks }) => {
       const formattedLogUrl = logUrl
         ? `<${addOptQueryStringToUrl(logUrl, args)}>`
         : `View log with \`${config.prefix}log ${userThread.thread_number}\``
-      const formattedDate = moment.utc(userThread.created_at).format("MMM Do [at] HH:mm [UTC]");
-      return `\`#${userThread.thread_number}\` \`${formattedDate}\`: ${formattedLogUrl}`;
+      const timestamp = moment.utc(userThread.created_at).unix();
+      return `\`#${userThread.thread_number}\` <t:${timestamp}:f>: ${formattedLogUrl}`;
     }));
 
     let message = isPaginated
