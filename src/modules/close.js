@@ -74,7 +74,13 @@ module.exports = ({ bot, knex, config, commands }) => {
         await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
       }
 
-      await thread.close(false, thread.scheduled_close_silent);
+      try {
+        await thread.close(false, thread.scheduled_close_silent);
+      } catch (err) {
+        console.error(`Error closing thread ${thread.id} on schedule:`, err);
+        await thread.cancelScheduledClose();
+        continue;
+      }
 
       await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}`);
     }
@@ -175,7 +181,12 @@ module.exports = ({ bot, knex, config, commands }) => {
       await thread.sendSystemMessageToUser(closeMessage).catch(() => {});
     }
 
-    await thread.close(suppressSystemMessages, silentClose);
+    try {
+      await thread.close(suppressSystemMessages, silentClose);
+    } catch (err) {
+      console.error(`Error closing thread ${thread.id}:`, err);
+      return;
+    }
 
     await sendCloseNotification(thread, `Modmail thread #${thread.thread_number} with ${thread.user_name} (${thread.user_id}) was closed by ${closedBy} (${msg.author.id})`);
   }, {

@@ -860,7 +860,23 @@ class Thread {
     const channel = bot.getChannel(this.channel_id);
     if (channel) {
       console.log(`Deleting channel ${this.channel_id}`);
-      await channel.delete("Thread closed");
+      try {
+        await channel.delete("Thread closed");
+      } catch (err) {
+        console.error(`Failed to delete channel ${this.channel_id} while closing thread ${this.id}:`, err);
+
+        // Reset DB status
+        this.status = THREAD_STATUS.OPEN;
+        await knex("threads")
+          .where("id", this.id)
+          .update({
+            status: THREAD_STATUS.OPEN
+          });
+
+        await this.postSystemMessage(`Failed to delete the channel: ${err.message}. The thread was not closed — try closing it again.`).catch(() => {});
+
+        throw err;
+      }
     }
 
     await callAfterThreadCloseHooks({ threadId: this.id });
