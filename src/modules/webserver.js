@@ -1,4 +1,5 @@
-// gist: https://gist.github.com/promise/951880b7ee092aedaa5d6f281f181046#file-webserver-js
+// Fork change: /logs and /attachments routes are registered (with OAuth) in webserverPlugin.js
+// See FORK_CHANGES.md
 
 const express = require("express");
 const helmet = require("helmet");
@@ -6,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const marked = require("marked");
 
-const mdPrivacyPolicyPath = path.resolve(__dirname, "../../PRIVACY.md");
+const mdPrivacyPolicyPath = path.resolve(__dirname, "../../PRIVACY_POLICY.md");
 let htmlPrivacyPolicy = null;
 if (fs.existsSync(mdPrivacyPolicyPath)) {
   const mdPrivacyPolicy = fs.readFileSync(mdPrivacyPolicyPath, { encoding: "utf8" });
@@ -44,8 +45,8 @@ if (htmlPrivacyPolicy) {
   });
 }
 
-server.on("error", (err) =>
-  console.log("[WARN] Web server error:", err.message)
-);
+server.on("error", err => {
+  console.log("[WARN] Web server error:", err.message);
+});
 
 module.exports = server;
