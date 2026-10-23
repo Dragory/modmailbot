@@ -1,4 +1,6 @@
-// gist: https://gist.github.com/promise/951880b7ee092aedaa5d6f281f181046#file-webserverplugin-js
+// Fork change: OAuth2 middleware for logs/attachments + confidential thread logs
+// Based on https://gist.github.com/promise/951880b7ee092aedaa5d6f281f181046
+// See FORK_CHANGES.md for configuration
 
 const server = require("./webserver");
 const express = require("express");
@@ -14,10 +16,21 @@ const bot = require("../bot");
 const https = require("https");
 const utils = require("../utils");
 
-// CONFIG
+if (! config.oauthClientSecret) {
+  console.error("Missing required config option: oauthClientSecret");
+  console.error("This fork requires OAuth2 to protect log links.");
+  console.error("Set it in config.ini (Discord Developer Portal -> your app -> Bot -> Client Secret).");
+  process.exit(1);
+}
 
-// CONFIGURE OAUTH HERE
-const botClientSecret = "qtU-8Z7IAAjaK0tYTG2ew9f8QpNHI8Sb";
+function parseIdList(value) {
+  if (value == null) return [];
+  return (Array.isArray(value) ? value : String(value).split(","))
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+const botClientSecret = config.oauthClientSecret;
 const oauthPath = "/auth";
 const oauthRedirectUri = config.url + oauthPath;
 const tokenExpirationInSeconds = 3600; // 1 hour (recommended) - they'll be redirected to the oauth page if it has expired
@@ -25,47 +38,28 @@ const encryptionKey = crypto.randomBytes(64).toString("base64");
 const attachmentsRequireOauth = true;
 const usersNotRequiredToBeInInboxServer = [];
 
-// CONFIGURE CONFIDENTIALITY HERE
-const allowMarkingThreadAsConfidential = true; // enable this if you want this module to work
-const rolesWithConfidentialAccess = [
-  "1346216350376398980",
-  "1329016136288960532",
-  "1331074963804913796",
-  "281649361664999425",
-];
-const usersWithConfidentialAccess = [];
+const allowMarkingThreadAsConfidential = true;
+const rolesWithConfidentialAccess = parseIdList(config.confidentialAccessRoleIds);
+const usersWithConfidentialAccess = parseIdList(config.confidentialAccessUserIds);
 const confidentialAccessToAllAdminsInInboxServer = true;
 const markThreadAsConfidentialCommands = ["promote", "elevate", "raise"];
-const markThreadAsConfidentialMessage =
-  "✅ **This thread is now marked as confidential.** Log access has been restricted to those with confidential access.";
-const threadAlreadyConfidentialMessage =
-  "⚠️ This thread is already marked as confidential.";
+const markThreadAsConfidentialMessage = "✅ **This thread is now marked as confidential.** Log access has been restricted to those with confidential access.";
+const threadAlreadyConfidentialMessage = "⚠️ This thread is already marked as confidential.";
 const unmarkThreadAsConfidentialCommands = ["demote", "downgrade", "lower"];
-const unmarkThreadAsConfidentialMessage =
-  "✅ **This thread is no longer marked as confidential.**";
+const unmarkThreadAsConfidentialMessage = "✅ **This thread is no longer marked as confidential.**";
 const threadNotConfidentialMessage = "⚠️ This thread is not confidential.";
 
-// END CONFIG
-
 module.exports = ({ config, commands }) => {
-  server.get(
-    "/logs/:threadId",
-    ...[
-      testTokenCookie,
-      testUserGeneralAccess,
-      testUserConfidentialAccess,
-      serveLogs,
-    ],
-  );
-  server.get(
-    "/attachments/:attachmentId/:filename",
-    ...[
-      ...(attachmentsRequireOauth
-        ? [testTokenCookie, testUserGeneralAccess]
-        : []),
-      serveAttachments,
-    ],
-  );
+  server.get("/logs/:threadId", ...[
+    testTokenCookie,
+    testUserGeneralAccess,
+    testUserConfidentialAccess,
+    serveLogs
+  ]);
+  server.get("/attachments/:attachmentId/:filename", ...[
+    ...(attachmentsRequireOauth ? [testTokenCookie, testUserGeneralAccess] : []),
+    serveAttachments
+  ]);
   server.get(oauthPath, processAuth);
   server.listen(config.port, config.host);
 
@@ -75,65 +69,33 @@ module.exports = ({ config, commands }) => {
   });
 
   if (allowMarkingThreadAsConfidential) {
-    commands.addInboxServerCommand(
-      markThreadAsConfidentialCommands.shift(),
-      "[threadId:string]",
-      async (msg, args, _thread) => {
-        const threadId = args.threadId || (_thread && _thread.id);
-        if (!threadId) return;
+    commands.addInboxServerCommand(markThreadAsConfidentialCommands.shift(), "[threadId:string]", async (msg, args, _thread) => {
+      const threadId = args.threadId || (_thread && _thread.id);
+      if (! threadId) return;
 
-        const thread =
-          (await threads.findById(threadId)) ||
-          (await threads.findByThreadNumber(threadId));
-        if (!thread) return;
+      const thread = (await threads.findById(threadId)) || (await threads.findByThreadNumber(threadId));
+      if (! thread) return;
 
-        const confidential = thread.getMetadataValue("confidential");
-        if (confidential)
-          return utils.postSystemMessageWithFallback(
-            msg.channel,
-            _thread,
-            threadAlreadyConfidentialMessage,
-          );
+      const confidential = thread.getMetadataValue("confidential");
+      if (confidential) return utils.postSystemMessageWithFallback(msg.channel, _thread, threadAlreadyConfidentialMessage);
 
-        thread.setMetadataValue("confidential", true);
-        utils.postSystemMessageWithFallback(
-          msg.channel,
-          _thread,
-          markThreadAsConfidentialMessage,
-        );
-      },
-      { aliases: markThreadAsConfidentialCommands },
-    );
+      thread.setMetadataValue("confidential", true);
+      utils.postSystemMessageWithFallback(msg.channel, _thread, markThreadAsConfidentialMessage);
+    }, { aliases: markThreadAsConfidentialCommands });
 
-    commands.addInboxServerCommand(
-      unmarkThreadAsConfidentialCommands.shift(),
-      "[threadId:string]",
-      async (msg, args, _thread) => {
-        const threadId = args.threadId || (_thread && _thread.id);
-        if (!threadId) return;
+    commands.addInboxServerCommand(unmarkThreadAsConfidentialCommands.shift(), "[threadId:string]", async (msg, args, _thread) => {
+      const threadId = args.threadId || (_thread && _thread.id);
+      if (! threadId) return;
 
-        const thread =
-          (await threads.findById(threadId)) ||
-          (await threads.findByThreadNumber(threadId));
-        if (!thread) return;
+      const thread = (await threads.findById(threadId)) || (await threads.findByThreadNumber(threadId));
+      if (! thread) return;
 
-        const confidential = thread.getMetadataValue("confidential");
-        if (!confidential)
-          return utils.postSystemMessageWithFallback(
-            msg.channel,
-            _thread,
-            threadNotConfidentialMessage,
-          );
+      const confidential = thread.getMetadataValue("confidential");
+      if (! confidential) return utils.postSystemMessageWithFallback(msg.channel, _thread, threadNotConfidentialMessage);
 
-        thread.setMetadataValue("confidential", false);
-        utils.postSystemMessageWithFallback(
-          msg.channel,
-          _thread,
-          unmarkThreadAsConfidentialMessage,
-        );
-      },
-      { aliases: unmarkThreadAsConfidentialCommands },
-    );
+      thread.setMetadataValue("confidential", false);
+      utils.postSystemMessageWithFallback(msg.channel, _thread, unmarkThreadAsConfidentialMessage);
+    }, { aliases: unmarkThreadAsConfidentialCommands });
   }
 };
 
@@ -165,36 +127,28 @@ function goToOauth(res, path) {
  */
 async function serveLogs(req, res) {
   const thread = await threads.findById(req.params.threadId);
-  if (!thread) return notFound(res);
+  if (! thread) return notFound(res);
 
   let threadMessages = await thread.getThreadMessages();
 
-  threadMessages = threadMessages.map((msg) => {
+  threadMessages = threadMessages.map(msg => {
     const embeds = msg.getMetadataValue && msg.getMetadataValue("embeds");
-    const forwardedEmbeds =
-      msg.getMetadataValue && msg.getMetadataValue("forwardedEmbeds");
+    const forwardedEmbeds = msg.getMetadataValue && msg.getMetadataValue("forwardedEmbeds");
     const embedText = summariseEmbedsAsText(embeds, "User sent an embed");
-    const forwardedEmbedText = summariseEmbedsAsText(
-      forwardedEmbeds,
-      "User forwarded an embed",
-    );
+    const forwardedEmbedText = summariseEmbedsAsText(forwardedEmbeds, "User forwarded an embed");
 
-    if (!embedText && !forwardedEmbedText) return msg;
+    if (! embedText && ! forwardedEmbedText) return msg;
 
-    msg.body = [msg.body, embedText, forwardedEmbedText]
-      .filter(Boolean)
-      .join("\n\n");
+    msg.body = [msg.body, embedText, forwardedEmbedText].filter(Boolean).join("\n\n");
     return msg;
   });
 
   const formatLogResult = await formatters.formatLog(thread, threadMessages, {
     simple: Boolean(req.query.simple),
-    verbose: Boolean(req.query.verbose),
+    verbose: Boolean(req.query.verbose)
   });
 
-  const contentType =
-    (formatLogResult.extra && formatLogResult.extra.contentType) ||
-    "text/plain; charset=UTF-8";
+  const contentType = (formatLogResult.extra && formatLogResult.extra.contentType) || "text/plain; charset=UTF-8";
 
   res.set("Content-Type", contentType);
   res.send(formatLogResult.content);
@@ -206,20 +160,14 @@ async function serveLogs(req, res) {
  */
 function serveAttachments(req, res) {
   if (req.params.attachmentId.match(/^[0-9]+$/) === null) return notFound(res);
-  if (req.params.filename.match(/^[0-9a-z._-]+$/i) === null)
-    return notFound(res);
+  if (req.params.filename.match(/^[0-9a-z._-]+$/i) === null) return notFound(res);
 
-  const attachmentPath = attachments.getLocalAttachmentPath(
-    req.params.attachmentId,
-  );
+  const attachmentPath = attachments.getLocalAttachmentPath(req.params.attachmentId);
   fs.access(attachmentPath, (err) => {
     if (err) return notFound(res);
 
     const filenameParts = req.params.filename.split(".");
-    const ext =
-      filenameParts.length > 1
-        ? filenameParts[filenameParts.length - 1]
-        : "bin";
+    const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : "bin");
     const fileMime = mime.getType(ext);
 
     res.set("Content-Type", fileMime);
@@ -235,16 +183,16 @@ function serveAttachments(req, res) {
  */
 async function processAuth(req, res) {
   const path = req.query.state;
-  if (!path) return badRequest(res);
+  if (! path) return badRequest(res);
 
   const code = req.query.code;
-  if (!code) return goToOauth(res, path);
+  if (! code) return goToOauth(res, path);
 
   const accessToken = await getAccessToken(code);
-  if (!accessToken) return goToOauth(res, path);
+  if (! accessToken) return goToOauth(res, path);
 
   const userId = await getUserIdFromAccessToken(accessToken);
-  if (!userId) return goToOauth(res, path);
+  if (! userId) return goToOauth(res, path);
 
   const jwt = createToken({ userId });
   res.cookie("token", jwt);
@@ -263,14 +211,14 @@ function testTokenCookie(req, res, next) {
   // get token from raw cookies
   const cookiePair = (req.headers.cookie || "")
     .split(";")
-    .map((s) => s.trim())
-    .find((s) => s.startsWith("token="));
+    .map(s => s.trim())
+    .find(s => s.startsWith("token="));
   const token = cookiePair && cookiePair.split("=")[1];
-  if (!token) return goToOauth(res, req.path);
+  if (! token) return goToOauth(res, req.path);
 
   // validate token
   const decoded = decodeToken(token);
-  if (!decoded) return goToOauth(res, req.path);
+  if (! decoded) return goToOauth(res, req.path);
 
   // if expired, reauthorize
   if (decoded.expireAt < Date.now()) return goToOauth(res, req.path);
@@ -289,9 +237,8 @@ function testUserGeneralAccess(req, res, next) {
   const { userId } = req;
   if (usersNotRequiredToBeInInboxServer.includes(userId)) return next();
 
-  bot
-    .getRESTGuildMember(config.inboxServerId, userId)
-    .then((member) => {
+  bot.getRESTGuildMember(config.inboxServerId, userId)
+    .then(member => {
       req.inboxMember = member;
       next();
     })
@@ -304,34 +251,23 @@ function testUserGeneralAccess(req, res, next) {
  * @param {express.NextFunction} next
  */
 async function testUserConfidentialAccess(req, res, next) {
-  if (!allowMarkingThreadAsConfidential) return next();
+  if (! allowMarkingThreadAsConfidential) return next();
 
   const thread = await threads.findById(req.path.split("/").pop());
-  if (!thread) return badRequest(res);
+  if (! thread) return badRequest(res);
 
   const confidential = thread.getMetadataValue("confidential");
 
   const { inboxMember, userId } = req;
-  if (
-    !confidential ||
-    (inboxMember &&
-      confidentialAccessToAllAdminsInInboxServer &&
-      (inboxMember.permissions.allow & 8n) === 8n) ||
-    inboxMember.roles.some((r) => rolesWithConfidentialAccess.includes(r)) ||
-    usersWithConfidentialAccess.includes(userId)
-  )
-    return next();
+  if (! confidential || (inboxMember && confidentialAccessToAllAdminsInInboxServer && (inboxMember.permissions.allow & 8n) === 8n) || inboxMember.roles.some(r => rolesWithConfidentialAccess.includes(r)) || usersWithConfidentialAccess.includes(userId)) return next();
 
-  forbidden(
-    res,
-    "User has no confidential access (thread marked as confidential)",
-  );
+  forbidden(res, "User has no confidential access (thread marked as confidential)");
 }
 
 // discord oauth functions
 
 function getAccessToken(code) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const params = new URLSearchParams();
     params.set("client_id", bot.user.id);
     params.set("client_secret", botClientSecret);
@@ -339,44 +275,36 @@ function getAccessToken(code) {
     params.set("code", code);
     params.set("redirect_uri", oauthRedirectUri);
 
-    https
-      .request(
-        {
-          method: "POST",
-          host: "discord.com",
-          path: "/api/oauth2/token",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        },
-        (response) => {
-          let body = "";
-          response.on("data", (chunk) => (body += chunk));
-          response.on("end", () => resolve(JSON.parse(body).access_token));
-        },
-      )
+    https.request({
+      method: "POST",
+      host: "discord.com",
+      path: "/api/oauth2/token",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }, response => {
+      let body = "";
+      response.on("data", chunk => (body += chunk));
+      response.on("end", () => resolve(JSON.parse(body).access_token));
+    })
       .end(params.toString());
   });
 }
 
 function getUserIdFromAccessToken(accessToken) {
-  return new Promise((resolve) => {
-    https
-      .request(
-        {
-          method: "GET",
-          host: "discord.com",
-          path: "/api/oauth2/@me",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-        (response) => {
-          let body = "";
-          response.on("data", (chunk) => (body += chunk));
-          response.on("end", () => resolve((JSON.parse(body).user || {}).id));
-        },
-      )
+  return new Promise(resolve => {
+    https.request({
+      method: "GET",
+      host: "discord.com",
+      path: "/api/oauth2/@me",
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    }, response => {
+      let body = "";
+      response.on("data", chunk => (body += chunk));
+      response.on("end", () => resolve((JSON.parse(body).user || {}).id));
+    })
       .end();
   });
 }
@@ -403,9 +331,7 @@ function decodeToken(token) {
 }
 
 function sign(input) {
-  return base64urlEscape(
-    crypto.createHmac("sha256", encryptionKey).update(input).digest("base64"),
-  );
+  return base64urlEscape(crypto.createHmac("sha256", encryptionKey).update(input).digest("base64"));
 }
 
 function base64urlDecode(str) {
@@ -413,9 +339,7 @@ function base64urlDecode(str) {
 }
 
 function base64urlUnescape(str) {
-  return (str + "=".repeat(4 - (str.length % 4)))
-    .replace(/-/g, "+")
-    .replace(/_/g, "/");
+  return (str + "=".repeat(4 - (str.length % 4))).replace(/-/g, "+").replace(/_/g, "/");
 }
 
 function base64urlEncode(str) {
