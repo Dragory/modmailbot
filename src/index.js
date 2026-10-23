@@ -29,7 +29,7 @@ const { PluginInstallationError } = require("./PluginInstallationError");
 const MAX_STACK_TRACE_LINES = process.env.NODE_ENV === "development" ? Infinity : 8;
 
 function getStdoutErrorSummary(err) {
-  if (!err) return "Unknown error occurred";
+  if (! err) return "Unknown error occurred";
 
   if (typeof err === "string") {
     return err.replace(/\s+/g, " ").trim();

@@ -47,6 +47,8 @@ Config keys (config.ini, gitignored):
 
 **What:** `EAI_AGAIN` (transient DNS failure) is added to Eris's safe-to-ignore error codes; "Invalid channel ID:" Eris cache-race errors are ignored; ignored errors log a `[Eris warning]` line; uncaught/unhandled errors additionally print a one-line `[Error summary]` to stdout (type/code/message) so root causes survive truncated stack traces in noisy logs.
 
+**Why:** transient DNS failures (EAI_AGAIN) and a known Eris cache-race error crashed the bot during network blips; the one-line summaries keep root causes visible in truncated production logs.
+
 **Merge notes:** bot.js additions cluster around `SAFE_TO_IGNORE_ERROR_CODES`; index.js adds `getStdoutErrorSummary()` + one console.log in `errorHandler`.
 
 ## 5. SQLite connection pool
@@ -85,4 +87,4 @@ npm run lint && node src/index.js (with local config)
 
 ## Deploying
 
-Rebuild the `marvel-modmail-enc` image from `master` on the host, then redeploy the Komodo stack `marvel-modmail`. The host config.ini must contain `oauthClientSecret` (and optionally `confidentialAccessRoleIds`, `confidentialAccessUserIds`). Verify the startup log shows `Starting Modmail v<version> (<sha>)` and `Loaded N plugins`.
+Rebuild the `marvel-modmail-enc` image from `master` on the host, then redeploy the Komodo stack `marvel-modmail`. The host config.ini must contain `oauthClientSecret` (and optionally `confidentialAccessRoleIds`, `confidentialAccessUserIds`). Verify the startup log shows `Starting Modmail v<version> (<sha>)` and `Loaded N plugins`. The Discord application must have `https://<config.url>/auth` registered as an OAuth2 redirect URI (Discord Developer Portal → the app → OAuth2 → Redirects); the production bot already has this registered.
