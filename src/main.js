@@ -315,9 +315,9 @@ function initBaseMessageHandlers() {
     const messageLink = `https:\/\/discord.com\/channels\/${channel.guild.id}\/${channel.id}\/${msg.id}`;
 
     if (mainGuilds.length === 1) {
-        content = `${staffMention}Bot mentioned in ${channel.mention} ${messageLink} by ${userMentionStr}: "${msg.content}"`;
+        content = `${staffMention}Bot mentioned in ${channel.mention} <${messageLink}> by ${userMentionStr}: "${msg.content}"`;
     } else {
-        content = `${staffMention}Bot mentioned in ${channel.mention} ${messageLink} (${channel.guild.name}) by ${userMentionStr}: "${msg.content}"`;
+        content = `${staffMention}Bot mentioned in ${channel.mention} <${messageLink}> (${channel.guild.name}) by ${userMentionStr}: "${msg.content}"`;
     }
 
     content = utils.chunkMessageLines(content);
