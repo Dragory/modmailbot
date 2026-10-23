@@ -48,7 +48,7 @@ const SAFE_TO_IGNORE_ERROR_CODES = [
 let missingAuthorWarningCount = 0;
 let lastMissingAuthorWarningAt = 0;
 
-bot.on("error", (err) => {
+bot.on("error", err => {
   // Discord can (rarely) send partial message objects without an author (e.g. forwards / history fetches).
   // Eris emits these as "error" events; we don't want them to crash the bot.
   if (err && typeof err.message === "string" && err.message.startsWith("MESSAGE_CREATE but no message author:")) {
@@ -65,7 +65,7 @@ bot.on("error", (err) => {
 
   if (SAFE_TO_IGNORE_ERROR_CODES.includes(err.code)) {
     console.warn(
-      `[Eris warning] Ignoring transient error code ${err.code}: ${err.message || "no message"}`,
+      `[Eris warning] Ignoring transient error code ${err.code}: ${err.message || "no message"}`
     );
     return;
   }
